@@ -16,7 +16,9 @@
             "type": "debugpy",
             "request": "launch",
             "program": "./app_ui.py",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            // https://stackoverflow.com/questions/71834240/how-to-debug-pyqt5-threads-in-visual-studio-code
+            "qt": "pyqt5"
         }
     ]
 }

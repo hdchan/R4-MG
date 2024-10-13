@@ -22,7 +22,9 @@ PyQt5-Qt5==5.15.2
 PyQt5_sip==12.15.0
 pyqtspinner==2.0.0
 pywin32-ctypes==0.2.3
+PyYAML==6.0.2
 requests==2.32.3
+setuptools==75.2.0
 typing_extensions==4.12.2
 urllib3==2.2.3
 yarl==1.14.0

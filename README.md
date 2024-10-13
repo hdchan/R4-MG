@@ -30,6 +30,15 @@ We can source image files on our stream from the `./production` folder, and they
 
 ## Changelog
 
+### 0.3.0
+
+#### Feature updates
+
+#### Engineering updates
+- Modularized SWUDB client.
+- Modularized image cacher and deployment objects.
+- Refactors `TradingCard` to be primary object.
+
 ### 0.2.0
 
 #### Feature updates
@@ -55,3 +64,12 @@ We can source image files on our stream from the `./production` folder, and they
 
 ### 0.1.0
 - MVP
+
+## Planned functionality
+- [ ] Player group macro
+- [ ] Macro for last played card
+- [ ] Image recognition
+- [ ] Drag and drop staging images
+- [ ] Advanced filtered search
+- [ ] Recently published cards
+- [ ] Recent searches
