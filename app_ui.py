@@ -1,4 +1,5 @@
-from ApplicationUI.Main import *
+from AppUI.MainAssembly import *
+from AppCore import *
 
 if __name__ == '__main__':
-    main()
+    MainAssembly()

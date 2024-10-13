@@ -10,5 +10,7 @@
     "python.testing.unittestEnabled": false,
     "python.testing.pytestArgs": [
         "Tests"
-    ]
+    ],
+    "python.analysis.typeCheckingMode": "strict",
+    "python.analysis.completeFunctionParens": true
 }
