@@ -23,9 +23,8 @@ class Configuration:
             # self.network_delay_duration = 0
 
     def __init__(self):
-        self._app_display_name = 'R4-MG'
+        self._app_name = 'R4-MG'
         self._app_ui_version = '0.2.0'
-        self._app_core_version = '0.2.0'
 
         self._toggles = Configuration.Toggles()
         self._settings = Configuration.Settings()
@@ -33,9 +32,13 @@ class Configuration:
     @property
     def app_display_name(self):
         if self.is_developer_mode:
-            return self._app_display_name + " [DEVELOPER MODE]"
+            return self._app_name + " [DEVELOPER MODE]"
         else:
-            return self._app_display_name
+            return self._app_name
+    
+    @property
+    def app_path_name(self):
+        return self._app_name
 
     @property
     def app_ui_version(self):

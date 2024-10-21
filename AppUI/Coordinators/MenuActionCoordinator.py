@@ -39,11 +39,21 @@ class MenuActionCoordinator(QObject):
         refresh_production_images.triggered.connect(self.did_tap_refresh_production_images)
         fileMenu.addAction(refresh_production_images)
 
-        performance_mode = QAction('🚗💨', parent)
+        
+        # MARK: - Settings
+        settings_menu = QMenu("&Settings", parent)
+        menuBar.addMenu(settings_menu)
+        
+        performance_mode = QAction('Performance mode', parent)
         performance_mode.triggered.connect(self.did_toggle_performance_mode)
         performance_mode.setCheckable(True)
         performance_mode.setChecked(self.configuration.is_performance_mode)
-        fileMenu.addAction(performance_mode)
+        settings_menu.addAction(performance_mode)
+        
+        settings_menu.addSection("Experiment")
+
+        quick_staging = QAction('Quick staging', parent)
+        # settings_menu.addAction(quick_staging)
 
 
         # MARK: - About

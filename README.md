@@ -33,6 +33,7 @@ We can source image files on our stream from the `./production` folder, and they
 ### 0.3.0
 
 #### Feature updates
+- Adds search by type filter.
 
 #### Engineering updates
 - Modularized SWUDB client.

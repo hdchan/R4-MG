@@ -1,15 +1,18 @@
 
-from typing import List
+from typing import List, Optional
 
 from PyQt5.QtWidgets import QPushButton, QSizePolicy, QVBoxLayout, QWidget
 
 from AppCore.Config import Configuration
 from AppCore.Observation import ObservationTower
 from ..Base import ImagePreviewViewController, SearchTableView
-
+from AppCore.Models import CardType
 
 class CardSearchPreviewViewController(QWidget):
-    def __init__(self, observation_tower: ObservationTower, configuration: Configuration):
+    def __init__(self, 
+                 observation_tower: ObservationTower, 
+                 configuration: Configuration, 
+                 card_type_list: List[CardType]):
         super().__init__()
 
         layout = QVBoxLayout()
@@ -32,14 +35,9 @@ class CardSearchPreviewViewController(QWidget):
         flip_button.clicked.connect(self.tapped_flip_button)
         self.flip_button = flip_button
         layout.addWidget(flip_button)
-
-        # Separador = QFrame()
-        # Separador.setFrameShape(QFrame.HLine)
-        # Separador.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
-        # Separador.setLineWidth(1)
-        # layout.addWidget(Separador)
         
-        search_table_view = SearchTableView(observation_tower)
+        search_table_view = SearchTableView(observation_tower, 
+                                            card_type_list)
         search_table_view.delegate = self
         self.search_table_view = search_table_view
         layout.addWidget(search_table_view)
@@ -70,6 +68,10 @@ class CardSearchPreviewViewController(QWidget):
 
     def tapped_flip_button(self):
         self.delegate.cs_did_tap_flip_button(self)
+        
+    def set_card_type_filter(self, card_type: Optional[CardType]):
+        self.search_table_view.set_card_type_filter(card_type)
+        
 
 
     

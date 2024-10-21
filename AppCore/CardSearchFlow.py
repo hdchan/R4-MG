@@ -4,7 +4,7 @@ from .Data import (APIClientProvider, CardDataSource, CardDataSourceDelegate,
                    TradingCard)
 from .Image import (ImageFetcherProvider, ImageResourceCacher,
                     ImageResourceCacherDelegate)
-from .Models.TradingCard import TradingCard
+from .Models import TradingCard, SearchConfiguration
 from .Observation import ObservationTower
 from .Observation.Events import *
 
@@ -18,7 +18,10 @@ class CardSearchFlowDelegate:
 
     def sf_did_finish_storing_local_resource(self, sf: ..., local_resource: LocalCardResource) -> None:
         pass
-
+    
+    def sf_did_update_search_configuration(self, sf: ..., search_configuration: SearchConfiguration) -> None:
+        pass
+    
 class CardSearchFlow(CardDataSourceDelegate, ImageResourceCacherDelegate):
     def __init__(self, 
                  observation_tower: ObservationTower, 
@@ -36,8 +39,20 @@ class CardSearchFlow(CardDataSourceDelegate, ImageResourceCacherDelegate):
         self.delegate: Optional[CardSearchFlowDelegate]
 
     # MARK: - Datasource
-    def search(self, query: str):
-        self._data_source.search(query)
+    @property
+    def search_configuration(self) -> SearchConfiguration:
+        return self._data_source.search_configuration
+
+    def search(self, card_name: str):
+        self._data_source.search(card_name)
+    
+    def user_update_search_configuration(self, search_config: SearchConfiguration):
+        self._data_source.update_search_configuration(search_config)
+        
+    def system_update_search_configuration(self, search_config: SearchConfiguration):
+        self._data_source.update_search_configuration(search_config)
+        if self.delegate is not None:
+            self.delegate.sf_did_update_search_configuration(self, search_config)
 
     def select_card_resource_for_card_selection(self, index: int):
         self._data_source.select_card_resource_for_card_selection(index)
