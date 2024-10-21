@@ -5,7 +5,9 @@ a = Analysis(
     ['app_ui.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[
+        ('AppUI\\resources\\logo.png', 'AppUI\\resources')
+    ],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

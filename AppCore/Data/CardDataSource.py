@@ -1,7 +1,7 @@
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 from AppCore.Data import APIClientProtocol, APIClientProvider
-from AppCore.Models.TradingCard import *
+from AppCore.Models import TradingCard, SearchConfiguration
 
 class CardDataSourceDelegate:
     def ds_completed_search_with_result(self, ds: ..., result_list: List[TradingCard], error: Optional[Exception]) -> None:
@@ -18,12 +18,17 @@ class CardDataSource:
         self.delegate: Optional[CardDataSourceDelegate]
         self.current_previewed_trading_card: Optional[TradingCard] = None
         self._current_trading_cards_list: List[TradingCard] = []
-    
+        self._search_configuration = SearchConfiguration()
+        
     @property
     def api_client(self) -> APIClientProtocol:
         return self.api_client_provider.provideClient()
+    
+    @property
+    def search_configuration(self) -> SearchConfiguration:
+        return self._search_configuration
 
-    def search(self, query: str):
+    def search(self, card_name: str):
         def completed_with_search_result(result: Tuple[Optional[List[TradingCard]], Optional[Exception]]):
             self._current_trading_cards_list = []
             result_list, error = result
@@ -37,8 +42,11 @@ class CardDataSource:
                     self._current_trading_cards_list = []
                     self.delegate.ds_completed_search_with_result(self, [], error)
 
-        self.api_client.search(query, completed_with_search_result)
+        self.api_client.search(card_name, self.search_configuration, completed_with_search_result)
         
+    def update_search_configuration(self, search_config: SearchConfiguration):
+        self._search_configuration = search_config
+    
     def select_card_resource_for_card_selection(self, index: int):
         if index < len(self._current_trading_cards_list):
             trading_card = self._current_trading_cards_list[index]

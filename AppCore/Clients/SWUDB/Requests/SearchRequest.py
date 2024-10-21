@@ -1,21 +1,31 @@
-from ....Models.TradingCard import TradingCard
+from ....Models import TradingCard, SearchConfiguration, CardType
 from ....Network import NetworkRequestProtocol
 from ..SWUTradingCard import SWUTradingCard
 import urllib.parse
 from typing import Any, Dict, List
 from urllib.request import Request
 
-
+# https://api.swu-db.com/cards/search?q=type:leader%20name:luke
 class SearchRequest(NetworkRequestProtocol[List[TradingCard]]):
         SWUDB_API_ENDPOINT = 'https://api.swu-db.com/cards/search'
         
-        def __init__(self, query: str):
-            self.query = query
+        def __init__(self, card_name: str, search_configuration: SearchConfiguration):
+            self.card_name = card_name
+            self.search_configuration = search_configuration
         
         def request(self) -> Request:
-            query = urllib.parse.quote_plus(self.query)
-            url = f'{self.SWUDB_API_ENDPOINT}?q=name:{query}&format=json'
+            card_name = self.card_name
+            params: List[str] = []
+            if card_name.replace(" ", '') != "":
+                params.append(f'name:{card_name}')
+            if self.search_configuration.card_type is not CardType.UNSPECIFIED:
+                params.append(f'type:{self.search_configuration.card_type.value}')
+            q = urllib.parse.quote_plus(' '.join(params))
+            
+            url = f'{self.SWUDB_API_ENDPOINT}?q={q}&format=json'
+            print(url)
             return Request(url)
+        
         def response(self, json: Dict[str, Any]) -> List[TradingCard]:
             result_list: List[TradingCard] = []
             for i in json['data']:

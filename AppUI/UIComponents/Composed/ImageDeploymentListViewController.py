@@ -3,9 +3,9 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QPushButton, QScrollArea, QVBoxLayout, QWidget
 
 from AppCore import Configuration, ObservationTower
-
+from AppCore.Models import CardType
 from . import ImageDeploymentViewController
-
+from typing import List
 
 class ImageDeploymentListViewController(QWidget):
     def __init__(self, 
@@ -48,9 +48,16 @@ class ImageDeploymentListViewController(QWidget):
         self.scroll = scroll
         self.delegate = None
 
-    def create_list_item(self, file_name: str, img_alt: str, img: str, staging_button_enabled: bool, index: int):
+    def create_list_item(self, 
+                         file_name: str, 
+                         img_alt: str, 
+                         img: str, 
+                         staging_button_enabled: bool,
+                         index: int, 
+                         card_type_list: List[CardType]):
         item = ImageDeploymentViewController(self.observation_tower, 
-                                             self.configuration)
+                                             self.configuration, 
+                                             card_type_list)
         item.delegate = self
         item.set_production_image(img_alt, img)
         item.stage_button.setText(f'Stage (Ctrl+{index + 1})')
@@ -78,6 +85,11 @@ class ImageDeploymentListViewController(QWidget):
         for idx, i in enumerate(self.list_items):
             if i == id_cell:
                 self.delegate.idl_did_tap_unstaging_button(self, id_cell, idx)
+                
+    def id_did_change_card_type(self, id_cell, card_type):
+        for idx, i in enumerate(self.list_items):
+            if i == id_cell:
+                self.delegate.idl_did_change_card_type(self, id_cell, idx, card_type)
 
     def set_staging_image(self, text, img, index):
         self.list_items[index].set_staging_image(text, img)
@@ -103,12 +115,6 @@ class ImageDeploymentListViewController(QWidget):
             i.set_staging_button_enabled(enabled)
 
     def set_production_button_enabled(self, enabled: bool):
-        # https://stackoverflow.com/questions/21685414/qt5-setting-background-color-to-qpushbutton-and-qcheckbox
-        # pal = self.production_button.palette()
-        # pal.setColor(self.production_button.backgroundRole(), Qt.green)
-        # self.production_button.setAutoFillBackground(True)
-        # self.production_button.setPalette(pal)
-        # self.production_button.update()
         self.production_button.setEnabled(enabled)
         if enabled:
             self.production_button.setStyleSheet("background-color : #90EE90")

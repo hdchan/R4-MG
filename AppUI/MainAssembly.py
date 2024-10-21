@@ -1,6 +1,6 @@
 
 from PyQt5.QtWidgets import QApplication
-
+from PyQt5.QtGui import QFont
 from AppCore import *
 from AppCore import ApplicationCore
 from AppCore.Clients import (MockImageFetcher, MockSWUDBClient,
@@ -18,9 +18,15 @@ from AppUI.Window import Window
 class MainAssembly:
     def __init__(self):
         app = QApplication([])
+        # app.setStyleSheet("QLabel{font-size: 18pt;}")
+        # custom_font = QFont()
+        # custom_font.setPointSize(20)
+        # QApplication.setFont(custom_font, "QLabel")
+        self.configuration = Configuration()
+        app.setApplicationName(self.configuration.app_path_name)
         observation_tower = ObservationTower()
-        configuration_manager = ConfigurationManager(observation_tower)
-        self.configuration = configuration_manager.configuration
+        configuration_manager = ConfigurationManager(observation_tower, 
+                                                     self.configuration)
         self.networker = Networker(self.configuration)
         api_client_provider = self._assemble_api_client_provider()
         image_fetcher_provider = self._assemble_image_fetcher_provider()

@@ -1,13 +1,15 @@
 import copy
 from typing import List, Optional
 
+from AppCore.Models.SearchConfiguration import SearchConfiguration
+
 from .CardSearchFlow import CardSearchFlow, CardSearchFlowDelegate
 from .Data import APIClientProvider
 from .Image import (ImageFetcherProvider, ImageResourceDeployer,
                     ImageResourceDeployerDelegate)
 from .Observation import ObservationTower
 from .Observation.Events import *
-
+from .CardMetadataFlow import CardMetadataFlow
 
 class ApplicationCoreDelegate:
     def app_did_complete_search(self, app_core: ..., display_name_list: List[str], error: Optional[Exception]) -> None:
@@ -20,6 +22,9 @@ class ApplicationCoreDelegate:
         pass
     
     def app_did_load_production_resources(self, app_core: ..., local_resource: List[LocalCardResource]) -> None:
+        pass
+    
+    def app_did_update_search_configuration(self, app_core: ..., search_configuration: SearchConfiguration) -> None:
         pass
 
 class ApplicationCore(CardSearchFlowDelegate, ImageResourceDeployerDelegate):
@@ -37,6 +42,10 @@ class ApplicationCore(CardSearchFlowDelegate, ImageResourceDeployerDelegate):
         self._resource_deployer = ImageResourceDeployer(configuration)
         self._resource_deployer.delegate = self
         
+        self._card_metadata_flow = CardMetadataFlow(self._card_search_flow, 
+                                                    self._resource_deployer)
+        self._card_metadata_flow.delegate = self
+        
         self._observation_tower = observation_tower
         self.delegate: Optional[ApplicationCoreDelegate] = None
         
@@ -45,9 +54,13 @@ class ApplicationCore(CardSearchFlowDelegate, ImageResourceDeployerDelegate):
         return self._card_search_flow
 
     @property
+    def card_metadata_flow(self) -> CardMetadataFlow:
+        return self._card_metadata_flow
+
+    @property
     def resource_deployer(self) -> ImageResourceDeployer:
         return self._resource_deployer
-
+    
     # MARK: - DS Delegate methods
     def sf_did_complete_search(self, sf: CardSearchFlow, result_list: List[str], error: Optional[Exception]):
         if self.delegate is not None:
@@ -56,6 +69,10 @@ class ApplicationCore(CardSearchFlowDelegate, ImageResourceDeployerDelegate):
     def sf_did_retrieve_card_resource_for_card_selection(self, sf: CardSearchFlow, local_resource: LocalCardResource, is_flippable: bool):
         if self.delegate is not None:
             self.delegate.app_did_retrieve_card_resource_for_card_selection(self, copy.deepcopy(local_resource), is_flippable)
+
+    def sf_did_update_search_configuration(self, sf: CardSearchFlow, search_configuration: SearchConfiguration):
+        if self.delegate is not None:
+            self.delegate.app_did_update_search_configuration(self, search_configuration)
 
     # MARK: - Resource Cacher Delegate
     def sf_did_finish_storing_local_resource(self, sf: CardSearchFlow, local_resource: LocalCardResource):

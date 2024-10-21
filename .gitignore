@@ -1,6 +1,7 @@
 /build
 /dist
-*.png
+/cache
+/production
 !resources/*
 __pycache__
 .venv

@@ -10,7 +10,8 @@ class MockImageFetcher(ImageFetcherProtocol):
     def fetch(self, image_url: str) ->Image.Image:
         time.sleep(self.configuration.network_delay_duration)
         parsed_url = parse.urlparse(image_url)
-        file_name = parsed_url.path.split('/')[-1]
+        split_path = parsed_url.path.split('/')
+        file_name = split_path[-2] + split_path[-1]
         color_palette = [
             (255, 179, 186),
             (255, 223, 186),
