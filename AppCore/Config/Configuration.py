@@ -20,11 +20,10 @@ class Configuration:
             
             self.is_mock_data = False
             self.is_delay_network_mode = False
-            # self.network_delay_duration = 0
 
     def __init__(self):
         self._app_name = 'R4-MG'
-        self._app_ui_version = '0.2.0'
+        self._app_ui_version = '0.3.0'
 
         self._toggles = Configuration.Toggles()
         self._settings = Configuration.Settings()
@@ -119,7 +118,7 @@ class Configuration:
         self._settings.is_delay_network_mode = settings.get('is_delay_network_mode', False) # type: ignore
         
 
-    def toJSON(self) -> Dict[str, object]:
+    def toJSON(self) -> Dict[str, Any]:
         config: Dict[str, object] = {
             "toggles": {
             },

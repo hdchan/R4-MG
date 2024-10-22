@@ -1,14 +1,18 @@
 from typing import List, Optional
 
-from PyQt5.QtWidgets import (QLineEdit, QListWidget, QPushButton, QVBoxLayout,
-                             QWidget, QComboBox)
+from PyQt5.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QLineEdit,
+                             QListWidget, QPushButton, QVBoxLayout, QWidget)
 
-from AppCore.Observation import ObservationTower, TransmissionReceiver
-from .LoadingSpinner import LoadingSpinner
 from AppCore.Models import CardType
+from AppCore.Observation import ObservationTower, TransmissionReceiver
+from AppCore.Observation.Events import SearchEvent, TransmissionProtocol
+
+from .LoadingSpinner import LoadingSpinner
+
 
 class SearchTableView(QWidget, TransmissionReceiver):
-    def __init__(self, observation_tower: ObservationTower, 
+    def __init__(self, 
+                 observation_tower: ObservationTower, 
                  card_type_list: List[CardType]):
         super().__init__()
         card_name_search_bar = QLineEdit(self)
@@ -21,12 +25,19 @@ class SearchTableView(QWidget, TransmissionReceiver):
         search_button.clicked.connect(self.search)
         self.search_button = search_button
         
+        
+        card_type_selection_label = QLabel("Card type")
+        
         card_type_selection = QComboBox()
         for i in card_type_list:
             card_type_selection.addItem(i.value)
         card_type_selection.currentIndexChanged.connect(self._card_type_selection_changed)
         self.card_type_selection = card_type_selection
         self._card_type_list = card_type_list
+        
+        card_type_selection_layout = QHBoxLayout(self)
+        container_widget = QWidget(self)
+        
 
         result_list = QListWidget(self)
         result_list.itemSelectionChanged.connect(self.get_selection)
@@ -34,7 +45,12 @@ class SearchTableView(QWidget, TransmissionReceiver):
 
         layout = QVBoxLayout(self)
         layout.addWidget(card_name_search_bar)
-        layout.addWidget(card_type_selection)
+        card_type_selection_layout.addWidget(card_type_selection_label)
+        card_type_selection_layout.addWidget(card_type_selection, 1)
+        container_widget.setLayout(card_type_selection_layout)
+        
+        layout.addWidget(container_widget)
+        
         layout.addWidget(search_button)
         layout.addWidget(result_list)
         self.setLayout(layout)
@@ -44,6 +60,8 @@ class SearchTableView(QWidget, TransmissionReceiver):
         self.delegate = None
         
         self.set_card_type_filter(None)
+        
+        observation_tower.subscribe(self, SearchEvent)
 
     def get_selection(self):
         selected_indexs = self.result_list.selectedIndexes()
@@ -68,9 +86,6 @@ class SearchTableView(QWidget, TransmissionReceiver):
             raise Exception("index not found")
 
     def search(self):
-        # important that this happens before the delegate methods are called
-        self._set_search_components_enabled(False)
-        self._loading_spinner.start()
         # prevent query errors
         stripped_text = self.card_name_search_bar.text().strip()
         self.card_name_search_bar.setText(stripped_text)
@@ -83,14 +98,29 @@ class SearchTableView(QWidget, TransmissionReceiver):
             self.result_list.addItem(i)
         # important that this is the last thing that happens
         self._set_search_components_enabled(True)
-        self._loading_spinner.stop()
+        
 
     def _set_search_components_enabled(self, is_on: bool):
         self.card_name_search_bar.setEnabled(is_on)
         self.search_button.setEnabled(is_on)
+        self.card_type_selection.setEnabled(is_on)
+        if is_on:
+            self._loading_spinner.stop()
+        else:
+            self._loading_spinner.start()
         
     def _card_type_selection_changed(self):
         selection = self._card_type_list[self.card_type_selection.currentIndex()]
         self.delegate.tv_did_update_search_configuration(self, selection)
         
-        
+    def handle_observation_tower_event(self, event: TransmissionProtocol):
+        if type(event) == SearchEvent:
+            if event.event_type == SearchEvent.EventType.STARTED:
+                self._set_search_components_enabled(False)
+                if event.is_system_initiated:
+                    self.card_name_search_bar.clear()
+            elif event.event_type == SearchEvent.EventType.FINISHED:
+                self._set_search_components_enabled(True)
+                if self.result_list.count() > 0:
+                    self.set_item_active(0)
+                

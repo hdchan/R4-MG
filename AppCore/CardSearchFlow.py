@@ -4,7 +4,7 @@ from .Data import (APIClientProvider, CardDataSource, CardDataSourceDelegate,
                    TradingCard)
 from .Image import (ImageFetcherProvider, ImageResourceCacher,
                     ImageResourceCacherDelegate)
-from .Models import TradingCard, SearchConfiguration
+from .Models import SearchConfiguration, TradingCard
 from .Observation import ObservationTower
 from .Observation.Events import *
 
@@ -28,7 +28,8 @@ class CardSearchFlow(CardDataSourceDelegate, ImageResourceCacherDelegate):
                  api_client_provider: APIClientProvider,
                  image_fetcher_provider: ImageFetcherProvider, 
                  configuration: Configuration):
-        self._data_source = CardDataSource(api_client_provider)
+        self._data_source = CardDataSource(observation_tower, 
+                                           api_client_provider)
         self._data_source.delegate = self
         self._resource_cacher = ImageResourceCacher(image_fetcher_provider, 
                                                     configuration)
@@ -43,8 +44,8 @@ class CardSearchFlow(CardDataSourceDelegate, ImageResourceCacherDelegate):
     def search_configuration(self) -> SearchConfiguration:
         return self._data_source.search_configuration
 
-    def search(self, card_name: str):
-        self._data_source.search(card_name)
+    def search(self, card_name: str, is_system_initiated: bool = False):
+        self._data_source.search(card_name, is_system_initiated)
     
     def user_update_search_configuration(self, search_config: SearchConfiguration):
         self._data_source.update_search_configuration(search_config)

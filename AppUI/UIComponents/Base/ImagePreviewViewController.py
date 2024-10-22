@@ -1,6 +1,6 @@
 from PyQt5.QtCore import Qt
 from typing import Optional
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QMouseEvent
 from PyQt5.QtWidgets import QLabel, QVBoxLayout, QWidget
 
 from AppCore.Config import Configuration
@@ -23,6 +23,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiver):
         self.setLayout(layout)
 
         self._image_view = label
+        self._image_view.mousePressEvent = self._tapped_image
         self.loading_spinner = LoadingSpinner(self)
 
         self._img_path: Optional[str] = None
@@ -70,3 +71,8 @@ class ImagePreviewViewController(QWidget, TransmissionReceiver):
             if self._img_path == event.local_resource.image_preview_path:
                 self._load_image_view()
                 print(f"Reloading resource: {self._img_path}")
+                
+    def _tapped_image(self, ev: Optional[QMouseEvent]) -> None:
+        if self._img_path is not None:
+            # print(self._img_path)
+            pass
