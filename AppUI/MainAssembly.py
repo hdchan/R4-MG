@@ -1,6 +1,6 @@
 
 from PyQt5.QtWidgets import QApplication
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFontDatabase
 from AppCore import *
 from AppCore import ApplicationCore
 from AppCore.Clients import (MockImageFetcher, MockSWUDBClient,
@@ -17,13 +17,11 @@ from AppUI.Window import Window
 
 class MainAssembly:
     def __init__(self):
-        app = QApplication([])
-        # app.setStyleSheet("QLabel{font-size: 18pt;}")
-        # custom_font = QFont()
-        # custom_font.setPointSize(20)
-        # QApplication.setFont(custom_font, "QLabel")
+        self.app = QApplication([])
+        self._style_app()
         self.configuration = Configuration()
-        app.setApplicationName(self.configuration.app_path_name)
+        # Ensure this is set before config manager writes out to settings file
+        self.app.setApplicationName(self.configuration.app_path_name)
         observation_tower = ObservationTower()
         configuration_manager = ConfigurationManager(observation_tower, 
                                                      self.configuration)
@@ -48,7 +46,16 @@ class MainAssembly:
         main_program.load()
         main_window.setCentralWidget(main_program)
         main_window.show()
-        app.exec()
+        self.app.exec()
+    
+    def _style_app(self):
+        # db = QFontDatabase()
+        # styles = db.styles("Roboto")
+        custom_font = self.app.font()
+        # custom_font = db.font("Medium", "Medium Italic", 16)
+        # custom_font.setFamily("Roboto")
+        custom_font.setPointSize(10)
+        self.app.setFont(custom_font)
     
     def _assemble_api_client_provider(self) -> APIClientProvider:
         return APIClientProvider(self.configuration, 

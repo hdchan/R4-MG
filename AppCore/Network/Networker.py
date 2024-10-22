@@ -20,7 +20,11 @@ class Networker(NetworkerProtocol):
             super().__init__()
             self.delay = delay
 
-        def load(self, request: Request):
+        def load(self, request: Optional[Request]):
+            if request is None:
+                self.result_available.emit((None, Exception("Invalid request")))
+                self.finished.emit()
+                return
             try:
                 time.sleep(self.delay) # for debugging
                 response = urlopen(request)

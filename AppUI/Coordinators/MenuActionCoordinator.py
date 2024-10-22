@@ -52,7 +52,7 @@ class MenuActionCoordinator(QObject):
         
         settings_menu.addSection("Experiment")
 
-        quick_staging = QAction('Quick staging', parent)
+        # quick_staging = QAction('Contextual search', parent)
         # settings_menu.addAction(quick_staging)
 
 

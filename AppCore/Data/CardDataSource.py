@@ -2,7 +2,8 @@ from typing import List, Tuple, Optional
 
 from AppCore.Data import APIClientProtocol, APIClientProvider
 from AppCore.Models import TradingCard, SearchConfiguration
-
+from AppCore.Observation import ObservationTower
+from AppCore.Observation.Events import SearchEvent
 class CardDataSourceDelegate:
     def ds_completed_search_with_result(self, ds: ..., result_list: List[TradingCard], error: Optional[Exception]) -> None:
         pass
@@ -12,8 +13,10 @@ class CardDataSourceDelegate:
     
 
 class CardDataSource:
-    def __init__(self, 
+    def __init__(self,
+                 observation_tower: ObservationTower,
                  api_client_provider: APIClientProvider):
+        self.observation_tower = observation_tower
         self.api_client_provider: APIClientProvider = api_client_provider
         self.delegate: Optional[CardDataSourceDelegate]
         self.current_previewed_trading_card: Optional[TradingCard] = None
@@ -28,7 +31,9 @@ class CardDataSource:
     def search_configuration(self) -> SearchConfiguration:
         return self._search_configuration
 
-    def search(self, card_name: str):
+    def search(self, card_name: str, is_system_initiated: bool = False):
+        self.observation_tower.notify(SearchEvent(SearchEvent.EventType.STARTED, is_system_initiated))
+
         def completed_with_search_result(result: Tuple[Optional[List[TradingCard]], Optional[Exception]]):
             self._current_trading_cards_list = []
             result_list, error = result
@@ -41,6 +46,8 @@ class CardDataSource:
                 if self.delegate is not None:
                     self._current_trading_cards_list = []
                     self.delegate.ds_completed_search_with_result(self, [], error)
+                    
+            self.observation_tower.notify(SearchEvent(SearchEvent.EventType.FINISHED, is_system_initiated))
 
         self.api_client.search(card_name, self.search_configuration, completed_with_search_result)
         

@@ -9,7 +9,7 @@ from .Image import (ImageFetcherProvider, ImageResourceDeployer,
                     ImageResourceDeployerDelegate)
 from .Observation import ObservationTower
 from .Observation.Events import *
-from .CardMetadataFlow import CardMetadataFlow
+from .ResourceMetadata.CardMetadataFlow import CardMetadataFlow
 
 class ApplicationCoreDelegate:
     def app_did_complete_search(self, app_core: ..., display_name_list: List[str], error: Optional[Exception]) -> None:
@@ -42,9 +42,9 @@ class ApplicationCore(CardSearchFlowDelegate, ImageResourceDeployerDelegate):
         self._resource_deployer = ImageResourceDeployer(configuration)
         self._resource_deployer.delegate = self
         
-        self._card_metadata_flow = CardMetadataFlow(self._card_search_flow, 
+        self._card_metadata_flow = CardMetadataFlow(configuration,
+                                                    self._card_search_flow, 
                                                     self._resource_deployer)
-        self._card_metadata_flow.delegate = self
         
         self._observation_tower = observation_tower
         self.delegate: Optional[ApplicationCoreDelegate] = None

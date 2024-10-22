@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QPushButton, QScrollArea, QVBoxLayout, QWidget
 from AppCore import Configuration, ObservationTower
 from AppCore.Models import CardType
 from . import ImageDeploymentViewController
-from typing import List
+from typing import List, Optional
 
 class ImageDeploymentListViewController(QWidget):
     def __init__(self, 
@@ -54,13 +54,18 @@ class ImageDeploymentListViewController(QWidget):
                          img: str, 
                          staging_button_enabled: bool,
                          index: int, 
-                         card_type_list: List[CardType]):
+                         card_type_list: List[CardType], 
+                         selected_card_type: Optional[CardType]):
         item = ImageDeploymentViewController(self.observation_tower, 
                                              self.configuration, 
-                                             card_type_list)
+                                             card_type_list, 
+                                             selected_card_type)
         item.delegate = self
         item.set_production_image(img_alt, img)
-        item.stage_button.setText(f'Stage (Ctrl+{index + 1})')
+        if index <= 9:
+            item.stage_button.setText(f'Stage (Ctrl+{index + 1})')
+        else:
+            item.stage_button.setText(f'Stage')
         item.set_label(file_name)
         item.set_staging_button_enabled(staging_button_enabled)
         pal = item.palette()
@@ -85,7 +90,12 @@ class ImageDeploymentListViewController(QWidget):
         for idx, i in enumerate(self.list_items):
             if i == id_cell:
                 self.delegate.idl_did_tap_unstaging_button(self, id_cell, idx)
-                
+    
+    def id_did_tap_context_search_button(self, id_cell):
+        for idx, i in enumerate(self.list_items):
+            if i == id_cell:
+                self.delegate.idl_did_tap_context_search_button(self, id_cell, idx)
+    
     def id_did_change_card_type(self, id_cell, card_type):
         for idx, i in enumerate(self.list_items):
             if i == id_cell:

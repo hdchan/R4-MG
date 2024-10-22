@@ -62,17 +62,20 @@ class MainProgramViewController(QWidget):
         for index, r in enumerate(card_resources):
             file_name = r.file_name
             staging_button_enabled = self.application_core.card_search_flow.current_card_search_resource is not None
+            metadata = self.application_core.card_metadata_flow.metadata_for_row(index)
+            card_type: Optional[CardType] = None
+            if metadata is not None:
+                card_type = metadata.card_type
             self.deployment_view.create_list_item(f'File: {file_name}', 
                                                   file_name, 
                                                   r.image_preview_path, 
                                                   staging_button_enabled, 
                                                   index,
-                                                  self.application_core.card_metadata_flow.card_type_list)
+                                                  self.application_core.card_metadata_flow.card_type_list, 
+                                                  card_type)
 
     def app_did_complete_search(self, app: ApplicationCore, result_list: List[str], error: Optional[Exception]):
         self.card_search_view.update_list(result_list)
-        if len(result_list) > 0:
-            self.card_search_view.set_item_active(0)
 
     def app_did_retrieve_card_resource_for_card_selection(self, app: ApplicationCore, card_resource: LocalCardResource, is_flippable: bool):
         self.card_search_view.set_image(card_resource.display_name, card_resource.image_preview_path, is_flippable)
@@ -108,6 +111,9 @@ class MainProgramViewController(QWidget):
         self.deployment_view.clear_staging_image(index)
         self.application_core.unstage_resource(index)
         self._update_production_button_state()
+        
+    def idl_did_tap_context_search_button(self, id_list, id_cell, index: int):
+        self.application_core.card_metadata_flow.search_with_context_for_row(index)
 
     def idl_did_tap_unstage_all_button(self):
         self.deployment_view.clear_all_staging_images()

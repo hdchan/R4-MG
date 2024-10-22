@@ -72,6 +72,7 @@ class CardSearchPreviewViewController(QWidget):
     def set_card_type_filter(self, card_type: Optional[CardType]):
         self.search_table_view.set_card_type_filter(card_type)
         
+        
 
 
     

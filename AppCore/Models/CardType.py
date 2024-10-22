@@ -1,5 +1,4 @@
 from enum import Enum
-
 class CardType(Enum):
         UNSPECIFIED = 'Unspecified'
         BASE = 'Base'
@@ -7,3 +6,4 @@ class CardType(Enum):
         LEADER = 'Leader'
         UNIT = 'Unit'
         UPGRADE = 'Upgrade'
+        
