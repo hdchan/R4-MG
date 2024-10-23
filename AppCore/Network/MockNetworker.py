@@ -26,7 +26,7 @@ class MockNetworker(NetworkerProtocol):
         thread = QThread()
         worker = MockNetworker.ClientWorker()
         worker.moveToThread(thread)
-        thread.started.connect(partial(worker.load, self.configuration.network_delay_duration))
+        thread.started.connect(partial(worker.load, self.configuration_provider.configuration.network_delay_duration))
         worker.finished.connect(callback)
         worker.finished.connect(thread.quit)
         worker.finished.connect(worker.deleteLater)

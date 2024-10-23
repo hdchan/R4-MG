@@ -1,12 +1,15 @@
+import copy
 import os
 import shutil
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from PIL import Image
 
 from AppCore.Image.ImageFetcherProvider import *
-from AppCore.Models.TradingCard import *
+from AppCore.Models import LocalCardResource
+from AppCore.Observation import ObservationTower
+from AppCore.Observation.Events import ProductionResourceUpdatedEvent
 
 PNG_EXTENSION = '.png'
 THUMBNAIL_SIZE = 256
@@ -22,12 +25,18 @@ class ImageResourceDeployerDelegate:
     
 class ImageResourceDeployer:
     def __init__(self,
-                 configuration: Configuration):
-        self.configuration = configuration
+                 configuration_provider: ConfigurationProvider, 
+                 observation_tower: ObservationTower):
+        self.observation_tower = observation_tower
+        self.configuration_provider = configuration_provider
         self.production_resources: List[LocalCardResource] = []
         self.staged_resources: List[StagedCardResource] = []
         self.delegate: Optional[ImageResourceDeployerDelegate]
 
+    @property
+    def configuration(self) -> Configuration:
+        return self.configuration_provider.configuration
+    
     def load_production_resources(self):
         """
         Will load images from production folder
@@ -43,15 +52,15 @@ class ImageResourceDeployer:
         filelist = os.listdir(self.configuration.production_file_path)
         filelist.sort()
         for production_file_name in filelist[:]:
-            if production_file_name.endswith(PNG_EXTENSION):
-                image_path = f'{self.configuration.production_file_path}{production_file_name}'
-                image_preview_path = f'{self.configuration.production_preview_file_path}{production_file_name}'
-                resource = LocalCardResource(image_path, 
-                                             image_preview_path, 
-                                             production_file_name, 
-                                             production_file_name, 
-                                             os.path.splitext(production_file_name)[1])
-                resource.is_ready = True
+            path = Path(production_file_name)
+            if path.suffix == PNG_EXTENSION:
+                image_dir = f'{self.configuration.production_file_path}'
+                image_preview_dir = f'{self.configuration.production_preview_file_path}'
+                resource = LocalCardResource(image_dir, 
+                                             image_preview_dir, 
+                                             path.stem,
+                                             path.stem + path.suffix,
+                                             path.suffix)
                 local_resources.append(resource)
 
                 existing_preview_file = Path(f'{self.configuration.production_preview_file_path}{production_file_name}')
@@ -69,7 +78,7 @@ class ImageResourceDeployer:
     def stage_resource(self, local_card_resource: LocalCardResource, index: int):
         # TODO: Handle case where cache is emptied
         staged_card_resource = StagedCardResource(local_card_resource, 
-                                                  self.production_resources[index].file_name)
+                                                  self.production_resources[index].file_name_with_ext)
         self.staged_resources.append(staged_card_resource)
 
     def unstage_resource(self, index: int):
@@ -101,6 +110,7 @@ class ImageResourceDeployer:
             for r in self.staged_resources:
                 shutil.copy(r.local_card_resource.image_path, f'{self.configuration.production_file_path}{r.production_file_name}')
                 shutil.copy(r.local_card_resource.image_preview_path, f'{self.configuration.production_preview_file_path}{r.production_file_name}')
+                self.observation_tower.notify(ProductionResourceUpdatedEvent(copy.deepcopy(r.local_card_resource)))
             self.staged_resources = []
             return True
         else:

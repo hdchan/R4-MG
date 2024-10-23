@@ -1,15 +1,19 @@
 
-from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QFontDatabase
+from PyQt5.QtWidgets import QApplication
+
 from AppCore import *
 from AppCore import ApplicationCore
 from AppCore.Clients import (MockImageFetcher, MockSWUDBClient,
-                             RemoteImageFetcher, SWUDBClient)
+                             RemoteImageFetcher, SWUDBAPIImageSource,
+                             SWUDBClient, SWUDBImageSource, CardImageSourceProvider)
 from AppCore.Config import ConfigurationManager
 from AppCore.Data import APIClientProvider
 from AppCore.Image import ImageFetcherProvider
 from AppCore.Network import *
 from AppCore.Observation.ObservationTower import ObservationTower
+from AppUI.AdvancedViewController import AdvancedViewController
+from AppUI.ContainerViewController import ContainerViewController
 from AppUI.Coordinators import MenuActionCoordinator, ShortcutActionCoordinator
 from AppUI.MainProgramViewController import MainProgramViewController
 from AppUI.Window import Window
@@ -18,35 +22,48 @@ from AppUI.Window import Window
 class MainAssembly:
     def __init__(self):
         self.app = QApplication([])
-        self._style_app()
-        self.configuration = Configuration()
         # Ensure this is set before config manager writes out to settings file
-        self.app.setApplicationName(self.configuration.app_path_name)
+        self.app.setApplicationName(Configuration.APP_NAME)
+        self._style_app()
         observation_tower = ObservationTower()
-        configuration_manager = ConfigurationManager(observation_tower, 
-                                                     self.configuration)
-        self.networker = Networker(self.configuration)
+        self.configuration_manager = ConfigurationManager(observation_tower)
+        
+        
+        self.networker = Networker(self.configuration_manager)
         api_client_provider = self._assemble_api_client_provider()
         image_fetcher_provider = self._assemble_image_fetcher_provider()
-        
+        image_source_provider = self._assemble_image_source_provider()
         application_core = ApplicationCore(observation_tower, 
                                         api_client_provider, 
                                         image_fetcher_provider, 
-                                        self.configuration)
-        main_window = Window(self.configuration, 
+                                        image_source_provider,
+                                        self.configuration_manager)
+        main_window = Window(self.configuration_manager, 
                             observation_tower)
         main_program = MainProgramViewController(observation_tower,
-                                                self.configuration,
-                                                application_core)
+                                                self.configuration_manager,
+                                                application_core, 
+                                                image_source_provider)
+        advanced_view = AdvancedViewController(observation_tower, 
+                                               application_core)
         self.menu_action_coordinator = MenuActionCoordinator(main_window,
                                                         main_program,
-                                                        application_core.resource_deployer,
-                                                        configuration_manager)
+                                                        application_core,
+                                                        self.configuration_manager)
+        
         self.shortcut_action_coordinator = ShortcutActionCoordinator(main_program)
         main_program.load()
-        main_window.setCentralWidget(main_program)
+        container = ContainerViewController(main_program, 
+                                            advanced_view, 
+                                            self.configuration_manager, 
+                                            observation_tower)
+        main_window.setCentralWidget(container)
         main_window.show()
         self.app.exec()
+    
+    @property
+    def _configuration(self) -> Configuration:
+        return self.configuration_manager.configuration
     
     def _style_app(self):
         # db = QFontDatabase()
@@ -58,11 +75,16 @@ class MainAssembly:
         self.app.setFont(custom_font)
     
     def _assemble_api_client_provider(self) -> APIClientProvider:
-        return APIClientProvider(self.configuration, 
+        return APIClientProvider(self.configuration_manager, 
                                  SWUDBClient(self.networker), 
-                                 MockSWUDBClient(MockNetworker(self.configuration)))
+                                 MockSWUDBClient(MockNetworker(self.configuration_manager)))
     
     def _assemble_image_fetcher_provider(self) -> ImageFetcherProvider:
-        return ImageFetcherProvider(self.configuration, 
-                                    RemoteImageFetcher(self.configuration),
-                                    MockImageFetcher(self.configuration))
+        return ImageFetcherProvider(self.configuration_manager, 
+                                    RemoteImageFetcher(self.configuration_manager),
+                                    MockImageFetcher(self.configuration_manager))
+        
+    def _assemble_image_source_provider(self) -> CardImageSourceProvider:
+        return CardImageSourceProvider(self.configuration_manager,
+                                       SWUDBAPIImageSource(),
+                                       SWUDBImageSource())

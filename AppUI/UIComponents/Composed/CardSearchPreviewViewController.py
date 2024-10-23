@@ -1,26 +1,35 @@
 
-from typing import List, Optional
+from typing import List
 
-from PyQt5.QtWidgets import QPushButton, QSizePolicy, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import (QLabel, QPushButton, QSizePolicy, QVBoxLayout,
+                             QWidget)
 
-from AppCore.Config import Configuration
+from AppCore.Config import ConfigurationProvider
+from AppCore.Models import CardType, TradingCard
 from AppCore.Observation import ObservationTower
+from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
+                                        LocalResourceEvent,
+                                        TransmissionProtocol)
+from AppCore.Resource import CardImageSourceProviderProtocol
+
 from ..Base import ImagePreviewViewController, SearchTableView
-from AppCore.Models import CardType
+
 
 class CardSearchPreviewViewController(QWidget):
     def __init__(self, 
                  observation_tower: ObservationTower, 
-                 configuration: Configuration, 
-                 card_type_list: List[CardType]):
+                 configuration_provider: ConfigurationProvider, 
+                 card_type_list: List[CardType], 
+                 card_image_source_provider: CardImageSourceProviderProtocol):
         super().__init__()
 
         layout = QVBoxLayout()
         self.setLayout(layout)
-
+        self._observation_tower = observation_tower
+        self._card_image_source_provider = card_image_source_provider
         # https://stackoverflow.com/a/19011496
-        preview_view = ImagePreviewViewController(observation_tower=observation_tower, 
-                                                  configuration=configuration)
+        preview_view = ImagePreviewViewController(observation_tower, 
+                                                  configuration_provider)
         preview_view.delegate = self
         preview_view.setMinimumHeight(300)
         
@@ -28,6 +37,13 @@ class CardSearchPreviewViewController(QWidget):
         preview_view.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
         # lbl2.setMinimumHeight(300);
         layout.addWidget(preview_view)
+
+        retry_button = QPushButton()
+        retry_button.setText("Redownload")
+        # retry_button.setEnabled(False)
+        retry_button.clicked.connect(self.tapped_retry_button)
+        self.retry_button = retry_button
+        layout.addWidget(retry_button)
 
         flip_button = QPushButton()
         flip_button.setText("Flip (Ctrl+F)")
@@ -41,7 +57,16 @@ class CardSearchPreviewViewController(QWidget):
         search_table_view.delegate = self
         self.search_table_view = search_table_view
         layout.addWidget(search_table_view)
-
+        
+        image_source_label = QLabel()
+        image_source_label.setOpenExternalLinks(True)
+        layout.addWidget(image_source_label)
+        self.image_source_label = image_source_label
+        self._load_image_source_label()
+        
+        self._current_image_path = None
+        self._observation_tower.subscribe_multi(self, [LocalResourceEvent, 
+                                                       ConfigurationUpdatedEvent])
 
     @property
     def delegate(self):
@@ -60,19 +85,33 @@ class CardSearchPreviewViewController(QWidget):
         self.search_table_view.set_item_active(index)
 
     def set_image(self, img_alt: str, img_path: str, is_flippable: bool):
+        self._current_image_path = img_path
         self.staging_view.set_image(img_alt, img_path)
         self.flip_button.setEnabled(is_flippable)
+        
 
-    def update_list(self, result_list: List[str]):
+    def update_list(self, result_list: List[TradingCard]):
         self.search_table_view.update_list(result_list)
 
     def tapped_flip_button(self):
         self.delegate.cs_did_tap_flip_button(self)
         
-    def set_card_type_filter(self, card_type: Optional[CardType]):
-        self.search_table_view.set_card_type_filter(card_type)
+    def tapped_retry_button(self):
+        self.delegate.cs_did_tap_retry_button(self)
         
+    def _load_image_source_label(self):
+        url = self._card_image_source_provider.provideSource().site_source_url()
+        self.image_source_label.setText(f'Image source: <a href="{url}">{url}</a>')
         
-
-
-    
+    def handle_observation_tower_event(self, event: TransmissionProtocol):
+        if type(event) == LocalResourceEvent:
+            if self._current_image_path is not None:
+                pass
+        elif type(event) == ConfigurationUpdatedEvent:
+            self._load_image_source_label()
+                # if self._current_image_path == event.local_resource.image_preview_path:
+                #     if event.event_type == LocalResourceEvent.EventType.STARTED:
+                #         self.retry_button.setEnabled(False)
+                #     elif event.event_type == LocalResourceEvent.EventType.FINISHED:
+                #         self.retry_button.setEnabled(True)
+                    

@@ -1,8 +1,7 @@
 /build
 /dist
-/cache
-/production
 __pycache__
 .venv
 .empty
 *.yaml
+.coverage

@@ -4,15 +4,16 @@ from .ImageFetcherProtocol import *
 
 
 class ImageFetcherProvider:
-    def __init__(self, configuration: Configuration, 
+    def __init__(self, 
+                 configuration_provider: ConfigurationProvider, 
                  real_client: ImageFetcherProtocol, 
                  mock_client: ImageFetcherProtocol):
-        self.configuration = configuration
+        self.configuration_provider = configuration_provider
         self.real_client = real_client
         self.mock_client = mock_client
 
     def provideImageFetcher(self) -> ImageFetcherProtocol:
-        if self.configuration.is_mock_data:
+        if self.configuration_provider.configuration.is_mock_data:
             return self.mock_client
         else:
             return self.real_client

@@ -25,3 +25,7 @@ class ObservationTower:
         if eventType not in self.subscribers:
             self.subscribers[eventType] = []
         self.subscribers[eventType].append(weakref.ref(subscriber))
+        
+    def subscribe_multi(self, subscriber: TransmissionReceiver, eventTypes: List[Type[TransmissionProtocol]]):
+        for e in eventTypes:
+            self.subscribe(subscriber, e)

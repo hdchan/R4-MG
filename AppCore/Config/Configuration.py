@@ -1,31 +1,70 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from PyQt5.QtCore import QStandardPaths
-
-PICTURE_DIR_PATH = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.PicturesLocation)
-# PRODUCTION_FILE_PATH = './production/'
-# PRODUCTION_PREVIEW_FILE_PATH = PRODUCTION_FILE_PATH + 'preview/'
-# CACHE_FILE_PATH = './cache/'
-# CACHE_PREVIEW_FILE_PATH = CACHE_FILE_PATH + 'preview/'
+from enum import Enum
 
 class Configuration:
+    
+    APP_NAME = 'R4-MG'
+    PICTURE_DIR_PATH = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.PicturesLocation)
+    
     class Toggles:
+        class Keys:
+            DEVELOPER_MODE = 'developer_mode'
+            
         def __init__(self):
             self.developer_mode = False
+        
+        def loadJSON(self, toggles: Optional[Dict[str, Any]]):
+            if toggles is None:
+                return
+            self.developer_mode = toggles.get(self.Keys.DEVELOPER_MODE, False)
+            
+        def toJSON(self) -> Dict[str, Any]:
+            return {
+                self.Keys.DEVELOPER_MODE: self.developer_mode
+            }
             
     class Settings:
+        class Keys:
+            IS_PERFORMANCE_MODE = 'is_performance_mode'
+            IS_MOCK_DATA = 'is_mock_data'
+            IS_DELAY_NETWORK_MODE = 'is_delay_network_mode'
+            IS_POPOUT_PRODUCTION_IMAGES_MODE = 'is_popout_production_images_mode'
+            IMAGE_SOURCE = 'image_source'
+            
+        class ImageSource(Enum):
+            SWUDBAPI = 0 # https://www.swu-db.com/api
+            SWUDB = 1 # https://swudb.com/
+        
         def __init__(self):
             self.is_performance_mode = False
-            # self.production_file_path = PRODUCTION_FILE_PATH
-            # self.production_preview_file_path = PRODUCTION_PREVIEW_FILE_PATH
-            # self.cache_file_path = CACHE_FILE_PATH
-            # self.cache_preview_file_path = CACHE_PREVIEW_FILE_PATH
-            
+            self.is_popout_production_images_mode = False
             self.is_mock_data = False
             self.is_delay_network_mode = False
+            self.image_source = self.ImageSource.SWUDBAPI
+            
+        def loadJSON(self, settings: Optional[Dict[str, Any]], developer_mode: bool):
+            if settings is None:
+                return
+            
+            self.is_performance_mode = settings.get(self.Keys.IS_PERFORMANCE_MODE, False)
+            self.is_mock_data = settings.get(self.Keys.IS_MOCK_DATA, False)
+            self.is_delay_network_mode = settings.get(self.Keys.IS_DELAY_NETWORK_MODE, False)
+            self.is_popout_production_images_mode = settings.get(self.Keys.IS_POPOUT_PRODUCTION_IMAGES_MODE, False)
+            self.image_source = self.ImageSource(settings.get(self.Keys.IMAGE_SOURCE, 0))
+            
+        def toJSON(self, developer_mode: bool) -> Dict[str, Any]:
+            return {
+                self.Keys.IS_PERFORMANCE_MODE: self.is_performance_mode,
+                self.Keys.IS_MOCK_DATA: self.is_mock_data,
+                self.Keys.IS_DELAY_NETWORK_MODE: self.is_delay_network_mode,
+                self.Keys.IS_POPOUT_PRODUCTION_IMAGES_MODE: self.is_popout_production_images_mode,
+                self.Keys.IMAGE_SOURCE: self.image_source.value
+            }
 
     def __init__(self):
-        self._app_name = 'R4-MG'
-        self._app_ui_version = '0.3.0'
+        self._app_name = self.APP_NAME
+        self._app_ui_version = '0.4.0'
 
         self._toggles = Configuration.Toggles()
         self._settings = Configuration.Settings()
@@ -49,14 +88,13 @@ class Configuration:
     def is_performance_mode(self) -> bool:
         return self._settings.is_performance_mode
     
-    @is_performance_mode.setter
-    def is_performance_mode(self, value: bool):
-        self._settings.is_performance_mode = value
+    @property 
+    def image_source(self) -> Settings.ImageSource:
+        return self._settings.image_source
         
     @property
     def production_file_path(self) -> str:
-        return f'{PICTURE_DIR_PATH}/{self.app_path_name}/production/' 
-        return self._settings.production_file_path
+        return f'{self.PICTURE_DIR_PATH}/{self.app_path_name}/production/'
     
     @property
     def production_preview_file_path(self) -> str:
@@ -64,7 +102,7 @@ class Configuration:
     
     @property
     def cache_file_path(self) -> str:
-        return f'{PICTURE_DIR_PATH}/{self.app_path_name}/cache/' 
+        return f'{self.PICTURE_DIR_PATH}/{self.app_path_name}/cache/' 
     
     @property
     def cache_preview_file_path(self) -> str:
@@ -78,25 +116,11 @@ class Configuration:
 
     @property
     def is_mock_data(self) -> bool:
-        if self.is_developer_mode:
-            return self._settings.is_mock_data
-        else:
-            return False
-    
-    @is_mock_data.setter
-    def is_mock_data(self, value: bool):
-        self._settings.is_mock_data = value
+        return self.is_developer_mode and self._settings.is_mock_data
         
     @property
     def is_delay_network_mode(self) -> bool:
-        if self.is_developer_mode:
-            return self._settings.is_delay_network_mode
-        else:
-            return False
-        
-    @is_delay_network_mode.setter
-    def is_delay_network_mode(self, value: bool):
-        self._settings.is_delay_network_mode = value
+        return self.is_developer_mode and self._settings.is_delay_network_mode
         
     @property
     def network_delay_duration(self) -> int:
@@ -105,33 +129,30 @@ class Configuration:
         else:
             return 0
         
+    @property
+    def is_popout_production_images_mode(self) -> bool:
+        return self._settings.is_popout_production_images_mode
+    
+    @is_popout_production_images_mode.setter
+    def is_popout_production_images_mode(self, value: bool):
+        self._settings.is_popout_production_images_mode = value
+        
+
+    class Keys:
+        TOGGLES = 'toggles'
+        SETTINGS = 'settings'
 
     def loadJSON(self, json: Dict[str, Any]):
-        toggles = json.get('toggles', {})
-        if toggles is None:
-            toggles = {}
-        settings = json.get('settings', {})
-        if settings is None:
-            settings = {}
+        self._toggles.loadJSON(json.get(self.Keys.TOGGLES, {}))
+        self._settings.loadJSON(json.get(self.Keys.SETTINGS, {}), self._toggles.developer_mode)
         
-        self._settings.is_performance_mode = settings.get('is_performance_mode', False) # type: ignore
-        
-        self._toggles.developer_mode = toggles.get('developer_mode', False) # type: ignore
-        self._settings.is_mock_data = settings.get('is_mock_data', False) # type: ignore
-        self._settings.is_delay_network_mode = settings.get('is_delay_network_mode', False) # type: ignore
-        
-
     def toJSON(self) -> Dict[str, Any]:
-        config: Dict[str, object] = {
-            "toggles": {
-            },
-            "settings": {
-                "is_performance_mode": self.is_performance_mode
-            }
+        return {
+            self.Keys.TOGGLES: self._toggles.toJSON(),
+            self.Keys.SETTINGS: self._settings.toJSON(self._toggles.developer_mode)
         }
-        if self._toggles.developer_mode:
-            config['toggles']['developer_mode'] = self._toggles.developer_mode # type: ignore
-            config['settings']['is_mock_data'] = self._settings.is_mock_data # type: ignore
-            config['settings']['is_delay_network_mode'] = self._settings.is_delay_network_mode # type: ignore
-        return config
-
+        
+class ConfigurationProvider:
+    @property
+    def configuration(self) -> Configuration:
+        return NotImplemented
