@@ -1,9 +1,11 @@
 from typing import Any, Dict
+from PyQt5.QtCore import QStandardPaths
 
-PRODUCTION_FILE_PATH = './production/'
-PRODUCTION_PREVIEW_FILE_PATH = PRODUCTION_FILE_PATH + 'preview/'
-CACHE_FILE_PATH = './cache/'
-CACHE_PREVIEW_FILE_PATH = CACHE_FILE_PATH + 'preview/'
+PICTURE_DIR_PATH = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.PicturesLocation)
+# PRODUCTION_FILE_PATH = './production/'
+# PRODUCTION_PREVIEW_FILE_PATH = PRODUCTION_FILE_PATH + 'preview/'
+# CACHE_FILE_PATH = './cache/'
+# CACHE_PREVIEW_FILE_PATH = CACHE_FILE_PATH + 'preview/'
 
 class Configuration:
     class Toggles:
@@ -13,10 +15,10 @@ class Configuration:
     class Settings:
         def __init__(self):
             self.is_performance_mode = False
-            self.production_file_path = PRODUCTION_FILE_PATH
-            self.production_preview_file_path = PRODUCTION_PREVIEW_FILE_PATH
-            self.cache_file_path = CACHE_FILE_PATH
-            self.cache_preview_file_path = CACHE_PREVIEW_FILE_PATH
+            # self.production_file_path = PRODUCTION_FILE_PATH
+            # self.production_preview_file_path = PRODUCTION_PREVIEW_FILE_PATH
+            # self.cache_file_path = CACHE_FILE_PATH
+            # self.cache_preview_file_path = CACHE_PREVIEW_FILE_PATH
             
             self.is_mock_data = False
             self.is_delay_network_mode = False
@@ -53,19 +55,20 @@ class Configuration:
         
     @property
     def production_file_path(self) -> str:
+        return f'{PICTURE_DIR_PATH}/{self.app_path_name}/production/' 
         return self._settings.production_file_path
     
     @property
     def production_preview_file_path(self) -> str:
-        return self._settings.production_preview_file_path
+        return f'{self.production_file_path}preview/'
     
     @property
     def cache_file_path(self) -> str:
-        return self._settings.cache_file_path
+        return f'{PICTURE_DIR_PATH}/{self.app_path_name}/cache/' 
     
     @property
     def cache_preview_file_path(self) -> str:
-        return self._settings.cache_preview_file_path
+        return f'{self.cache_file_path}preview/'
 
     # MARK: - Developer settings
 

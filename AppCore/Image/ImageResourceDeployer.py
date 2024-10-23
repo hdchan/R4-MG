@@ -40,7 +40,7 @@ class ImageResourceDeployer:
         
         self._generate_directories_if_needed()
         local_resources: List[LocalCardResource] = []
-        filelist = os.listdir('production')
+        filelist = os.listdir(self.configuration.production_file_path)
         filelist.sort()
         for production_file_name in filelist[:]:
             if production_file_name.endswith(PNG_EXTENSION):

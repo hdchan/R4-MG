@@ -7,7 +7,7 @@ from AppCore.Image.ImageResourceDeployer import ImageResourceDeployer
 
 from ..MainProgramViewController import MainProgramViewController
 from ..Window import Window
-
+import os
 class MenuActionCoordinator(QObject):
     def __init__(self,
                  window: Window,
@@ -38,6 +38,11 @@ class MenuActionCoordinator(QObject):
         refresh_production_images = QAction('Refresh production images', parent)
         refresh_production_images.triggered.connect(self.did_tap_refresh_production_images)
         fileMenu.addAction(refresh_production_images)
+        
+        
+        open_production_dir = QAction('Reveal images in file explorer', parent)
+        open_production_dir.triggered.connect(self.did_open_production_dir)
+        fileMenu.addAction(open_production_dir)
 
         
         # MARK: - Settings
@@ -112,3 +117,6 @@ class MenuActionCoordinator(QObject):
         
     def did_toggle_delay_network_mode(self, is_on: bool):
         self.configuration_manager.toggle_delay_network_mode(is_on)
+        
+    def did_open_production_dir(self):
+        os.startfile(self.configuration.production_file_path)
