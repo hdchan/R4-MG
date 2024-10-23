@@ -15,6 +15,7 @@ class MockSWUDBClient(APIClientProtocol):
         
     def search(self, card_name: str, search_configuration: SearchConfiguration, callback: APIClientSearchCallback):
         def completed_search():
+            # TODO: needs to be referenced in package, otherwise crashes on distribution
             with open('./AppCore/Clients/SWUDB/sor.json', 'r') as file:
                 json_response = json.load(file)
                 result_list: List[TradingCard] = []

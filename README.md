@@ -37,12 +37,16 @@ We can source image files on our stream from the `production` folder, and they'l
 - Adds contextual search for row.
 - Adds persistent settings.
 - Add color to stage and unstage buttons.
+- Add menu option to navigate to image location.
 
 #### Engineering updates
 - Modularized SWUDB client.
 - Modularized image cacher and deployment objects.
 - Refactors `TradingCard` to be primary object.
 - Adds mock settings.
+- Moves persistent settings to `AppData > Local`.
+- Moves persistent image storage to `Pictures` directory.
+- Changed build to be single file exe.
 
 ### 0.2.0
 
