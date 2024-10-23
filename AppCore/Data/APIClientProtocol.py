@@ -9,5 +9,5 @@ class APIClientProtocol:
     def __init__(self, networker: NetworkerProtocol):
         self.netorker = networker
         
-    def search(self, card_name: str, search_configuration: SearchConfiguration, callback: APIClientSearchCallback) -> None:
+    def search(self, search_configuration: SearchConfiguration, callback: APIClientSearchCallback) -> None:
         raise Exception()

@@ -1,5 +1,5 @@
 from typing import Optional, Dict, Any
-from ..Models import CardType
+from AppCore.Models import CardType
 
 class ResourceMetadata:
     def __init__(self):

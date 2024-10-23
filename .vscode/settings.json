@@ -12,5 +12,6 @@
         "Tests"
     ],
     "python.analysis.typeCheckingMode": "strict",
-    "python.analysis.completeFunctionParens": true
+    "python.analysis.completeFunctionParens": true,
+    "python.experiments.optInto": ["pythonTestAdapter"]
 }

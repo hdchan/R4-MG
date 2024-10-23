@@ -7,7 +7,7 @@ from ...Models import SearchConfiguration
 # suggests using move to thread
 class SWUDBClient(APIClientProtocol):
 
-    def search(self, card_name: str, search_configuration: SearchConfiguration, callback: APIClientSearchCallback):
-        self.netorker.load(SearchRequest(card_name, search_configuration), callback)
+    def search(self, search_configuration: SearchConfiguration, callback: APIClientSearchCallback):
+        self.netorker.load(SearchRequest(search_configuration), callback)
         
       

@@ -3,18 +3,21 @@ from typing import Optional
 from PyQt5.QtGui import QPixmap, QMouseEvent
 from PyQt5.QtWidgets import QLabel, QVBoxLayout, QWidget
 
-from AppCore.Config import Configuration
+from AppCore.Config import ConfigurationProvider
 from AppCore.Observation import ObservationTower, TransmissionReceiver
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
-                                        LocalResourceReadyEvent)
+                                        LocalResourceEvent)
 
 from .LoadingSpinner import LoadingSpinner
 from AppCore.Observation.Events import TransmissionProtocol
 
 
 class ImagePreviewViewController(QWidget, TransmissionReceiver):
-    def __init__(self, observation_tower: ObservationTower, configuration: Configuration):
+    def __init__(self, 
+                 observation_tower: ObservationTower, 
+                 configuration_provider: ConfigurationProvider):
         super().__init__()
+        self.observation_tower = observation_tower
         layout = QVBoxLayout(self)
         
         label = QLabel(self)
@@ -23,15 +26,15 @@ class ImagePreviewViewController(QWidget, TransmissionReceiver):
         self.setLayout(layout)
 
         self._image_view = label
-        self._image_view.mousePressEvent = self._tapped_image
+        # self._image_view.mousePressEvent = self._tapped_image # causes memory leak in child
         self.loading_spinner = LoadingSpinner(self)
 
         self._img_path: Optional[str] = None
         self._img_alt: Optional[str] = None
-        self._configuration = configuration
+        self._configuration_provider = configuration_provider
 
         observation_tower.subscribe(self, ConfigurationUpdatedEvent)
-        observation_tower.subscribe(self, LocalResourceReadyEvent)
+        observation_tower.subscribe(self, LocalResourceEvent)
 
     def set_image(self, img_alt: str, img_path: str):
         self.loading_spinner.start()
@@ -50,7 +53,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiver):
 
     # async download image https://blog.skyleafdesign.com/how-to-do-concurrent-async-image-download-in-pyqt5/
     def _load_image_view(self):
-        if not self._configuration.is_performance_mode:
+        if not self._configuration_provider.configuration.is_performance_mode:
             if self._img_path is not None:
                 image = QPixmap()
                 success = image.load(self._img_path)
@@ -67,7 +70,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiver):
     def handle_observation_tower_event(self, event: TransmissionProtocol):
         if type(event) == ConfigurationUpdatedEvent:
             self._load_for_configuration()
-        elif type(event) == LocalResourceReadyEvent:
+        elif type(event) == LocalResourceEvent:
             if self._img_path == event.local_resource.image_preview_path:
                 self._load_image_view()
                 print(f"Reloading resource: {self._img_path}")

@@ -8,7 +8,7 @@ from ...Image import ImageFetcherProtocol
 
 class MockImageFetcher(ImageFetcherProtocol):
     def fetch(self, image_url: str) ->Image.Image:
-        time.sleep(self.configuration.network_delay_duration)
+        time.sleep(self.configuration_provider.configuration.network_delay_duration)
         parsed_url = parse.urlparse(image_url)
         split_path = parsed_url.path.split('/')
         file_name = split_path[-2] + split_path[-1]
@@ -33,8 +33,7 @@ class MockImageFetcher(ImageFetcherProtocol):
 
 class RemoteImageFetcher(ImageFetcherProtocol):
     def fetch(self, image_url: str) -> Image.Image:
-        # TODO: retry if failed, and delete from cache
-        time.sleep(self.configuration.network_delay_duration)
+        time.sleep(self.configuration_provider.configuration.network_delay_duration)
         try:
             img_data = request.urlopen(image_url)
             print(f'fetching real image: {image_url}')

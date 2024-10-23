@@ -1,13 +1,15 @@
 from functools import partial
 from pathlib import Path
-from typing import List, Optional
-
+from typing import Optional, Tuple
+import os
 from PIL import Image, ImageDraw
 from PyQt5.QtCore import QObject, QRunnable, QThreadPool, pyqtSignal
 
-from ..Config import Configuration
-from ..Models.TradingCard import LocalCardResource, TradingCard
+from ..Config import ConfigurationProvider
+from ..Models import LocalCardResource
 from .ImageFetcherProvider import ImageFetcherProvider
+from ..Observation import ObservationTower
+from ..Observation.Events import LocalResourceEvent
 
 PNG_EXTENSION = '.png'
 THUMBNAIL_SIZE = 256
@@ -21,61 +23,33 @@ class ImageResourceCacherDelegate:
         pass
 
 class ImageResourceCacher:
-
     def __init__(self,
-                 image_fetcher_provider: ImageFetcherProvider, 
-                 configuration: Configuration):
-        self.configuration = configuration
+                 image_fetcher_provider: ImageFetcherProvider,
+                 observation_tower: ObservationTower):
+        self.observation_tower = observation_tower
         self.image_fetcher_provider = image_fetcher_provider
         self.pool = QThreadPool()
         self.delegate: Optional[ImageResourceCacherDelegate]
 
-    def attach_local_resources(self, trading_card_list: List[TradingCard]):
-        for trading_card in trading_card_list:
-            image_path = f'{self.configuration.cache_file_path}{trading_card.unique_identifier_front}{PNG_EXTENSION}'
-            image_preview_path = f'{self.configuration.cache_preview_file_path}{trading_card.unique_identifier_front}{PNG_EXTENSION}'
-            
-            front_local_resource = LocalCardResource(image_path, 
-                                                    image_preview_path, 
-                                                    trading_card.unique_identifier_front,
-                                                    trading_card.friendly_display_name_front,
-                                                    PNG_EXTENSION, 
-                                                    trading_card.front_art)
-            trading_card.front_art_resource = front_local_resource
-            existing_file = Path(f'{self.configuration.cache_file_path}{trading_card.unique_identifier_front}{PNG_EXTENSION}')
-            front_local_resource.is_ready = existing_file.is_file()
-                
-            
-            if trading_card.back_art is not None:
-                image_path = f'{self.configuration.cache_file_path}{trading_card.unique_identifier_back}{PNG_EXTENSION}'
-                image_preview_path = f'{self.configuration.cache_preview_file_path}{trading_card.unique_identifier_back}{PNG_EXTENSION}'
-                
-                back_local_resource = LocalCardResource(image_path, 
-                                                        image_preview_path, 
-                                                        trading_card.unique_identifier_back,
-                                                        trading_card.friendly_display_name_back,
-                                                        PNG_EXTENSION, 
-                                                        trading_card.back_art)
-                trading_card.back_art_resource = back_local_resource
-                existing_file = Path(f'{self.configuration.cache_file_path}{trading_card.unique_identifier_back}{PNG_EXTENSION}')
-                back_local_resource.is_ready = existing_file.is_file()
-
-    def async_store_local_resource(self, trading_card: TradingCard):
-        if trading_card.local_resource.is_ready:
+    def async_store_local_resource(self, local_resource: LocalCardResource, retry: bool = False):
+        if retry:
+            if os.path.exists(local_resource.image_path):
+                Path(local_resource.image_path).unlink()
+            if os.path.exists(local_resource.image_preview_path):
+                Path(local_resource.image_preview_path).unlink()
+        if local_resource.is_ready:
             return
-        self._generate_directories_if_needed()
         # TODO: might need to prevent duplicate calls?
         # https://www.pythonguis.com/tutorials/multithreading-pyqt-applications-qthreadpool/
-        worker = StoreImageWorker(trading_card, self.image_fetcher_provider)
+        self.observation_tower.notify(LocalResourceEvent(LocalResourceEvent.EventType.STARTED, local_resource))
+        worker = StoreImageWorker(local_resource, self.image_fetcher_provider)
         worker.signals.finished.connect(partial(self._finish_storing_local_resource))
         self.pool.start(worker)
 
-    def _generate_directories_if_needed(self):
-        Path(self.configuration.cache_preview_file_path).mkdir(parents=True, exist_ok=True)
-
-    def _finish_storing_local_resource(self, local_resource: LocalCardResource):
+    def _finish_storing_local_resource(self, result: Tuple[LocalCardResource, Optional[Exception]]):
+        self.observation_tower.notify(LocalResourceEvent(LocalResourceEvent.EventType.FINISHED, result[0]))
         if self.delegate is not None:
-            self.delegate.rc_did_finish_storing_local_resource(self, local_resource)
+            self.delegate.rc_did_finish_storing_local_resource(self, result[0])
 
 
 # https://stackoverflow.com/questions/13909195/how-run-two-different-threads-simultaneously-in-pyqt
@@ -84,28 +58,34 @@ class WorkerSignals(QObject):
 
 class StoreImageWorker(QRunnable):
     def __init__(self, 
-                 trading_card: TradingCard,
+                 local_resource: LocalCardResource,
                  image_fetcher_provider: ImageFetcherProvider):
         super(StoreImageWorker, self).__init__()
-        self.trading_card = trading_card
+        self.local_resource = local_resource
         self.image_fetcher_provider = image_fetcher_provider
         self.signals = WorkerSignals()
 
     def run(self):
         # time.sleep(5)
-        self.store_local_resource(self.trading_card)
+        self.store_local_resource(self.local_resource)
 
-    def store_local_resource(self, trading_card: TradingCard):
-        img = self.image_fetcher_provider.provideImageFetcher().fetch(trading_card.image_url)
-        img_height = min(img.height, img.width)
-        rad = int(img_height * ROUNDED_CORDERS_MULTIPLIER_RELATIVE_TO_HEIGHT)
-        # TODO: rounded rect needs to be propotional to size of image
-        large_img = self._add_corners(img.convert('RGB'), rad)
-        preview_img = self._downscale_image(large_img)
-        large_img.save(trading_card.local_resource.image_path)
-        preview_img.save(trading_card.local_resource.image_preview_path)
-        trading_card.local_resource.is_ready = True
-        self.signals.finished.emit(trading_card.local_resource)
+    def store_local_resource(self, local_resource: LocalCardResource):
+        if local_resource.remote_image_url is not None:
+            try:
+                img = self.image_fetcher_provider.provideImageFetcher().fetch(local_resource.remote_image_url)
+                img_height = min(img.height, img.width)
+                rad = int(img_height * ROUNDED_CORDERS_MULTIPLIER_RELATIVE_TO_HEIGHT)
+                # TODO: rounded rect needs to be propotional to size of image
+                large_img = self._add_corners(img.convert('RGB'), rad)
+                preview_img = self._downscale_image(large_img)
+                Path(local_resource.image_dir).mkdir(parents=True, exist_ok=True)
+                Path(local_resource.image_preview_dir).mkdir(parents=True, exist_ok=True)
+                large_img.save(local_resource.image_path)
+                preview_img.save(local_resource.image_preview_path)
+                self.signals.finished.emit((local_resource, None))
+            except Exception as error:
+                self.signals.finished.emit((local_resource, error))
+                
 
     def _downscale_image(self, original_img: Image.Image) -> Image.Image:
         size = THUMBNAIL_SIZE, THUMBNAIL_SIZE

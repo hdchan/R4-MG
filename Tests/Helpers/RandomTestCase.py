@@ -5,9 +5,20 @@ from typing import Optional, TypeVar
 
 from AppCore.Models.TradingCard import TradingCard
 
+import sys
 T = TypeVar("T")
 
 class RandomTestCase(unittest.TestCase):
+    
+    def setUp(self) -> None:
+        super().setUp()
+        seed_value = random.randint(1, sys.maxsize)
+        random.seed(seed_value)
+        print(f'seed: {seed_value}')
+        
+    def tearDown(self) -> None:
+        super().tearDown()
+    
     
     def randomAlphaNumericString(self, length: int=random.randrange(1, 100)) -> str:
         return ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(length))
@@ -16,6 +27,9 @@ class RandomTestCase(unittest.TestCase):
         if bool(random.getrandbits(1)):
             return value
         return None
+    
+    # MARK: - random class objects
+        
     
     def randomTradingCard(self, 
                           name:Optional[str]=None, 

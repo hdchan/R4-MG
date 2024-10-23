@@ -5,10 +5,10 @@ from ..Helpers import RandomTestCase
 
 class TradingCard_test(RandomTestCase):
     def setUp(self) -> None:
-        return super().setUp()
+        super().setUp()
     
     def tearDown(self) -> None:
-        return super().tearDown()
+        super().tearDown()
     
     def test_init(self):
         expected_name = self.randomAlphaNumericString()

@@ -13,6 +13,7 @@ class SWUTradingCard(TradingCard):
             type=json['Type'],
             front_art=json['FrontArt'],
             number=json['Number'],
+            double_sided=json['DoubleSided'],
             back_art=json.get('BackArt', None)
         )
         return obj

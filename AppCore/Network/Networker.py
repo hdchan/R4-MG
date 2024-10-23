@@ -36,7 +36,7 @@ class Networker(NetworkerProtocol):
                 self.finished.emit()
     
     def load(self, request: NetworkRequestProtocol[T], callback: NetworkerProtocolCallback[T]):
-        def completed_search(result: Tuple[Optional[Dict[str, Any]], Exception]):
+        def completed_search(result: Tuple[Optional[Dict[str, Any]], Optional[Exception]]):
             json_response, error = result
             if json_response is not None:
                 decoded_response = request.response(json_response)
@@ -45,7 +45,7 @@ class Networker(NetworkerProtocol):
                 callback((None, error))
             
         thread = QThread()
-        worker = Networker.ClientWorker(self.configuration.network_delay_duration)
+        worker = Networker.ClientWorker(self.configuration_provider.configuration.network_delay_duration)
         worker.moveToThread(thread)
         thread.started.connect(partial(worker.load, request.request()))
         worker.result_available.connect(completed_search)

@@ -2,19 +2,18 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QPushButton, QScrollArea, QVBoxLayout, QWidget
 
-from AppCore import Configuration, ObservationTower
-from AppCore.Models import CardType
+from AppCore import ConfigurationProvider, ObservationTower
+from AppCore.Models import CardType, LocalCardResource
 from . import ImageDeploymentViewController
 from typing import List, Optional
-
 class ImageDeploymentListViewController(QWidget):
     def __init__(self, 
                  observation_tower: ObservationTower, 
-                 configuration: Configuration):
+                 configuration_provider: ConfigurationProvider):
         super().__init__()
 
         self.observation_tower = observation_tower
-        self.configuration = configuration
+        self.configuration_provider = configuration_provider
 
         layout = QVBoxLayout()
         scroll = QScrollArea(self)
@@ -48,25 +47,20 @@ class ImageDeploymentListViewController(QWidget):
         self.scroll = scroll
         self.delegate = None
 
-    def create_list_item(self, 
-                         file_name: str, 
-                         img_alt: str, 
-                         img: str, 
+    def create_list_item(self,
+                         file_name: str,
+                         local_resource: LocalCardResource,
                          staging_button_enabled: bool,
-                         index: int, 
-                         card_type_list: List[CardType], 
-                         selected_card_type: Optional[CardType]):
+                         index: int):
         item = ImageDeploymentViewController(self.observation_tower, 
-                                             self.configuration, 
-                                             card_type_list, 
-                                             selected_card_type)
+                                             self.configuration_provider)
         item.delegate = self
-        item.set_production_image(img_alt, img)
+        item.set_production_image(local_resource)
         if index <= 9:
             item.stage_button.setText(f'Stage (Ctrl+{index + 1})')
         else:
             item.stage_button.setText(f'Stage')
-        item.set_label(file_name)
+        # item.set_label(file_name)
         item.set_staging_button_enabled(staging_button_enabled)
         pal = item.palette()
         pal.setColor(item.backgroundRole(), Qt.GlobalColor.lightGray)
@@ -95,20 +89,15 @@ class ImageDeploymentListViewController(QWidget):
         for idx, i in enumerate(self.list_items):
             if i == id_cell:
                 self.delegate.idl_did_tap_context_search_button(self, id_cell, idx)
-    
-    def id_did_change_card_type(self, id_cell, card_type):
-        for idx, i in enumerate(self.list_items):
-            if i == id_cell:
-                self.delegate.idl_did_change_card_type(self, id_cell, idx, card_type)
 
-    def set_staging_image(self, text, img, index):
-        self.list_items[index].set_staging_image(text, img)
+    def set_staging_image(self, local_resource, index):
+        self.list_items[index].set_staging_image(local_resource)
 
     def clear_staging_image(self, index):
         self.list_items[index].clear_staging_image()
     
-    def set_production_image(self, text, img, index):
-        self.list_items[index].set_production_image(text, img)
+    def set_production_image(self, local_resource, index):
+        self.list_items[index].set_production_image(local_resource)
 
     def clear_all_staging_images(self):
         for idx, i in enumerate(self.list_items):
