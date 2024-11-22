@@ -9,15 +9,18 @@ from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         TransmissionProtocol)
 from AppCore.Observation.ObservationTower import ObservationTower
 from AppCore.Observation.TransmissionReceiver import TransmissionReceiver
+from .Assets import AssetProvider
 
 basedir = os.path.dirname(__file__)
 class Window(QMainWindow, TransmissionReceiver):
     def __init__(self, 
                  configuration_provider: ConfigurationProvider, 
-                 observation_tower: ObservationTower):
+                 observation_tower: ObservationTower, 
+                 asset_provider: AssetProvider):
         """Initializer."""
         super().__init__()
         self.configuration_provider = configuration_provider
+        self.asset_provider = asset_provider
         
         self.setGeometry(0, 0, 1200+150, 800)
         qtRectangle = self.frameGeometry()
@@ -32,7 +35,7 @@ class Window(QMainWindow, TransmissionReceiver):
     def _load_window(self):
         self.setWindowTitle(self.configuration_provider.configuration.app_display_name)
         # https://www.pythonguis.com/tutorials/packaging-pyqt5-pyside2-applications-windows-pyinstaller/#setting-an-application-icon
-        self.setWindowIcon(QIcon(os.path.join(basedir,'resources/logo.png')))
+        self.setWindowIcon(QIcon(self.asset_provider.image.logo_path))
 
     def handle_observation_tower_event(self, event: TransmissionProtocol):
         self._load_window()

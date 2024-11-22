@@ -1,4 +1,4 @@
-from ...Resource import CardImageSourceProtocol
+from ...Resource.CardImageSourceProtocol import *
 from ...Models import TradingCard
 from typing import Optional
 
@@ -11,7 +11,7 @@ class SWUDBAPIImageSource(CardImageSourceProtocol):
         return 'www.swu-db.com'
     
     def front_art_url(self, trading_card: TradingCard) -> str:
-        return trading_card.front_art
+        return trading_card.json['FrontArt']
         
     def back_art_url(self, trading_card: TradingCard) -> Optional[str]:
-        return trading_card.back_art
+        return trading_card.json.get('BackArt', None)

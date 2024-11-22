@@ -6,7 +6,7 @@ T = TypeVar("T")
 
 class NetworkRequestProtocol(Generic[T]):
     def request(self) -> Optional[Request]:
-        raise Exception()
+        return NotImplemented
     
     def response(self, json: Dict[str, Any]) -> T:
-        raise Exception()
+        return NotImplemented

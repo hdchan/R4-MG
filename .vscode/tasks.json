@@ -8,6 +8,14 @@
             "args": [
                 "app_ui.spec"
             ]
+        },
+        {
+            "label": "open build",
+            "type": "shell",
+            "command": "start",
+            "args": [
+                ".\\dist"
+            ]
         }
     ]
 }

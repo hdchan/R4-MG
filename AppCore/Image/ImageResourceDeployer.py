@@ -6,7 +6,7 @@ from typing import List, Optional
 
 from PIL import Image
 
-from AppCore.Image.ImageFetcherProvider import *
+from ..ImageNetwork.ImageFetcherProvider import *
 from AppCore.Models import LocalCardResource
 from AppCore.Observation import ObservationTower
 from AppCore.Observation.Events import ProductionResourceUpdatedEvent
@@ -15,9 +15,9 @@ PNG_EXTENSION = '.png'
 THUMBNAIL_SIZE = 256
 
 class StagedCardResource:
-    def __init__(self, local_card_resource: LocalCardResource, production_file_name: str):
+    def __init__(self, local_card_resource: LocalCardResource, production_resource: LocalCardResource):
         self.local_card_resource = local_card_resource
-        self.production_file_name = production_file_name
+        self.production_resource = production_resource
 
 class ImageResourceDeployerDelegate:
     def rd_did_load_production_resources(self, rd: ..., local_resources: List[LocalCardResource]) -> None:
@@ -77,16 +77,18 @@ class ImageResourceDeployer:
 
     def stage_resource(self, local_card_resource: LocalCardResource, index: int):
         # TODO: Handle case where cache is emptied
+        self.unstage_resource(index)
         staged_card_resource = StagedCardResource(local_card_resource, 
-                                                  self.production_resources[index].file_name_with_ext)
+                                                  self.production_resources[index])
         self.staged_resources.append(staged_card_resource)
+        assert(len(self.staged_resources) <= len(self.production_resources))
 
     def unstage_resource(self, index: int):
-        production_file_name = self.production_resources[index].file_name
+        production_resource = self.production_resources[index]
         for i, resource in enumerate(self.staged_resources):
-            if resource.production_file_name == production_file_name:
+            if resource.production_resource == production_resource:
                 self.staged_resources.pop(i)
-                break
+        assert(len(self.staged_resources) <= len(self.production_resources))
 
     def unstage_all_resources(self):
         self.staged_resources = []
@@ -108,8 +110,8 @@ class ImageResourceDeployer:
         if self.can_publish_staged_resources():
             self._generate_directories_if_needed()
             for r in self.staged_resources:
-                shutil.copy(r.local_card_resource.image_path, f'{self.configuration.production_file_path}{r.production_file_name}')
-                shutil.copy(r.local_card_resource.image_preview_path, f'{self.configuration.production_preview_file_path}{r.production_file_name}')
+                shutil.copy(r.local_card_resource.image_path, f'{self.configuration.production_file_path}{r.production_resource.file_name_with_ext}')
+                shutil.copy(r.local_card_resource.image_preview_path, f'{self.configuration.production_preview_file_path}{r.production_resource.file_name_with_ext}')
                 self.observation_tower.notify(ProductionResourceUpdatedEvent(copy.deepcopy(r.local_card_resource)))
             self.staged_resources = []
             return True

@@ -4,15 +4,16 @@ from typing import List, Optional
 from AppCore.Models import SearchConfiguration, TradingCard
 from AppCore.Resource import CardResourceProvider
 from .Resource import CardImageSourceProviderProtocol
-from .Data import APIClientProvider, CardDataSource, CardDataSourceDelegate
-from .Image import (ImageFetcherProvider, ImageResourceCacher,
+from .Data import CardDataSource, CardDataSourceDelegate
+from .Data.APIClientProtocol import APIClientProviderProtocol
+from .Image import (ImageFetcherProviderProtocol, ImageResourceCacher,
                     ImageResourceCacherDelegate, ImageResourceDeployer,
                     ImageResourceDeployerDelegate)
 from .Observation import ObservationTower
 from .Observation.Events import *
 from AppCore.Config import ConfigurationProvider
-
-
+import shutil
+import os
 class ApplicationCoreDelegate:
     def app_did_complete_search(self, app_core: ..., display_name_list: List[TradingCard], error: Optional[Exception]) -> None:
         pass
@@ -29,8 +30,8 @@ class ApplicationCoreDelegate:
 class ApplicationCore(ImageResourceDeployerDelegate, ImageResourceCacherDelegate, CardDataSourceDelegate):
     def __init__(self, 
                  observation_tower: ObservationTower, 
-                 api_client_provider: APIClientProvider,
-                 image_fetcher_provider: ImageFetcherProvider,
+                 api_client_provider: APIClientProviderProtocol,
+                 image_fetcher_provider: ImageFetcherProviderProtocol,
                  card_image_source_provider: CardImageSourceProviderProtocol,
                  configuration_provider: ConfigurationProvider):
         
@@ -69,6 +70,10 @@ class ApplicationCore(ImageResourceDeployerDelegate, ImageResourceCacherDelegate
     def production_resources(self) -> List[LocalCardResource]:
         return copy.deepcopy(self._resource_deployer.production_resources)
     
+    @property
+    def _configuration(self) -> Configuration:
+        return self._configuration_provider.configuration
+    
     
     def search(self, search_config: SearchConfiguration):
         self._data_source.search(search_config)
@@ -98,6 +103,15 @@ class ApplicationCore(ImageResourceDeployerDelegate, ImageResourceCacherDelegate
         self._resource_cacher.async_store_local_resource(trading_card_resource_provider.local_resource, retry)
         if self.delegate is not None:
             self.delegate.app_did_retrieve_card_resource_for_card_selection(self, copy.deepcopy(trading_card_resource_provider.local_resource), trading_card_resource_provider.is_flippable)
+    
+    def open_production_dir(self):
+        os.startfile(self._configuration.production_file_path)
+        
+    def open_configuration_dir(self):
+        os.startfile(self._configuration.config_directory)
+    
+    def clear_cache(self):
+        shutil.rmtree(self._configuration.cache_file_path)
     
     # MARK: - DS Delegate methods
     def ds_completed_search_with_result(self, ds: CardDataSource, result_list: List[TradingCard], error: Optional[Exception]):

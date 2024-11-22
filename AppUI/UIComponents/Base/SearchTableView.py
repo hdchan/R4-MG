@@ -16,7 +16,7 @@ class SearchTableView(QWidget, TransmissionReceiver):
         super().__init__()
         card_name_search_bar = QLineEdit(self)
         card_name_search_bar.setPlaceholderText("Search card by name (Ctrl+L)")
-        card_name_search_bar.returnPressed.connect(self.search)
+        # card_name_search_bar.returnPressed.connect(self.search)
         self.card_name_search_bar = card_name_search_bar
 
         search_button = QPushButton()
@@ -89,6 +89,7 @@ class SearchTableView(QWidget, TransmissionReceiver):
 
     def set_search_focus(self):
         self.card_name_search_bar.setFocus()
+        self.card_name_search_bar.selectAll()
 
     def set_item_active(self, index: int):
         self.result_list.setCurrentRow(index)
@@ -105,6 +106,21 @@ class SearchTableView(QWidget, TransmissionReceiver):
             raise Exception("index not found")
 
     def search(self):
+        self._search()
+
+    def search_leader(self):
+        def modifier(config):
+            config.card_type = CardType.LEADER
+            return config
+        self._search(modifier)
+        
+    def search_base(self):
+        def modifier(config):
+            config.card_type = CardType.BASE
+            return config
+        self._search(modifier)
+
+    def _search(self, config_modifier = None):
         # prevent query errors
         stripped_text = self.card_name_search_bar.text().strip()
         self.card_name_search_bar.setText(stripped_text)
@@ -115,11 +131,12 @@ class SearchTableView(QWidget, TransmissionReceiver):
         for i in self.check_boxes_map.keys():
             if i.isChecked():
                 search_configuration.card_aspects.append(self.check_boxes_map[i])
+                
+        if config_modifier is not None:
+            search_configuration = config_modifier(search_configuration)
         
         self.delegate.tv_did_tap_search(self, search_configuration)
-        
-        # for i in self.check_boxes:
-        #     print(i.isChecked())
+
         
 
     def update_list(self, list: List[TradingCard]):

@@ -1,23 +1,20 @@
-from typing import Optional
+from typing import Dict, Any
 
 class TradingCard:
     def __init__(self,
                  name: str, 
                  set: str, 
-                 type: str, 
-                 front_art: str, 
+                 type: str,
                  number: str,
                  double_sided: bool,
-                 back_art: Optional[str] = None):
+                 json: Dict[str, Any]):
         super().__init__()
         self.name: str = name
         self.set: str = set
         self.type: str = type
         self.number: str = number
         self.double_sided: bool = double_sided
-        
-        self.front_art: str = front_art
-        self.back_art: Optional[str] = back_art
+        self.json = json
         
     @property
     def is_flippable(self) -> bool:

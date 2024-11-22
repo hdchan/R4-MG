@@ -1,7 +1,7 @@
 import io
 import os
 from pathlib import Path
-
+import shutil
 import yaml
 from PyQt5.QtCore import QStandardPaths
 
@@ -49,19 +49,13 @@ class ConfigurationManager(ConfigurationProvider):
     
     @property
     def _app_config_directory(self) -> str:
-        # https://doc-snapshots.qt.io/qtforpython-5.15/PySide2/QtCore/QStandardPaths.html#PySide2.QtCore.PySide2.QtCore.QStandardPaths.writableLocation
-        return QStandardPaths.writableLocation(QStandardPaths.StandardLocation.AppConfigLocation) + f'/{self._configuration.app_path_name}'
+        return self._configuration.config_directory
     
     @property
     def _settings_file_path(self) -> str:
         return self._app_config_directory + '/settings.yaml'
     
-    def open_production_dir(self):
-        os.startfile(self._configuration.production_file_path)
-        
-    def open_configuration_dir(self):
-         os.startfile(self._app_config_directory)
-
+    
     def discard(self):
         self._configuration = deepcopy(self._real_configuration)
 
@@ -98,8 +92,7 @@ class ConfigurationManager(ConfigurationProvider):
         return self
 
     def _notify_configuration_changed(self):
-        event = ConfigurationUpdatedEvent(self.configuration)
-        self.observation_tower.notify(event)
+        self.observation_tower.notify(ConfigurationUpdatedEvent(self.configuration))
         self._write_configuration_changes()
 
     def _create_directory_if_needed(self):
