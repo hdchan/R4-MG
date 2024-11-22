@@ -11,7 +11,7 @@ from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         LocalResourceEvent,
                                         TransmissionProtocol)
 from AppCore.Resource import CardImageSourceProviderProtocol
-
+from AppCore.Models import LocalCardResource
 from ..Base import ImagePreviewViewController, SearchTableView
 
 
@@ -78,15 +78,24 @@ class CardSearchPreviewViewController(QWidget):
         self.search_table_view.delegate = value
         self.staging_view.delgate = value
 
+    def search(self):
+        self.search_table_view.search()
+        
+    def search_leader(self):
+        self.search_table_view.search_leader()
+        
+    def search_base(self):
+        self.search_table_view.search_base()
+
     def set_search_focus(self):
         self.search_table_view.set_search_focus()
 
     def set_item_active(self, index: int):
         self.search_table_view.set_item_active(index)
 
-    def set_image(self, img_alt: str, img_path: str, is_flippable: bool):
-        self._current_image_path = img_path
-        self.staging_view.set_image(img_alt, img_path)
+    def set_image(self, is_flippable: bool, local_resource: LocalCardResource):
+        self._current_image_path = local_resource.image_preview_path
+        self.staging_view.set_image(local_resource)
         self.flip_button.setEnabled(is_flippable)
         
 

@@ -1,5 +1,18 @@
 ## Changelog
 
+### 0.5.0
+### Feature updates
+- Adds contextual menu for images.
+- Adds search base and leader shortcuts.
+
+####
+- Fixes staging bug where prior staged resources were not removed.
+- Creates asset provider.
+
+### 0.4.1
+#### Engineering updates
+- Fixes configuration path.
+
 ### 0.4.0
 
 #### Feature updates
@@ -9,6 +22,7 @@
 
 #### Engineering updates
 - Abstracts and adds image source protocol.
+- Removes CardSearchFlow.
   
 ### 0.3.0
 

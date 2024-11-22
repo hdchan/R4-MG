@@ -1,9 +1,10 @@
 import random
-from urllib import request, parse
 import time
+from urllib import parse
+
 from PIL import Image, ImageDraw, ImageFont
 
-from ...Image import ImageFetcherProtocol
+from .ImageFetcherProtocol import *
 
 
 class MockImageFetcher(ImageFetcherProtocol):
@@ -30,15 +31,3 @@ class MockImageFetcher(ImageFetcherProtocol):
         myFont = ImageFont.truetype('arial.ttf', 20)
         I1.text((0, 100), file_name, font=myFont, fill=(0, 0, 0)) # type: ignore
         return img
-
-class RemoteImageFetcher(ImageFetcherProtocol):
-    def fetch(self, image_url: str) -> Image.Image:
-        time.sleep(self.configuration_provider.configuration.network_delay_duration)
-        try:
-            img_data = request.urlopen(image_url)
-            print(f'fetching real image: {image_url}')
-            img = Image.open(img_data) # type: ignore
-            return img
-        except Exception as error:
-            raise Exception(error)
-        

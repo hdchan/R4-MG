@@ -70,6 +70,15 @@ class MainProgramViewController(QWidget):
     def load(self):
         self.application_core.load_production_resources()
 
+    def search(self):
+        self.card_search_view.search()
+        
+    def search_leader(self):
+        self.card_search_view.search_leader()
+        
+    def search_base(self):
+        self.card_search_view.search_base()
+
     # app core
     def app_did_load_production_resources(self, app: ApplicationCore, card_resources: List[LocalCardResource]):
         self.deployment_view.clear_list()
@@ -86,7 +95,7 @@ class MainProgramViewController(QWidget):
         self.card_search_view.update_list(result_list)
 
     def app_did_retrieve_card_resource_for_card_selection(self, app: ApplicationCore, card_resource: LocalCardResource, is_flippable: bool):
-        self.card_search_view.set_image(card_resource.display_name, card_resource.image_preview_path, is_flippable)
+        self.card_search_view.set_image(is_flippable, card_resource)
 
     def app_publish_status_changed(self, app: ApplicationCore, is_ready: bool):
         self._update_production_button_state()

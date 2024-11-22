@@ -74,7 +74,7 @@ class ImageDeploymentViewController(QWidget):
         observation_tower.subscribe(self, ConfigurationUpdatedEvent)
       
     def set_staging_image(self, local_resource: LocalCardResource):
-        self.staging_image_view.set_image(local_resource.display_name, local_resource.image_preview_path)
+        self.staging_image_view.set_image(local_resource)
         self.set_unstage_button_enabled(True)
 
     def clear_staging_image(self):
@@ -82,7 +82,7 @@ class ImageDeploymentViewController(QWidget):
         self.set_unstage_button_enabled(False)
 
     def set_production_image(self, local_resource: LocalCardResource):
-        self.production_image_view.set_image(local_resource.display_name, local_resource.image_preview_path)
+        self.production_image_view.set_image(local_resource)
         self._local_resource = local_resource
         self.label.setText(local_resource.display_name)
         

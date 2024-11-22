@@ -1,12 +1,12 @@
 # -*- mode: python ; coding: utf-8 -*-
-
+import glob
 
 a = Analysis(
     ['app_ui.py'],
     pathex=[],
     binaries=[],
     datas=[
-        ('AppUI\\resources\\logo.png', 'AppUI\\resources')
+        ('AppUI\\Assets\\Images\\logo.png', 'AppUI\\Assets\\Images')
     ],
     hiddenimports=[],
     hookspath=[],
@@ -16,6 +16,9 @@ a = Analysis(
     noarchive=False,
     optimize=0,
 )
+
+a.datas += [("AppUI\\Assets\\Audio\\r2\\"+file.split("\\")[-1], file, "DATA") for file in glob.glob("AppUI\\Assets\\Audio\\r2\\*")]
+
 pyz = PYZ(a.pure)
 
 exe = EXE(

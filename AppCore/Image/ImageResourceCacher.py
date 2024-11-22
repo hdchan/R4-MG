@@ -1,15 +1,15 @@
+import os
 from functools import partial
 from pathlib import Path
 from typing import Optional, Tuple
-import os
+
 from PIL import Image, ImageDraw
 from PyQt5.QtCore import QObject, QRunnable, QThreadPool, pyqtSignal
 
-from ..Config import ConfigurationProvider
 from ..Models import LocalCardResource
-from .ImageFetcherProvider import ImageFetcherProvider
 from ..Observation import ObservationTower
 from ..Observation.Events import LocalResourceEvent
+from ..ImageNetwork.ImageFetcherProvider import ImageFetcherProviderProtocol
 
 PNG_EXTENSION = '.png'
 THUMBNAIL_SIZE = 256
@@ -24,7 +24,7 @@ class ImageResourceCacherDelegate:
 
 class ImageResourceCacher:
     def __init__(self,
-                 image_fetcher_provider: ImageFetcherProvider,
+                 image_fetcher_provider: ImageFetcherProviderProtocol,
                  observation_tower: ObservationTower):
         self.observation_tower = observation_tower
         self.image_fetcher_provider = image_fetcher_provider
@@ -41,15 +41,28 @@ class ImageResourceCacher:
             return
         # TODO: might need to prevent duplicate calls?
         # https://www.pythonguis.com/tutorials/multithreading-pyqt-applications-qthreadpool/
+        
+        Path(local_resource.image_dir).mkdir(parents=True, exist_ok=True)
+        Path(local_resource.image_preview_dir).mkdir(parents=True, exist_ok=True)
+        # create temp file for loading state
+        img = Image.new("RGB", (1, 1))
+        img.save(f"{local_resource.image_temp_path}", "PNG") # generate before notification
+        
         self.observation_tower.notify(LocalResourceEvent(LocalResourceEvent.EventType.STARTED, local_resource))
+        
         worker = StoreImageWorker(local_resource, self.image_fetcher_provider)
         worker.signals.finished.connect(partial(self._finish_storing_local_resource))
         self.pool.start(worker)
 
     def _finish_storing_local_resource(self, result: Tuple[LocalCardResource, Optional[Exception]]):
-        self.observation_tower.notify(LocalResourceEvent(LocalResourceEvent.EventType.FINISHED, result[0]))
+        local_resource, exception = result
+        Path(local_resource.image_temp_path).unlink() # unlink before notification
+        if exception is not None:
+            self.observation_tower.notify(LocalResourceEvent(LocalResourceEvent.EventType.FAILED, local_resource))
+        else:
+            self.observation_tower.notify(LocalResourceEvent(LocalResourceEvent.EventType.FINISHED, local_resource))
         if self.delegate is not None:
-            self.delegate.rc_did_finish_storing_local_resource(self, result[0])
+            self.delegate.rc_did_finish_storing_local_resource(self, local_resource)
 
 
 # https://stackoverflow.com/questions/13909195/how-run-two-different-threads-simultaneously-in-pyqt
@@ -59,14 +72,13 @@ class WorkerSignals(QObject):
 class StoreImageWorker(QRunnable):
     def __init__(self, 
                  local_resource: LocalCardResource,
-                 image_fetcher_provider: ImageFetcherProvider):
+                 image_fetcher_provider: ImageFetcherProviderProtocol):
         super(StoreImageWorker, self).__init__()
         self.local_resource = local_resource
         self.image_fetcher_provider = image_fetcher_provider
         self.signals = WorkerSignals()
 
     def run(self):
-        # time.sleep(5)
         self.store_local_resource(self.local_resource)
 
     def store_local_resource(self, local_resource: LocalCardResource):
@@ -78,14 +90,11 @@ class StoreImageWorker(QRunnable):
                 # TODO: rounded rect needs to be propotional to size of image
                 large_img = self._add_corners(img.convert('RGB'), rad)
                 preview_img = self._downscale_image(large_img)
-                Path(local_resource.image_dir).mkdir(parents=True, exist_ok=True)
-                Path(local_resource.image_preview_dir).mkdir(parents=True, exist_ok=True)
                 large_img.save(local_resource.image_path)
                 preview_img.save(local_resource.image_preview_path)
                 self.signals.finished.emit((local_resource, None))
             except Exception as error:
                 self.signals.finished.emit((local_resource, error))
-                
 
     def _downscale_image(self, original_img: Image.Image) -> Image.Image:
         size = THUMBNAIL_SIZE, THUMBNAIL_SIZE

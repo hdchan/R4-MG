@@ -1,4 +1,4 @@
-from ...Resource import CardImageSourceProtocol
+from ...Resource.CardImageSourceProtocol import *
 from ...Models import TradingCard
 from typing import Optional
 

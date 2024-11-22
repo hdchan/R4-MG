@@ -1,18 +1,18 @@
-from AppCore.Config.Configuration import *
+from ..Config.Configuration import *
 
-from .APIClientProtocol import APIClientProtocol
+from .ImageFetcherProtocol import *
 
 
-class APIClientProvider:
+class ImageFetcherProvider(ImageFetcherProviderProtocol):
     def __init__(self, 
                  configuration_provider: ConfigurationProvider, 
-                 real_client: APIClientProtocol, 
-                 mock_client: APIClientProtocol):
+                 real_client: ImageFetcherProtocol, 
+                 mock_client: ImageFetcherProtocol):
         self.configuration_provider = configuration_provider
         self.real_client = real_client
         self.mock_client = mock_client
-        
-    def provideClient(self) -> APIClientProtocol:
+
+    def provideImageFetcher(self) -> ImageFetcherProtocol:
         if self.configuration_provider.configuration.is_mock_data:
             return self.mock_client
         else:

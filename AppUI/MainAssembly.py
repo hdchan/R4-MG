@@ -4,12 +4,12 @@ from PyQt5.QtWidgets import QApplication
 
 from AppCore import *
 from AppCore import ApplicationCore
-from AppCore.Clients import (MockImageFetcher, MockSWUDBClient,
-                             RemoteImageFetcher, SWUDBAPIImageSource,
-                             SWUDBClient, SWUDBImageSource, CardImageSourceProvider)
+from AppCore.Clients import (APIClientProvider, CardImageSourceProvider,
+                             MockSWUDBClient, SWUDBAPIImageSource, SWUDBClient,
+                             SWUDBImageSource)
 from AppCore.Config import ConfigurationManager
-from AppCore.Data import APIClientProvider
 from AppCore.Image import ImageFetcherProvider
+from AppCore.ImageNetwork import MockImageFetcher, RemoteImageFetcher
 from AppCore.Network import *
 from AppCore.Observation.ObservationTower import ObservationTower
 from AppUI.AdvancedViewController import AdvancedViewController
@@ -17,7 +17,7 @@ from AppUI.ContainerViewController import ContainerViewController
 from AppUI.Coordinators import MenuActionCoordinator, ShortcutActionCoordinator
 from AppUI.MainProgramViewController import MainProgramViewController
 from AppUI.Window import Window
-
+from .Assets import AssetProvider
 
 class MainAssembly:
     def __init__(self):
@@ -27,7 +27,7 @@ class MainAssembly:
         self._style_app()
         observation_tower = ObservationTower()
         self.configuration_manager = ConfigurationManager(observation_tower)
-        
+        asset_provider = AssetProvider()
         
         self.networker = Networker(self.configuration_manager)
         api_client_provider = self._assemble_api_client_provider()
@@ -39,7 +39,8 @@ class MainAssembly:
                                         image_source_provider,
                                         self.configuration_manager)
         main_window = Window(self.configuration_manager, 
-                            observation_tower)
+                            observation_tower, 
+                            asset_provider)
         main_program = MainProgramViewController(observation_tower,
                                                 self.configuration_manager,
                                                 application_core, 
@@ -49,7 +50,8 @@ class MainAssembly:
         self.menu_action_coordinator = MenuActionCoordinator(main_window,
                                                         main_program,
                                                         application_core,
-                                                        self.configuration_manager)
+                                                        self.configuration_manager, 
+                                                        asset_provider)
         
         self.shortcut_action_coordinator = ShortcutActionCoordinator(main_program)
         main_program.load()

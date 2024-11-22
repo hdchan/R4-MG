@@ -5,7 +5,6 @@ from enum import Enum
 class Configuration:
     
     APP_NAME = 'R4-MG'
-    PICTURE_DIR_PATH = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.PicturesLocation)
     
     class Toggles:
         class Keys:
@@ -64,7 +63,7 @@ class Configuration:
 
     def __init__(self):
         self._app_name = self.APP_NAME
-        self._app_ui_version = '0.4.0'
+        self._app_ui_version = '0.5.0'
 
         self._toggles = Configuration.Toggles()
         self._settings = Configuration.Settings()
@@ -91,10 +90,24 @@ class Configuration:
     @property 
     def image_source(self) -> Settings.ImageSource:
         return self._settings.image_source
-        
+    
+    @property
+    def picture_dir_path(self) -> str:
+        # always points to picture dir
+        return QStandardPaths.writableLocation(QStandardPaths.StandardLocation.PicturesLocation)
+    
+    @property
+    def _config_dir_path(self) -> str:
+        # will point to app name folder
+        return QStandardPaths.writableLocation(QStandardPaths.StandardLocation.AppConfigLocation)
+    
+    @property
+    def config_directory(self) -> str:
+        return f'{self._config_dir_path}'
+    
     @property
     def production_file_path(self) -> str:
-        return f'{self.PICTURE_DIR_PATH}/{self.app_path_name}/production/'
+        return f'{self.picture_dir_path}/{self.app_path_name}/production/'
     
     @property
     def production_preview_file_path(self) -> str:
@@ -102,7 +115,7 @@ class Configuration:
     
     @property
     def cache_file_path(self) -> str:
-        return f'{self.PICTURE_DIR_PATH}/{self.app_path_name}/cache/' 
+        return f'{self.picture_dir_path}/{self.app_path_name}/cache/' 
     
     @property
     def cache_preview_file_path(self) -> str:

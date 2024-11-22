@@ -11,9 +11,8 @@ class SWUTradingCard(TradingCard):
             name=json['Name'],
             set=json['Set'],
             type=json['Type'],
-            front_art=json['FrontArt'],
             number=json['Number'],
             double_sided=json['DoubleSided'],
-            back_art=json.get('BackArt', None)
+            json=json
         )
         return obj

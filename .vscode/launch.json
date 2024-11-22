@@ -15,9 +15,10 @@
             "name": "Build, Deploy and Run",
             "type": "debugpy",
             "request": "launch",
-            "program": "./app_ui.py",
+            "program": "print('run')",
             "console": "integratedTerminal",
-            "preLaunchTask": "deploy"
+            "preLaunchTask": "deploy",
+            "postDebugTask": "open build" 
         },
         {
             "name": "Run",

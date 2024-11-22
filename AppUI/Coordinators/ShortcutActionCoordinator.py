@@ -13,8 +13,8 @@ class ShortcutActionCoordinator:
         self.production_shortcut = QShortcut(QKeySequence(Qt.Modifier.CTRL + Qt.Key.Key_P), main_program)
         self.production_shortcut.activated.connect(main_program.idl_did_tap_production_button)
 
-        self.search_shortcut = QShortcut(QKeySequence(Qt.Modifier.CTRL + Qt.Key.Key_L), main_program)
-        self.search_shortcut.activated.connect(main_program.set_search_bar_focus)
+        self.focus_search = QShortcut(QKeySequence(Qt.Modifier.CTRL + Qt.Key.Key_L), main_program)
+        self.focus_search.activated.connect(main_program.set_search_bar_focus)
 
         self.flip_shortcut = QShortcut(QKeySequence(Qt.Modifier.CTRL + Qt.Key.Key_F), main_program)
         self.flip_shortcut.activated.connect(main_program.flip_current_previewed_card_if_possible)
@@ -34,3 +34,13 @@ class ShortcutActionCoordinator:
         for i, k in enumerate(key_pad):
             self.staging_shortcut = QShortcut(QKeySequence(Qt.Modifier.CTRL + k), main_program)
             self.staging_shortcut.activated.connect(partial(main_program.stage_current_card_search_resource, i))
+            
+            
+        self.search_shortcut = QShortcut(QKeySequence(Qt.Key.Key_Return), main_program)
+        self.search_shortcut.activated.connect(main_program.search)
+        
+        self.search_leader_shortcut = QShortcut(QKeySequence(Qt.Modifier.CTRL + Qt.Key.Key_Return), main_program)
+        self.search_leader_shortcut.activated.connect(main_program.search_leader)
+        
+        self.search_base_shortcut = QShortcut(QKeySequence(Qt.Modifier.SHIFT + Qt.Key.Key_Return), main_program)
+        self.search_base_shortcut.activated.connect(main_program.search_base)

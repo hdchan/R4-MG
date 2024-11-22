@@ -1,7 +1,7 @@
 import copy
 from typing import List, Optional, Tuple
 
-from AppCore.Data import APIClientProtocol, APIClientProvider
+from AppCore.Data.APIClientProtocol import *
 from AppCore.Models import SearchConfiguration, TradingCard
 from AppCore.Observation import ObservationTower
 from AppCore.Observation.Events import SearchEvent
@@ -14,9 +14,9 @@ class CardDataSourceDelegate:
 class CardDataSource:
     def __init__(self,
                  observation_tower: ObservationTower,
-                 api_client_provider: APIClientProvider):
+                 api_client_provider: APIClientProviderProtocol):
         self.observation_tower = observation_tower
-        self.api_client_provider: APIClientProvider = api_client_provider
+        self.api_client_provider: APIClientProviderProtocol = api_client_provider
         self.delegate: Optional[CardDataSourceDelegate]
         self._search_configuration = SearchConfiguration()
         
