@@ -50,7 +50,7 @@ class ConfigurationManager(ConfigurationProvider):
     @property
     def _app_config_directory(self) -> str:
         # https://doc-snapshots.qt.io/qtforpython-5.15/PySide2/QtCore/QStandardPaths.html#PySide2.QtCore.PySide2.QtCore.QStandardPaths.writableLocation
-        return QStandardPaths.writableLocation(QStandardPaths.StandardLocation.AppConfigLocation) + f'/{self._configuration.app_path_name}'
+        return QStandardPaths.writableLocation(QStandardPaths.StandardLocation.AppConfigLocation)
     
     @property
     def _settings_file_path(self) -> str:
