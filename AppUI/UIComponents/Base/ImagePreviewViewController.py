@@ -21,25 +21,49 @@ class ImagePreviewViewController(QWidget, TransmissionReceiver):
                  configuration_provider: ConfigurationProvider):
         super().__init__()
         self.observation_tower = observation_tower
+        self._configuration_provider = configuration_provider
         layout = QVBoxLayout(self)
+        self.setLayout(layout)
         
         label = QLabel(self)
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(label)
-        self.setLayout(layout)
-
+        
         self._image_view = label
+        self._image_view.setContextMenuPolicy(Qt.CustomContextMenu)
+        self._image_view.customContextMenuRequested.connect(self.showContextMenu)
         # self._image_view.mousePressEvent = self._tapped_image # causes memory leak in child
+        
+        image_info_layout = QVBoxLayout()
+        image_info_widget = QWidget()
+        image_info_widget.setLayout(image_info_layout)
+        self._image_info_widget = image_info_widget
+        layout.addWidget(image_info_widget)
+        self._image_info_widget.setHidden(not self._configuration_provider.configuration.show_resource_details)
+        
+        
+        self._card_display_name = QLabel()
+        self._card_display_name.setOpenExternalLinks(True)
+        self._card_display_name.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        image_info_layout.addWidget(self._card_display_name)
+        
+        self._size_info_label = QLabel()
+        self._size_info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        image_info_layout.addWidget(self._size_info_label)
+        
+        self._image_url_label = QLabel()
+        self._image_url_label.setOpenExternalLinks(True)
+        self._image_url_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        image_info_layout.addWidget(self._image_url_label)
+
         self.loading_spinner = LoadingSpinner(self)
 
         self._local_resource: Optional[LocalCardResource] = None
-        self._configuration_provider = configuration_provider
-
+        
         observation_tower.subscribe_multi(self, [ConfigurationUpdatedEvent, 
                                                  LocalResourceEvent])
         
-        self._image_view.setContextMenuPolicy(Qt.CustomContextMenu)
-        self._image_view.customContextMenuRequested.connect(self.showContextMenu)
+        
         
     def showContextMenu(self, pos):
         if self._local_resource is not None and self._local_resource.is_ready:
@@ -79,6 +103,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiver):
     def clear_image(self):
         self._local_resource = None
         self._image_view.clear()
+        self._clear_image_info()
     
     def set_image(self, local_resource: LocalCardResource):
         self._local_resource = local_resource
@@ -89,6 +114,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiver):
             self.loading_spinner.stop()
             return
         self._image_view.clear()
+        self._clear_image_info()
         if self._local_resource.is_loading:
             self.loading_spinner.start()
         elif self._local_resource.is_ready:
@@ -100,12 +126,36 @@ class ImagePreviewViewController(QWidget, TransmissionReceiver):
                 success = image.load(self._local_resource.image_preview_path)
                 if success:
                     self._image_view.setPixmap(image)
+                    self._set_image_info()
+                        
         else: # failed to load
             self.loading_spinner.stop()
+    
+    def _toggle_resource_details_visibility(self):
+        self._image_info_widget.setHidden(not self._configuration_provider.configuration.show_resource_details)
+    
+    def _set_image_info(self):
+        if self._local_resource is not None and self._local_resource.is_ready:
+            self._card_display_name.setText(self._local_resource.display_name)
+            
+            if self._local_resource.size is not None:
+                image_w, image_h = self._local_resource.size
+                self._size_info_label.setText(f'{image_w}W x {image_h}H')
+                
+            if self._local_resource.remote_image_url is not None:
+                url = self._local_resource.remote_image_url
+                self._image_url_label.setText(f'<a href="{url}">{url}</a>')
+                        
+    def _clear_image_info(self):
+        self._card_display_name.clear()
+        self._size_info_label.clear()
+        self._image_url_label.clear()
 
     def handle_observation_tower_event(self, event: TransmissionProtocol):
         if type(event) == ConfigurationUpdatedEvent:
             self._load_image()
+            self._toggle_resource_details_visibility()
+            
         elif type(event) == LocalResourceEvent:
             if self._local_resource is not None:
                 if self._local_resource.image_preview_path == event.local_resource.image_preview_path:

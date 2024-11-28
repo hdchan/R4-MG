@@ -1,14 +1,14 @@
 import io
-import os
+from copy import deepcopy
 from pathlib import Path
-import shutil
+
 import yaml
-from PyQt5.QtCore import QStandardPaths
 
 from AppCore.Config.Configuration import *
 from AppCore.Observation.Events import ConfigurationUpdatedEvent
 from AppCore.Observation.ObservationTower import *
-from copy import deepcopy
+
+
 class MutableConfiguration(Configuration):
     def set_is_performance_mode(self, value: bool):
         self._settings.is_performance_mode = value
@@ -22,13 +22,13 @@ class MutableConfiguration(Configuration):
     def set_image_source(self, source: Configuration.Settings.ImageSource):
         self._settings.image_source = source
 
-    
+    def set_show_resource_details(self, value: bool):
+        self._settings.show_resource_details = value
 
 class ConfigurationManager(ConfigurationProvider):
     def __init__(self, observation_tower: ObservationTower):
         self._configuration = MutableConfiguration()
         
-        # test = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.AppConfigLocation)
         self._create_directory_if_needed()
         my_file = Path(self._settings_file_path)
         if not my_file.is_file():
@@ -67,7 +67,10 @@ class ConfigurationManager(ConfigurationProvider):
     def toggle_performance_mode(self, is_on: bool) -> 'ConfigurationManager':
         self._configuration.set_is_performance_mode(is_on)
         return self
-        
+    
+    def toggle_show_resource_details(self, is_on: bool) -> 'ConfigurationManager':
+        self._configuration.set_show_resource_details(is_on)
+        return self
 
     def toggle_mock_data_mode(self, is_on: bool) -> 'ConfigurationManager':
         self._configuration.set_is_mock_data(is_on)

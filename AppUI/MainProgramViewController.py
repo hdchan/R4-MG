@@ -57,7 +57,7 @@ class MainProgramViewController(QWidget):
         # profile_loader_view = ProfileLoaderViewController()
         # splitter.addWidget(profile_loader_view)
         
-        splitter.setSizes([150,400])
+        splitter.setSizes([400,900])
 
     def set_search_bar_focus(self):
         self.card_search_view.set_search_focus()

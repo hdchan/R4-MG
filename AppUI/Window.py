@@ -22,7 +22,7 @@ class Window(QMainWindow, TransmissionReceiver):
         self.configuration_provider = configuration_provider
         self.asset_provider = asset_provider
         
-        self.setGeometry(0, 0, 1200+150, 800)
+        self.setGeometry(0, 0, 400+900, 900)
         qtRectangle = self.frameGeometry()
         centerPoint = QDesktopWidget().availableGeometry().center()
         qtRectangle.moveCenter(centerPoint)

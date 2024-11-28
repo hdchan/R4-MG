@@ -57,13 +57,13 @@ class ApplicationCore(ImageResourceDeployerDelegate, ImageResourceCacherDelegate
         
         # stateful variables
         self.selected_index: Optional[int] = None
+        self._selected_resource: Optional[LocalCardResource] = None
         self._trading_card_providers: List[CardResourceProvider] = []
-
     
     @property
     def current_card_search_resource(self) -> Optional[LocalCardResource]:
-        if self.selected_index is not None:
-            return copy.deepcopy(self._trading_card_providers[self.selected_index].local_resource)
+        if self._selected_resource is not None:
+            return copy.deepcopy(self._selected_resource)
         return None
     
     @property 
@@ -98,11 +98,7 @@ class ApplicationCore(ImageResourceDeployerDelegate, ImageResourceCacherDelegate
         if self.selected_index is not None:
             self.retrieve_card_resource_for_card_selection(self.selected_index, True)
     
-    def retrieve_card_resource_for_card_selection(self, index: int, retry: bool = False):
-        trading_card_resource_provider = self._trading_card_providers[index]
-        self._resource_cacher.async_store_local_resource(trading_card_resource_provider.local_resource, retry)
-        if self.delegate is not None:
-            self.delegate.app_did_retrieve_card_resource_for_card_selection(self, copy.deepcopy(trading_card_resource_provider.local_resource), trading_card_resource_provider.is_flippable)
+    
     
     def open_production_dir(self):
         os.startfile(self._configuration.production_file_path)
@@ -123,6 +119,14 @@ class ApplicationCore(ImageResourceDeployerDelegate, ImageResourceCacherDelegate
         self._trading_card_providers = list(map(create_trading_card_resource, result_list))
         if self.delegate is not None:
             self.delegate.app_did_complete_search(self, result_list, error)
+
+    # MARK: - Resource Cacher
+    def retrieve_card_resource_for_card_selection(self, index: int, retry: bool = False):
+        trading_card_resource_provider = self._trading_card_providers[index]
+        self._selected_resource = trading_card_resource_provider.local_resource
+        self._resource_cacher.async_store_local_resource(trading_card_resource_provider.local_resource, retry)
+        if self.delegate is not None:
+            self.delegate.app_did_retrieve_card_resource_for_card_selection(self, copy.deepcopy(trading_card_resource_provider.local_resource), trading_card_resource_provider.is_flippable)
 
     # MARK: - Resource Cacher Delegate
     def rc_did_finish_storing_local_resource(self, rc: ImageResourceCacher, local_resource: LocalCardResource):
