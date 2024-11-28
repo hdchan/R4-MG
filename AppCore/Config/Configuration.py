@@ -30,6 +30,7 @@ class Configuration:
             IS_DELAY_NETWORK_MODE = 'is_delay_network_mode'
             IS_POPOUT_PRODUCTION_IMAGES_MODE = 'is_popout_production_images_mode'
             IMAGE_SOURCE = 'image_source'
+            SHOW_RESOURCE_DETAILS = 'show_resource_details'
             
         class ImageSource(Enum):
             SWUDBAPI = 0 # https://www.swu-db.com/api
@@ -41,6 +42,7 @@ class Configuration:
             self.is_mock_data = False
             self.is_delay_network_mode = False
             self.image_source = self.ImageSource.SWUDBAPI
+            self.show_resource_details = False
             
         def loadJSON(self, settings: Optional[Dict[str, Any]], developer_mode: bool):
             if settings is None:
@@ -51,6 +53,7 @@ class Configuration:
             self.is_delay_network_mode = settings.get(self.Keys.IS_DELAY_NETWORK_MODE, False)
             self.is_popout_production_images_mode = settings.get(self.Keys.IS_POPOUT_PRODUCTION_IMAGES_MODE, False)
             self.image_source = self.ImageSource(settings.get(self.Keys.IMAGE_SOURCE, 0))
+            self.show_resource_details = settings.get(self.Keys.SHOW_RESOURCE_DETAILS, False)
             
         def toJSON(self, developer_mode: bool) -> Dict[str, Any]:
             return {
@@ -58,12 +61,13 @@ class Configuration:
                 self.Keys.IS_MOCK_DATA: self.is_mock_data,
                 self.Keys.IS_DELAY_NETWORK_MODE: self.is_delay_network_mode,
                 self.Keys.IS_POPOUT_PRODUCTION_IMAGES_MODE: self.is_popout_production_images_mode,
-                self.Keys.IMAGE_SOURCE: self.image_source.value
+                self.Keys.IMAGE_SOURCE: self.image_source.value,
+                self.Keys.SHOW_RESOURCE_DETAILS: self.show_resource_details
             }
 
     def __init__(self):
         self._app_name = self.APP_NAME
-        self._app_ui_version = '0.5.0'
+        self._app_ui_version = '0.6.0'
 
         self._toggles = Configuration.Toggles()
         self._settings = Configuration.Settings()
@@ -90,6 +94,10 @@ class Configuration:
     @property 
     def image_source(self) -> Settings.ImageSource:
         return self._settings.image_source
+    
+    @property 
+    def show_resource_details(self) -> bool:
+        return self._settings.show_resource_details
     
     @property
     def picture_dir_path(self) -> str:

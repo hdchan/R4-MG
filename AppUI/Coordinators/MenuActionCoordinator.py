@@ -68,6 +68,16 @@ class MenuActionCoordinator(QObject):
         settings_menu.triggered.connect(self.did_tap_settings)
         fileMenu.addAction(settings_menu)
         
+        # MARK: - View
+        view_menu = QMenu("&View", parent)
+        menuBar.addMenu(view_menu)
+        
+        show_resource_details = QAction('Show resource details', parent)
+        show_resource_details.triggered.connect(self.did_toggle_show_resource_details)
+        show_resource_details.setCheckable(True)
+        show_resource_details.setChecked(self.configuration.show_resource_details)
+        view_menu.addAction(show_resource_details)
+        
         # MARK: - About
         about_menu = QMenu("&Help", parent)
         menuBar.addMenu(about_menu)
@@ -142,7 +152,10 @@ class MenuActionCoordinator(QObject):
         
     def did_toggle_popout_production_images_mode(self, is_on: bool):
         self.configuration_manager.toggle_popout_production_images_mode(is_on).save()
-        
+    
+    def did_toggle_show_resource_details(self, is_on: bool):
+        self.configuration_manager.toggle_show_resource_details(is_on).save()
+    
     def did_open_production_dir(self):
         self.app_core.open_production_dir()
         

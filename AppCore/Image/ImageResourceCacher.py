@@ -45,8 +45,7 @@ class ImageResourceCacher:
         Path(local_resource.image_dir).mkdir(parents=True, exist_ok=True)
         Path(local_resource.image_preview_dir).mkdir(parents=True, exist_ok=True)
         # create temp file for loading state
-        img = Image.new("RGB", (1, 1))
-        img.save(f"{local_resource.image_temp_path}", "PNG") # generate before notification
+        open(local_resource.image_temp_path, 'a').close() # generate 0kb file before notification
         
         self.observation_tower.notify(LocalResourceEvent(LocalResourceEvent.EventType.STARTED, local_resource))
         

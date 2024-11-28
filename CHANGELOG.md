@@ -1,11 +1,18 @@
 ## Changelog
 
+### 0.6.0
+#### Feature updates
+- Adds resource details setting
+  
+#### Engineering updates
+- Fixes staging bug where previous source image was staged
+
 ### 0.5.0
-### Feature updates
+#### Feature updates
 - Adds contextual menu for images.
 - Adds search base and leader shortcuts.
 
-####
+#### Engineering updates
 - Fixes staging bug where prior staged resources were not removed.
 - Creates asset provider.
 
