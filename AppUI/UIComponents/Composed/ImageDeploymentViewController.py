@@ -1,16 +1,29 @@
+from typing import Optional
+
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton,
-                             QVBoxLayout, QWidget, QSizePolicy)
+from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QSizePolicy,
+                             QVBoxLayout, QWidget)
 
 from AppCore import ConfigurationProvider, ObservationTower
 from AppCore.Models import LocalCardResource
-from AppCore.Observation.Events import SearchEvent, TransmissionProtocol, ConfigurationUpdatedEvent
-from AppUI.UIComponents import ImagePreviewViewController
+from AppCore.Observation.Events import (ConfigurationUpdatedEvent, SearchEvent,
+                                        TransmissionProtocol)
+from AppUI.UIComponents.Base.ImagePreviewViewController import *
+
+
+class ImageDeploymentViewControllerDelegate:
+    def id_did_tap_staging_button(self, id: ...) -> None:
+        pass
+    
+    def id_did_tap_unstaging_button(self, id: ...) -> None:
+        pass
 
 class ImageDeploymentViewController(QWidget):
     def __init__(self, 
                  observation_tower: ObservationTower, 
-                 configuration_provider: ConfigurationProvider):
+                 configuration_provider: ConfigurationProvider, 
+                 image_preview_delegate: ImagePreviewViewControllerDelegate, 
+                 asset_provider: AssetProvider):
         super().__init__()
         self.observation_tower = observation_tower
         self.configuration_provider = configuration_provider
@@ -57,22 +70,27 @@ class ImageDeploymentViewController(QWidget):
         layout.addWidget(first_column_widget)
 
         staging_image_view = ImagePreviewViewController(observation_tower, 
-                                                        configuration_provider)
+                                                        configuration_provider, 
+                                                        asset_provider)
+        staging_image_view.delegate = image_preview_delegate
         layout.addWidget(staging_image_view, 4)
         self.staging_image_view = staging_image_view
 
         production_image_view = ImagePreviewViewController(observation_tower, 
-                                                           configuration_provider)
+                                                           configuration_provider, 
+                                                           asset_provider)
+        production_image_view.delegate = image_preview_delegate
         layout.addWidget(production_image_view, 4)
         self.production_image_view = production_image_view
 
         self.setLayout(vertical_layout)
 
-        self.delegate = None
+        self.delegate: Optional[ImageDeploymentViewControllerDelegate] = None
         
         observation_tower.subscribe(self, SearchEvent)
         observation_tower.subscribe(self, ConfigurationUpdatedEvent)
-      
+    
+    
     def set_staging_image(self, local_resource: LocalCardResource):
         self.staging_image_view.set_image(local_resource)
         self.set_unstage_button_enabled(True)
@@ -88,26 +106,26 @@ class ImageDeploymentViewController(QWidget):
         
 
     def tapped_staging_button(self):
-        self.delegate.id_did_tap_staging_button(self)
-        
+        if self.delegate is not None:
+            self.delegate.id_did_tap_staging_button(self)
+    
+    def tapped_unstaging_button(self):
+        if self.delegate is not None:
+            self.delegate.id_did_tap_unstaging_button(self)
 
     def set_unstage_button_enabled(self, enabled: bool):
         self.unstage_button.setEnabled(enabled)
         if enabled:
-            self.unstage_button.setStyleSheet("background-color : #FA9189")
+            self.unstage_button.setStyleSheet("background-color : #d2232a; color: white;")
         else:
             self.unstage_button.setStyleSheet("")
 
     def set_staging_button_enabled(self, enabled: bool):
         self.stage_button.setEnabled(enabled)
         if enabled:
-            self.stage_button.setStyleSheet("background-color : #FFE699")
+            self.stage_button.setStyleSheet("background-color : #fdb933; color: black;")
         else:
             self.stage_button.setStyleSheet("")
-
-    def tapped_unstaging_button(self):
-        self.delegate.id_did_tap_unstaging_button(self)
-
     
     def handle_observation_tower_event(self, event: TransmissionProtocol):
         if type(event) == SearchEvent:

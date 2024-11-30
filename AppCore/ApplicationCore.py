@@ -14,6 +14,10 @@ from .Observation.Events import *
 from AppCore.Config import ConfigurationProvider
 import shutil
 import os
+from PIL import Image
+
+THUMBNAIL_SIZE = 256
+
 class ApplicationCoreDelegate:
     def app_did_complete_search(self, app_core: ..., display_name_list: List[TradingCard], error: Optional[Exception]) -> None:
         pass
@@ -87,17 +91,16 @@ class ApplicationCore(ImageResourceDeployerDelegate, ImageResourceCacherDelegate
     def select_card_resource_for_card_selection(self, index: int):
         if index < len(self._trading_card_providers):
             self.selected_index = index
-            self.retrieve_card_resource_for_card_selection(index)
+            self._retrieve_card_resource_for_card_selection(index)
 
     def flip_current_previewed_card(self):
         if self.selected_index is not None and self.current_previewed_trading_card_is_flippable():
             self._trading_card_providers[self.selected_index].flip()
-            self.retrieve_card_resource_for_card_selection(self.selected_index)
+            self._retrieve_card_resource_for_card_selection(self.selected_index)
     
     def redownload_currently_selected_card_resource(self):
         if self.selected_index is not None:
-            self.retrieve_card_resource_for_card_selection(self.selected_index, True)
-    
+            self._retrieve_card_resource_for_card_selection(self.selected_index, True)
     
     
     def open_production_dir(self):
@@ -121,7 +124,7 @@ class ApplicationCore(ImageResourceDeployerDelegate, ImageResourceCacherDelegate
             self.delegate.app_did_complete_search(self, result_list, error)
 
     # MARK: - Resource Cacher
-    def retrieve_card_resource_for_card_selection(self, index: int, retry: bool = False):
+    def _retrieve_card_resource_for_card_selection(self, index: int, retry: bool = False):
         trading_card_resource_provider = self._trading_card_providers[index]
         self._selected_resource = trading_card_resource_provider.local_resource
         self._resource_cacher.async_store_local_resource(trading_card_resource_provider.local_resource, retry)
@@ -162,7 +165,7 @@ class ApplicationCore(ImageResourceDeployerDelegate, ImageResourceCacherDelegate
     def can_publish_staged_resources(self) -> bool:
         return self._resource_deployer.can_publish_staged_resources()
 
-    def publish_staged_resources(self) -> bool:
+    def publish_staged_resources(self):
         return self._resource_deployer.publish_staged_resources()
     
     def generate_new_file(self, file_name: str):
@@ -176,4 +179,27 @@ class ApplicationCore(ImageResourceDeployerDelegate, ImageResourceCacherDelegate
         if self.delegate is not None:
             self.delegate.app_did_load_production_resources(self, copy.deepcopy(local_resources))
         self._observation_tower.notify(ProductionResourcesLoadedEvent(local_resources))
-        
+    
+    # Image rotation
+    def rotate_and_save_resource(self, local_resource: LocalCardResource, angle: float):
+        # TODO: async?
+        self._observation_tower.notify(LocalResourceEvent(LocalResourceEvent.EventType.STARTED, local_resource))
+        Image.open(local_resource.image_path).rotate(angle, resample=Image.Resampling.BICUBIC, expand=True).save(local_resource.image_path)
+        Image.open(local_resource.image_preview_path).rotate(angle, resample=Image.Resampling.BICUBIC, expand=True).save(local_resource.image_preview_path)
+        self._observation_tower.notify(LocalResourceEvent(LocalResourceEvent.EventType.FINISHED, local_resource))
+    
+    def regenerate_resource_preview(self, local_resource: LocalCardResource):
+        self._observation_tower.notify(LocalResourceEvent(LocalResourceEvent.EventType.STARTED, local_resource))
+        # TODO: might want to create a library for downscaling
+        def downscale_image(original_img: Image.Image) -> Image.Image:
+            size = THUMBNAIL_SIZE, THUMBNAIL_SIZE
+            preview_img = original_img.copy().convert('RGBA')
+            preview_img.thumbnail(size,  Image.Resampling.BICUBIC)
+            return preview_img
+        large_img = Image.open(local_resource.image_path)
+        preview_img = downscale_image(large_img)
+        preview_img.save(local_resource.image_preview_path)
+        self._observation_tower.notify(LocalResourceEvent(LocalResourceEvent.EventType.FINISHED, local_resource))
+    
+    def redownload_resource(self, local_resource: LocalCardResource):
+        self._resource_cacher.async_store_local_resource(local_resource, True)

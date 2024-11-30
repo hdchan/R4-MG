@@ -6,7 +6,8 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[
-        ('AppUI\\Assets\\Images\\logo.png', 'AppUI\\Assets\\Images')
+        ('AppUI\\Assets\\Images\\logo.png', 'AppUI\\Assets\\Images'),
+        ('AppUI\\Assets\\Images\\SWH_Logo_Black_preview.png', 'AppUI\\Assets\\Images')
     ],
     hiddenimports=[],
     hookspath=[],

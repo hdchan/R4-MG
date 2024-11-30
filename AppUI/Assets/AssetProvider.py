@@ -11,6 +11,10 @@ class AssetProvider:
         def logo_path(self) -> str:
             return self._image_path("logo.png")
         
+        @property
+        def swu_logo_black_path(self) -> str:
+            return self._image_path('SWH_Logo_Black_preview.png')
+        
         def _image_path(self, file_name: str) -> str:
             return os.path.join(appdir, f'Images/{file_name}')
         

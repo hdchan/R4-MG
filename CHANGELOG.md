@@ -1,5 +1,15 @@
 ## Changelog
 
+### 0.7.0
+#### Feature updates
+- Adds image rotation
+- Adds redownload option for image resource
+- Adds regenerate preview
+- Adds placeholder logo
+  
+#### Engineering updates
+- Adds additional sets for local mock
+
 ### 0.6.0
 #### Feature updates
 - Adds resource details setting

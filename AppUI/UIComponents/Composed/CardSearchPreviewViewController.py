@@ -13,14 +13,15 @@ from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
 from AppCore.Resource import CardImageSourceProviderProtocol
 from AppCore.Models import LocalCardResource
 from ..Base import ImagePreviewViewController, SearchTableView
-
+from ...Assets import AssetProvider
 
 class CardSearchPreviewViewController(QWidget):
     def __init__(self, 
                  observation_tower: ObservationTower, 
                  configuration_provider: ConfigurationProvider, 
                  card_type_list: List[CardType], 
-                 card_image_source_provider: CardImageSourceProviderProtocol):
+                 card_image_source_provider: CardImageSourceProviderProtocol, 
+                 asset_provider: AssetProvider):
         super().__init__()
 
         layout = QVBoxLayout()
@@ -29,8 +30,8 @@ class CardSearchPreviewViewController(QWidget):
         self._card_image_source_provider = card_image_source_provider
         # https://stackoverflow.com/a/19011496
         preview_view = ImagePreviewViewController(observation_tower, 
-                                                  configuration_provider)
-        preview_view.delegate = self
+                                                  configuration_provider, 
+                                                  asset_provider)
         preview_view.setMinimumHeight(300)
         
         self.staging_view = preview_view
@@ -76,7 +77,7 @@ class CardSearchPreviewViewController(QWidget):
     def delegate(self, value):
         self._delegate = value
         self.search_table_view.delegate = value
-        self.staging_view.delgate = value
+        self.staging_view.delegate = value
 
     def search(self):
         self.search_table_view.search()
