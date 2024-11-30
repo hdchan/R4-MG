@@ -65,6 +65,10 @@ class MainAssembly:
                                             observation_tower)
         main_window.setCentralWidget(container)
         main_window.show()
+        # main_window.setStyleSheet(f'''
+        #                    .QWidget {{background-image: url("C://Users//henry//Documents//code//R4-MG//AppUI//Assets//Images//large_spark_of_rebellion_starfield_c4fdfaa6a7.png");
+        #                    background-position: center;}}
+        #                    ''')
         self.app.exec()
     
     @property

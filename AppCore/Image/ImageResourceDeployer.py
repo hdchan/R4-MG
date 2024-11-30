@@ -37,16 +37,16 @@ class ImageResourceDeployer:
     def configuration(self) -> Configuration:
         return self.configuration_provider.configuration
     
-    def load_production_resources(self):
-        """
-        Will load images from production folder
-        """
-        def downscale_image(original_img: Image.Image) -> Image.Image:
+    def _downscale_image(self, original_img: Image.Image) -> Image.Image:
             size = THUMBNAIL_SIZE, THUMBNAIL_SIZE
             preview_img = original_img.copy().convert('RGBA')
             preview_img.thumbnail(size, Image.Resampling.BICUBIC)
             return preview_img
-        
+    
+    def load_production_resources(self):
+        """
+        Will load images from production folder
+        """
         self._generate_directories_if_needed()
         local_resources: List[LocalCardResource] = []
         filelist = os.listdir(self.configuration.production_file_path)
@@ -67,7 +67,7 @@ class ImageResourceDeployer:
                 if not existing_preview_file.is_file():
                     # regnerate preview file
                     large_img = Image.open(f'{self.configuration.production_file_path}{production_file_name}')
-                    preview_img = downscale_image(large_img)
+                    preview_img = self._downscale_image(large_img)
                     preview_img_path = f'{self.configuration.production_preview_file_path}{production_file_name}'
                     preview_img.save(preview_img_path)
 
@@ -128,13 +128,17 @@ class ImageResourceDeployer:
                     self.observation_tower.notify(LocalResourceEvent(LocalResourceEvent.EventType.FINISHED, resource.local_card_resource))
             raise Exception("Failed to publish. Please redownload resources and retry.")
         
-    def generate_new_file(self, file_name: str):
+    def generate_new_file(self, file_name: str, image: Optional[Image.Image] = None):
         self._generate_directories_if_needed()
         existing_file = Path(f'{self.configuration.production_file_path}{file_name}{PNG_EXTENSION}')
         if existing_file.is_file():
             raise Exception(f"File already exists: {file_name}{PNG_EXTENSION}")
-        img = Image.new("RGB", (1, 1))
+        img = image or Image.new("RGB", (1, 1))
         img.save(f"{self.configuration.production_file_path}{file_name}{PNG_EXTENSION}", "PNG")
+        
+        preview_img = self._downscale_image(img)
+        preview_img_path = f'{self.configuration.production_preview_file_path}{file_name}{PNG_EXTENSION}'
+        preview_img.save(preview_img_path, "PNG")
 
     def _generate_directories_if_needed(self):
         Path(self.configuration.production_preview_file_path).mkdir(parents=True, exist_ok=True)

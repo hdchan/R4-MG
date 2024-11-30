@@ -25,7 +25,7 @@ class Configuration:
             
     class Settings:
         class Keys:
-            IS_PERFORMANCE_MODE = 'is_performance_mode'
+            HIDE_IMAGE_PREVIEW = 'hide_image_preview'
             IS_MOCK_DATA = 'is_mock_data'
             IS_DELAY_NETWORK_MODE = 'is_delay_network_mode'
             IS_POPOUT_PRODUCTION_IMAGES_MODE = 'is_popout_production_images_mode'
@@ -37,7 +37,7 @@ class Configuration:
             SWUDB = 1 # https://swudb.com/
         
         def __init__(self):
-            self.is_performance_mode = False
+            self.hide_image_preview = False
             self.is_popout_production_images_mode = False
             self.is_mock_data = False
             self.is_delay_network_mode = False
@@ -48,7 +48,7 @@ class Configuration:
             if settings is None:
                 return
             
-            self.is_performance_mode = settings.get(self.Keys.IS_PERFORMANCE_MODE, False)
+            self.hide_image_preview = settings.get(self.Keys.HIDE_IMAGE_PREVIEW, False)
             self.is_mock_data = settings.get(self.Keys.IS_MOCK_DATA, False)
             self.is_delay_network_mode = settings.get(self.Keys.IS_DELAY_NETWORK_MODE, False)
             self.is_popout_production_images_mode = settings.get(self.Keys.IS_POPOUT_PRODUCTION_IMAGES_MODE, False)
@@ -57,7 +57,7 @@ class Configuration:
             
         def toJSON(self, developer_mode: bool) -> Dict[str, Any]:
             return {
-                self.Keys.IS_PERFORMANCE_MODE: self.is_performance_mode,
+                self.Keys.HIDE_IMAGE_PREVIEW: self.hide_image_preview,
                 self.Keys.IS_MOCK_DATA: self.is_mock_data,
                 self.Keys.IS_DELAY_NETWORK_MODE: self.is_delay_network_mode,
                 self.Keys.IS_POPOUT_PRODUCTION_IMAGES_MODE: self.is_popout_production_images_mode,
@@ -67,7 +67,7 @@ class Configuration:
 
     def __init__(self):
         self._app_name = self.APP_NAME
-        self._app_ui_version = '0.7.0'
+        self._app_ui_version = '0.8.0'
 
         self._toggles = Configuration.Toggles()
         self._settings = Configuration.Settings()
@@ -88,8 +88,8 @@ class Configuration:
         return self._app_ui_version
     
     @property
-    def is_performance_mode(self) -> bool:
-        return self._settings.is_performance_mode
+    def hide_image_preview(self) -> bool:
+        return self._settings.hide_image_preview
     
     @property 
     def image_source(self) -> Settings.ImageSource:

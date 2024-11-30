@@ -40,10 +40,10 @@ class AboutViewController(QWidget):
         
         button = QPushButton()
         button.setText("Beep Boop")
-        button.clicked.connect(self.pressed_sound)
+        button.clicked.connect(self._pressed_sound)
         v_layout.addWidget(button)
         
-    def pressed_sound(self):
+    def _pressed_sound(self):
         self.sound_effect = QSoundEffect()
         self.sound_effect.setSource(QUrl.fromLocalFile(self.asset_provider.audio.r2_effect_path))
         print(f'playing sound effect: {self.asset_provider.audio.r2_effect_path}')

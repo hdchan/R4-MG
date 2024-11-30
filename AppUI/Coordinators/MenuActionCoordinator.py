@@ -1,8 +1,7 @@
 import webbrowser
 
 from PyQt5.QtCore import QObject, Qt
-from PyQt5.QtWidgets import (QAction, QInputDialog, QMenu, QMenuBar,
-                             QMessageBox, QWidget)
+from PyQt5.QtWidgets import QAction, QMenu, QMenuBar, QWidget
 
 from AppCore import ApplicationCore
 from AppCore.Config import *
@@ -78,6 +77,13 @@ class MenuActionCoordinator(QObject):
         show_resource_details.setChecked(self.configuration.show_resource_details)
         view_menu.addAction(show_resource_details)
         
+        
+        hide_image_preview = QAction('Hide image preview', parent)
+        hide_image_preview.triggered.connect(self.did_toggle_hide_image_preview)
+        hide_image_preview.setCheckable(True)
+        hide_image_preview.setChecked(self.configuration.hide_image_preview)
+        view_menu.addAction(hide_image_preview)
+        
         # MARK: - About
         about_menu = QMenu("&Help", parent)
         menuBar.addMenu(about_menu)
@@ -125,21 +131,7 @@ class MenuActionCoordinator(QObject):
         self._menu_parent.setMenuBar(menuBar)
 
     def new_file_tapped(self):
-        text, ok = QInputDialog.getText(self._menu_parent, 'Create new image file', 'Enter file name:')
-        if ok:
-            try:
-                self.did_input_new_file_name(text)
-            except Exception as error:
-                msgBox = QMessageBox()
-                msgBox.setIcon(QMessageBox.Icon.Critical)
-                msgBox.setText(str(error))
-                msgBox.setWindowTitle("Error")
-                msgBox.setStandardButtons(QMessageBox.StandardButton.Ok)
-                msgBox.exec()
-
-    def did_input_new_file_name(self, file_name: str):
-        self.app_core.generate_new_file(file_name)
-        self.main_program.load()
+        self.main_program.prompt_generate_new_file()
 
     def did_tap_refresh_production_images(self):
         self.main_program.load()
@@ -155,6 +147,9 @@ class MenuActionCoordinator(QObject):
     
     def did_toggle_show_resource_details(self, is_on: bool):
         self.configuration_manager.toggle_show_resource_details(is_on).save()
+    
+    def did_toggle_hide_image_preview(self, is_on: bool):
+        self.configuration_manager.toggle_hide_image_preview(is_on).save()
     
     def did_open_production_dir(self):
         self.app_core.open_production_dir()

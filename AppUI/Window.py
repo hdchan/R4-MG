@@ -1,5 +1,6 @@
 
 import os
+from typing import Optional
 
 from PyQt5.QtGui import QIcon, QKeyEvent
 from PyQt5.QtWidgets import QDesktopWidget, QMainWindow
@@ -9,6 +10,7 @@ from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         TransmissionProtocol)
 from AppCore.Observation.ObservationTower import ObservationTower
 from AppCore.Observation.TransmissionReceiver import TransmissionReceiver
+
 from .Assets import AssetProvider
 from .Observation.Events import KeyboardEvent
 
@@ -31,7 +33,7 @@ class Window(QMainWindow, TransmissionReceiver):
         self.move(qtRectangle.topLeft())
 
         self._load_window()
-
+        
         observation_tower.subscribe(self, ConfigurationUpdatedEvent)
 
     def _load_window(self):
@@ -42,8 +44,10 @@ class Window(QMainWindow, TransmissionReceiver):
     def handle_observation_tower_event(self, event: TransmissionProtocol):
         self._load_window()
         
-    def keyPressEvent(self, event: QKeyEvent):
-        self.observation_tower.notify(KeyboardEvent(KeyboardEvent.Action.PRESSED, event))
+    def keyPressEvent(self, a0: Optional[QKeyEvent]):
+        if a0 is not None:
+            self.observation_tower.notify(KeyboardEvent(KeyboardEvent.Action.PRESSED, a0))
         
-    def keyReleaseEvent(self, event: QKeyEvent):
-        self.observation_tower.notify(KeyboardEvent(KeyboardEvent.Action.RELEASED, event))
+    def keyReleaseEvent(self, a0: Optional[QKeyEvent]):
+        if a0 is not None:
+            self.observation_tower.notify(KeyboardEvent(KeyboardEvent.Action.RELEASED, a0))

@@ -168,8 +168,8 @@ class ApplicationCore(ImageResourceDeployerDelegate, ImageResourceCacherDelegate
     def publish_staged_resources(self):
         return self._resource_deployer.publish_staged_resources()
     
-    def generate_new_file(self, file_name: str):
-        self._resource_deployer.generate_new_file(file_name)
+    def generate_new_file(self, file_name: str, image: Optional[Image.Image] = None):
+        self._resource_deployer.generate_new_file(file_name, image)
         
     def retrieve_production_resource(self, index: int) -> LocalCardResource:
         return copy.deepcopy(self._resource_deployer.production_resources[index])

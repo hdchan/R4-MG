@@ -16,7 +16,7 @@ class Configuration_test(RandomTestCase):
         sut = Configuration()
         self.assertEqual(sut.app_display_name, 'R4-MG')
         self.assertEqual(sut.app_path_name, 'R4-MG')
-        self.assertFalse(sut.is_performance_mode)
+        self.assertFalse(sut.hide_image_preview)
         pictures_location = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.PicturesLocation)
         self.assertEqual(sut.production_file_path, f'{pictures_location}/{sut.app_path_name}/production/')
         self.assertEqual(sut.production_preview_file_path, f'{sut.production_file_path}preview/')
@@ -27,7 +27,7 @@ class Configuration_test(RandomTestCase):
         self.assertFalse(sut.is_delay_network_mode)
         self.assertEqual(sut.network_delay_duration, 0)
         
-    def test_set_performance_mode(self):
+    def test_set_hide_image_preview(self):
         sut = Configuration()
-        sut.is_performance_mode = True
-        self.assertTrue(sut.is_performance_mode)
+        sut.hide_image_preview = True
+        self.assertTrue(sut.hide_image_preview)

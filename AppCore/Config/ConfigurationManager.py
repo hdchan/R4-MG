@@ -10,8 +10,8 @@ from AppCore.Observation.ObservationTower import *
 
 
 class MutableConfiguration(Configuration):
-    def set_is_performance_mode(self, value: bool):
-        self._settings.is_performance_mode = value
+    def set_hide_image_preview(self, value: bool):
+        self._settings.hide_image_preview = value
         
     def set_is_mock_data(self, value: bool):
         self._settings.is_mock_data = value
@@ -64,8 +64,8 @@ class ConfigurationManager(ConfigurationProvider):
         self._configuration = deepcopy(self._real_configuration)
         self._notify_configuration_changed()
 
-    def toggle_performance_mode(self, is_on: bool) -> 'ConfigurationManager':
-        self._configuration.set_is_performance_mode(is_on)
+    def toggle_hide_image_preview(self, is_on: bool) -> 'ConfigurationManager':
+        self._configuration.set_hide_image_preview(is_on)
         return self
     
     def toggle_show_resource_details(self, is_on: bool) -> 'ConfigurationManager':

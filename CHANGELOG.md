@@ -1,5 +1,21 @@
 ## Changelog
 
+### 0.8.0
+#### Feature updates
+- Add search shortcut helper text
+- Fix loading spinner visual bug
+- Adjusting layout for search pane
+- Prevent auto scroll when disable button
+- Add default image when generating new file
+- Update performance mode to hide image preview
+- Adjust height policy for scroll view
+- Add R4 CTA
+- Add sound effect for cta image
+- Remove performance setting from settings page
+  
+#### Engineering updates
+- Handle empty production file edge case
+  
 ### 0.7.0
 #### Feature updates
 - Adds image rotation

@@ -11,7 +11,7 @@ class ShortcutActionCoordinator:
     def __init__(self, main_program: MainProgramViewController):
         # Needs to block ability to publish if not able to
         self.production_shortcut = QShortcut(QKeySequence(Qt.Modifier.CTRL + Qt.Key.Key_P), main_program)
-        self.production_shortcut.activated.connect(main_program.idl_did_tap_production_button)
+        self.production_shortcut.activated.connect(main_program.shortcut_production_button)
 
         self.focus_search = QShortcut(QKeySequence(Qt.Modifier.CTRL + Qt.Key.Key_L), main_program)
         self.focus_search.activated.connect(main_program.set_search_bar_focus)

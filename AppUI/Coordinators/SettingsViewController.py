@@ -14,10 +14,10 @@ class SettingsViewController(QWidget):
         layout = QVBoxLayout()
         self.setLayout(layout)
         
-        checkbox = QCheckBox("Performance mode: hides preview images to reduce application memory")
-        checkbox.stateChanged.connect(self.state_changed)
-        checkbox.setChecked(configuration.is_performance_mode)
-        layout.addWidget(checkbox)
+        # checkbox = QCheckBox("Performance mode: hides preview images to reduce application memory")
+        # checkbox.stateChanged.connect(self.state_changed)
+        # checkbox.setChecked(configuration.hide_image_preview)
+        # layout.addWidget(checkbox)
         
         source_label = QLabel()
         source_label.setText("Select image source from where images should be downloaded from:")
@@ -69,9 +69,9 @@ class SettingsViewController(QWidget):
     
     def state_changed(self, state):
         if state == 2:
-            self.configuration_manager.toggle_performance_mode(True)
+            self.configuration_manager.toggle_hide_image_preview(True)
         else:
-            self.configuration_manager.toggle_performance_mode(False)
+            self.configuration_manager.toggle_hide_image_preview(False)
             
     def save_and_close(self):
         self.save_settings()
