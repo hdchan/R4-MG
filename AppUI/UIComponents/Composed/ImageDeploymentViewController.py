@@ -57,6 +57,8 @@ class ImageDeploymentViewController(QWidget):
         first_column_layout.addWidget(stage_button)
         
         unstage_button = QPushButton()
+        # https://www.qtcentre.org/threads/18363-QScrollArea-How-to-avoid-automatic-scroll-actions?p=232187#post232187
+        unstage_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         unstage_button.setText("Unstage")
         unstage_button.clicked.connect(self.tapped_unstaging_button)
         unstage_button.setEnabled(False)

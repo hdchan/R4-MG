@@ -15,6 +15,14 @@ class AssetProvider:
         def swu_logo_black_path(self) -> str:
             return self._image_path('SWH_Logo_Black_preview.png')
         
+        @property 
+        def r4_head(self) -> str:
+            return self._image_path('r4-head.png')
+        
+        @property
+        def sor_background(self) -> str:
+            return self._image_path('large_spark_of_rebellion_starfield_c4fdfaa6a7.png')
+        
         def _image_path(self, file_name: str) -> str:
             return os.path.join(appdir, f'Images/{file_name}')
         
