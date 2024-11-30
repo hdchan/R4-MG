@@ -48,8 +48,8 @@ class LocalCardResource:
     
     @property
     def size(self):
-        if self._size is None and self.is_ready:
-            self._size = Image.open(self.image_path).size
+        # if self._size is None and self.is_ready:
+        self._size = Image.open(self.image_path).size
         return self._size
             
             

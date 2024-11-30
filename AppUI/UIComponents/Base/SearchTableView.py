@@ -1,12 +1,12 @@
 from typing import List, Optional
-
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QLineEdit,
                              QListWidget, QPushButton, QVBoxLayout, QWidget, QCheckBox)
 
 from AppCore.Models import CardType, TradingCard, SearchConfiguration, CardAspect
 from AppCore.Observation import ObservationTower, TransmissionReceiver
 from AppCore.Observation.Events import SearchEvent, TransmissionProtocol
-
+from ...Observation.Events import KeyboardEvent
 from .LoadingSpinner import LoadingSpinner
 
 class SearchTableView(QWidget, TransmissionReceiver):
@@ -20,10 +20,9 @@ class SearchTableView(QWidget, TransmissionReceiver):
         self.card_name_search_bar = card_name_search_bar
 
         search_button = QPushButton()
-        search_button.setText("Search (Enter)")
         search_button.clicked.connect(self.search)
         self.search_button = search_button
-        
+        self.set_default_search_button_text()
         
         card_type_selection_label = QLabel("Card type")
         
@@ -80,7 +79,10 @@ class SearchTableView(QWidget, TransmissionReceiver):
         
         self._set_card_type_filter(None)
         
-        observation_tower.subscribe(self, SearchEvent)
+        observation_tower.subscribe_multi(self, [SearchEvent, 
+                                                 KeyboardEvent])
+    def set_default_search_button_text(self):
+        self.search_button.setText("Search (Enter)")
 
     def get_selection(self):
         selected_indexs = self.result_list.selectedIndexes()
@@ -172,4 +174,15 @@ class SearchTableView(QWidget, TransmissionReceiver):
                 self._set_search_components_enabled(True)
                 if self.result_list.count() > 0:
                     self.set_item_active(0)
+        elif type(event) == KeyboardEvent:
+            # TODO: buggy
+            pass
+            # if event.action == KeyboardEvent.Action.PRESSED:
+            #     if event.event.key() == Qt.Key.Key_Shift:
+            #         self.search_button.setText('Search Base (Shift + Enter)')
                 
+            #     elif event.event.key() == Qt.Key.Key_Control:
+            #         self.search_button.setText('Search Leader (Ctrl + Enter)')
+            # else:
+            #     if event.event.key() == Qt.Key.Key_Shift or event.event.key() == Qt.Key.Key_Control:
+            #         self.set_default_search_button_text()

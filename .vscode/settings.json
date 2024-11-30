@@ -16,5 +16,8 @@
     ],
     "python.analysis.typeCheckingMode": "strict",
     "python.analysis.completeFunctionParens": true,
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportUnusedFunction": "warning"
+    },
     "python.experiments.optInto": ["pythonTestAdapter"]
 }

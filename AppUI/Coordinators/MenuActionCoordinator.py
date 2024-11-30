@@ -1,6 +1,6 @@
 import webbrowser
 
-from PyQt5.QtCore import QObject
+from PyQt5.QtCore import QObject, Qt
 from PyQt5.QtWidgets import (QAction, QInputDialog, QMenu, QMenuBar,
                              QMessageBox, QWidget)
 
@@ -131,7 +131,7 @@ class MenuActionCoordinator(QObject):
                 self.did_input_new_file_name(text)
             except Exception as error:
                 msgBox = QMessageBox()
-                msgBox.setIcon(QMessageBox.Icon.Warning)
+                msgBox.setIcon(QMessageBox.Icon.Critical)
                 msgBox.setText(str(error))
                 msgBox.setWindowTitle("Error")
                 msgBox.setStandardButtons(QMessageBox.StandardButton.Ok)
@@ -163,8 +163,12 @@ class MenuActionCoordinator(QObject):
         self.app_core.open_configuration_dir()
         
     def did_tap_settings(self):
+        def remove_ref():
+            self.settings = None
         if self.settings is None or self.settings.isHidden():
             self.settings = SettingsViewController(self.configuration_manager)
+            self.settings.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+            self.settings.destroyed.connect(remove_ref)
             self.settings.show()
         if not self.settings.isHidden():
             self.settings.activateWindow()
@@ -175,10 +179,16 @@ class MenuActionCoordinator(QObject):
     def did_clear_cache_dir(self):
         self.app_core.clear_cache()
         
+        
     def open_about_page(self):
+        def remove_ref():
+            self.about = None
         if self.about is None or self.about.isHidden():
             self.about = AboutViewController(self.configuration_manager, 
                                              self.asset_provider)
+            self.about.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+            # https://stackoverflow.com/a/65357051
+            self.about.destroyed.connect(remove_ref)
             self.about.show()
         if not self.about.isHidden():
             self.about.activateWindow()

@@ -32,7 +32,8 @@ class ImageResourceCacher:
         self.delegate: Optional[ImageResourceCacherDelegate]
 
     def async_store_local_resource(self, local_resource: LocalCardResource, retry: bool = False):
-        if retry:
+        if retry and local_resource.remote_image_url is not None:
+            assert(local_resource.remote_image_url is not None) # prevent deletion of resources that don't have any remote URL
             if os.path.exists(local_resource.image_path):
                 Path(local_resource.image_path).unlink()
             if os.path.exists(local_resource.image_preview_path):
@@ -98,7 +99,7 @@ class StoreImageWorker(QRunnable):
     def _downscale_image(self, original_img: Image.Image) -> Image.Image:
         size = THUMBNAIL_SIZE, THUMBNAIL_SIZE
         preview_img = original_img.copy().convert('RGBA')
-        preview_img.thumbnail(size)
+        preview_img.thumbnail(size, Image.Resampling.BICUBIC)
         return preview_img
 
     def _add_corners(self, im: Image.Image, rad: int) -> Image.Image:

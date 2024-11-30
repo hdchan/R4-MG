@@ -67,7 +67,7 @@ class Configuration:
 
     def __init__(self):
         self._app_name = self.APP_NAME
-        self._app_ui_version = '0.6.0'
+        self._app_ui_version = '0.7.0'
 
         self._toggles = Configuration.Toggles()
         self._settings = Configuration.Settings()

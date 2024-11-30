@@ -1,11 +1,13 @@
-
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QPushButton, QScrollArea, QVBoxLayout, QWidget
-
+from typing import List
 from AppCore import ConfigurationProvider, ObservationTower
-from AppCore.Models import CardType, LocalCardResource
-from . import ImageDeploymentViewController
-from typing import List, Optional
+from AppCore.Models import LocalCardResource
+
+from ...Assets import AssetProvider
+from . import ImageDeploymentViewController, ImagePreviewViewControllerDelegate
+
+
 class ImageDeploymentListViewController(QWidget):
     def __init__(self, 
                  observation_tower: ObservationTower, 
@@ -43,7 +45,7 @@ class ImageDeploymentListViewController(QWidget):
         
 
         self._layout = layout
-        self.list_items = []
+        self.list_items: List[ImageDeploymentListViewController] = []
         self.scroll = scroll
         self.delegate = None
 
@@ -51,9 +53,12 @@ class ImageDeploymentListViewController(QWidget):
                          file_name: str,
                          local_resource: LocalCardResource,
                          staging_button_enabled: bool,
-                         index: int):
+                         index: int, 
+                         image_preview_delegate: ImagePreviewViewControllerDelegate, 
+                         asset_provider: AssetProvider):
         item = ImageDeploymentViewController(self.observation_tower, 
-                                             self.configuration_provider)
+                                             self.configuration_provider, 
+                                             image_preview_delegate, asset_provider)
         item.delegate = self
         item.set_production_image(local_resource)
         if index <= 9:
@@ -75,28 +80,28 @@ class ImageDeploymentListViewController(QWidget):
             self._layout.takeAt(i).widget().deleteLater()
         self.list_items = []
 
-    def id_did_tap_staging_button(self, id_cell):
+    def id_did_tap_staging_button(self, id_cell: ImageDeploymentViewController):
         for idx, i in enumerate(self.list_items):
             if i == id_cell:
                 self.delegate.idl_did_tap_staging_button(self, id_cell, idx)
 
-    def id_did_tap_unstaging_button(self, id_cell):
+    def id_did_tap_unstaging_button(self, id_cell: ImageDeploymentViewController):
         for idx, i in enumerate(self.list_items):
             if i == id_cell:
                 self.delegate.idl_did_tap_unstaging_button(self, id_cell, idx)
     
-    def id_did_tap_context_search_button(self, id_cell):
+    def id_did_tap_context_search_button(self, id_cell: ImageDeploymentViewController):
         for idx, i in enumerate(self.list_items):
             if i == id_cell:
                 self.delegate.idl_did_tap_context_search_button(self, id_cell, idx)
 
-    def set_staging_image(self, local_resource, index):
+    def set_staging_image(self, local_resource: LocalCardResource, index: int):
         self.list_items[index].set_staging_image(local_resource)
 
-    def clear_staging_image(self, index):
+    def clear_staging_image(self, index: int):
         self.list_items[index].clear_staging_image()
     
-    def set_production_image(self, local_resource, index):
+    def set_production_image(self, local_resource: LocalCardResource, index: int):
         self.list_items[index].set_production_image(local_resource)
 
     def clear_all_staging_images(self):
@@ -116,6 +121,6 @@ class ImageDeploymentListViewController(QWidget):
     def set_production_button_enabled(self, enabled: bool):
         self.production_button.setEnabled(enabled)
         if enabled:
-            self.production_button.setStyleSheet("background-color : #90EE90")
+            self.production_button.setStyleSheet("background-color : #41ad49; color: white;")
         else:
             self.production_button.setStyleSheet("")

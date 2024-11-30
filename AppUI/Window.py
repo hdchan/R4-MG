@@ -1,7 +1,7 @@
 
 import os
 
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QKeyEvent
 from PyQt5.QtWidgets import QDesktopWidget, QMainWindow
 
 from AppCore.Config import ConfigurationProvider
@@ -10,6 +10,7 @@ from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
 from AppCore.Observation.ObservationTower import ObservationTower
 from AppCore.Observation.TransmissionReceiver import TransmissionReceiver
 from .Assets import AssetProvider
+from .Observation.Events import KeyboardEvent
 
 basedir = os.path.dirname(__file__)
 class Window(QMainWindow, TransmissionReceiver):
@@ -21,6 +22,7 @@ class Window(QMainWindow, TransmissionReceiver):
         super().__init__()
         self.configuration_provider = configuration_provider
         self.asset_provider = asset_provider
+        self.observation_tower = observation_tower
         
         self.setGeometry(0, 0, 400+900, 900)
         qtRectangle = self.frameGeometry()
@@ -39,3 +41,9 @@ class Window(QMainWindow, TransmissionReceiver):
 
     def handle_observation_tower_event(self, event: TransmissionProtocol):
         self._load_window()
+        
+    def keyPressEvent(self, event: QKeyEvent):
+        self.observation_tower.notify(KeyboardEvent(KeyboardEvent.Action.PRESSED, event))
+        
+    def keyReleaseEvent(self, event: QKeyEvent):
+        self.observation_tower.notify(KeyboardEvent(KeyboardEvent.Action.RELEASED, event))

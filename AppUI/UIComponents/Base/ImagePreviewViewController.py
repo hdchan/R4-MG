@@ -1,27 +1,47 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QGuiApplication
+import os
+import subprocess
+import webbrowser
 from typing import Optional
-from PyQt5.QtGui import QPixmap, QMouseEvent
-from PyQt5.QtWidgets import QLabel, QVBoxLayout, QWidget, QAction, QMenu
+
+from PyQt5.QtCore import QPoint, Qt
+from PyQt5.QtGui import QClipboard, QGuiApplication, QPixmap
+from PyQt5.QtWidgets import QAction, QLabel, QMenu, QVBoxLayout, QWidget
 
 from AppCore.Config import ConfigurationProvider
+from AppCore.Models import LocalCardResource
 from AppCore.Observation import ObservationTower, TransmissionReceiver
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
-                                        LocalResourceEvent)
-from AppCore.Models import LocalCardResource
-from .LoadingSpinner import LoadingSpinner
-from AppCore.Observation.Events import TransmissionProtocol
-import subprocess
-import os
-import webbrowser
+                                        LocalResourceEvent,
+                                        TransmissionProtocol)
 
+from .LoadingSpinner import LoadingSpinner
+from ...Assets import AssetProvider
+
+THUMBNAIL_SIZE = 256
+
+class ImagePreviewViewControllerDelegate:
+    def rotate_resource(self, local_resource: LocalCardResource, angle: float) -> None:
+        pass
+    
+    def regenerate_preview(self, local_resource: LocalCardResource) -> None:
+        pass
+    
+    def redownload_resource(self, local_resource: LocalCardResource) -> None:
+        pass
+    
 class ImagePreviewViewController(QWidget, TransmissionReceiver):
     def __init__(self, 
                  observation_tower: ObservationTower, 
-                 configuration_provider: ConfigurationProvider):
+                 configuration_provider: ConfigurationProvider, 
+                 asset_provider: AssetProvider):
         super().__init__()
         self.observation_tower = observation_tower
         self._configuration_provider = configuration_provider
+        self._asset_provider = asset_provider
+        self.delegate: Optional[ImagePreviewViewControllerDelegate] = None
+        self._local_resource: Optional[LocalCardResource] = None
+        self.loading_spinner = LoadingSpinner(self)
+        
         layout = QVBoxLayout(self)
         self.setLayout(layout)
         
@@ -30,9 +50,12 @@ class ImagePreviewViewController(QWidget, TransmissionReceiver):
         layout.addWidget(label)
         
         self._image_view = label
-        self._image_view.setContextMenuPolicy(Qt.CustomContextMenu)
-        self._image_view.customContextMenuRequested.connect(self.showContextMenu)
+        self._image_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self._image_view.linkActivated.connect(self._handle_link_activated) # should only connect once
+        self._image_view.customContextMenuRequested.connect(self._showContextMenu)
+        self._sync_image_view_state()
         # self._image_view.mousePressEvent = self._tapped_image # causes memory leak in child
+        
         
         image_info_layout = QVBoxLayout()
         image_info_widget = QWidget()
@@ -40,7 +63,6 @@ class ImagePreviewViewController(QWidget, TransmissionReceiver):
         self._image_info_widget = image_info_widget
         layout.addWidget(image_info_widget)
         self._image_info_widget.setHidden(not self._configuration_provider.configuration.show_resource_details)
-        
         
         self._card_display_name = QLabel()
         self._card_display_name.setOpenExternalLinks(True)
@@ -56,65 +78,111 @@ class ImagePreviewViewController(QWidget, TransmissionReceiver):
         self._image_url_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         image_info_layout.addWidget(self._image_url_label)
 
-        self.loading_spinner = LoadingSpinner(self)
-
-        self._local_resource: Optional[LocalCardResource] = None
-        
         observation_tower.subscribe_multi(self, [ConfigurationUpdatedEvent, 
                                                  LocalResourceEvent])
-        
-        
-        
-    def showContextMenu(self, pos):
-        if self._local_resource is not None and self._local_resource.is_ready:
-            menu = QMenu(self)
-            action1 = QAction(f"Reveal {self._local_resource.file_name_with_ext} in finder", self) # full image
-            action1.triggered.connect(self.open_file_path)
-            menu.addAction(action1)
-            if self._local_resource.remote_image_url is not None:
-                action3 = QAction(f'Open image url')
-                action3.triggered.connect(self.open_image_url)
-                menu.addAction(action3)
-                
-                action4 = QAction(f'Copy image url')
-                action4.triggered.connect(self.copy_image_url)
-                menu.addAction(action4)
-            
-            menu.exec_(self.mapToGlobal(pos))
-
-    def open_file_path(self):
-        # https://stackoverflow.com/a/55975564
-        subprocess.Popen(rf'explorer /select,"{os.path.abspath(self._local_resource.image_path)}"')
-        
-    def copy_file_path(self):
-        cb = QGuiApplication.clipboard()
-        cb.clear(mode=cb.Clipboard)
-        cb.setText(self._local_resource.image_path, mode=cb.Clipboard)
-        
-    def open_image_url(self):
-        webbrowser.open(self._local_resource.remote_image_url)
-        
-        
-    def copy_image_url(self):
-        cb = QGuiApplication.clipboard()
-        cb.clear(mode=cb.Clipboard)
-        cb.setText(self._local_resource.remote_image_url, mode=cb.Clipboard)
-
+    
+    
+    def set_image(self, local_resource: LocalCardResource):
+        self._local_resource = local_resource
+        self._sync_image_view_state()
+    
     def clear_image(self):
         self._local_resource = None
         self._image_view.clear()
         self._clear_image_info()
+        self._sync_image_view_state()
     
-    def set_image(self, local_resource: LocalCardResource):
-        self._local_resource = local_resource
-        self._load_image()
+    def _showContextMenu(self, pos: QPoint):
+        def _notify_delegate_regenerate_preview():
+            if self._local_resource is not None and self.delegate is not None:
+                self.delegate.regenerate_preview(self._local_resource)
+                
+        def _notify_delegate_redownload_resource():
+            if self._local_resource is not None and self.delegate is not None:
+                self.delegate.redownload_resource(self._local_resource)
+       
+        def _notify_delegate_rotate_right_image():
+            if self._local_resource is not None and self.delegate is not None:
+                self.delegate.rotate_resource(self._local_resource, -90)
+        
+        def _notify_delegate_rotate_left_image():
+            if self._local_resource is not None and self.delegate is not None:
+                self.delegate.rotate_resource(self._local_resource, 90)
+
+        def open_file_path():
+            if self._local_resource is not None:
+                # https://stackoverflow.com/a/55975564
+                subprocess.Popen(rf'explorer /select,"{os.path.abspath(self._local_resource.image_path)}"')
+            
+        def open_image_url():
+            if self._local_resource is not None and self._local_resource.remote_image_url is not None:
+                webbrowser.open(self._local_resource.remote_image_url)
+            
+        def copy_image_url():
+            cb = QGuiApplication.clipboard()
+            if cb is not None and self._local_resource is not None and self._local_resource.remote_image_url is not None:
+                    cb.clear(mode=QClipboard.Mode.Clipboard)
+                    cb.setText(self._local_resource.remote_image_url, mode=QClipboard.Mode.Clipboard)
+        
+        
+        if self._local_resource is not None:
+            menu = QMenu(self)
+            refresh = QAction('Refresh')
+            refresh.triggered.connect(self._sync_image_view_state)
+            menu.addAction(refresh) # type: ignore
+            
+            if self._local_resource.is_ready:
+                regenerate_preview = QAction('Regenerate preview')
+                regenerate_preview.triggered.connect(_notify_delegate_regenerate_preview)
+                menu.addAction(regenerate_preview) # type: ignore
+                
+                if self._local_resource.remote_image_url is not None:
+                    redownload_resource = QAction('Redownload')
+                    redownload_resource.triggered.connect(_notify_delegate_redownload_resource)
+                    menu.addAction(redownload_resource) # type: ignore
+                
+                menu.addSeparator()
+                reveal_action = QAction(f"Reveal {self._local_resource.file_name_with_ext} in finder", self) # full image
+                reveal_action.triggered.connect(open_file_path)
+                menu.addAction(reveal_action) # type: ignore
+                
+                if self._local_resource.remote_image_url is not None:
+                    open_url_action = QAction(f'Open image url')
+                    open_url_action.triggered.connect(open_image_url)
+                    menu.addAction(open_url_action) # type: ignore
+                    
+                    copy_url_action = QAction(f'Copy image url')
+                    copy_url_action.triggered.connect(copy_image_url)
+                    menu.addAction(copy_url_action) # type: ignore
+                    
+                menu.addSeparator()
+                rotate_right_action = QAction('Rotate right 90°')
+                rotate_right_action.triggered.connect(_notify_delegate_rotate_right_image)
+                menu.addAction(rotate_right_action) # type: ignore
+                
+                rotate_left_action = QAction('Rotate left 90°')
+                rotate_left_action.triggered.connect(_notify_delegate_rotate_left_image)
+                menu.addAction(rotate_left_action) # type: ignore
+            
+            menu.exec_(self.mapToGlobal(pos))
+
+    class LinkKey:
+        REGENERATE_PREVIEW = '#regenerate-preview'
+        REDOWNLOAD_IMAGE = '#redownload-image'
     
-    def _load_image(self):
+    def _sync_image_view_state(self):
         if self._local_resource is None:
+            # empty state
+            # self._image_view.setText('Image Placeholder')
             self.loading_spinner.stop()
+            image = QPixmap()
+            success = image.load(self._asset_provider.image.swu_logo_black_path)
+            if success:
+                self._image_view.setPixmap(image)
             return
         self._image_view.clear()
         self._clear_image_info()
+        
         if self._local_resource.is_loading:
             self.loading_spinner.start()
         elif self._local_resource.is_ready:
@@ -127,9 +195,22 @@ class ImagePreviewViewController(QWidget, TransmissionReceiver):
                 if success:
                     self._image_view.setPixmap(image)
                     self._set_image_info()
+                else:
+                    # existing resource, but no preview
+                    self._image_view.setText(f'No preview for {self._local_resource.display_name}. <a href="{self.LinkKey.REGENERATE_PREVIEW}">Regenerate</a>')
                         
         else: # failed to load
             self.loading_spinner.stop()
+            self._image_view.setText(f'{self._local_resource.display_name} not found. <a href="{self.LinkKey.REDOWNLOAD_IMAGE}">Redownload</a>')
+    
+    
+    
+    def _handle_link_activated(self, link: str):
+        if self._local_resource is not None and self.delegate is not None:
+            if link == self.LinkKey.REDOWNLOAD_IMAGE:
+                self.delegate.redownload_resource(self._local_resource)
+            elif link == self.LinkKey.REGENERATE_PREVIEW:
+                self.delegate.regenerate_preview(self._local_resource)
     
     def _toggle_resource_details_visibility(self):
         self._image_info_widget.setHidden(not self._configuration_provider.configuration.show_resource_details)
@@ -138,9 +219,8 @@ class ImagePreviewViewController(QWidget, TransmissionReceiver):
         if self._local_resource is not None and self._local_resource.is_ready:
             self._card_display_name.setText(self._local_resource.display_name)
             
-            if self._local_resource.size is not None:
-                image_w, image_h = self._local_resource.size
-                self._size_info_label.setText(f'{image_w}W x {image_h}H')
+            image_w, image_h = self._local_resource.size
+            self._size_info_label.setText(f'{image_w}W x {image_h}H')
                 
             if self._local_resource.remote_image_url is not None:
                 url = self._local_resource.remote_image_url
@@ -151,21 +231,16 @@ class ImagePreviewViewController(QWidget, TransmissionReceiver):
         self._size_info_label.clear()
         self._image_url_label.clear()
 
+
     def handle_observation_tower_event(self, event: TransmissionProtocol):
         if type(event) == ConfigurationUpdatedEvent:
-            self._load_image()
+            self._sync_image_view_state()
             self._toggle_resource_details_visibility()
             
-        elif type(event) == LocalResourceEvent:
-            if self._local_resource is not None:
-                if self._local_resource.image_preview_path == event.local_resource.image_preview_path:
-                    self._load_image()
-                    if event.event_type == LocalResourceEvent.EventType.FAILED:
-                        print(f"Failed resource: {self._local_resource.image_preview_path}")
-                    elif event.event_type == LocalResourceEvent.EventType.FINISHED:
-                        print(f"Reloading resource: {self._local_resource.image_preview_path}")
-                
-    def _tapped_image(self, ev: Optional[QMouseEvent]) -> None:
-        if self._img_path is not None:
-            # print(self._img_path)
-            pass
+        if type(event) == LocalResourceEvent:
+            if self._local_resource is not None and self._local_resource.image_preview_path == event.local_resource.image_preview_path:
+                self._sync_image_view_state()
+                if event.event_type == LocalResourceEvent.EventType.FAILED:
+                    print(f"Failed resource: {self._local_resource.image_preview_path}")
+                elif event.event_type == LocalResourceEvent.EventType.FINISHED:
+                    print(f"Reloading resource: {self._local_resource.image_preview_path}")

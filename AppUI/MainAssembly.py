@@ -17,7 +17,10 @@ from AppUI.ContainerViewController import ContainerViewController
 from AppUI.Coordinators import MenuActionCoordinator, ShortcutActionCoordinator
 from AppUI.MainProgramViewController import MainProgramViewController
 from AppUI.Window import Window
+
 from .Assets import AssetProvider
+from .Coordinators.AboutViewController import AboutViewController
+
 
 class MainAssembly:
     def __init__(self):
@@ -44,7 +47,8 @@ class MainAssembly:
         main_program = MainProgramViewController(observation_tower,
                                                 self.configuration_manager,
                                                 application_core, 
-                                                image_source_provider)
+                                                image_source_provider, 
+                                                asset_provider)
         advanced_view = AdvancedViewController(observation_tower, 
                                                application_core)
         self.menu_action_coordinator = MenuActionCoordinator(main_window,

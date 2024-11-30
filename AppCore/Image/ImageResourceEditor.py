@@ -1,0 +1,2 @@
+class ImageResourceEditor:
+    pass
