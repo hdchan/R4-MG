@@ -2,7 +2,7 @@ from typing import List, Optional, Union
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QPushButton, QScrollArea, QVBoxLayout,
-                             QWidget, QSizePolicy)
+                             QWidget, QSizePolicy, QAbstractSlider)
 
 from AppCore import ConfigurationProvider, ObservationTower
 from AppCore.Models import LocalCardResource
@@ -56,11 +56,16 @@ class ImageDeploymentListViewController(QWidget):
         cells_container_layout.addWidget(add_image_cta)
         
         
-        scroll_view = QScrollArea(self)
-        scroll_view.setWidget(cells_container_widget)
-        scroll_view.setWidgetResizable(True)
+        self.scroll_view = QScrollArea(self)
+        # https://stackoverflow.com/a/75781450
+        # scroll_view.verticalScrollBar().actionTriggered.connect(self.scrolled)
+        # self.position = self.scroll_view.verticalScrollBar().sliderPosition()
+        # self.scroll_view.verticalScrollBar().actionTriggered.connect(self.on_scroll)
+        # self.scroll_view.verticalScrollBar().valueChanged.connect(self.scrolled)
+        self.scroll_view.setWidget(cells_container_widget)
+        self.scroll_view.setWidgetResizable(True)
         # self.scroll = scroll_view
-        outer_container_layout.addWidget(scroll_view)
+        outer_container_layout.addWidget(self.scroll_view)
         
 
         production_button = QPushButton()
@@ -74,12 +79,40 @@ class ImageDeploymentListViewController(QWidget):
         
         self.delegate: Optional[ImageDeploymentListViewControllerDelegate] = None
     
+    def on_scroll(self, action):
+        
+        # In case you scroll using the mouse wheel or clicking the bar.
+        if(self.scroll_view.verticalScrollBar().sliderPosition() > self.position):
+            print('scroll down occurred ')
+            self.position = self.scroll_view.verticalScrollBar().sliderPosition()
+        if(self.scroll_view.verticalScrollBar().sliderPosition() < self.position):
+            print('scroll up occurred ')
+            self.position = self.scroll_view.verticalScrollBar().sliderPosition()
+        
+        # SliderSingleStepAdd for when you click the arrow up.
+        # SliderPageStepAdd for when you click the bar up.    
+        if (action == QAbstractSlider.SliderSingleStepAdd) or (action == QAbstractSlider.SliderPageStepAdd):
+            print('scroll down occurred ')
+        # SliderSingleStepSub for when you click the arrow down.
+        # SliderPageStepSub for when you click the bar down.
+        if (action == QAbstractSlider.SliderSingleStepSub) or (action == QAbstractSlider.SliderPageStepSub):
+            print('scroll up occurred ')
+
+    # https://stackoverflow.com/questions/23525448/python-pyqt-scrollbar-in-the-end-position-event
+    def scrolled(self, value):
+        print(self.scroll_view.verticalScrollBar().sliderPosition(), value, self.scroll_view.verticalScrollBar().maximum())
+        if value == self.scroll_view.verticalScrollBar().maximum():
+            print ('reached max') # that will be the bottom/right end
+        if value == self.scroll_view.verticalScrollBar().minimum():
+            print ('reached min') # top/left end
     
     def load_production_resources(self, card_resources: List[LocalCardResource], staging_button_enabled: bool):
         for index, resource in enumerate(card_resources):
             self._create_list_item(resource,
                                    staging_button_enabled,
                                    index)
+            
+        print(self.scroll_view.verticalScrollBar().sliderPosition(), self.scroll_view.verticalScrollBar().maximum())
 
     def _create_list_item(self,
                          local_resource: LocalCardResource,

@@ -8,10 +8,11 @@ from PyQt5.QtWidgets import (QCheckBox, QComboBox, QHBoxLayout, QLabel,
 from AppCore.Models import (CardAspect, CardType, SearchConfiguration,
                             TradingCard)
 from AppCore.Observation import ObservationTower, TransmissionReceiver
-from AppCore.Observation.Events import SearchEvent, TransmissionProtocol
+from AppCore.Observation.Events import SearchEvent, TransmissionProtocol, ConfigurationUpdatedEvent
 
 from ...Observation.Events import KeyboardEvent
 from .LoadingSpinner import LoadingSpinner
+from AppCore.Config import ConfigurationProvider, Configuration
 
 
 class SearchTableViewDelegate:
@@ -24,11 +25,15 @@ class SearchTableViewDelegate:
 class SearchTableView(QWidget, TransmissionReceiver):
     def __init__(self, 
                  observation_tower: ObservationTower, 
-                 card_type_list: List[CardType]):
+                 card_type_list: List[CardType], 
+                 configuration_provider: ConfigurationProvider):
         super().__init__()
         
         self._shift_pressed = False
         self._ctrl_pressed = False
+        self._configuration_provider = configuration_provider
+        self._result_list: Optional[List[TradingCard]] = None
+        # self._selected_index = 0
 
         layout = QVBoxLayout()
         self.setLayout(layout)
@@ -112,7 +117,8 @@ class SearchTableView(QWidget, TransmissionReceiver):
         self._set_card_type_filter(None)
         
         observation_tower.subscribe_multi(self, [SearchEvent, 
-                                                 KeyboardEvent]) 
+                                                 KeyboardEvent, 
+                                                 ConfigurationUpdatedEvent]) 
 
     def get_selection(self):
         selected_indexs = self.result_list.selectedIndexes()
@@ -170,16 +176,30 @@ class SearchTableView(QWidget, TransmissionReceiver):
         if self.delegate is not None:
             self.delegate.tv_did_tap_search(self, search_configuration)
 
-        
 
     def update_list(self, list: List[TradingCard]):
         # https://stackoverflow.com/questions/25187444/pyqt-qlistwidget-custom-items
-        self.result_list.clear()
-        for i in list:
-            self.result_list.addItem(i.friendly_display_name)
-        # important that this is the last thing that happens
-        self._set_search_components_enabled(True)
+        self._result_list = list
+        self._load_list()
         
+    def _load_list(self):
+        selected_indexs = self.result_list.selectedIndexes()
+        selected_index = 0
+        if len(selected_indexs) > 0:
+            selected_index = selected_indexs[0].row()
+
+        if self._result_list is not None:
+            self.result_list.clear()
+            for i in self._result_list:
+                display_name = i.friendly_display_name
+                if self._configuration_provider.configuration.card_title_detail == Configuration.Settings.CardTitleDetail.SHORT:
+                    display_name = i.friendly_display_name_short
+                elif self._configuration_provider.configuration.card_title_detail == Configuration.Settings.CardTitleDetail.DETAILED:
+                    display_name = i.friendly_display_name_detailed
+                self.result_list.addItem(display_name)
+            # important that this is the last thing that happens
+            self.set_item_active(selected_index)
+            self._set_search_components_enabled(True)
 
     def _set_search_components_enabled(self, is_on: bool):
         self.card_name_search_bar.setEnabled(is_on)
@@ -229,3 +249,6 @@ class SearchTableView(QWidget, TransmissionReceiver):
                 if event.event.key() == Qt.Key.Key_Control:
                     self._ctrl_pressed = False
             self._sync_search_button_text()
+
+        elif type(event) == ConfigurationUpdatedEvent:
+            self._load_list()

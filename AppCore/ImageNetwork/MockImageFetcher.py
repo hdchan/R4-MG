@@ -5,7 +5,7 @@ from urllib import parse
 from PIL import Image, ImageDraw, ImageFont
 
 from .ImageFetcherProtocol import *
-
+import platform
 
 class MockImageFetcher(ImageFetcherProtocol):
     def fetch(self, image_url: str) ->Image.Image:
@@ -28,6 +28,9 @@ class MockImageFetcher(ImageFetcherProtocol):
         I1 = ImageDraw.Draw(img)
  
         # Add Text to an image
-        myFont = ImageFont.truetype('arial.ttf', 20)
+        if platform.system() == "Darwin":
+            myFont = ImageFont.truetype('/Library/Fonts/Arial.ttf', 20)
+        elif platform.system() == "Windows":
+            myFont = ImageFont.truetype('arial.ttf', 20)
         I1.text((0, 100), file_name, font=myFont, fill=(0, 0, 0)) # type: ignore
         return img

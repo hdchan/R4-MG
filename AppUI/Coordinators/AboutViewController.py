@@ -1,7 +1,7 @@
-from PyQt5.QtCore import Qt, QUrl
+from PyQt5.QtCore import QPoint, Qt, QUrl
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtMultimedia import QSoundEffect
-from PyQt5.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QLabel, QMenu, QPushButton, QVBoxLayout, QWidget, QAction
 
 from AppCore.Config import ConfigurationProvider
 
@@ -26,6 +26,8 @@ class AboutViewController(QWidget):
         success = image.load(asset_provider.image.logo_path)
         image = image.scaled(50, 50, Qt.AspectRatioMode.KeepAspectRatio)
         image_view = QLabel()
+        image_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        image_view.customContextMenuRequested.connect(self._showContextMenu)
         image_view.setAlignment(Qt.AlignmentFlag.AlignCenter)
         image_view.setPixmap(image)
         v_layout.addWidget(image_view)
@@ -38,13 +40,21 @@ class AboutViewController(QWidget):
         v_layout.addWidget(label)
         
         
-        button = QPushButton()
-        button.setText("Beep Boop")
-        button.clicked.connect(self._pressed_sound)
-        v_layout.addWidget(button)
+        # button = QPushButton()
+        # button.setText("Beep Boop")
+        # button.clicked.connect(self._pressed_sound)
+        # v_layout.addWidget(button)
         
+    def _showContextMenu(self, pos: QPoint):
+        menu = QMenu(self)
+        beep = QAction('Beep Boop')
+        beep.triggered.connect(self._pressed_sound)
+        menu.addAction(beep) # type: ignore
+        menu.exec_(self.mapToGlobal(pos))
+
     def _pressed_sound(self):
         self.sound_effect = QSoundEffect()
-        self.sound_effect.setSource(QUrl.fromLocalFile(self.asset_provider.audio.r2_effect_path))
-        print(f'playing sound effect: {self.asset_provider.audio.r2_effect_path}')
+        self.sound_effect.setVolume(0.5)
+        self.sound_effect.setSource(QUrl.fromLocalFile(self.asset_provider.audio.r4_effect_path))
+        print(f'playing sound effect: {self.asset_provider.audio.r4_effect_path}')
         self.sound_effect.play()

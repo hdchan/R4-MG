@@ -18,12 +18,21 @@ class MutableConfiguration(Configuration):
         
     def set_is_delay_network_mode(self, value: bool):
         self._settings.is_delay_network_mode = value
-        
+    
+    def set_search_source(self, source: Configuration.Settings.SearchSource):
+        self._settings.search_source = source
+
     def set_image_source(self, source: Configuration.Settings.ImageSource):
         self._settings.image_source = source
 
     def set_show_resource_details(self, value: bool):
         self._settings.show_resource_details = value
+
+    def set_card_title_detail(self, detail: Configuration.Settings.CardTitleDetail):
+        self._settings.cart_title_detail = detail
+
+    def set_is_r4_action_sound_effect_on(self, value: bool):
+        self._settings.is_r4_action_sound_effect_on = value
 
 class ConfigurationManager(ConfigurationProvider):
     def __init__(self, observation_tower: ObservationTower):
@@ -84,14 +93,27 @@ class ConfigurationManager(ConfigurationProvider):
         self._configuration.is_popout_production_images_mode = is_on
         return self
     
-    def set_image_source(self, source: Configuration.Settings.ImageSource):
+    def set_image_source(self, source: Configuration.Settings.ImageSource) -> 'ConfigurationManager':
         self._configuration.set_image_source(source)
+        return self
+
+    def set_search_source(self, source: Configuration.Settings.SearchSource) -> 'ConfigurationManager':
+        self._configuration.set_search_source(source)
+        return self
+
+    def set_card_title_detail(self, detail: Configuration.Settings.CardTitleDetail) -> 'ConfigurationManager':
+        self._configuration.set_card_title_detail(detail)
+        return self
     
     def toggle_image_source(self, is_on: bool) -> 'ConfigurationManager':
         if is_on:
             self._configuration.set_image_source(Configuration.Settings.ImageSource.SWUDB)
         else:
             self._configuration.set_image_source(Configuration.Settings.ImageSource.SWUDBAPI)
+        return self
+    
+    def toggle_is_r4_action_sound_effect_on(self, is_on: bool) -> 'ConfigurationManager':
+        self._configuration.set_is_r4_action_sound_effect_on(is_on)
         return self
 
     def _notify_configuration_changed(self):

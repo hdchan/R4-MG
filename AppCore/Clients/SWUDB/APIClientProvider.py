@@ -1,7 +1,7 @@
 from AppCore.Config.Configuration import *
 
 from ...Data.APIClientProtocol import *
-
+from AppCore.Config.Configuration import Configuration
 
 class APIClientProvider(APIClientProviderProtocol):
     def __init__(self, 
@@ -13,7 +13,7 @@ class APIClientProvider(APIClientProviderProtocol):
         self.mock_client = mock_client
         
     def provideClient(self) -> APIClientProtocol:
-        if self.configuration_provider.configuration.is_mock_data:
+        if self.configuration_provider.configuration.search_source == Configuration.Settings.SearchSource.LOCAL:
             return self.mock_client
         else:
             return self.real_client

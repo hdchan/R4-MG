@@ -12,6 +12,7 @@ from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         TransmissionProtocol)
 from AppCore.Resource import CardImageSourceProviderProtocol
 from AppCore.Models import LocalCardResource
+from AppCore.Data import APIClientProviderProtocol
 from ..Base import ImagePreviewViewController, SearchTableView
 from ...Assets import AssetProvider
 
@@ -20,6 +21,7 @@ class CardSearchPreviewViewController(QWidget):
                  observation_tower: ObservationTower, 
                  configuration_provider: ConfigurationProvider, 
                  card_type_list: List[CardType], 
+                 card_search_source_provider: APIClientProviderProtocol,
                  card_image_source_provider: CardImageSourceProviderProtocol, 
                  asset_provider: AssetProvider):
         super().__init__()
@@ -28,6 +30,7 @@ class CardSearchPreviewViewController(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
         self._observation_tower = observation_tower
+        self._card_search_source_provider = card_search_source_provider
         self._card_image_source_provider = card_image_source_provider
         # https://stackoverflow.com/a/19011496
         staging_view = ImagePreviewViewController(observation_tower, 
@@ -62,17 +65,24 @@ class CardSearchPreviewViewController(QWidget):
         
         
         search_table_view = SearchTableView(observation_tower, 
-                                            card_type_list)
+                                            card_type_list, 
+                                            configuration_provider)
         # search_table_view.setStyleSheet('background-color: yellow')
         search_table_view.delegate = self
         self.search_table_view = search_table_view
         layout.addWidget(search_table_view, 2)
         
+        search_source_label = QLabel()
+        search_source_label.setOpenExternalLinks(True)
+        layout.addWidget(search_source_label)
+        self.search_source_label = search_source_label
+
         image_source_label = QLabel()
         image_source_label.setOpenExternalLinks(True)
         layout.addWidget(image_source_label)
         self.image_source_label = image_source_label
-        self._load_image_source_label()
+
+        self._load_source_labels()
         
         self._current_image_path = None
         self._observation_tower.subscribe_multi(self, [LocalResourceEvent, 
@@ -119,11 +129,17 @@ class CardSearchPreviewViewController(QWidget):
     def tapped_retry_button(self):
         self.delegate.cs_did_tap_retry_button(self)
         
-    def _load_image_source_label(self):
-        url = self._card_image_source_provider.provideSource().site_source_url()
-        self.image_source_label.setText(f'Image source: <a href="{url}">{url}</a>')
+    def _load_source_labels(self):
+        search_source_url = self._card_search_source_provider.provideClient().site_source_url
+        if 'https://' in search_source_url:
+            self.search_source_label.setText(f'Search source: <a href="{search_source_url}">{search_source_url}</a>')
+        else:
+            self.search_source_label.setText(f'Search source: {search_source_url}')
+
+        image_source_url = self._card_image_source_provider.provideSource().site_source_url()
+        self.image_source_label.setText(f'Image source: <a href="{image_source_url}">{image_source_url}</a>')
         
     def handle_observation_tower_event(self, event: TransmissionProtocol):
         if type(event) == ConfigurationUpdatedEvent:
-            self._load_image_source_label()
+            self._load_source_labels()
                     

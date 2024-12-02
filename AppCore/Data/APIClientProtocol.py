@@ -8,6 +8,10 @@ APIClientSearchCallback = Callable[[Tuple[Optional[List[TradingCard]], Optional[
 class APIClientProtocol:
     def __init__(self, networker: NetworkerProtocol):
         self.netorker = networker
+
+    @property
+    def site_source_url(self) -> str:
+        return NotImplemented
         
     def search(self, search_configuration: SearchConfiguration, callback: APIClientSearchCallback) -> None:
         raise Exception()

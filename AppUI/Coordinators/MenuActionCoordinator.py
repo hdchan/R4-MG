@@ -83,6 +83,34 @@ class MenuActionCoordinator(QObject):
         hide_image_preview.setCheckable(True)
         hide_image_preview.setChecked(self.configuration.hide_image_preview)
         view_menu.addAction(hide_image_preview)
+
+
+        card_title_detail = QMenu('Card title detail', parent)
+        view_menu.addMenu(card_title_detail)
+
+        card_title_detail_short = QAction('Short', parent)
+        card_title_detail_short.triggered.connect(self.did_toggle_card_title_detail_short)
+        card_title_detail_short.setCheckable(True)
+        # card_title_detail_short.setChecked(self.configuration.card_title_detail == Configuration.Settings.CardTitleDetail.SHORT)
+        self.card_title_detail_short = card_title_detail_short
+        card_title_detail.addAction(card_title_detail_short)
+
+        card_title_detail_normal = QAction('Normal', parent)
+        card_title_detail_normal.triggered.connect(self.did_toggle_card_title_detail_normal)
+        card_title_detail_normal.setCheckable(True)
+        # card_title_detail_normal.setChecked(self.configuration.card_title_detail == Configuration.Settings.CardTitleDetail.NORMAL)
+        self.card_title_detail_normal = card_title_detail_normal
+        card_title_detail.addAction(card_title_detail_normal)
+
+        card_title_detail_detailed = QAction('Detailed', parent)
+        card_title_detail_detailed.triggered.connect(self.did_toggle_card_title_detail_detailed)
+        card_title_detail_detailed.setCheckable(True)
+        # card_title_detail_detailed.setChecked(self.configuration.card_title_detail == Configuration.Settings.CardTitleDetail.DETAILED)
+        self.card_title_detail_detailed = card_title_detail_detailed
+        card_title_detail.addAction(card_title_detail_detailed)
+
+        self._sync_card_title_detail_checkmarks()
+
         
         # MARK: - About
         about_menu = QMenu("&Help", parent)
@@ -150,6 +178,24 @@ class MenuActionCoordinator(QObject):
     
     def did_toggle_hide_image_preview(self, is_on: bool):
         self.configuration_manager.toggle_hide_image_preview(is_on).save()
+
+    def did_toggle_card_title_detail_short(self, is_on: bool):
+        self.configuration_manager.set_card_title_detail(Configuration.Settings.CardTitleDetail.SHORT).save()
+        self._sync_card_title_detail_checkmarks()
+
+    def did_toggle_card_title_detail_normal(self, is_on: bool):
+        self.configuration_manager.set_card_title_detail(Configuration.Settings.CardTitleDetail.NORMAL).save()
+        self._sync_card_title_detail_checkmarks()
+
+    def did_toggle_card_title_detail_detailed(self, is_on: bool):
+        self.configuration_manager.set_card_title_detail(Configuration.Settings.CardTitleDetail.DETAILED).save()
+        self._sync_card_title_detail_checkmarks()
+
+    def _sync_card_title_detail_checkmarks(self):
+        preference = self.configuration.card_title_detail
+        self.card_title_detail_short.setChecked(preference == Configuration.Settings.CardTitleDetail.SHORT)
+        self.card_title_detail_normal.setChecked(preference == Configuration.Settings.CardTitleDetail.NORMAL)
+        self.card_title_detail_detailed.setChecked(preference == Configuration.Settings.CardTitleDetail.DETAILED)
     
     def did_open_production_dir(self):
         self.app_core.open_production_dir()

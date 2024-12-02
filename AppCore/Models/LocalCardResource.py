@@ -12,12 +12,16 @@ class LocalCardResource:
                  image_preview_dir: str,
                  file_name: str,
                  display_name: str,
+                 display_name_short: str,
+                 display_name_detailed: str,
                  file_extension: str,
                  remote_image_url: Optional[str] = None):
         self.image_dir = image_dir
         self.image_preview_dir = image_preview_dir
         self.file_name = file_name
         self.display_name = display_name
+        self.display_name_short = display_name_short
+        self.display_name_detailed = display_name_detailed
         self.remote_image_url = remote_image_url
         self.file_extension = file_extension
         self._size: Optional[Size] = None

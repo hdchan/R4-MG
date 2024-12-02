@@ -7,6 +7,10 @@ from ...Models import SearchConfiguration
 # suggests using move to thread
 class SWUDBClient(APIClientProtocol):
 
+    @property
+    def site_source_url(self) -> str:
+        return "https://www.swu-db.com/"
+
     def search(self, search_configuration: SearchConfiguration, callback: APIClientSearchCallback):
         self.netorker.load(SearchRequest(search_configuration), callback)
         

@@ -1,9 +1,16 @@
 import copy
+import os
+import platform
+import shutil
+import subprocess
 from typing import List, Optional
 
+from PIL import Image
+
+from AppCore.Config import ConfigurationProvider
 from AppCore.Models import SearchConfiguration, TradingCard
 from AppCore.Resource import CardResourceProvider
-from .Resource import CardImageSourceProviderProtocol
+
 from .Data import CardDataSource, CardDataSourceDelegate
 from .Data.APIClientProtocol import APIClientProviderProtocol
 from .Image import (ImageFetcherProviderProtocol, ImageResourceCacher,
@@ -11,10 +18,7 @@ from .Image import (ImageFetcherProviderProtocol, ImageResourceCacher,
                     ImageResourceDeployerDelegate)
 from .Observation import ObservationTower
 from .Observation.Events import *
-from AppCore.Config import ConfigurationProvider
-import shutil
-import os
-from PIL import Image
+from .Resource import CardImageSourceProviderProtocol
 
 THUMBNAIL_SIZE = 256
 
@@ -102,13 +106,33 @@ class ApplicationCore(ImageResourceDeployerDelegate, ImageResourceCacherDelegate
         if self.selected_index is not None:
             self._retrieve_card_resource_for_card_selection(self.selected_index, True)
     
-    
+    # OS operations
     def open_production_dir(self):
-        os.startfile(self._configuration.production_file_path)
+        if platform.system() == "Darwin":
+            os.system(f"open {self._configuration.production_file_path}")
+        elif platform.system() == "Windows":
+            os.startfile(self._configuration.production_file_path) # type: ignore
+        
         
     def open_configuration_dir(self):
-        os.startfile(self._configuration.config_directory)
+        if platform.system() == "Darwin":
+            os.system(f"open {self._configuration.config_directory}")
+        elif platform.system() == "Windows":
+            os.startfile(self._configuration.config_directory) # type: ignore
+        
+    def open_file(self, local_resource: LocalCardResource):
+        if platform.system() == "Darwin":
+            os.system(f"open {local_resource.image_path}")
+        elif platform.system() == "Windows":
+            os.startfile(local_resource.image_path) # type: ignore
     
+    def open_file_path(self, local_resource: LocalCardResource):
+        # https://stackoverflow.com/a/55975564
+        if platform.system() == "Darwin":
+            subprocess.call(["open", "-R", f"{os.path.abspath(local_resource.image_path)}"])
+        elif platform.system() == "Windows":
+            subprocess.Popen(rf'explorer /select,"{os.path.abspath(local_resource.image_path)}"')
+
     def clear_cache(self):
         shutil.rmtree(self._configuration.cache_file_path)
     

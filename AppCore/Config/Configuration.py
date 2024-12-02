@@ -5,6 +5,7 @@ from enum import Enum
 class Configuration:
     
     APP_NAME = 'R4-MG'
+    APP_VERSION = '0.9.0'
     
     class Toggles:
         class Keys:
@@ -25,49 +26,82 @@ class Configuration:
             
     class Settings:
         class Keys:
+            SEARCH_SOURCE = 'search_source'
+            IMAGE_SOURCE = 'image_source'
+
             HIDE_IMAGE_PREVIEW = 'hide_image_preview'
+            SHOW_RESOURCE_DETAILS = 'show_resource_details'
+            CARD_TITLE_DETAIL = 'card_title_preference'
+            IS_R4_ACTION_SOUND_EFFECT_ON = 'is_r4_action_sound_effect_on'
+
             IS_MOCK_DATA = 'is_mock_data'
             IS_DELAY_NETWORK_MODE = 'is_delay_network_mode'
             IS_POPOUT_PRODUCTION_IMAGES_MODE = 'is_popout_production_images_mode'
-            IMAGE_SOURCE = 'image_source'
-            SHOW_RESOURCE_DETAILS = 'show_resource_details'
-            
+        
+        class CardTitleDetail(Enum):
+            NORMAL = 0
+            SHORT = 1
+            DETAILED = 2
+            DEFAULT = NORMAL
+
+        class SearchSource(Enum):
+            SWUDBAPI = 0
+            LOCAL = 1
+            DEFAULT = SWUDBAPI
+
         class ImageSource(Enum):
             SWUDBAPI = 0 # https://www.swu-db.com/api
             SWUDB = 1 # https://swudb.com/
+            DEFAULT = SWUDBAPI
         
         def __init__(self):
+            self.search_source = self.SearchSource.DEFAULT
+            self.image_source = self.ImageSource.DEFAULT
+
             self.hide_image_preview = False
+            self.show_resource_details = False
+            self.cart_title_detail = self.CardTitleDetail.DEFAULT
+            self.is_r4_action_sound_effect_on = False
+
             self.is_popout_production_images_mode = False
             self.is_mock_data = False
             self.is_delay_network_mode = False
-            self.image_source = self.ImageSource.SWUDBAPI
-            self.show_resource_details = False
             
         def loadJSON(self, settings: Optional[Dict[str, Any]], developer_mode: bool):
             if settings is None:
                 return
-            
+            self.search_source = self.SearchSource(settings.get(self.Keys.SEARCH_SOURCE, self.SearchSource.DEFAULT))
+            self.image_source = self.ImageSource(settings.get(self.Keys.IMAGE_SOURCE, self.ImageSource.DEFAULT))
+
             self.hide_image_preview = settings.get(self.Keys.HIDE_IMAGE_PREVIEW, False)
+            self.show_resource_details = settings.get(self.Keys.SHOW_RESOURCE_DETAILS, False)
+            self.cart_title_detail = self.CardTitleDetail(settings.get(self.Keys.CARD_TITLE_DETAIL, self.CardTitleDetail.DEFAULT))
+            self.is_r4_action_sound_effect_on = settings.get(self.Keys.IS_R4_ACTION_SOUND_EFFECT_ON, False)
+
             self.is_mock_data = settings.get(self.Keys.IS_MOCK_DATA, False)
             self.is_delay_network_mode = settings.get(self.Keys.IS_DELAY_NETWORK_MODE, False)
             self.is_popout_production_images_mode = settings.get(self.Keys.IS_POPOUT_PRODUCTION_IMAGES_MODE, False)
-            self.image_source = self.ImageSource(settings.get(self.Keys.IMAGE_SOURCE, 0))
-            self.show_resource_details = settings.get(self.Keys.SHOW_RESOURCE_DETAILS, False)
+            
+            
             
         def toJSON(self, developer_mode: bool) -> Dict[str, Any]:
             return {
+                self.Keys.SEARCH_SOURCE: self.search_source.value,
+                self.Keys.IMAGE_SOURCE: self.image_source.value,
+
                 self.Keys.HIDE_IMAGE_PREVIEW: self.hide_image_preview,
+                self.Keys.SHOW_RESOURCE_DETAILS: self.show_resource_details,
+                self.Keys.CARD_TITLE_DETAIL: self.cart_title_detail.value,
+                self.Keys.IS_R4_ACTION_SOUND_EFFECT_ON: self.is_r4_action_sound_effect_on,
+                
                 self.Keys.IS_MOCK_DATA: self.is_mock_data,
                 self.Keys.IS_DELAY_NETWORK_MODE: self.is_delay_network_mode,
                 self.Keys.IS_POPOUT_PRODUCTION_IMAGES_MODE: self.is_popout_production_images_mode,
-                self.Keys.IMAGE_SOURCE: self.image_source.value,
-                self.Keys.SHOW_RESOURCE_DETAILS: self.show_resource_details
             }
 
     def __init__(self):
         self._app_name = self.APP_NAME
-        self._app_ui_version = '0.8.0'
+        self._app_ui_version = self.APP_VERSION
 
         self._toggles = Configuration.Toggles()
         self._settings = Configuration.Settings()
@@ -92,12 +126,24 @@ class Configuration:
         return self._settings.hide_image_preview
     
     @property 
+    def search_source(self) -> Settings.SearchSource:
+        return self._settings.search_source
+
+    @property 
     def image_source(self) -> Settings.ImageSource:
         return self._settings.image_source
+    
+    @property
+    def card_title_detail(self) -> Settings.CardTitleDetail:
+        return self._settings.cart_title_detail
     
     @property 
     def show_resource_details(self) -> bool:
         return self._settings.show_resource_details
+    
+    @property
+    def is_r4_action_sound_effect_on(self) -> bool:
+        return self._settings.is_r4_action_sound_effect_on
     
     @property
     def picture_dir_path(self) -> str:
