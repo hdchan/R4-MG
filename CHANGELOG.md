@@ -1,5 +1,14 @@
 ## Changelog
 
+### 0.9.0
+#### Feature updates
+- Adding option to change display name length
+- Add local search
+- Tweaking dimensions
+- Add emojis for card aspects
+#### Engineering updates
+- Update functions and paths for mac compatibility
+
 ### 0.8.0
 #### Feature updates
 - Add search shortcut helper text

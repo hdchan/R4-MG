@@ -58,6 +58,8 @@ class CardResourceProvider:
                                 self._image_preview_path, 
                                 self._unique_identifier_front,
                                 self._trading_card.friendly_display_name,
+                                self._trading_card.friendly_display_name_short,
+                                self._trading_card.friendly_display_name_detailed,
                                 PNG_EXTENSION, 
                                 self._card_image_source.front_art_url(self._trading_card))
     
@@ -70,6 +72,8 @@ class CardResourceProvider:
                                 self._image_preview_path, 
                                 self._unique_identifier_back,
                                 self._trading_card.friendly_display_name + ' (back)',
+                                self._trading_card.friendly_display_name_short + ' (back)',
+                                self._trading_card.friendly_display_name_detailed + ' (back)',
                                 PNG_EXTENSION, 
                                 back_art_url)
     

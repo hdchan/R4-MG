@@ -68,7 +68,7 @@ class ImageDeploymentViewController(QWidget):
         first_column_widget = QWidget()
         first_column_widget.setMaximumHeight(150)
         first_column_widget.setLayout(first_column_layout)
-        first_column_widget.setFixedWidth(150)
+        # first_column_widget.setFixedWidth(200)
         layout.addWidget(first_column_widget)
 
         staging_image_view = ImagePreviewViewController(observation_tower, 

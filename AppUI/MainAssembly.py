@@ -46,7 +46,8 @@ class MainAssembly:
                             asset_provider)
         main_program = MainProgramViewController(observation_tower,
                                                 self.configuration_manager,
-                                                application_core, 
+                                                application_core,
+                                                api_client_provider,
                                                 image_source_provider, 
                                                 asset_provider)
         advanced_view = AdvancedViewController(observation_tower, 

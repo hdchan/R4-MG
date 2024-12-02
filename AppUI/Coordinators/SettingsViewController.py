@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import (QCheckBox, QHBoxLayout, QLabel, QRadioButton,
-                             QVBoxLayout, QWidget, QPushButton)
+                             QVBoxLayout, QWidget, QPushButton, QGroupBox)
 
 from AppCore.Config import Configuration, ConfigurationManager
 
@@ -11,67 +11,102 @@ class SettingsViewController(QWidget):
         self.configuration_manager.discard()
         configuration = configuration_manager.configuration
         self.setWindowTitle("Settings")
-        layout = QVBoxLayout()
-        self.setLayout(layout)
+
+        vertical_layout = QVBoxLayout()
+        self.setLayout(vertical_layout)
+
+
+        # Image Source
+        search_source_row_layout = QHBoxLayout()
+        search_source_row_widget = QGroupBox()
+        search_source_row_widget.setLayout(search_source_row_layout)
+        vertical_layout.addWidget(search_source_row_widget)
         
-        # checkbox = QCheckBox("Performance mode: hides preview images to reduce application memory")
-        # checkbox.stateChanged.connect(self.state_changed)
-        # checkbox.setChecked(configuration.hide_image_preview)
-        # layout.addWidget(checkbox)
+        search_source_label = QLabel()
+        search_source_label.setText("Select search source from where search should be used from:")
+        search_source_row_layout.addWidget(search_source_label)
         
-        source_label = QLabel()
-        source_label.setText("Select image source from where images should be downloaded from:")
+
+        search_source_options_layout = QVBoxLayout()
+        search_source_options_widget = QWidget()
+        search_source_options_widget.setLayout(search_source_options_layout)
+        search_source_row_layout.addWidget(search_source_options_widget)
         
-        layout.addWidget(source_label)
+        search_swudb_api_radio = QRadioButton()
+        search_swudb_api_radio.setText("https://www.swu-db.com/")
+        search_swudb_api_radio.toggled.connect(self.search_swudbapi_toggled)
+        search_swudb_api_radio.setChecked(configuration.search_source == Configuration.Settings.SearchSource.SWUDBAPI)
+        search_source_options_layout.addWidget(search_swudb_api_radio)
         
-        h_layout = QHBoxLayout()
-        h_widget = QWidget()
-        h_widget.setLayout(h_layout)
+        search_local_radio = QRadioButton()
+        search_local_radio.setText("Local")
+        search_local_radio.toggled.connect(self.search_local_toggled)
+        search_local_radio.setChecked(configuration.search_source == Configuration.Settings.SearchSource.LOCAL)
+        search_source_options_layout.addWidget(search_local_radio)
+
+        # Image Source
+        image_source_row_layout = QHBoxLayout()
+        image_source_row_widget = QGroupBox()
+        image_source_row_widget.setLayout(image_source_row_layout)
+        vertical_layout.addWidget(image_source_row_widget)
+        
+        image_source_label = QLabel()
+        image_source_label.setText("Select image source from where images should be downloaded from:")
+        image_source_row_layout.addWidget(image_source_label)
+        
+
+        image_source_options_layout = QVBoxLayout()
+        image_source_options_widget = QWidget()
+        image_source_options_widget.setLayout(image_source_options_layout)
+        image_source_row_layout.addWidget(image_source_options_widget)
+        
+        image_swudb_api_radio = QRadioButton()
+        image_swudb_api_radio.setText("https://www.swu-db.com/")
+        image_swudb_api_radio.toggled.connect(self.image_swudbapi_toggled)
+        image_swudb_api_radio.setChecked(configuration.image_source == Configuration.Settings.ImageSource.SWUDBAPI)
+        image_source_options_layout.addWidget(image_swudb_api_radio)
+        
+        image_swudb_radio = QRadioButton()
+        image_swudb_radio.setText("https://www.swudb.com/")
+        image_swudb_radio.toggled.connect(self.image_swudb_toggled)
+        image_swudb_radio.setChecked(configuration.image_source == Configuration.Settings.ImageSource.SWUDB)
+        image_source_options_layout.addWidget(image_swudb_radio)
         
         
         
-        swudb_api_radio = QRadioButton()
-        swudb_api_radio.setText("https://www.swu-db.com/")
-        swudb_api_radio.toggled.connect(self.swudbapi_toggled)
-        swudb_api_radio.setChecked(configuration.image_source.value == 0)
-        h_layout.addWidget(swudb_api_radio)
-        
-        swudb_radio = QRadioButton()
-        swudb_radio.setText("https://www.swudb.com/")
-        swudb_radio.toggled.connect(self.swudb_toggled)
-        swudb_radio.setChecked(configuration.image_source.value == 1)
-        h_layout.addWidget(swudb_radio)
-        
-        layout.addWidget(h_widget)
-        
-        
-        h_layout_buttons = QHBoxLayout()
-        h_widget_buttons = QWidget()
-        h_widget_buttons.setLayout(h_layout_buttons)
+        # Bottom buttons
+        buttons_layout = QHBoxLayout()
+        buttons_widget = QWidget()
+        buttons_widget.setLayout(buttons_layout)
+        vertical_layout.addWidget(buttons_widget)
         
         apply_button = QPushButton()
         apply_button.setText("Apply")
         apply_button.clicked.connect(self.save_settings)
-        h_layout_buttons.addWidget(apply_button)
+        buttons_layout.addWidget(apply_button)
         
         save_and_close = QPushButton()
         save_and_close.setText("Save && Close")
         save_and_close.clicked.connect(self.save_and_close)
-        h_layout_buttons.addWidget(save_and_close)
+        buttons_layout.addWidget(save_and_close)
         
-        layout.addWidget(h_widget_buttons)
+        
+    def search_swudbapi_toggled(self):
+        self.configuration_manager.set_search_source(Configuration.Settings.SearchSource.SWUDBAPI)
+        
+    def search_local_toggled(self):
+        self.configuration_manager.set_search_source(Configuration.Settings.SearchSource.LOCAL)
+
     
-    def swudbapi_toggled(self):
+    def image_swudbapi_toggled(self):
         self.configuration_manager.set_image_source(Configuration.Settings.ImageSource.SWUDBAPI)
         
-    def swudb_toggled(self):
+    def image_swudb_toggled(self):
         self.configuration_manager.set_image_source(Configuration.Settings.ImageSource.SWUDB)
+
+
     
-    def state_changed(self, state):
-        if state == 2:
-            self.configuration_manager.toggle_hide_image_preview(True)
-        else:
-            self.configuration_manager.toggle_hide_image_preview(False)
+ 
             
     def save_and_close(self):
         self.save_settings()

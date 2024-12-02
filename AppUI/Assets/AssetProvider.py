@@ -44,7 +44,23 @@ class AssetProvider:
             return self.__r2_file_list
         
         @property
-        def r2_effect_path(self) -> str:
+        def r4_affirmative_path(self) -> str:
+            affirmative_list = [
+                'r2-02.wav', 
+                'r2-04.wav', 
+                'r2-06.wav', 
+                'r2-14.wav', 
+                'r2-36.wav', 
+                'r2-56.wav', 
+                'r2-63.wav'
+                ]
+            random_int = random.randint(0, len(affirmative_list) - 1)
+            selected_file = affirmative_list[random_int]
+            # https://stackoverflow.com/a/24386708
+            return self._audio_path(selected_file)
+
+        @property
+        def r4_effect_path(self) -> str:
             if self._r2_file_list is not None:
                 random_int = random.randint(0, len(self._r2_file_list) - 1)
                 selected_file = self._r2_file_list[random_int]

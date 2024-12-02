@@ -5,7 +5,7 @@ from PyQt5.QtCore import QPoint, Qt, QUrl
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtMultimedia import QSoundEffect
 from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QMenu, QPushButton,
-                             QVBoxLayout, QWidget)
+                             QVBoxLayout, QWidget, QSizePolicy)
 
 from ...Assets import AssetProvider
 
@@ -30,7 +30,7 @@ class AddImageCTAViewController(QWidget):
         widget = QWidget()
         widget.setLayout(layout)
         widget.setObjectName('parent')
-        background_url = urllib.parse.urljoin("file:///", asset_provider.image.sor_background.replace("\\", "/"))
+        background_url = urllib.parse.urljoin("", asset_provider.image.sor_background.replace("\\", "/"))
         widget.setStyleSheet(f'''
                              #parent {{ 
                                 background-image: url("{background_url}"); 
@@ -62,7 +62,7 @@ class AddImageCTAViewController(QWidget):
         beep_text = QLabel()
         beep_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
         beep_text.setStyleSheet('color: white;')
-        beep_text.setText('<i>Beep Boop</i>')
+        beep_text.setText('<b>R4:</b> <i>Beep Boop</i>')
         cta_container_layout.addWidget(beep_text)
         
         text = QLabel()
@@ -72,6 +72,8 @@ class AddImageCTAViewController(QWidget):
         cta_container_layout.addWidget(text)
         
         cta = QPushButton()
+        # cta.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        cta.setMinimumHeight(25)
         cta.setText('Create a new image')
         cta.setStyleSheet('background-color: #6694ce ; color: white;')
         cta.clicked.connect(self._cta_clicked)
@@ -102,6 +104,7 @@ class AddImageCTAViewController(QWidget):
         
     def _pressed_sound(self):
         self.sound_effect = QSoundEffect()
-        self.sound_effect.setSource(QUrl.fromLocalFile(self.asset_provider.audio.r2_effect_path))
-        print(f'playing sound effect: {self.asset_provider.audio.r2_effect_path}')
+        self.sound_effect.setVolume(0.5)
+        self.sound_effect.setSource(QUrl.fromLocalFile(self.asset_provider.audio.r4_effect_path))
+        print(f'playing sound effect: {self.asset_provider.audio.r4_effect_path}')
         self.sound_effect.play()

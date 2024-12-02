@@ -1,7 +1,11 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTabWidget
+from PyQt5.QtWidgets import QTabWidget, QVBoxLayout, QWidget, QLabel
+
 from AppCore.Config import ConfigurationProvider
 from AppCore.Observation import ObservationTower
-from AppCore.Observation.Events import ConfigurationUpdatedEvent, TransmissionProtocol
+from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
+                                        TransmissionProtocol)
+
+
 class ContainerViewController(QWidget):
     
     def __init__(self, 
@@ -39,10 +43,8 @@ class ContainerViewController(QWidget):
             
         else:
             self.view_layout.addWidget(self.basic_view)
-            self.current_widget = self.basic_view
+            self.current_widget = self.basic_view            
             
-        
-        
         
     def handle_observation_tower_event(self, event: TransmissionProtocol):
         if type(event) == ConfigurationUpdatedEvent:

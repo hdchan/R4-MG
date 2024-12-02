@@ -56,11 +56,13 @@ class ImageResourceDeployer:
             if path.suffix == PNG_EXTENSION:
                 image_dir = f'{self.configuration.production_file_path}'
                 image_preview_dir = f'{self.configuration.production_preview_file_path}'
-                resource = LocalCardResource(image_dir, 
-                                             image_preview_dir, 
-                                             path.stem,
-                                             path.stem + path.suffix,
-                                             path.suffix)
+                resource = LocalCardResource(image_dir=image_dir, 
+                                             image_preview_dir=image_preview_dir, 
+                                             file_name=path.stem,
+                                             display_name=path.stem + path.suffix,
+                                             display_name_short=path.stem + path.suffix,
+                                             display_name_detailed=path.stem + path.suffix,
+                                             file_extension=path.suffix)
                 local_resources.append(resource)
 
                 existing_preview_file = Path(f'{self.configuration.production_preview_file_path}{production_file_name}')
