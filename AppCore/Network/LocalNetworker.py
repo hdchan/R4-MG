@@ -9,7 +9,7 @@ from .NetworkerProtocol import (NetworkerProtocol, NetworkerProtocolCallback,
 
 T = TypeVar("T")
 
-class MockNetworker(NetworkerProtocol):
+class LocalNetworker(NetworkerProtocol):
     
     class ClientWorker(QObject):
         finished = pyqtSignal()
@@ -24,7 +24,7 @@ class MockNetworker(NetworkerProtocol):
         
     def load_mock(self, callback: Callable[..., None]):
         thread = QThread()
-        worker = MockNetworker.ClientWorker()
+        worker = LocalNetworker.ClientWorker()
         worker.moveToThread(thread)
         thread.started.connect(partial(worker.load, self.configuration_provider.configuration.network_delay_duration))
         worker.finished.connect(callback)

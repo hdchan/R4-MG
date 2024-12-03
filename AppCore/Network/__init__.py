@@ -1,3 +1,3 @@
-from .Networker import *
+from .RemoteNetworker import *
 from .NetworkerProtocol import *
-from .MockNetworker import *
+from .LocalNetworker import *

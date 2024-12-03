@@ -1,7 +1,7 @@
 from typing import Any, Dict
 
-from ...Models.TradingCard import TradingCard
-from ...Models.CardAspect import CardAspect
+from AppCore.Models.TradingCard import TradingCard
+from .CardAspect import CardAspect
 
 class SWUTradingCard(TradingCard):
     @classmethod

@@ -1,16 +1,16 @@
 from PyQt5.QtCore import QPoint, Qt, QUrl
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtMultimedia import QSoundEffect
-from PyQt5.QtWidgets import QLabel, QMenu, QPushButton, QVBoxLayout, QWidget, QAction
+from PyQt5.QtWidgets import QLabel, QMenu, QVBoxLayout, QWidget, QAction
 
-from AppCore.Config import ConfigurationProvider
+from AppCore.Config import ConfigurationProviderProtocol
 
 from ..Assets import AssetProvider
 
 
 class AboutViewController(QWidget):
     def __init__(self, 
-                 configuration_provider: ConfigurationProvider, 
+                 configuration_provider: ConfigurationProviderProtocol, 
                  asset_provider: AssetProvider):
         super().__init__()
         self.setWindowTitle("About")
@@ -23,7 +23,7 @@ class AboutViewController(QWidget):
         
         image = QPixmap()
         
-        success = image.load(asset_provider.image.logo_path)
+        image.load(asset_provider.image.logo_path)
         image = image.scaled(50, 50, Qt.AspectRatioMode.KeepAspectRatio)
         image_view = QLabel()
         image_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
@@ -38,12 +38,6 @@ class AboutViewController(QWidget):
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         label.setText(f'{configuration.app_display_name}\nv.{configuration.app_ui_version}')
         v_layout.addWidget(label)
-        
-        
-        # button = QPushButton()
-        # button.setText("Beep Boop")
-        # button.clicked.connect(self._pressed_sound)
-        # v_layout.addWidget(button)
         
     def _showContextMenu(self, pos: QPoint):
         menu = QMenu(self)

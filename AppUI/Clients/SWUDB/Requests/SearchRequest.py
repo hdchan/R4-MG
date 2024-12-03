@@ -2,8 +2,12 @@ import urllib.parse
 from typing import Any, Dict, List, Optional
 from urllib.request import Request
 
-from ....Models import CardAspect, CardType, SearchConfiguration, TradingCard
-from ....Network import NetworkRequestProtocol
+from AppCore.Models import TradingCard
+from AppCore.Network import NetworkRequestProtocol
+
+from ..CardAspect import CardAspect
+from ..CardType import CardType
+from ..SWUDBAPISearchConfiguration import SWUDBAPISearchConfiguration
 from ..SWUTradingCard import SWUTradingCard
 
 
@@ -11,7 +15,7 @@ from ..SWUTradingCard import SWUTradingCard
 class SearchRequest(NetworkRequestProtocol[List[TradingCard]]):
         SWUDB_API_ENDPOINT = 'https://api.swu-db.com/cards/search'
         
-        def __init__(self, search_configuration: SearchConfiguration):
+        def __init__(self, search_configuration: SWUDBAPISearchConfiguration):
             self.search_configuration = search_configuration
         
         def __eq__(self, other):  # type: ignore
@@ -48,21 +52,21 @@ class SearchRequest(NetworkRequestProtocol[List[TradingCard]]):
                 result_list.append(swu_card)
             return result_list
         
+        @staticmethod
+        def _aspect_query_mapping() -> Dict['CardAspect', str]:
+            return {
+                CardAspect.VIGILANCE: "B",
+                CardAspect.COMMAND: "G",
+                CardAspect.AGGRESSION: "R",
+                CardAspect.CUNNING: "Y",
+                CardAspect.HEROISM: "W",
+                CardAspect.VILLAINY: "K"
+            }
+        
         def card_aspect_query_string(self, card_aspects: List[CardAspect]) -> Optional[str]:
             if len(card_aspects) > 0:
                 result = ""
                 for a in card_aspects:
-                    if a == CardAspect.VIGILANCE:
-                        result += "B"
-                    elif a == CardAspect.COMMAND:
-                        result += "G"
-                    elif a == CardAspect.AGGRESSION:
-                        result += "R"
-                    elif a == CardAspect.CUNNING:
-                        result += "Y"
-                    elif a == CardAspect.HEROISM:
-                        result += "W"
-                    elif a == CardAspect.VILLAINY:
-                        result += "K"
+                    result += self._aspect_query_mapping()[a]
                 return result
             return None

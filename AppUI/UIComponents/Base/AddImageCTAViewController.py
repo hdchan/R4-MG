@@ -5,7 +5,7 @@ from PyQt5.QtCore import QPoint, Qt, QUrl
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtMultimedia import QSoundEffect
 from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QMenu, QPushButton,
-                             QVBoxLayout, QWidget, QSizePolicy)
+                             QVBoxLayout, QWidget)
 
 from ...Assets import AssetProvider
 
@@ -72,7 +72,6 @@ class AddImageCTAViewController(QWidget):
         cta_container_layout.addWidget(text)
         
         cta = QPushButton()
-        # cta.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         cta.setMinimumHeight(25)
         cta.setText('Create a new image')
         cta.setStyleSheet('background-color: #6694ce ; color: white;')

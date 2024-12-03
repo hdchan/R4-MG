@@ -7,12 +7,11 @@ from PyQt5.QtMultimedia import QSoundEffect
 from PyQt5.QtWidgets import (QHBoxLayout, QInputDialog, QMessageBox, QSplitter,
                              QWidget)
 
-from AppCore import ApplicationCore
-from AppCore.Config import ConfigurationProvider
+from AppCore.ApplicationCore import ApplicationCore
+from AppCore.Config import ConfigurationProviderProtocol
 from AppCore.Data import APIClientProviderProtocol
 from AppCore.Models import LocalCardResource, SearchConfiguration, TradingCard
-from AppCore.Observation import ObservationTower
-from AppCore.Observation.Events import LocalResourceEvent
+from AppCore.Observation import *
 from AppCore.Resource import CardImageSourceProviderProtocol
 from AppUI.UIComponents import (AddImageCTAViewController,
                                 AddImageCTAViewControllerDelegate,
@@ -21,26 +20,26 @@ from AppUI.UIComponents import (AddImageCTAViewController,
                                 ImageDeploymentViewController, SearchTableView)
 from AppUI.UIComponents.Base.ImagePreviewViewController import (
     ImagePreviewViewController, ImagePreviewViewControllerDelegate)
-from Plugins import CardMetadataFlow
 
 from .Assets import AssetProvider
 from .PopoutImageManager import PopoutImageManager
 
 
-class MainProgramViewController(QWidget, ImagePreviewViewControllerDelegate, AddImageCTAViewControllerDelegate):
+class MainProgramViewController(QWidget, 
+                                ImagePreviewViewControllerDelegate, 
+                                AddImageCTAViewControllerDelegate):
     def __init__(self,
                  observation_tower: ObservationTower,
-                 configuration_provider: ConfigurationProvider,
+                 configuration_provider: ConfigurationProviderProtocol,
                  application_core: ApplicationCore, 
                  card_search_source_provider: APIClientProviderProtocol,
                  card_image_source_provider: CardImageSourceProviderProtocol, 
                  asset_provider: AssetProvider):
         super().__init__()
+        
         self.sound_effect = None
         self._asset_provider = asset_provider
         self._observation_tower = observation_tower
-        self._card_metadata_flow = CardMetadataFlow(configuration_provider,
-                                                    application_core)
 
         application_core.delegate = self
         self.application_core = application_core
@@ -53,11 +52,12 @@ class MainProgramViewController(QWidget, ImagePreviewViewControllerDelegate, Add
         
 
         card_search_view = CardSearchPreviewViewController(observation_tower, 
-                                                           configuration_provider, 
-                                                           self._card_metadata_flow.card_type_list,
+                                                           configuration_provider,
                                                            card_search_source_provider,
                                                            card_image_source_provider, 
                                                            asset_provider)
+        card_search_view.setObjectName('stuff')
+        self.setStyleSheet('QWidget#stuff { background-color:red; }')
         card_search_view.delegate = self
         card_search_view.set_search_focus()
         self.card_search_view = card_search_view
@@ -69,7 +69,8 @@ class MainProgramViewController(QWidget, ImagePreviewViewControllerDelegate, Add
         deployment_view = ImageDeploymentListViewController(observation_tower, 
                                                             configuration_provider, 
                                                             asset_provider, 
-                                                            self)
+                                                            self, 
+                                                            self.application_core)
         deployment_view.delegate = self
         self.deployment_view = deployment_view
         splitter.addWidget(deployment_view)
@@ -78,6 +79,7 @@ class MainProgramViewController(QWidget, ImagePreviewViewControllerDelegate, Add
         # splitter.addWidget(profile_loader_view)
         
         splitter.setSizes([400,900])
+
 
     def set_search_bar_focus(self):
         self.card_search_view.set_search_focus()
@@ -111,9 +113,6 @@ class MainProgramViewController(QWidget, ImagePreviewViewControllerDelegate, Add
     def app_did_retrieve_card_resource_for_card_selection(self, app: ApplicationCore, card_resource: LocalCardResource, is_flippable: bool):
         self.card_search_view.set_image(is_flippable, card_resource)
 
-    def app_publish_status_changed(self, app: ApplicationCore, is_ready: bool):
-        self._update_production_button_state()
-
     # search table view
     def tv_did_tap_search(self, table_view: SearchTableView, search_configuration: SearchConfiguration):
         self.application_core.search(search_configuration)
@@ -144,14 +143,37 @@ class MainProgramViewController(QWidget, ImagePreviewViewControllerDelegate, Add
                                      index: int):
         self.deployment_view.clear_staging_image(index)
         self.application_core.unstage_resource(index)
-        self._update_production_button_state()
 
-    def idl_did_tap_unstage_all_button(self):
-        self.deployment_view.clear_all_staging_images()
-        self.application_core.unstage_all_resources()
+    def confirm_unstage_all_resources(self):
+        dlg = QMessageBox(self)
+        dlg.setWindowTitle("Unstage all resources")
+        dlg.setText("Are you sure you want to unstage all resources?")
+        dlg.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No) # type: ignore
+        dlg.setIcon(QMessageBox.Icon.Question)
+        button = dlg.exec()
+
+        if button == QMessageBox.StandardButton.Yes:
+            self._unstage_all_resources()
+
+    def _unstage_all_resources(self):
+            self.deployment_view.clear_all_staging_images()
+            self.application_core.unstage_all_resources()
+
+    def confirm_clear_cache(self):
+        dlg = QMessageBox(self)
+        dlg.setWindowTitle("Clear cache")
+        dlg.setText("Are you sure you want to clear the cache?")
+        dlg.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No) # type: ignore
+        dlg.setIcon(QMessageBox.Icon.Question)
+        button = dlg.exec()
+
+        if button == QMessageBox.StandardButton.Yes:
+            self._unstage_all_resources()
+            self.application_core.clear_cache()
+        
 
     def shortcut_production_button(self):
-        if self.application_core.can_publish_staged_resources():
+        if self.application_core.can_publish_staged_resources:
             self.publish_staged_resources()
             
     def idl_did_tap_production_button(self, id_list: ImageDeploymentListViewController):
@@ -178,12 +200,6 @@ class MainProgramViewController(QWidget, ImagePreviewViewControllerDelegate, Add
             msgBox.setWindowTitle("Error")
             msgBox.setStandardButtons(QMessageBox.StandardButton.Ok)
             msgBox.exec()
-        self._update_production_button_state()
-        
-
-    def _update_production_button_state(self):
-        production_button_enabled = self.application_core.can_publish_staged_resources()
-        self.deployment_view.set_production_button_enabled(production_button_enabled)
 
     def flip_current_previewed_card_if_possible(self):
         if self.application_core.current_previewed_trading_card_is_flippable():
@@ -202,8 +218,8 @@ class MainProgramViewController(QWidget, ImagePreviewViewControllerDelegate, Add
     def ip_open_file(self, ip: ImagePreviewViewController, local_resource: LocalCardResource):
         self.application_core.open_file(local_resource)
 
-    def ip_open_file_path(self, ip: ImagePreviewViewController, local_resource: LocalCardResource):
-        self.application_core.open_file_path(local_resource)
+    def ip_open_file_path_and_select_file(self, ip: ImagePreviewViewController, local_resource: LocalCardResource):
+        self.application_core.open_file_path_and_select_file(local_resource)
 
     def prompt_generate_new_file(self):
         text, ok = QInputDialog.getText(self, 'Create new image file', 'Enter file name:')
@@ -225,7 +241,16 @@ class MainProgramViewController(QWidget, ImagePreviewViewControllerDelegate, Add
     
     def regenerate_production_file(self, local_resource: LocalCardResource):
         self.generate_new_file(local_resource.file_name)
-        self._observation_tower.notify(LocalResourceEvent(LocalResourceEvent.EventType.FINISHED, local_resource))
         
     def aicta_did_tap_generate_button(self, aicta: AddImageCTAViewController):
         self.prompt_generate_new_file()
+
+    # Platform operations
+    def open_production_dir(self):
+        self.application_core.open_production_dir()
+        
+    def open_configuration_dir(self):
+        self.application_core.open_configuration_dir()
+
+    def open_temp_dir(self):
+        self.application_core.open_temp_dir()

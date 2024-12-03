@@ -1,7 +1,9 @@
+from enum import Enum
+
 from ...Models.LocalCardResource import LocalCardResource
 from ..TransmissionProtocol import TransmissionProtocol
 
-from enum import Enum
+
 class LocalResourceEvent(TransmissionProtocol):
     class EventType(Enum):
         STARTED = 1

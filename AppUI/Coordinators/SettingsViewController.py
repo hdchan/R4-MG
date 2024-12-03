@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import (QCheckBox, QHBoxLayout, QLabel, QRadioButton,
+from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QRadioButton,
                              QVBoxLayout, QWidget, QPushButton, QGroupBox)
 
 from AppCore.Config import Configuration, ConfigurationManager

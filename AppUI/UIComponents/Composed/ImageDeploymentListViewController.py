@@ -1,15 +1,20 @@
 from typing import List, Optional, Union
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QPushButton, QScrollArea, QVBoxLayout,
-                             QWidget, QSizePolicy, QAbstractSlider)
+from PyQt5.QtWidgets import (QAbstractSlider, QPushButton, QScrollArea,
+                             QSizePolicy, QVBoxLayout, QWidget)
 
-from AppCore import ConfigurationProvider, ObservationTower
+from AppCore import (ApplicationState, ConfigurationProviderProtocol,
+                     ObservationTower)
 from AppCore.Models import LocalCardResource
+from AppCore.Observation import *
+from AppCore.Observation.Events import (LocalResourceEvent,
+                                        PublishStatusUpdatedEvent, PublishStagedResourcesEvent)
 
 from ...Assets import AssetProvider
-from . import ImageDeploymentViewController, ImagePreviewViewControllerDelegate
 from ..Base import AddImageCTAViewController, AddImageCTAViewControllerDelegate
+from . import ImageDeploymentViewController, ImagePreviewViewControllerDelegate
+from ..Base.LoadingSpinner import LoadingSpinner
 
 class ImageDeploymentListViewControllerDelegate:
     def idl_did_tap_staging_button(self, id_list: ..., id_cell: ImageDeploymentViewController, index: int) -> None:
@@ -21,18 +26,20 @@ class ImageDeploymentListViewControllerDelegate:
     def idl_did_tap_production_button(self, id_list: ...) -> None:
         pass
 
-class ImageDeploymentListViewController(QWidget):
+class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
                  observation_tower: ObservationTower, 
-                 configuration_provider: ConfigurationProvider, 
+                 configuration_provider: ConfigurationProviderProtocol, 
                  asset_provider: AssetProvider, 
-                 image_preview_delegate: Union[AddImageCTAViewControllerDelegate, ImagePreviewViewControllerDelegate]):
+                 image_preview_delegate: Union[AddImageCTAViewControllerDelegate, ImagePreviewViewControllerDelegate], 
+                 app_state: ApplicationState):
         super().__init__()
 
         self.observation_tower = observation_tower
         self.configuration_provider = configuration_provider
         self.asset_provider = asset_provider
         self.image_preview_delegate = image_preview_delegate
+        self.app_state = app_state
 
         outer_container_layout = QVBoxLayout()
         self.setLayout(outer_container_layout)
@@ -77,7 +84,13 @@ class ImageDeploymentListViewController(QWidget):
 
         self.list_items: List[ImageDeploymentViewController] = []
         
+        self.loading_spinner = LoadingSpinner(self)
+        
         self.delegate: Optional[ImageDeploymentListViewControllerDelegate] = None
+        
+        self.observation_tower.subscribe_multi(self, [PublishStatusUpdatedEvent, 
+                                                      LocalResourceEvent, 
+                                                      PublishStagedResourcesEvent])
     
     def on_scroll(self, action):
         
@@ -112,7 +125,7 @@ class ImageDeploymentListViewController(QWidget):
                                    staging_button_enabled,
                                    index)
             
-        print(self.scroll_view.verticalScrollBar().sliderPosition(), self.scroll_view.verticalScrollBar().maximum())
+        # print(self.scroll_view.verticalScrollBar().sliderPosition(), self.scroll_view.verticalScrollBar().maximum())
 
     def _create_list_item(self,
                          local_resource: LocalCardResource,
@@ -185,3 +198,14 @@ class ImageDeploymentListViewController(QWidget):
             self.production_button.setStyleSheet("background-color : #41ad49; color: white;")
         else:
             self.production_button.setStyleSheet("")
+
+    def handle_observation_tower_event(self, event: TransmissionProtocol):
+        if (type(event) == PublishStatusUpdatedEvent or 
+            type(event) == LocalResourceEvent):
+            self.set_production_button_enabled(self.app_state.can_publish_staged_resources)
+
+        # if type(event) == PublishStagedResourcesEvent:
+        #     if event.event_type == PublishStagedResourcesEvent.EventType.STARTED:
+        #         self.loading_spinner.start()
+        #     else:
+        #         self.loading_spinner.stop()

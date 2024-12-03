@@ -34,7 +34,7 @@ class MutableConfiguration(Configuration):
     def set_is_r4_action_sound_effect_on(self, value: bool):
         self._settings.is_r4_action_sound_effect_on = value
 
-class ConfigurationManager(ConfigurationProvider):
+class ConfigurationManager(ConfigurationProviderProtocol):
     def __init__(self, observation_tower: ObservationTower):
         self._configuration = MutableConfiguration()
         
@@ -69,9 +69,10 @@ class ConfigurationManager(ConfigurationProvider):
         self._configuration = deepcopy(self._real_configuration)
 
     def save(self):
+        old_configuration = deepcopy(self._real_configuration)
         self._real_configuration = self._configuration
         self._configuration = deepcopy(self._real_configuration)
-        self._notify_configuration_changed()
+        self._notify_configuration_changed(old_configuration)
 
     def toggle_hide_image_preview(self, is_on: bool) -> 'ConfigurationManager':
         self._configuration.set_hide_image_preview(is_on)
@@ -116,8 +117,8 @@ class ConfigurationManager(ConfigurationProvider):
         self._configuration.set_is_r4_action_sound_effect_on(is_on)
         return self
 
-    def _notify_configuration_changed(self):
-        self.observation_tower.notify(ConfigurationUpdatedEvent(self.configuration))
+    def _notify_configuration_changed(self, old_configuration: Configuration):
+        self.observation_tower.notify(ConfigurationUpdatedEvent(self.configuration, old_configuration))
         self._write_configuration_changes()
 
     def _create_directory_if_needed(self):

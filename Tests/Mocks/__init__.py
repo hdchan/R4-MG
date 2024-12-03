@@ -1,2 +1,2 @@
-from .MockNetworkerProtocol import *
+from .LocalNetworkerProtocol import *
 from .MockApiClientProtocol import *

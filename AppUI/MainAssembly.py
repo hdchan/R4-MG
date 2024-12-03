@@ -1,13 +1,7 @@
-
-from PyQt5.QtGui import QFontDatabase
 from PyQt5.QtWidgets import QApplication
-
+from PyQt5.QtGui import QIcon
 from AppCore import *
-from AppCore import ApplicationCore
-from .Clients.SWUDB.MockSWUDBClient import MockSWUDBClient
-from AppCore.Clients import (APIClientProvider, CardImageSourceProvider,
-                            SWUDBAPIImageSource, SWUDBClient,
-                             SWUDBImageSource)
+from AppCore.ApplicationCore import ApplicationCore
 from AppCore.Config import ConfigurationManager
 from AppCore.Image import ImageFetcherProvider
 from AppCore.ImageNetwork import MockImageFetcher, RemoteImageFetcher
@@ -20,20 +14,26 @@ from AppUI.MainProgramViewController import MainProgramViewController
 from AppUI.Window import Window
 
 from .Assets import AssetProvider
-from .Coordinators.AboutViewController import AboutViewController
+from .Clients import *
 
 
 class MainAssembly:
     def __init__(self):
         self.app = QApplication([])
+        
         # Ensure this is set before config manager writes out to settings file
         self.app.setApplicationName(Configuration.APP_NAME)
         self._style_app()
         observation_tower = ObservationTower()
         self.configuration_manager = ConfigurationManager(observation_tower)
         self.asset_provider = AssetProvider()
+
+        # https://www.pythonguis.com/tutorials/packaging-pyqt5-pyside2-applications-windows-pyinstaller/#setting-an-application-icon
+        # https://stackoverflow.com/a/35865441
+        self.app.setWindowIcon(QIcon(self.asset_provider.image.logo_path))
+        # https://forum.qt.io/topic/142136/how-to-change-the-application-name-pyqt5/4
+        # self.app.setApplicationDisplayName(self.configuration_manager.configuration.app_display_name)
         
-        self.networker = Networker(self.configuration_manager)
         api_client_provider = self._assemble_api_client_provider()
         image_fetcher_provider = self._assemble_image_fetcher_provider()
         image_source_provider = self._assemble_image_source_provider()
@@ -54,10 +54,9 @@ class MainAssembly:
         advanced_view = AdvancedViewController(observation_tower, 
                                                application_core)
         self.menu_action_coordinator = MenuActionCoordinator(main_window,
-                                                        main_program,
-                                                        application_core,
-                                                        self.configuration_manager, 
-                                                        self.asset_provider)
+                                                            main_program,
+                                                            self.configuration_manager, 
+                                                            self.asset_provider)
         
         self.shortcut_action_coordinator = ShortcutActionCoordinator(main_program)
         main_program.load()
@@ -67,10 +66,6 @@ class MainAssembly:
                                             observation_tower)
         main_window.setCentralWidget(container)
         main_window.show()
-        # main_window.setStyleSheet(f'''
-        #                    .QWidget {{background-image: url("C://Users//henry//Documents//code//R4-MG//AppUI//Assets//Images//large_spark_of_rebellion_starfield_c4fdfaa6a7.png");
-        #                    background-position: center;}}
-        #                    ''')
         self.app.exec()
     
     @property
@@ -86,10 +81,10 @@ class MainAssembly:
         custom_font.setPointSize(10)
         self.app.setFont(custom_font)
     
-    def _assemble_api_client_provider(self) -> APIClientProvider:
-        return APIClientProvider(self.configuration_manager, 
-                                 SWUDBClient(self.networker), 
-                                 MockSWUDBClient(MockNetworker(self.configuration_manager), 
+    def _assemble_api_client_provider(self) -> SWUDBAPIClientProvider:
+        return SWUDBAPIClientProvider(self.configuration_manager, 
+                                 SWUDBAPIRemoteClient(RemoteNetworker(self.configuration_manager)), 
+                                 SWUDBAPILocalClient(LocalNetworker(self.configuration_manager), 
                                                  self.asset_provider))
     
     def _assemble_image_fetcher_provider(self) -> ImageFetcherProvider:

@@ -1,18 +1,17 @@
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QCheckBox, QComboBox, QHBoxLayout, QLabel,
-                             QLineEdit, QListWidget, QPushButton, QVBoxLayout,
-                             QWidget)
+from PyQt5.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QLineEdit,
+                             QListWidget, QPushButton, QVBoxLayout, QWidget)
 
-from AppCore.Models import (CardAspect, CardType, SearchConfiguration,
-                            TradingCard)
-from AppCore.Observation import ObservationTower, TransmissionReceiver
-from AppCore.Observation.Events import SearchEvent, TransmissionProtocol, ConfigurationUpdatedEvent
+from AppCore.Config import Configuration, ConfigurationProviderProtocol
+from AppCore.Models import SearchConfiguration, TradingCard
+from AppCore.Observation import *
+from AppCore.Observation.Events import ConfigurationUpdatedEvent, SearchEvent
 
+from ...Clients.SWUDB import CardType, SWUDBAPISearchConfiguration
 from ...Observation.Events import KeyboardEvent
 from .LoadingSpinner import LoadingSpinner
-from AppCore.Config import ConfigurationProvider, Configuration
 
 
 class SearchTableViewDelegate:
@@ -22,18 +21,16 @@ class SearchTableViewDelegate:
     def tv_did_tap_search(self, sv: ..., search_configuration: SearchConfiguration) -> None:
         pass
 
-class SearchTableView(QWidget, TransmissionReceiver):
+class SearchTableView(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
-                 observation_tower: ObservationTower, 
-                 card_type_list: List[CardType], 
-                 configuration_provider: ConfigurationProvider):
+                 observation_tower: ObservationTower,
+                 configuration_provider: ConfigurationProviderProtocol):
         super().__init__()
         
         self._shift_pressed = False
         self._ctrl_pressed = False
         self._configuration_provider = configuration_provider
         self._result_list: Optional[List[TradingCard]] = None
-        # self._selected_index = 0
 
         layout = QVBoxLayout()
         self.setLayout(layout)
@@ -42,7 +39,6 @@ class SearchTableView(QWidget, TransmissionReceiver):
         query_layout = QHBoxLayout()
         query_layout.setContentsMargins(0, 0, 0, 0)
         query_widget = QWidget()
-        # query_widget.setStyleSheet('background-color: red;')
         query_widget.setLayout(query_layout)
         layout.addWidget(query_widget)
         
@@ -61,10 +57,10 @@ class SearchTableView(QWidget, TransmissionReceiver):
         card_type_layout.addWidget(card_type_selection_label)
         
         card_type_selection = QComboBox()
-        for i in card_type_list:
+        self._card_type_list = list(CardType)
+        for i in self._card_type_list:
             card_type_selection.addItem(i.value)
         self.card_type_selection = card_type_selection
-        self._card_type_list = card_type_list
         card_type_layout.addWidget(card_type_selection)
         
         
@@ -72,35 +68,6 @@ class SearchTableView(QWidget, TransmissionReceiver):
         result_list.itemSelectionChanged.connect(self.get_selection)
         self.result_list = result_list
         layout.addWidget(result_list, 1)
-        
-        
-        # card_type_selection_layout.addWidget(card_type_selection_label)
-        # card_type_selection_layout.addWidget(card_type_selection, 1)
-        # container_widget.setLayout(card_type_selection_layout)
-        
-        
-        
-        # aspect_map = {
-        #     "B": CardAspect.VIGILANCE,
-        #     "G": CardAspect.COMMAND,
-        #     "R": CardAspect.AGGRESSION,
-        #     "Y": CardAspect.CUNNING,
-        #     "W": CardAspect.HEROISM,
-        #     "K": CardAspect.VILLAINY
-        # }
-        # checkbox_layout = QHBoxLayout()
-        # checkbox_widget = QWidget()
-        # checkbox_widget.setLayout(checkbox_layout)
-        # self.check_boxes: List[QCheckBox] = []
-        # self.check_boxes_map: Dict[QCheckBox, CardAspect] = {}
-        # for a in aspect_map.keys():
-        #     box = QCheckBox(a)
-        #     self.check_boxes.append(box)
-        #     self.check_boxes_map[box] = aspect_map[a]
-        #     # checkbox_layout.addWidget(box)
-        # layout.addWidget(checkbox_widget)
-        
-        
         
         
         search_button = QPushButton()
@@ -119,8 +86,13 @@ class SearchTableView(QWidget, TransmissionReceiver):
         observation_tower.subscribe_multi(self, [SearchEvent, 
                                                  KeyboardEvent, 
                                                  ConfigurationUpdatedEvent]) 
+        
+        self._is_config_updating = False
 
     def get_selection(self):
+        if self._is_config_updating:
+            # don't trigger update when changing configuration
+            return
         selected_indexs = self.result_list.selectedIndexes()
         if len(selected_indexs) > 0 and self.delegate is not None:
             self.delegate.tv_did_select(self, selected_indexs[0].row())
@@ -147,13 +119,13 @@ class SearchTableView(QWidget, TransmissionReceiver):
         self._search()
 
     def search_leader(self):
-        def modifier(config: SearchConfiguration) -> SearchConfiguration:
+        def modifier(config: SWUDBAPISearchConfiguration) -> SearchConfiguration:
             config.card_type = CardType.LEADER
             return config
         self._search(modifier)
         
     def search_base(self):
-        def modifier(config: SearchConfiguration) -> SearchConfiguration:
+        def modifier(config: SWUDBAPISearchConfiguration) -> SearchConfiguration:
             config.card_type = CardType.BASE
             return config
         self._search(modifier)
@@ -163,12 +135,9 @@ class SearchTableView(QWidget, TransmissionReceiver):
         stripped_text = self.card_name_search_bar.text().strip()
         self.card_name_search_bar.setText(stripped_text)
         
-        search_configuration = SearchConfiguration()
+        search_configuration = SWUDBAPISearchConfiguration()
         search_configuration.card_name = stripped_text
         search_configuration.card_type = self._card_type_list[self.card_type_selection.currentIndex()]
-        # for i in self.check_boxes_map.keys():
-        #     if i.isChecked():
-        #         search_configuration.card_aspects.append(self.check_boxes_map[i])
                 
         if config_modifier is not None:
             search_configuration = config_modifier(search_configuration)
@@ -209,10 +178,7 @@ class SearchTableView(QWidget, TransmissionReceiver):
             self._loading_spinner.stop()
         else:
             self._loading_spinner.start()
-        
-    def _set_card_aspect_filter(self, aspects: List[CardAspect]):
-        # for i in self.asp
-        pass
+
     
     def _sync_search_button_text(self):
         if self._ctrl_pressed and self._shift_pressed:
@@ -229,7 +195,9 @@ class SearchTableView(QWidget, TransmissionReceiver):
             if event.event_type == SearchEvent.EventType.STARTED:
                 self._set_search_components_enabled(False)
                 self.card_name_search_bar.setText(event.search_configuration.card_name)
-                self._set_card_type_filter(event.search_configuration.card_type)
+                # TODO: may need more specific check
+                swu_search_config = SWUDBAPISearchConfiguration.from_search_configuration(event.search_configuration)
+                self._set_card_type_filter(swu_search_config.card_type)
 
             elif event.event_type == SearchEvent.EventType.FINISHED:
                 self._set_search_components_enabled(True)
@@ -251,4 +219,6 @@ class SearchTableView(QWidget, TransmissionReceiver):
             self._sync_search_button_text()
 
         elif type(event) == ConfigurationUpdatedEvent:
+            self._is_config_updating = True
             self._load_list()
+            self._is_config_updating = False

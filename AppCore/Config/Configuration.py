@@ -5,7 +5,7 @@ from enum import Enum
 class Configuration:
     
     APP_NAME = 'R4-MG'
-    APP_VERSION = '0.9.0'
+    APP_VERSION = '0.10.0'
     
     class Toggles:
         class Keys:
@@ -109,7 +109,7 @@ class Configuration:
     @property
     def app_display_name(self):
         if self.is_developer_mode:
-            return self._app_name + " [DEVELOPER MODE]"
+            return f"{self._app_name} [DEVELOPER MODE] - v.{self.app_ui_version}"
         else:
             return self._app_name
     
@@ -156,8 +156,16 @@ class Configuration:
         return QStandardPaths.writableLocation(QStandardPaths.StandardLocation.AppConfigLocation)
     
     @property
+    def _temp_dir_path(self) -> str:
+        return QStandardPaths.writableLocation(QStandardPaths.StandardLocation.TempLocation)
+
+    @property
     def config_directory(self) -> str:
         return f'{self._config_dir_path}'
+    
+    @property
+    def temp_dir_path(self) -> str:
+        return self._temp_dir_path
     
     @property
     def production_file_path(self) -> str:
@@ -219,7 +227,7 @@ class Configuration:
             self.Keys.SETTINGS: self._settings.toJSON(self._toggles.developer_mode)
         }
         
-class ConfigurationProvider:
+class ConfigurationProviderProtocol:
     @property
     def configuration(self) -> Configuration:
         return NotImplemented

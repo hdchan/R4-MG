@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QSizePolicy,
                              QVBoxLayout, QWidget)
 
-from AppCore import ConfigurationProvider, ObservationTower
+from AppCore import ConfigurationProviderProtocol, ObservationTower
 from AppCore.Models import LocalCardResource
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent, SearchEvent,
                                         TransmissionProtocol)
@@ -18,10 +18,10 @@ class ImageDeploymentViewControllerDelegate:
     def id_did_tap_unstaging_button(self, id: ...) -> None:
         pass
 
-class ImageDeploymentViewController(QWidget):
+class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
                  observation_tower: ObservationTower, 
-                 configuration_provider: ConfigurationProvider, 
+                 configuration_provider: ConfigurationProviderProtocol, 
                  image_preview_delegate: ImagePreviewViewControllerDelegate, 
                  asset_provider: AssetProvider):
         super().__init__()

@@ -5,17 +5,17 @@ from PyQt5.QtCore import QPoint, Qt
 from PyQt5.QtGui import QClipboard, QGuiApplication, QPixmap
 from PyQt5.QtWidgets import QAction, QLabel, QMenu, QVBoxLayout, QWidget
 
-from AppCore.Config import ConfigurationProvider, Configuration
+from AppCore.Config import Configuration, ConfigurationProviderProtocol
 from AppCore.Models import LocalCardResource
-from AppCore.Observation import ObservationTower, TransmissionReceiver
+from AppCore.Observation import *
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         LocalResourceEvent,
-                                        TransmissionProtocol)
+                                        PublishStatusUpdatedEvent,
+                                        CacheClearedEvent)
 
 from ...Assets import AssetProvider
 from .LoadingSpinner import LoadingSpinner
 
-THUMBNAIL_SIZE = 256
 
 class ImagePreviewViewControllerDelegate:
     def ip_rotate_resource(self, ip: ..., local_resource: LocalCardResource, angle: float) -> None:
@@ -33,13 +33,13 @@ class ImagePreviewViewControllerDelegate:
     def ip_open_file(self, ip: ..., local_resource: LocalCardResource) -> None:
         pass
 
-    def ip_open_file_path(self, ip: ..., local_resource: LocalCardResource) -> None:
+    def ip_open_file_path_and_select_file(self, ip: ..., local_resource: LocalCardResource) -> None:
         pass
 
-class ImagePreviewViewController(QWidget, TransmissionReceiver):
+class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
                  observation_tower: ObservationTower, 
-                 configuration_provider: ConfigurationProvider, 
+                 configuration_provider: ConfigurationProviderProtocol, 
                  asset_provider: AssetProvider):
         super().__init__()
         self.observation_tower = observation_tower
@@ -60,7 +60,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiver):
         self._image_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self._image_view.linkActivated.connect(self._handle_link_activated) # should only connect once
         self._image_view.customContextMenuRequested.connect(self._showContextMenu)
-        self._image_view.setMinimumWidth(256)
+        self._image_view.setMinimumSize(256, 100)
         # self._image_view.setStyleSheet('background-color:red')
         self.loading_spinner = LoadingSpinner(self._image_view)
         
@@ -95,7 +95,9 @@ class ImagePreviewViewController(QWidget, TransmissionReceiver):
         self._sync_image_view_state()
 
         observation_tower.subscribe_multi(self, [ConfigurationUpdatedEvent, 
-                                                 LocalResourceEvent])
+                                                 LocalResourceEvent, 
+                                                 PublishStatusUpdatedEvent, 
+                                                 CacheClearedEvent])
     
     
     def set_image(self, local_resource: LocalCardResource):
@@ -131,7 +133,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiver):
 
         def open_file_path():
             if self._local_resource is not None and self.delegate is not None:
-                self.delegate.ip_open_file_path(self, self._local_resource)
+                self.delegate.ip_open_file_path_and_select_file(self, self._local_resource)
             
         def open_image_url():
             if self._local_resource is not None and self._local_resource.remote_image_url is not None:
@@ -156,7 +158,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiver):
                 regenerate_preview.triggered.connect(_notify_delegate_regenerate_preview)
                 menu.addAction(regenerate_preview) # type: ignore
                 
-                if self._local_resource.remote_image_url is not None:
+                if self._local_resource.remote_image_url is not None: # might need this even if resource is not ready
                     redownload_resource = QAction('Redownload')
                     redownload_resource.triggered.connect(_notify_delegate_redownload_resource)
                     menu.addAction(redownload_resource) # type: ignore
@@ -194,7 +196,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiver):
     class LinkKey:
         REGENERATE_PREVIEW = '#regenerate-preview'
         REDOWNLOAD_IMAGE = '#redownload-image'
-        REGENERATE_PRODUCTION_FILE = '#regenerate_production_file'
+        REGENERATE_PRODUCTION_FILE = '#regenerate-production-file'
     
     def _sync_image_view_state(self):
         self._toggle_resource_details_visibility()
@@ -210,9 +212,11 @@ class ImagePreviewViewController(QWidget, TransmissionReceiver):
             return
         self._image_view.clear()
         self._clear_image_info()
-        
+
         if self._local_resource.is_loading:
             self.loading_spinner.start()
+            # TODO: handle case where spinner is not closed?
+        
         elif self._local_resource.is_ready:
             self.loading_spinner.stop()
             self._set_image_info()
@@ -227,7 +231,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiver):
                 else:
                     # existing resource, but no preview
                     self._image_view.setText(f'⚠️ No preview for {self._local_resource.display_name}. <a href="{self.LinkKey.REGENERATE_PREVIEW}">Regenerate</a>')
-                        
+
         else: # failed to load
             self.loading_spinner.stop()
             if self._local_resource.remote_image_url is not None:
@@ -276,9 +280,10 @@ class ImagePreviewViewController(QWidget, TransmissionReceiver):
 
 
     def handle_observation_tower_event(self, event: TransmissionProtocol):
-        if type(event) == ConfigurationUpdatedEvent:
+        if (type(event) == ConfigurationUpdatedEvent or 
+            type(event) == PublishStatusUpdatedEvent or 
+            type(event) == CacheClearedEvent):
             self._sync_image_view_state()
-            # self._toggle_resource_details_visibility()
             
         if type(event) == LocalResourceEvent:
             if self._local_resource is not None and self._local_resource.image_preview_path == event.local_resource.image_preview_path:

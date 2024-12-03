@@ -1,2 +1,2 @@
 from .ImageResourceDeployer import *
-from .ImageResourceCacher import *
+from .ImageResourceProcessor import *
