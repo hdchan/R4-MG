@@ -1,7 +1,7 @@
 import os
 from functools import partial
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Set, List
 
 from PIL import Image, ImageDraw
 from PyQt5.QtCore import QObject, QRunnable, QThreadPool, pyqtSignal
@@ -29,18 +29,22 @@ class ImageResourceCacher:
         self.observation_tower = observation_tower
         self.image_fetcher_provider = image_fetcher_provider
         self.pool = QThreadPool()
+        self.working_resources: Set[str] = set()
         self.delegate: Optional[ImageResourceCacherDelegate]
 
     def async_store_local_resource(self, local_resource: LocalCardResource, retry: bool = False):
+        # case where cache exists, but no image. Not download, but artifact of loading state exists
         if retry and local_resource.remote_image_url is not None:
             assert(local_resource.remote_image_url is not None) # prevent deletion of resources that don't have any remote URL
             if os.path.exists(local_resource.image_path):
                 Path(local_resource.image_path).unlink()
             if os.path.exists(local_resource.image_preview_path):
                 Path(local_resource.image_preview_path).unlink()
-        if local_resource.is_ready:
+        if local_resource.is_ready or local_resource.image_path in self.working_resources:
             return
+        self.working_resources.add(local_resource.image_path)
         # TODO: might need to prevent duplicate calls?
+        # Needs to be managed by an array
         # https://www.pythonguis.com/tutorials/multithreading-pyqt-applications-qthreadpool/
         
         Path(local_resource.image_dir).mkdir(parents=True, exist_ok=True)
@@ -56,13 +60,16 @@ class ImageResourceCacher:
 
     def _finish_storing_local_resource(self, result: Tuple[LocalCardResource, Optional[Exception]]):
         local_resource, exception = result
-        Path(local_resource.image_temp_path).unlink() # unlink before notification
+        if os.path.exists(local_resource.image_temp_path):
+            # prevent call to deletion from two successive calls
+            Path(local_resource.image_temp_path).unlink() # unlink before notification
         if exception is not None:
             self.observation_tower.notify(LocalResourceEvent(LocalResourceEvent.EventType.FAILED, local_resource))
         else:
             self.observation_tower.notify(LocalResourceEvent(LocalResourceEvent.EventType.FINISHED, local_resource))
         if self.delegate is not None:
             self.delegate.rc_did_finish_storing_local_resource(self, local_resource)
+        self.working_resources.remove(local_resource.image_path)
 
 
 # https://stackoverflow.com/questions/13909195/how-run-two-different-threads-simultaneously-in-pyqt

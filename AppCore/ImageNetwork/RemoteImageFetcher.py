@@ -20,9 +20,9 @@ class RemoteImageFetcher(ImageFetcherProtocol):
         while True:
             try:
                 # raise Exception(retry_count)
+                print(f'fetching real image: {image_url}')
                 time.sleep(self.configuration_provider.configuration.network_delay_duration)
                 img_data = request.urlopen(image_url)
-                print(f'fetching real image: {image_url}')
                 img = Image.open(img_data) # type: ignore
                 return img
             except Exception as error:

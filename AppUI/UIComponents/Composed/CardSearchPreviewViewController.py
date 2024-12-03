@@ -84,7 +84,7 @@ class CardSearchPreviewViewController(QWidget):
 
         self._load_source_labels()
         
-        self._current_image_path = None
+        self._current_resource = None
         self._observation_tower.subscribe_multi(self, [LocalResourceEvent, 
                                                        ConfigurationUpdatedEvent])
 
@@ -114,10 +114,11 @@ class CardSearchPreviewViewController(QWidget):
         self.search_table_view.set_item_active(index)
 
     def set_image(self, is_flippable: bool, local_resource: LocalCardResource):
-        self._current_image_path = local_resource.image_preview_path
+        self._current_resource = local_resource
         self.staging_view.set_image(local_resource)
         self.flip_button.setEnabled(is_flippable)
-        self.retry_button.setEnabled(local_resource.remote_image_url is not None)
+        # self.retry_button.setEnabled(local_resource.remote_image_url is not None)
+        self._sync_retry_button()
         
 
     def update_list(self, result_list: List[TradingCard]):
@@ -128,7 +129,14 @@ class CardSearchPreviewViewController(QWidget):
         
     def tapped_retry_button(self):
         self.delegate.cs_did_tap_retry_button(self)
+    
+    def _sync_retry_button(self):
+        if self._current_resource is not None:
+            self.retry_button.setEnabled(self._current_resource.remote_image_url is not None and not self._current_resource.is_loading)
+        else:
+            self.retry_button.setEnabled(False)
         
+    
     def _load_source_labels(self):
         search_source_url = self._card_search_source_provider.provideClient().site_source_url
         if 'https://' in search_source_url:
@@ -142,4 +150,6 @@ class CardSearchPreviewViewController(QWidget):
     def handle_observation_tower_event(self, event: TransmissionProtocol):
         if type(event) == ConfigurationUpdatedEvent:
             self._load_source_labels()
+        if type(event) == LocalResourceEvent:
+            self._sync_retry_button()
                     
