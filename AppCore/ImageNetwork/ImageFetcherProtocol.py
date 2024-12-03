@@ -1,9 +1,9 @@
 from PIL import Image
-from ..Config import ConfigurationProvider
+from ..Config import ConfigurationProviderProtocol
 from .ImageFetcherRequestProtocol import *
 
 class ImageFetcherProtocol:
-    def __init__(self, configuration_provider: ConfigurationProvider):
+    def __init__(self, configuration_provider: ConfigurationProviderProtocol):
         self.configuration_provider = configuration_provider
         
     def fetch(self, image_url: str) ->Image.Image:

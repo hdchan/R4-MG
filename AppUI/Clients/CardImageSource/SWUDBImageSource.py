@@ -1,5 +1,5 @@
-from ...Resource.CardImageSourceProtocol import *
-from ...Models import TradingCard
+from AppCore.Resource.CardImageSourceProtocol import *
+from AppCore.Models import TradingCard
 from typing import Optional
 
 class SWUDBImageSource(CardImageSourceProtocol):

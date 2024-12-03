@@ -1,6 +1,5 @@
 from typing import Optional
-from ..Config import ConfigurationProvider
-from ..Image import ImageResourceCacher
+from ..Config import ConfigurationProviderProtocol
 from ..Models.LocalCardResource import LocalCardResource
 from ..Models.TradingCard import TradingCard
 from .CardImageSourceProtocol import CardImageSourceProtocol, CardImageSourceProviderProtocol
@@ -10,13 +9,11 @@ PNG_EXTENSION = '.png'
 class CardResourceProvider:
     def __init__(self, 
                  trading_card: TradingCard,
-                 configuration_provider: ConfigurationProvider,
-                 card_image_source_provider: CardImageSourceProviderProtocol, 
-                 resource_cacher: ImageResourceCacher):
+                 configuration_provider: ConfigurationProviderProtocol,
+                 card_image_source_provider: CardImageSourceProviderProtocol):
         self._trading_card = trading_card
         self._configuration_provider = configuration_provider
         self.card_image_source_provider = card_image_source_provider
-        self._resource_cacher = resource_cacher
         self._show_front: bool = True
     
     @property
@@ -54,28 +51,28 @@ class CardResourceProvider:
     
     @property
     def front_local_resource(self) -> LocalCardResource:
-        return LocalCardResource(self._image_path, 
-                                self._image_preview_path, 
-                                self._unique_identifier_front,
-                                self._trading_card.friendly_display_name,
-                                self._trading_card.friendly_display_name_short,
-                                self._trading_card.friendly_display_name_detailed,
-                                PNG_EXTENSION, 
-                                self._card_image_source.front_art_url(self._trading_card))
+        return LocalCardResource(image_dir=self._image_path, 
+                                image_preview_dir=self._image_preview_path, 
+                                file_name=self._unique_identifier_front,
+                                display_name=self._trading_card.friendly_display_name,
+                                display_name_short=self._trading_card.friendly_display_name_short,
+                                display_name_detailed=self._trading_card.friendly_display_name_detailed,
+                                file_extension=PNG_EXTENSION, 
+                                remote_image_url=self._card_image_source.front_art_url(self._trading_card))
     
     @property
     def back_local_resource(self) -> Optional[LocalCardResource]:
         back_art_url = self._card_image_source.back_art_url(self._trading_card)
         if back_art_url is None:
             return None
-        return LocalCardResource(self._image_path, 
-                                self._image_preview_path, 
-                                self._unique_identifier_back,
-                                self._trading_card.friendly_display_name + ' (back)',
-                                self._trading_card.friendly_display_name_short + ' (back)',
-                                self._trading_card.friendly_display_name_detailed + ' (back)',
-                                PNG_EXTENSION, 
-                                back_art_url)
+        return LocalCardResource(image_dir=self._image_path, 
+                                image_preview_dir=self._image_preview_path, 
+                                file_name=self._unique_identifier_back,
+                                display_name=self._trading_card.friendly_display_name + ' (back)',
+                                display_name_short=self._trading_card.friendly_display_name_short + ' (back)',
+                                display_name_detailed=self._trading_card.friendly_display_name_detailed + ' (back)',
+                                file_extension=PNG_EXTENSION, 
+                                remote_image_url=back_art_url)
     
     @property
     def _unique_identifier_front(self) -> str:

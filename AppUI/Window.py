@@ -2,22 +2,22 @@
 import os
 from typing import Optional
 
-from PyQt5.QtGui import QIcon, QKeyEvent
+from PyQt5.QtGui import QKeyEvent, QCloseEvent
 from PyQt5.QtWidgets import QDesktopWidget, QMainWindow
 
-from AppCore.Config import ConfigurationProvider
+from AppCore.Config import ConfigurationProviderProtocol
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         TransmissionProtocol)
 from AppCore.Observation.ObservationTower import ObservationTower
-from AppCore.Observation.TransmissionReceiver import TransmissionReceiver
+from AppCore.Observation.TransmissionReceiverProtocol import TransmissionReceiverProtocol
 
 from .Assets import AssetProvider
 from .Observation.Events import KeyboardEvent
 
 basedir = os.path.dirname(__file__)
-class Window(QMainWindow, TransmissionReceiver):
+class Window(QMainWindow, TransmissionReceiverProtocol):
     def __init__(self, 
-                 configuration_provider: ConfigurationProvider, 
+                 configuration_provider: ConfigurationProviderProtocol, 
                  observation_tower: ObservationTower, 
                  asset_provider: AssetProvider):
         """Initializer."""
@@ -39,7 +39,7 @@ class Window(QMainWindow, TransmissionReceiver):
     def _load_window(self):
         self.setWindowTitle(self.configuration_provider.configuration.app_display_name)
         # https://www.pythonguis.com/tutorials/packaging-pyqt5-pyside2-applications-windows-pyinstaller/#setting-an-application-icon
-        self.setWindowIcon(QIcon(self.asset_provider.image.logo_path))
+        # self.setWindowIcon(QIcon(self.asset_provider.image.logo_path))
 
     def handle_observation_tower_event(self, event: TransmissionProtocol):
         self._load_window()
@@ -51,3 +51,6 @@ class Window(QMainWindow, TransmissionReceiver):
     def keyReleaseEvent(self, a0: Optional[QKeyEvent]):
         if a0 is not None:
             self.observation_tower.notify(KeyboardEvent(KeyboardEvent.Action.RELEASED, a0))
+
+    def closeEvent(self, a0: Optional[QCloseEvent]):
+        print('closing')

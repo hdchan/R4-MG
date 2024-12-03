@@ -1,5 +1,38 @@
 ## Changelog
 
+### 0.10.0
+#### Feature updates
+- Add clear cache and unstage all resources options
+- Async image processing
+- Fix production button state bug when redownloading asset
+- Fix crash when re-downloading multiple times
+- Fix update preview when changing image source
+
+#### Engineering updates
+- Create App state model
+- Abstracting os platform operations
+- Add temp folder access
+- Adjusting observation logic
+- Consolidate downscale function
+- Consolidate image processing
+- Consolidating LocalResourceEvent
+- Removing more dependencies
+- Add old configuration to config updated event
+- Move card aspect and type out of app core
+- Arc refactors
+
+### 0.9.3
+#### Feature updates
+- Fix production button state bug when redownloading asset
+
+### 0.9.2
+#### Feature updates
+- Fix crash when re-downloading multiple times
+
+### 0.9.1
+#### Feature updates
+- Fix update preview when changing image source
+
 ### 0.9.0
 #### Feature updates
 - Adding option to change display name length
@@ -8,6 +41,7 @@
 - Add emojis for card aspects
 #### Engineering updates
 - Update functions and paths for mac compatibility
+- Move mock data to app UI folder
 
 ### 0.8.0
 #### Feature updates

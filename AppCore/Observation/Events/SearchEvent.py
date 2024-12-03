@@ -1,6 +1,9 @@
 from enum import Enum
-from ..TransmissionProtocol import TransmissionProtocol
+
 from ...Models import SearchConfiguration
+from ..TransmissionProtocol import TransmissionProtocol
+
+
 class SearchEvent(TransmissionProtocol):
     class EventType(Enum):
         STARTED = 1

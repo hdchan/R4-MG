@@ -1,4 +1,6 @@
 from enum import Enum
+
+
 class CardType(Enum):
         UNSPECIFIED = 'Unspecified'
         BASE = 'Base'

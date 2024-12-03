@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QListWidget, QLabel, QHBoxLayout, QSplitter
 from PyQt5 import QtCore
-from AppCore import ApplicationCore, ObservationTower
-from AppCore.Observation import TransmissionReceiver, TransmissionProtocol
-from AppCore.Observation.Events import ProductionResourcesLoadedEvent
+from AppCore.ApplicationCore import ApplicationCore
+from AppCore import ObservationTower
+from AppCore.Observation import *
 # from UIComponents.Base import ImagePreviewViewController
 class TwoStackImagePreviewViewController(QWidget):
     def __init__(self):
@@ -33,7 +33,7 @@ class ProfileDeploymentViewController(QWidget):
         layout.addWidget(staging_stack)
         production_stack = TwoStackImagePreviewViewController()
         layout.addWidget(production_stack)
-class AdvancedViewController(QWidget, TransmissionReceiver):
+class AdvancedViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
                  observation_tower: ObservationTower, 
                  application_core: ApplicationCore):
@@ -77,8 +77,6 @@ class AdvancedViewController(QWidget, TransmissionReceiver):
         player_slot_layout.addWidget(ProfileDeploymentViewController())
         splitter.addWidget(player_slot_panel)
         
-        observation_tower.subscribe(self, ProductionResourcesLoadedEvent)
         
     def handle_observation_tower_event(self, event: TransmissionProtocol):
-        if type(event) == ProductionResourcesLoadedEvent:
-            print(event.production_resources)
+        pass

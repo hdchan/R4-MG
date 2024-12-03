@@ -3,7 +3,6 @@ import webbrowser
 from PyQt5.QtCore import QObject, Qt
 from PyQt5.QtWidgets import QAction, QMenu, QMenuBar, QWidget
 
-from AppCore import ApplicationCore
 from AppCore.Config import *
 
 from ..Assets import AssetProvider
@@ -17,11 +16,9 @@ class MenuActionCoordinator(QObject):
     def __init__(self,
                  window: Window,
                  main_program: MainProgramViewController,
-                 app_core: ApplicationCore,
                  configuration_manager: ConfigurationManager, 
                  asset_provider: AssetProvider):
         super().__init__()
-        self.app_core = app_core
         self.main_program = main_program
         self.configuration_manager = configuration_manager
         self.asset_provider = asset_provider
@@ -37,39 +34,47 @@ class MenuActionCoordinator(QObject):
 
     def attachMenuBar(self, parent: QWidget):
         self._menu_parent = parent
-        menuBar = QMenuBar(parent)
-        menuBar.setNativeMenuBar(False)
+        menu_bar = QMenuBar(parent)
+        menu_bar.setNativeMenuBar(False)
 
         # MARK: - File
-        fileMenu = QMenu("&File", parent)
-        menuBar.addMenu(fileMenu)
+        file_menu = QMenu("&File", parent)
+        menu_bar.addMenu(file_menu)
 
         new_file_menu = QAction('New image file', parent)
         new_file_menu.triggered.connect(self.new_file_tapped)
-        fileMenu.addAction(new_file_menu)
+        file_menu.addAction(new_file_menu)
 
         refresh_production_images = QAction('Refresh production images', parent)
         refresh_production_images.triggered.connect(self.did_tap_refresh_production_images)
-        fileMenu.addAction(refresh_production_images)
+        file_menu.addAction(refresh_production_images)
         
         
         open_production_dir = QAction('Reveal images in file explorer', parent)
         open_production_dir.triggered.connect(self.did_open_production_dir)
-        fileMenu.addAction(open_production_dir)
+        file_menu.addAction(open_production_dir)
         
+        # Actions
+        action_menu = QMenu("&Action", parent)
+        menu_bar.addMenu(action_menu)
+
+        unstage_all_staging_resources = QAction('Unstage all staging resources', parent)
+        unstage_all_staging_resources.triggered.connect(self.did_unstage_all_staging_resources)
+        action_menu.addAction(unstage_all_staging_resources)
+
         clear_cache_dir = QAction('Clear cache', parent)
         clear_cache_dir.triggered.connect(self.did_clear_cache_dir)
-        # fileMenu.addAction(clear_cache_dir)
+        action_menu.addAction(clear_cache_dir)
 
         
         # MARK: - Settings
         settings_menu = QAction("Settings", parent)
         settings_menu.triggered.connect(self.did_tap_settings)
-        fileMenu.addAction(settings_menu)
+        file_menu.addAction(settings_menu)
         
         # MARK: - View
         view_menu = QMenu("&View", parent)
-        menuBar.addMenu(view_menu)
+        menu_bar.addMenu(view_menu)
         
         show_resource_details = QAction('Show resource details', parent)
         show_resource_details.triggered.connect(self.did_toggle_show_resource_details)
@@ -91,21 +96,18 @@ class MenuActionCoordinator(QObject):
         card_title_detail_short = QAction('Short', parent)
         card_title_detail_short.triggered.connect(self.did_toggle_card_title_detail_short)
         card_title_detail_short.setCheckable(True)
-        # card_title_detail_short.setChecked(self.configuration.card_title_detail == Configuration.Settings.CardTitleDetail.SHORT)
         self.card_title_detail_short = card_title_detail_short
         card_title_detail.addAction(card_title_detail_short)
 
         card_title_detail_normal = QAction('Normal', parent)
         card_title_detail_normal.triggered.connect(self.did_toggle_card_title_detail_normal)
         card_title_detail_normal.setCheckable(True)
-        # card_title_detail_normal.setChecked(self.configuration.card_title_detail == Configuration.Settings.CardTitleDetail.NORMAL)
         self.card_title_detail_normal = card_title_detail_normal
         card_title_detail.addAction(card_title_detail_normal)
 
         card_title_detail_detailed = QAction('Detailed', parent)
         card_title_detail_detailed.triggered.connect(self.did_toggle_card_title_detail_detailed)
         card_title_detail_detailed.setCheckable(True)
-        # card_title_detail_detailed.setChecked(self.configuration.card_title_detail == Configuration.Settings.CardTitleDetail.DETAILED)
         self.card_title_detail_detailed = card_title_detail_detailed
         card_title_detail.addAction(card_title_detail_detailed)
 
@@ -114,11 +116,7 @@ class MenuActionCoordinator(QObject):
         
         # MARK: - About
         about_menu = QMenu("&Help", parent)
-        menuBar.addMenu(about_menu)
-
-        version = QAction(f"v.{self.configuration.app_ui_version}", parent)
-        version.setEnabled(False)
-        about_menu.addAction(version)
+        menu_bar.addMenu(about_menu)
 
         check_update = QAction('Check for updates', parent)
         check_update.triggered.connect(self.open_update_page)
@@ -131,11 +129,15 @@ class MenuActionCoordinator(QObject):
         # MARK: - Developer
         if self.configuration.is_developer_mode:
             developer_menu = QMenu("&Developer", parent)
-            menuBar.addMenu(developer_menu)
+            menu_bar.addMenu(developer_menu)
 
             open_configuration_dir = QAction('Reveal configuration in file explorer', parent)
             open_configuration_dir.triggered.connect(self.did_open_configuration_dir)
             developer_menu.addAction(open_configuration_dir)
+
+            open_temp_dir = QAction('Reveal temp folder in file explorer', parent)
+            open_temp_dir.triggered.connect(self.did_open_temp_dir)
+            developer_menu.addAction(open_temp_dir)
 
             mock_data_mode = QAction('Mock data', parent)
             mock_data_mode.triggered.connect(self.did_toggle_mock_data_mode)
@@ -155,8 +157,8 @@ class MenuActionCoordinator(QObject):
             popout_production_image_mode.setChecked(self.configuration.is_popout_production_images_mode)
             developer_menu.addAction(popout_production_image_mode)
         
-        # return menuBar
-        self._menu_parent.setMenuBar(menuBar)
+        # return menu_bar
+        self._menu_parent.setMenuBar(menu_bar)
 
     def new_file_tapped(self):
         self.main_program.prompt_generate_new_file()
@@ -198,10 +200,13 @@ class MenuActionCoordinator(QObject):
         self.card_title_detail_detailed.setChecked(preference == Configuration.Settings.CardTitleDetail.DETAILED)
     
     def did_open_production_dir(self):
-        self.app_core.open_production_dir()
+        self.main_program.open_production_dir()
         
     def did_open_configuration_dir(self):
-        self.app_core.open_configuration_dir()
+        self.main_program.open_configuration_dir()
+
+    def did_open_temp_dir(self):
+        self.main_program.open_temp_dir()
         
     def did_tap_settings(self):
         def remove_ref():
@@ -213,12 +218,15 @@ class MenuActionCoordinator(QObject):
             self.settings.show()
         if not self.settings.isHidden():
             self.settings.activateWindow()
+
+    def did_unstage_all_staging_resources(self):
+        self.main_program.confirm_unstage_all_resources()
             
     def open_update_page(self):
         webbrowser.open("https://github.com/hdchan/R4-MG/releases")
         
     def did_clear_cache_dir(self):
-        self.app_core.clear_cache()
+        self.main_program.confirm_clear_cache()
         
         
     def open_about_page(self):

@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Optional, Tuple
+
 from PIL import Image
 
 Width = int
@@ -25,15 +26,34 @@ class LocalCardResource:
         self.remote_image_url = remote_image_url
         self.file_extension = file_extension
         self._size: Optional[Size] = None
+
+    '''
+    is_ready = True, is_loading = True
+    processing existing file? (loading)
+    how to recover if file is artifact?
+
+    is_ready = True, is_loading = False
+    image is done processing and ready to be shown (no loading)
+    happy path
+
+    is_ready = False, is_loading = True
+    image is being downloaded (loading)
+    ok, but potential artifact where not actually loading
     
+
+    is_ready = False, is_loading = False
+    image is not being processed, and does not exist (no loading)
+    can recover
+    '''
+
     @property
     def is_ready(self) -> bool:
         return Path(self.image_path).is_file()
     
     @property 
     def is_loading(self) -> bool:
-        return Path(self.image_temp_path).is_file() and not self.is_ready # temp file might be present as an artifact
-    
+        return Path(self.image_temp_path).is_file() # temp file might be present as an artifact
+
     @property
     def file_name_with_ext(self) -> str:
         return f'{self.file_name}{self.file_extension}'
@@ -50,6 +70,10 @@ class LocalCardResource:
     def image_temp_path(self):
         return f'{self.image_preview_dir}temp-{self.file_name}'
     
+    @property
+    def image_old_path(self):
+        return f'{self.image_preview_dir}old-{self.file_name}'
+
     @property
     def size(self):
         # if self._size is None and self.is_ready:

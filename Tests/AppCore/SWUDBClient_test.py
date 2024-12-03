@@ -1,14 +1,14 @@
 from AppCore.Models import SearchConfiguration
 
 from ..Helpers import RandomTestCase
-from ..Mocks import MockNetworkerProtocol
-from AppCore.Clients.SWUDB import SWUDBClient, SearchRequest
+from ..Mocks import LocalNetworkerProtocol
+from AppCore.Clients.SWUDB import SWUDBAPIRemoteClient, SearchRequest
 
-class SWUDBClient_test(RandomTestCase):
+class SWUDBAPIRemoteClient_test(RandomTestCase):
     def setUp(self) -> None:
         super().setUp()
-        self.mock_networker = MockNetworkerProtocol()
-        self.sut = SWUDBClient(self.mock_networker)
+        self.mock_networker = LocalNetworkerProtocol()
+        self.sut = SWUDBAPIRemoteClient(self.mock_networker)
         
     def tearDown(self) -> None:
         super().tearDown()

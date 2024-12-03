@@ -3,7 +3,7 @@ from typing import List, Optional, Tuple
 
 from AppCore.Data.APIClientProtocol import *
 from AppCore.Models import SearchConfiguration, TradingCard
-from AppCore.Observation import ObservationTower
+from AppCore.Observation import *
 from AppCore.Observation.Events import SearchEvent
 
 
@@ -43,6 +43,3 @@ class CardDataSource:
                                                       copy.deepcopy(search_configuration)))
 
         self.api_client.search(search_configuration, completed_with_search_result)
-    
-    
-        
