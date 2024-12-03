@@ -6,6 +6,10 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[
+        ('AppUI\\Assets\\Data\\shd.json', 'AppUI\\Assets\\Data'),
+        ('AppUI\\Assets\\Data\\sor.json', 'AppUI\\Assets\\Data'),
+        ('AppUI\\Assets\\Data\\twi.json', 'AppUI\\Assets\\Data'),
+
         ('AppUI\\Assets\\Images\\logo.png', 'AppUI\\Assets\\Images'),
         ('AppUI\\Assets\\Images\\SWH_Logo_Black_preview.png', 'AppUI\\Assets\\Images'),
         ('AppUI\\Assets\\Images\\r4-head.png', 'AppUI\\Assets\\Images'),

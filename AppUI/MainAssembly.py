@@ -4,8 +4,9 @@ from PyQt5.QtWidgets import QApplication
 
 from AppCore import *
 from AppCore import ApplicationCore
+from .Clients.SWUDB.MockSWUDBClient import MockSWUDBClient
 from AppCore.Clients import (APIClientProvider, CardImageSourceProvider,
-                             MockSWUDBClient, SWUDBAPIImageSource, SWUDBClient,
+                            SWUDBAPIImageSource, SWUDBClient,
                              SWUDBImageSource)
 from AppCore.Config import ConfigurationManager
 from AppCore.Image import ImageFetcherProvider
@@ -30,7 +31,7 @@ class MainAssembly:
         self._style_app()
         observation_tower = ObservationTower()
         self.configuration_manager = ConfigurationManager(observation_tower)
-        asset_provider = AssetProvider()
+        self.asset_provider = AssetProvider()
         
         self.networker = Networker(self.configuration_manager)
         api_client_provider = self._assemble_api_client_provider()
@@ -43,20 +44,20 @@ class MainAssembly:
                                         self.configuration_manager)
         main_window = Window(self.configuration_manager, 
                             observation_tower, 
-                            asset_provider)
+                            self.asset_provider)
         main_program = MainProgramViewController(observation_tower,
                                                 self.configuration_manager,
                                                 application_core,
                                                 api_client_provider,
                                                 image_source_provider, 
-                                                asset_provider)
+                                                self.asset_provider)
         advanced_view = AdvancedViewController(observation_tower, 
                                                application_core)
         self.menu_action_coordinator = MenuActionCoordinator(main_window,
                                                         main_program,
                                                         application_core,
                                                         self.configuration_manager, 
-                                                        asset_provider)
+                                                        self.asset_provider)
         
         self.shortcut_action_coordinator = ShortcutActionCoordinator(main_program)
         main_program.load()
@@ -88,7 +89,8 @@ class MainAssembly:
     def _assemble_api_client_provider(self) -> APIClientProvider:
         return APIClientProvider(self.configuration_manager, 
                                  SWUDBClient(self.networker), 
-                                 MockSWUDBClient(MockNetworker(self.configuration_manager)))
+                                 MockSWUDBClient(MockNetworker(self.configuration_manager), 
+                                                 self.asset_provider))
     
     def _assemble_image_fetcher_provider(self) -> ImageFetcherProvider:
         return ImageFetcherProvider(self.configuration_manager, 
