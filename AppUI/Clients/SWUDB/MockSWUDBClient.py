@@ -2,16 +2,17 @@
 import json
 from typing import List, Dict, Any, Optional
 
-from ...Data.APIClientProtocol import (APIClientProtocol,
+from AppCore.Data.APIClientProtocol import (APIClientProtocol,
                                        APIClientSearchCallback)
-from ...Models import TradingCard, SearchConfiguration, CardType
-from ...Network import MockNetworker
-from .SWUTradingCard import SWUTradingCard
-
+from AppCore.Models import TradingCard, SearchConfiguration, CardType
+from AppCore.Network import MockNetworker
+from AppCore.Clients.SWUDB.SWUTradingCard import SWUTradingCard
+from ...Assets import AssetProvider
 CardListData = List[Dict[str, Any]]
 class MockSWUDBClient(APIClientProtocol):
-    def __init__(self, mock_networker: MockNetworker):
+    def __init__(self, mock_networker: MockNetworker, asset_provider: AssetProvider):
         self.mock_networker = mock_networker
+        self.asset_provider = asset_provider
         self.__response_card_list: Optional[List[TradingCard]] = None
     
     @property
@@ -38,7 +39,7 @@ class MockSWUDBClient(APIClientProtocol):
     def _response_card_list(self) -> List[TradingCard]:
         if self.__response_card_list is None:
             # TODO: needs to be referenced in package, otherwise crashes on distribution
-            with open('./AppCore/Clients/SWUDB/sor.json', 'r') as file, open('./AppCore/Clients/SWUDB/shd.json') as file2, open('./AppCore/Clients/SWUDB/twi.json') as file3:
+            with open(self.asset_provider.data.sor_set_path, 'r') as file, open(self.asset_provider.data.shd_set_path) as file2, open(self.asset_provider.data.twi_set_path) as file3:
                 sor_response = json.load(file)['data']
                 shd_response = json.load(file2)['data']
                 twi_response = json.load(file3)['data']

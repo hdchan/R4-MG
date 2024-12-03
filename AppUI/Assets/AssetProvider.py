@@ -27,7 +27,6 @@ class AssetProvider:
             return os.path.join(appdir, f'Images/{file_name}')
         
     class Audio:
-        
         def __init__(self):
             self.__r2_file_list: Optional[List[str]] = None
         
@@ -72,7 +71,23 @@ class AssetProvider:
         def _audio_path(self, file_name: str) -> str:
             return os.path.join(appdir, f'Audio/r2/{file_name}')
     
-    
+    class Data:
+        @property
+        def sor_set_path(self):
+            return self._data_path('sor.json')
+        
+        @property
+        def shd_set_path(self):
+            return self._data_path('shd.json')
+        
+        @property
+        def twi_set_path(self):
+            return self._data_path('twi.json')
+        
+        def _data_path(self, file_name: str) -> str:
+            return os.path.join(appdir, f'Data/{file_name}')
+        
     def __init__(self):
         self.image = self.Image()
         self.audio = self.Audio()
+        self.data = self.Data()
