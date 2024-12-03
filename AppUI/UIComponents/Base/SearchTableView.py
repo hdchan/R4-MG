@@ -119,8 +119,13 @@ class SearchTableView(QWidget, TransmissionReceiver):
         observation_tower.subscribe_multi(self, [SearchEvent, 
                                                  KeyboardEvent, 
                                                  ConfigurationUpdatedEvent]) 
+        
+        self._is_config_updating = False
 
     def get_selection(self):
+        if self._is_config_updating:
+            # don't trigger update when changing configuration
+            return
         selected_indexs = self.result_list.selectedIndexes()
         if len(selected_indexs) > 0 and self.delegate is not None:
             self.delegate.tv_did_select(self, selected_indexs[0].row())
@@ -251,4 +256,6 @@ class SearchTableView(QWidget, TransmissionReceiver):
             self._sync_search_button_text()
 
         elif type(event) == ConfigurationUpdatedEvent:
+            self._is_config_updating = True
             self._load_list()
+            self._is_config_updating = False
