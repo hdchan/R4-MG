@@ -152,6 +152,7 @@ class ApplicationCore(ImageResourceDeployerDelegate, ImageResourceCacherDelegate
         trading_card_resource_provider = self._trading_card_providers[index]
         self._selected_resource = trading_card_resource_provider.local_resource
         self._resource_cacher.async_store_local_resource(trading_card_resource_provider.local_resource, retry)
+        self._retrieve_publish_status_and_notify_if_needed()
         if self.delegate is not None:
             self.delegate.app_did_retrieve_card_resource_for_card_selection(self, copy.deepcopy(trading_card_resource_provider.local_resource), trading_card_resource_provider.is_flippable)
 
@@ -227,3 +228,4 @@ class ApplicationCore(ImageResourceDeployerDelegate, ImageResourceCacherDelegate
     
     def redownload_resource(self, local_resource: LocalCardResource):
         self._resource_cacher.async_store_local_resource(local_resource, True)
+        self._retrieve_publish_status_and_notify_if_needed()
