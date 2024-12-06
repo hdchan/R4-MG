@@ -15,6 +15,10 @@ class AssetProvider:
         def swu_logo_black_path(self) -> str:
             return self._image_path('SWH_Logo_Black_preview.png')
         
+        @property
+        def swu_card_back(self) -> str:
+            return self._image_path('cardback.png')
+        
         @property 
         def r4_head(self) -> str:
             return self._image_path('r4-head.png')

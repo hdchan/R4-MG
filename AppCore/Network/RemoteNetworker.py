@@ -6,12 +6,18 @@ from urllib.request import Request, urlopen
 
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 
+from ..Config import ConfigurationManager
 from .NetworkerProtocol import NetworkerProtocol, NetworkerProtocolCallback
 from .NetworkRequestProtocol import NetworkRequestProtocol
-import io
+
 T = TypeVar("T")
 
 class RemoteNetworker(NetworkerProtocol):
+
+    def __init__(self, 
+                 configuration_manager: ConfigurationManager):
+        self.configuration_manager = configuration_manager
+
     class ClientWorker(QObject):
         finished = pyqtSignal()
         progress_available = pyqtSignal(float)
@@ -61,7 +67,7 @@ class RemoteNetworker(NetworkerProtocol):
                 callback((None, error))
             
         thread = QThread()
-        worker = self.ClientWorker(self.configuration_provider.configuration.network_delay_duration)
+        worker = self.ClientWorker(self.configuration_manager.configuration.network_delay_duration)
         worker.moveToThread(thread)
         thread.started.connect(partial(worker.load, request.request()))
         worker.progress_available.connect(progress_available)

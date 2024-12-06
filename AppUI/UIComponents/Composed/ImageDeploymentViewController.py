@@ -1,32 +1,26 @@
-from typing import Optional
-
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QSizePolicy,
                              QVBoxLayout, QWidget)
 
-from AppCore import ConfigurationProviderProtocol, ObservationTower
-from AppCore.Models import LocalCardResource
-from AppCore.Observation.Events import (ConfigurationUpdatedEvent, SearchEvent,
+from AppCore.Data.LocalResourceDataSourceProtocol import *
+from AppCore.Image.ImageResourceProcessorProtocol import *
+from AppCore.Models import DeploymentCardResource, LocalCardResource
+from AppCore.Observation.Events import (DeploymentResourceEvent,
                                         TransmissionProtocol)
+from AppUI.AppDependencyProviding import AppDependencyProviding
 from AppUI.UIComponents.Base.ImagePreviewViewController import *
 
 
-class ImageDeploymentViewControllerDelegate:
-    def id_did_tap_staging_button(self, id: ...) -> None:
-        pass
-    
-    def id_did_tap_unstaging_button(self, id: ...) -> None:
-        pass
-
 class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
-                 observation_tower: ObservationTower, 
-                 configuration_provider: ConfigurationProviderProtocol, 
-                 image_preview_delegate: ImagePreviewViewControllerDelegate, 
-                 asset_provider: AssetProvider):
+                 app_dependency_provider: AppDependencyProviding,
+                 deployment_resource: DeploymentCardResource, 
+                 local_resource_data_source_provider: LocalResourceDataSourceProviding):
         super().__init__()
-        self.observation_tower = observation_tower
-        self.configuration_provider = configuration_provider
+        self._deployment_resource = deployment_resource
+        self._local_resource_data_source_provider = local_resource_data_source_provider
+        self._image_resource_deployer = app_dependency_provider.image_resource_deployer
+        
         vertical_layout = QVBoxLayout()
         
         label = QLabel()
@@ -71,27 +65,27 @@ class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
         # first_column_widget.setFixedWidth(200)
         layout.addWidget(first_column_widget)
 
-        staging_image_view = ImagePreviewViewController(observation_tower, 
-                                                        configuration_provider, 
-                                                        asset_provider)
-        staging_image_view.delegate = image_preview_delegate
+        staging_image_view = ImagePreviewViewController(app_dependency_provider)
         layout.addWidget(staging_image_view, 4)
         self.staging_image_view = staging_image_view
 
-        production_image_view = ImagePreviewViewController(observation_tower, 
-                                                           configuration_provider, 
-                                                           asset_provider)
-        production_image_view.delegate = image_preview_delegate
+        production_image_view = ImagePreviewViewController(app_dependency_provider, False)
         layout.addWidget(production_image_view, 4)
         self.production_image_view = production_image_view
 
         self.setLayout(vertical_layout)
 
-        self.delegate: Optional[ImageDeploymentViewControllerDelegate] = None
         
-        observation_tower.subscribe(self, SearchEvent)
-        observation_tower.subscribe(self, ConfigurationUpdatedEvent)
+        app_dependency_provider.observation_tower.subscribe_multi(self, [DeploymentResourceEvent, 
+                                                                         PublishStagedResourcesEvent, 
+                                                                         PublishStatusUpdatedEvent, 
+                                                                         LocalResourceSelectedEvent])
     
+        self._sync_state()
+    
+    @property
+    def _local_resource_data_source(self) -> LocalResourceDataSourceProtocol:
+        return self._local_resource_data_source_provider.data_source
     
     def set_staging_image(self, local_resource: LocalCardResource):
         self.staging_image_view.set_image(local_resource)
@@ -107,13 +101,26 @@ class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
         self.label.setText(local_resource.display_name)
         
 
+    def _sync_state(self):
+        latest_deployment_resource = self._image_resource_deployer.latest_deployment_resource(self._deployment_resource)
+        selected_resource = self._local_resource_data_source.selected_local_resource
+        self.set_staging_button_enabled(selected_resource is not None)
+        
+        if latest_deployment_resource is not None:
+            self.set_unstage_button_enabled(latest_deployment_resource.staged_resource is not None)
+            if latest_deployment_resource.staged_resource is not None:
+                self.set_staging_image(latest_deployment_resource.staged_resource)
+            else:
+                self.clear_staging_image()
+            self.set_production_image(latest_deployment_resource.production_resource)
+
     def tapped_staging_button(self):
-        if self.delegate is not None:
-            self.delegate.id_did_tap_staging_button(self)
+        selected_resource = self._local_resource_data_source.selected_local_resource
+        if selected_resource is not None:
+            self._image_resource_deployer.stage_resource(self._deployment_resource, selected_resource)
     
     def tapped_unstaging_button(self):
-        if self.delegate is not None:
-            self.delegate.id_did_tap_unstaging_button(self)
+        self._image_resource_deployer.unstage_resource(self._deployment_resource)
 
     def set_unstage_button_enabled(self, enabled: bool):
         self.unstage_button.setEnabled(enabled)
@@ -130,10 +137,9 @@ class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
             self.stage_button.setStyleSheet("")
     
     def handle_observation_tower_event(self, event: TransmissionProtocol):
-        if type(event) == SearchEvent:
-            if event.event_type == SearchEvent.EventType.STARTED:
-                pass
-            elif event.event_type == SearchEvent.EventType.FINISHED:
-                pass
-        elif type(event) == ConfigurationUpdatedEvent:
-            pass
+        if (type(event) == DeploymentResourceEvent or 
+            type(event) == PublishStagedResourcesEvent or 
+            type(event) == PublishStatusUpdatedEvent or 
+            type(event) == LocalResourceSelectedEvent):
+            self._sync_state()
+        

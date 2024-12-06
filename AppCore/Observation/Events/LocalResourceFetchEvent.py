@@ -4,7 +4,7 @@ from ...Models.LocalCardResource import LocalCardResource
 from ..TransmissionProtocol import TransmissionProtocol
 
 
-class LocalResourceEvent(TransmissionProtocol):
+class LocalResourceFetchEvent(TransmissionProtocol):
     class EventType(Enum):
         STARTED = 1
         FINISHED = 2
@@ -13,5 +13,6 @@ class LocalResourceEvent(TransmissionProtocol):
     def __init__(self, 
                  event_type: EventType,
                  local_resource: LocalCardResource):
+        super().__init__()
         self.event_type = event_type
         self.local_resource = local_resource

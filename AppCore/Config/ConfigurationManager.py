@@ -1,8 +1,9 @@
 import io
 from copy import deepcopy
 from pathlib import Path
-
+from typing import Tuple
 import yaml
+from PyQt5.QtCore import QTimer
 
 from AppCore.Config.Configuration import *
 from AppCore.Observation.Events import ConfigurationUpdatedEvent
@@ -33,8 +34,11 @@ class MutableConfiguration(Configuration):
 
     def set_is_r4_action_sound_effect_on(self, value: bool):
         self._settings.is_r4_action_sound_effect_on = value
+        
+    def set_window_size(self, size: Tuple[int, int]):
+        self._settings.window_size = size
 
-class ConfigurationManager(ConfigurationProviderProtocol):
+class ConfigurationManager:
     def __init__(self, observation_tower: ObservationTower):
         self._configuration = MutableConfiguration()
         
@@ -50,6 +54,11 @@ class ConfigurationManager(ConfigurationProviderProtocol):
         self.observation_tower = observation_tower
         
         self._real_configuration = deepcopy(self._configuration)
+
+        self._save_async_timer = QTimer()
+        self._save_async_timer.setSingleShot(True)
+        self._save_async_timer.timeout.connect(self.save)
+        self.debounce_time = 500
 
     @property
     def configuration(self) -> Configuration:
@@ -69,10 +78,14 @@ class ConfigurationManager(ConfigurationProviderProtocol):
         self._configuration = deepcopy(self._real_configuration)
 
     def save(self):
+        print('saving configuration')
         old_configuration = deepcopy(self._real_configuration)
         self._real_configuration = self._configuration
         self._configuration = deepcopy(self._real_configuration)
         self._notify_configuration_changed(old_configuration)
+
+    def save_async(self):
+        self._save_async_timer.start(self.debounce_time)
 
     def toggle_hide_image_preview(self, is_on: bool) -> 'ConfigurationManager':
         self._configuration.set_hide_image_preview(is_on)
@@ -104,6 +117,10 @@ class ConfigurationManager(ConfigurationProviderProtocol):
 
     def set_card_title_detail(self, detail: Configuration.Settings.CardTitleDetail) -> 'ConfigurationManager':
         self._configuration.set_card_title_detail(detail)
+        return self
+    
+    def set_window_size(self, size: Tuple[int, int]):
+        self._configuration.set_window_size(size)
         return self
     
     def toggle_image_source(self, is_on: bool) -> 'ConfigurationManager':

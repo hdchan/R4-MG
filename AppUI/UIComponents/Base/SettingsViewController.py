@@ -1,15 +1,16 @@
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QRadioButton,
                              QVBoxLayout, QWidget, QPushButton, QGroupBox)
 
-from AppCore.Config import Configuration, ConfigurationManager
-
+from AppCore.Config import Configuration
+from ...AppDependencyProviding import AppDependencyProviding
 
 class SettingsViewController(QWidget):
-    def __init__(self, configuration_manager: ConfigurationManager):
+    def __init__(self, 
+                 app_dependencies_provider: AppDependencyProviding):
         super().__init__()
-        self.configuration_manager = configuration_manager
+        self.configuration_manager = app_dependencies_provider.configuration_manager
         self.configuration_manager.discard()
-        configuration = configuration_manager.configuration
+        configuration = app_dependencies_provider.configuration_manager.configuration
         self.setWindowTitle("Settings")
 
         vertical_layout = QVBoxLayout()

@@ -1,45 +1,34 @@
-from typing import List, Optional, Union
+from typing import List
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QAbstractSlider, QPushButton, QScrollArea,
-                             QSizePolicy, QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QPushButton, QScrollArea, QSizePolicy,
+                             QVBoxLayout, QWidget)
 
-from AppCore import (ApplicationState, ConfigurationProviderProtocol,
-                     ObservationTower)
-from AppCore.Models import LocalCardResource
+from AppCore.Data.LocalResourceDataSourceProtocol import *
+from AppCore.Image.ImageResourceProcessorProtocol import *
 from AppCore.Observation import *
-from AppCore.Observation.Events import (LocalResourceEvent,
-                                        PublishStatusUpdatedEvent, PublishStagedResourcesEvent)
+from AppCore.Observation.Events import (LocalResourceFetchEvent,
+                                        LocalResourceSelectedEvent,
+                                        ProductionResourcesLoadedEvent,
+                                        PublishStagedResourcesEvent,
+                                        PublishStatusUpdatedEvent)
+from AppUI.AppDependencyProviding import AppDependencyProviding
 
-from ...Assets import AssetProvider
-from ..Base import AddImageCTAViewController, AddImageCTAViewControllerDelegate
-from . import ImageDeploymentViewController, ImagePreviewViewControllerDelegate
+from ..Base import AddImageCTAViewController
 from ..Base.LoadingSpinner import LoadingSpinner
+from . import ImageDeploymentViewController
 
-class ImageDeploymentListViewControllerDelegate:
-    def idl_did_tap_staging_button(self, id_list: ..., id_cell: ImageDeploymentViewController, index: int) -> None:
-        pass
-
-    def idl_did_tap_unstaging_button(self, id_list: ..., id_cell: ImageDeploymentViewController, index: int) -> None:
-        pass
-    
-    def idl_did_tap_production_button(self, id_list: ...) -> None:
-        pass
 
 class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
-                 observation_tower: ObservationTower, 
-                 configuration_provider: ConfigurationProviderProtocol, 
-                 asset_provider: AssetProvider, 
-                 image_preview_delegate: Union[AddImageCTAViewControllerDelegate, ImagePreviewViewControllerDelegate], 
-                 app_state: ApplicationState):
+                 app_dependency_provider: AppDependencyProviding,
+                 local_resource_data_source_provider: LocalResourceDataSourceProviding):
         super().__init__()
-
-        self.observation_tower = observation_tower
-        self.configuration_provider = configuration_provider
-        self.asset_provider = asset_provider
-        self.image_preview_delegate = image_preview_delegate
-        self.app_state = app_state
+        self.app_dependency_provider = app_dependency_provider
+        self._observation_tower = app_dependency_provider.observation_tower
+        self._image_resource_deployer = app_dependency_provider.image_resource_deployer
+        self._local_resource_data_source_provider = local_resource_data_source_provider
+        self._router = app_dependency_provider.router
 
         outer_container_layout = QVBoxLayout()
         self.setLayout(outer_container_layout)
@@ -58,20 +47,14 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
         cells_container_layout.addWidget(deployment_cells_widget)
         
         
-        add_image_cta = AddImageCTAViewController(asset_provider)
-        add_image_cta.delegate = image_preview_delegate
+        add_image_cta = AddImageCTAViewController(app_dependency_provider)
+        self.add_image_cta = add_image_cta
         cells_container_layout.addWidget(add_image_cta)
         
         
         self.scroll_view = QScrollArea(self)
-        # https://stackoverflow.com/a/75781450
-        # scroll_view.verticalScrollBar().actionTriggered.connect(self.scrolled)
-        # self.position = self.scroll_view.verticalScrollBar().sliderPosition()
-        # self.scroll_view.verticalScrollBar().actionTriggered.connect(self.on_scroll)
-        # self.scroll_view.verticalScrollBar().valueChanged.connect(self.scrolled)
         self.scroll_view.setWidget(cells_container_widget)
         self.scroll_view.setWidgetResizable(True)
-        # self.scroll = scroll_view
         outer_container_layout.addWidget(self.scroll_view)
         
 
@@ -86,70 +69,40 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
         
         self.loading_spinner = LoadingSpinner(self)
         
-        self.delegate: Optional[ImageDeploymentListViewControllerDelegate] = None
+        self._observation_tower.subscribe_multi(self, [PublishStatusUpdatedEvent, 
+                                                      LocalResourceFetchEvent, 
+                                                      PublishStagedResourcesEvent, 
+                                                      LocalResourceSelectedEvent, 
+                                                      ProductionResourcesLoadedEvent])
         
-        self.observation_tower.subscribe_multi(self, [PublishStatusUpdatedEvent, 
-                                                      LocalResourceEvent, 
-                                                      PublishStagedResourcesEvent])
+        app_dependency_provider.shortcut_action_coordinator.bind_publish(self.tapped_production_button, self)
+        app_dependency_provider.menu_action_coordinator.bind_refresh_production_images(self._image_resource_deployer.load_production_resources)
     
-    def on_scroll(self, action):
-        
-        # In case you scroll using the mouse wheel or clicking the bar.
-        if(self.scroll_view.verticalScrollBar().sliderPosition() > self.position):
-            print('scroll down occurred ')
-            self.position = self.scroll_view.verticalScrollBar().sliderPosition()
-        if(self.scroll_view.verticalScrollBar().sliderPosition() < self.position):
-            print('scroll up occurred ')
-            self.position = self.scroll_view.verticalScrollBar().sliderPosition()
-        
-        # SliderSingleStepAdd for when you click the arrow up.
-        # SliderPageStepAdd for when you click the bar up.    
-        if (action == QAbstractSlider.SliderSingleStepAdd) or (action == QAbstractSlider.SliderPageStepAdd):
-            print('scroll down occurred ')
-        # SliderSingleStepSub for when you click the arrow down.
-        # SliderPageStepSub for when you click the bar down.
-        if (action == QAbstractSlider.SliderSingleStepSub) or (action == QAbstractSlider.SliderPageStepSub):
-            print('scroll up occurred ')
 
-    # https://stackoverflow.com/questions/23525448/python-pyqt-scrollbar-in-the-end-position-event
-    def scrolled(self, value):
-        print(self.scroll_view.verticalScrollBar().sliderPosition(), value, self.scroll_view.verticalScrollBar().maximum())
-        if value == self.scroll_view.verticalScrollBar().maximum():
-            print ('reached max') # that will be the bottom/right end
-        if value == self.scroll_view.verticalScrollBar().minimum():
-            print ('reached min') # top/left end
     
-    def load_production_resources(self, card_resources: List[LocalCardResource], staging_button_enabled: bool):
-        for index, resource in enumerate(card_resources):
-            self._create_list_item(resource,
-                                   staging_button_enabled,
-                                   index)
+    @property
+    def _local_resource_data_source(self) -> LocalResourceDataSourceProtocol:
+        return self._local_resource_data_source_provider.data_source
+
+    def load_production_resources(self):
+        card_resources = self._image_resource_deployer.deployment_resources
+        for index, local_resource in enumerate(card_resources):
+            item = ImageDeploymentViewController(self.app_dependency_provider, 
+                                                 local_resource,
+                                                 self._local_resource_data_source_provider)
+            if index <= 9:
+                item.stage_button.setText(f'Stage (Ctrl+{index + 1})')
+                self.app_dependency_provider.shortcut_action_coordinator.bind_stage(item.tapped_staging_button, index, item)
+            else:
+                item.stage_button.setText(f'Stage')
             
-        # print(self.scroll_view.verticalScrollBar().sliderPosition(), self.scroll_view.verticalScrollBar().maximum())
+            pal = item.palette()
+            pal.setColor(item.backgroundRole(), Qt.GlobalColor.lightGray)
+            item.setAutoFillBackground(True)
+            item.setPalette(pal)
+            self._deployment_cells_layout.addWidget(item)
 
-    def _create_list_item(self,
-                         local_resource: LocalCardResource,
-                         staging_button_enabled: bool,
-                         index: int):
-        item = ImageDeploymentViewController(self.observation_tower, 
-                                             self.configuration_provider, 
-                                             self.image_preview_delegate, 
-                                             self.asset_provider)
-        item.delegate = self
-        item.set_production_image(local_resource)
-        if index <= 9:
-            item.stage_button.setText(f'Stage (Ctrl+{index + 1})')
-        else:
-            item.stage_button.setText(f'Stage')
-        item.set_staging_button_enabled(staging_button_enabled)
-        
-        pal = item.palette()
-        pal.setColor(item.backgroundRole(), Qt.GlobalColor.lightGray)
-        item.setAutoFillBackground(True)
-        item.setPalette(pal)
-        self._deployment_cells_layout.addWidget(item)
-
-        self.list_items.append(item)
+            self.list_items.append(item)
 
     def clear_list(self):
         for i in reversed(range(self._deployment_cells_layout.count())):
@@ -159,38 +112,20 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
                 if widget is not None:
                     widget.deleteLater()
         self.list_items = []
-
-    def id_did_tap_staging_button(self, id_cell: ImageDeploymentViewController):
-        for idx, i in enumerate(self.list_items):
-            if i == id_cell and self.delegate is not None:
-                self.delegate.idl_did_tap_staging_button(self, id_cell, idx)
-
-    def id_did_tap_unstaging_button(self, id_cell: ImageDeploymentViewController):
-        for idx, i in enumerate(self.list_items):
-            if i == id_cell and self.delegate is not None:
-                self.delegate.idl_did_tap_unstaging_button(self, id_cell, idx)
-
-    def set_staging_image(self, local_resource: LocalCardResource, index: int):
-        self.list_items[index].set_staging_image(local_resource)
-
-    def clear_staging_image(self, index: int):
-        self.list_items[index].clear_staging_image()
-    
-    def set_production_image(self, local_resource: LocalCardResource, index: int):
-        self.list_items[index].set_production_image(local_resource)
-
-
-    def clear_all_staging_images(self):
-        for i in self.list_items:
-            i.clear_staging_image()
+            
 
     def tapped_production_button(self):
-        if self.delegate is not None:
-            self.delegate.idl_did_tap_production_button(self)
-        
-    def set_all_staging_button_enabled(self, enabled: bool):
-        for i in self.list_items:
-            i.set_staging_button_enabled(enabled)
+        self.publish_to_production()
+            
+    def publish_to_production(self):
+        if self._image_resource_deployer.can_publish_staged_resources:
+            try:
+                self._image_resource_deployer.publish_staged_resources()
+                # self._image_resource_deployer.load_production_resources()
+            except Exception as error:
+                # failed to publish
+                # show error messages
+                self._router.show_error(error)
 
     def set_production_button_enabled(self, enabled: bool):
         self.production_button.setEnabled(enabled)
@@ -201,11 +136,11 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
 
     def handle_observation_tower_event(self, event: TransmissionProtocol):
         if (type(event) == PublishStatusUpdatedEvent or 
-            type(event) == LocalResourceEvent):
-            self.set_production_button_enabled(self.app_state.can_publish_staged_resources)
+            type(event) == LocalResourceFetchEvent or 
+            type(event) == PublishStagedResourcesEvent):
+            can_publish_staged_resources = self._image_resource_deployer.can_publish_staged_resources
+            self.set_production_button_enabled(can_publish_staged_resources)
 
-        # if type(event) == PublishStagedResourcesEvent:
-        #     if event.event_type == PublishStagedResourcesEvent.EventType.STARTED:
-        #         self.loading_spinner.start()
-        #     else:
-        #         self.loading_spinner.stop()
+        if type(event) == ProductionResourcesLoadedEvent:
+            self.clear_list()
+            self.load_production_resources()

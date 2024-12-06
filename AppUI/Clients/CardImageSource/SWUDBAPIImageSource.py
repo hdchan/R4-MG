@@ -3,10 +3,11 @@ from AppCore.Models import TradingCard
 from typing import Optional
 
 class SWUDBAPIImageSource(CardImageSourceProtocol):
-    
+    @property
     def site_source_url(self) -> str:
         return 'https://www.swu-db.com/'
     
+    @property
     def site_source_identifier(self) -> str:
         return 'www.swu-db.com'
     

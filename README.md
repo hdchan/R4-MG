@@ -36,7 +36,7 @@ We can source image files on our stream from the `production` folder, and they'l
 - [ ] Image recognition
 - [ ] Drag and drop staging images
 - [ ] Advanced filtered search
-- [ ] Recently published cards
+- [x] Recently published cards
 - [ ] Recent searches
 
 ## Attributions

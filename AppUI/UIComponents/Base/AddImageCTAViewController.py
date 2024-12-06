@@ -1,5 +1,4 @@
 import urllib.parse
-from typing import Optional
 
 from PyQt5.QtCore import QPoint, Qt, QUrl
 from PyQt5.QtGui import QPixmap
@@ -7,20 +6,16 @@ from PyQt5.QtMultimedia import QSoundEffect
 from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QMenu, QPushButton,
                              QVBoxLayout, QWidget)
 
-from ...Assets import AssetProvider
-
-
-class AddImageCTAViewControllerDelegate:
-    def aicta_did_tap_generate_button(self, aicta: ...) -> None:
-        pass
+from ...AppDependencyProviding import AppDependencyProviding
 
 class AddImageCTAViewController(QWidget):
     def __init__(self, 
-                 asset_provider: AssetProvider):
+                 app_dependencies_provider: AppDependencyProviding):
         super().__init__()
         
         self.setFixedHeight(150)
-        self.asset_provider = asset_provider
+        self._asset_provider = app_dependencies_provider.asset_provider
+        self._router = app_dependencies_provider.router
         self.sound_effect = None
         
         pre_layout = QHBoxLayout()
@@ -30,7 +25,7 @@ class AddImageCTAViewController(QWidget):
         widget = QWidget()
         widget.setLayout(layout)
         widget.setObjectName('parent')
-        background_url = urllib.parse.urljoin("", asset_provider.image.sor_background.replace("\\", "/"))
+        background_url = urllib.parse.urljoin("", self._asset_provider.image.sor_background.replace("\\", "/"))
         widget.setStyleSheet(f'''
                              #parent {{ 
                                 background-image: url("{background_url}"); 
@@ -44,7 +39,7 @@ class AddImageCTAViewController(QWidget):
         
         r4_image = QLabel()
         image = QPixmap()
-        image.load(asset_provider.image.r4_head)
+        image.load(self._asset_provider.image.r4_head)
         r4_image.setPixmap(image)
         r4_image.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         r4_image.customContextMenuRequested.connect(self._showContextMenu)
@@ -87,12 +82,9 @@ class AddImageCTAViewController(QWidget):
         cta_container_layout.addWidget(QWidget())
         
         layout.addWidget(QWidget())
-        
-        self.delegate: Optional[AddImageCTAViewControllerDelegate] = None
     
     def _cta_clicked(self):
-        if self.delegate is not None:
-            self.delegate.aicta_did_tap_generate_button(self)
+        self._router.prompt_generate_new_file()
             
     def _showContextMenu(self, pos: QPoint):
         menu = QMenu(self)
@@ -104,6 +96,6 @@ class AddImageCTAViewController(QWidget):
     def _pressed_sound(self):
         self.sound_effect = QSoundEffect()
         self.sound_effect.setVolume(0.5)
-        self.sound_effect.setSource(QUrl.fromLocalFile(self.asset_provider.audio.r4_effect_path))
-        print(f'playing sound effect: {self.asset_provider.audio.r4_effect_path}')
+        self.sound_effect.setSource(QUrl.fromLocalFile(self._asset_provider.audio.r4_effect_path))
+        print(f'playing sound effect: {self._asset_provider.audio.r4_effect_path}')
         self.sound_effect.play()

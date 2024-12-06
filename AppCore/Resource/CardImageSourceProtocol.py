@@ -3,9 +3,11 @@ from typing import Optional
 
 class CardImageSourceProtocol:
     
+    @property
     def site_source_url(self) -> str:
         return NotImplemented
     
+    @property
     def site_source_identifier(self) -> str:
         return NotImplemented
     
@@ -15,6 +17,7 @@ class CardImageSourceProtocol:
     def back_art_url(self, trading_card: TradingCard) -> Optional[str]:
         return NotImplemented
     
-class CardImageSourceProviderProtocol:
-    def provideSource(self) -> CardImageSourceProtocol:
+class CardImageSourceProviding:
+    @property
+    def card_image_source(self) -> CardImageSourceProtocol:
         return NotImplemented

@@ -1,11 +1,11 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple
 from PyQt5.QtCore import QStandardPaths
 from enum import Enum
 
 class Configuration:
     
     APP_NAME = 'R4-MG'
-    APP_VERSION = '0.10.0'
+    APP_VERSION = '0.11.0'
     
     class Toggles:
         class Keys:
@@ -25,6 +25,8 @@ class Configuration:
             }
             
     class Settings:
+        
+        
         class Keys:
             SEARCH_SOURCE = 'search_source'
             IMAGE_SOURCE = 'image_source'
@@ -33,6 +35,10 @@ class Configuration:
             SHOW_RESOURCE_DETAILS = 'show_resource_details'
             CARD_TITLE_DETAIL = 'card_title_preference'
             IS_R4_ACTION_SOUND_EFFECT_ON = 'is_r4_action_sound_effect_on'
+            WINDOW_HEIGHT = 'w_height'
+            WINDOW_WIDTH = 'w_width'
+            WINDOW_X = 'w_x'
+            WINDOW_Y = 'w_y'
 
             IS_MOCK_DATA = 'is_mock_data'
             IS_DELAY_NETWORK_MODE = 'is_delay_network_mode'
@@ -62,6 +68,9 @@ class Configuration:
             self.show_resource_details = False
             self.cart_title_detail = self.CardTitleDetail.DEFAULT
             self.is_r4_action_sound_effect_on = False
+            
+            self.window_size = (None, None)
+            self.window_position = (None, None)
 
             self.is_popout_production_images_mode = False
             self.is_mock_data = False
@@ -77,6 +86,9 @@ class Configuration:
             self.show_resource_details = settings.get(self.Keys.SHOW_RESOURCE_DETAILS, False)
             self.cart_title_detail = self.CardTitleDetail(settings.get(self.Keys.CARD_TITLE_DETAIL, self.CardTitleDetail.DEFAULT))
             self.is_r4_action_sound_effect_on = settings.get(self.Keys.IS_R4_ACTION_SOUND_EFFECT_ON, False)
+            
+            self.window_size = (settings.get(self.Keys.WINDOW_WIDTH, None), settings.get(self.Keys.WINDOW_HEIGHT, None))
+            self.window_position = (settings.get(self.Keys.WINDOW_X, None), settings.get(self.Keys.WINDOW_Y, None))
 
             self.is_mock_data = settings.get(self.Keys.IS_MOCK_DATA, False)
             self.is_delay_network_mode = settings.get(self.Keys.IS_DELAY_NETWORK_MODE, False)
@@ -93,6 +105,11 @@ class Configuration:
                 self.Keys.SHOW_RESOURCE_DETAILS: self.show_resource_details,
                 self.Keys.CARD_TITLE_DETAIL: self.cart_title_detail.value,
                 self.Keys.IS_R4_ACTION_SOUND_EFFECT_ON: self.is_r4_action_sound_effect_on,
+                
+                self.Keys.WINDOW_WIDTH: self.window_size[0],
+                self.Keys.WINDOW_HEIGHT: self.window_size[1],
+                self.Keys.WINDOW_X: self.window_position[0],
+                self.Keys.WINDOW_Y: self.window_position[1],
                 
                 self.Keys.IS_MOCK_DATA: self.is_mock_data,
                 self.Keys.IS_DELAY_NETWORK_MODE: self.is_delay_network_mode,
@@ -144,6 +161,10 @@ class Configuration:
     @property
     def is_r4_action_sound_effect_on(self) -> bool:
         return self._settings.is_r4_action_sound_effect_on
+    
+    @property
+    def window_size(self) -> Tuple[Optional[int], Optional[int]]:
+        return self._settings.window_size
     
     @property
     def picture_dir_path(self) -> str:
@@ -227,7 +248,3 @@ class Configuration:
             self.Keys.SETTINGS: self._settings.toJSON(self._toggles.developer_mode)
         }
         
-class ConfigurationProviderProtocol:
-    @property
-    def configuration(self) -> Configuration:
-        return NotImplemented
