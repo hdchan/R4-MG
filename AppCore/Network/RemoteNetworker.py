@@ -1,3 +1,4 @@
+import io
 import json
 import time
 from functools import partial
@@ -6,12 +7,18 @@ from urllib.request import Request, urlopen
 
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 
+from ..Config import ConfigurationProviderProtocol
 from .NetworkerProtocol import NetworkerProtocol, NetworkerProtocolCallback
 from .NetworkRequestProtocol import NetworkRequestProtocol
-import io
+
 T = TypeVar("T")
 
 class RemoteNetworker(NetworkerProtocol):
+
+    def __init__(self, 
+                 configuration_provider: ConfigurationProviderProtocol):
+        self.configuration_provider = configuration_provider
+
     class ClientWorker(QObject):
         finished = pyqtSignal()
         progress_available = pyqtSignal(float)

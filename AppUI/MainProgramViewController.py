@@ -9,10 +9,13 @@ from PyQt5.QtWidgets import (QHBoxLayout, QInputDialog, QMessageBox, QSplitter,
 
 from AppCore.ApplicationCore import ApplicationCore
 from AppCore.Config import ConfigurationProviderProtocol
-from AppCore.Data import APIClientProviderProtocol, LocalResourceDataSourceProtocol, CardSearchDataSource, CardSearchDataSourceDelegate
+from AppCore.Data import (APIClientProviderProtocol, CardSearchDataSource,
+                          CardSearchDataSourceDelegate,
+                          LocalResourceDataSourceProtocol)
+from AppCore.Image.ImageResourceProcessorProtocol import \
+    ImageResourceProcessorProviderProtocol
 from AppCore.Models import LocalCardResource, SearchConfiguration, TradingCard
 from AppCore.Observation import *
-from AppCore.Image.ImageResourceProcessorProtocol import ImageResourceProcessorProviderProtocol
 from AppCore.Resource import CardImageSourceProviderProtocol
 from AppUI.UIComponents import (AddImageCTAViewController,
                                 AddImageCTAViewControllerDelegate,
@@ -57,7 +60,6 @@ class MainProgramViewController(QWidget,
         splitter = QSplitter(QtCore.Qt.Orientation.Horizontal)
         horizontal_layout.addWidget(splitter)
         
-
         card_search_view = CardSearchPreviewViewController(observation_tower, 
                                                            configuration_provider,
                                                            card_search_source_provider,
@@ -83,10 +85,6 @@ class MainProgramViewController(QWidget,
         deployment_view.delegate = self
         self.deployment_view = deployment_view
         splitter.addWidget(deployment_view)
-        
-        # profile_loader_view = ProfileLoaderViewController()
-        # splitter.addWidget(profile_loader_view)
-        
         splitter.setSizes([400,900])
 
 
@@ -110,19 +108,16 @@ class MainProgramViewController(QWidget,
     def search_base(self):
         self.card_search_view.search_base()
 
-    # app core
+    # MARK: - AppCoreDelegate
     def app_did_load_production_resources(self, app: ApplicationCore, card_resources: List[LocalCardResource]):
         self.deployment_view.clear_list()
         staging_button_enabled = self._card_search_data_source.current_card_search_resource is not None
         self.deployment_view.load_production_resources(card_resources, staging_button_enabled)
 
-    
-
-    # search table view
+    # MARK: - TableViewDelegate
     def tv_did_tap_search(self, table_view: SearchTableView, search_configuration: SearchConfiguration):
         self._card_search_data_source.search(search_configuration)
         
-
     def tv_did_select(self, table_view: SearchTableView, index: int):
         self._card_search_data_source.select_card_resource_for_card_selection(index)
         self.deployment_view.set_all_staging_button_enabled(True)
@@ -157,6 +152,8 @@ class MainProgramViewController(QWidget,
                                      index: int):
         self.deployment_view.clear_staging_image(index)
         self.application_core.unstage_resource(index)
+
+
 
     def confirm_unstage_all_resources(self):
         dlg = QMessageBox(self)
