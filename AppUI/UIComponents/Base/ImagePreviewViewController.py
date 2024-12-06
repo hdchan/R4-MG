@@ -5,14 +5,14 @@ from PyQt5.QtCore import QPoint, Qt
 from PyQt5.QtGui import QClipboard, QGuiApplication, QPixmap
 from PyQt5.QtWidgets import QAction, QLabel, QMenu, QVBoxLayout, QWidget
 
-from AppCore.Image.ImageResourceProcessorProtocol import *
 from AppCore.Config import Configuration, ConfigurationProviderProtocol
+from AppCore.Image.ImageResourceProcessorProtocol import *
 from AppCore.Models import LocalCardResource
 from AppCore.Observation import *
-from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
+from AppCore.Observation.Events import (CacheClearedEvent,
+                                        ConfigurationUpdatedEvent,
                                         LocalResourceEvent,
-                                        PublishStatusUpdatedEvent,
-                                        CacheClearedEvent)
+                                        PublishStatusUpdatedEvent)
 
 from ...Assets import AssetProvider
 from .LoadingSpinner import LoadingSpinner

@@ -39,7 +39,6 @@ class MainAssembly:
         image_source_provider = self._assemble_image_source_provider()
         image_resource_processor_provider = self._assemble_image_resource_processor_provider()
         application_core = ApplicationCore(self.observation_tower, 
-                                           api_client_provider, 
                                            image_resource_processor_provider, 
                                            image_source_provider,
                                            self.configuration_manager)
@@ -47,12 +46,18 @@ class MainAssembly:
                             self.configuration_manager,
                             self.observation_tower, 
                             self.asset_provider)
+        card_search_data_source = CardSearchDataSource(self.observation_tower, 
+                                                       api_client_provider, 
+                                                       image_resource_processor_provider, 
+                                                       self.configuration_manager, 
+                                                       image_source_provider)
         main_program = MainProgramViewController(self.observation_tower,
                                                 self.configuration_manager,
                                                 application_core,
                                                 api_client_provider,
                                                 image_source_provider,
                                                 image_resource_processor_provider,
+                                                card_search_data_source,
                                                 self.asset_provider)
         advanced_view = AdvancedViewController(self.observation_tower, 
                                                application_core)

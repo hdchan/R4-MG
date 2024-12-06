@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QInputDialog, QMessageBox, QSplitter,
 
 from AppCore.ApplicationCore import ApplicationCore
 from AppCore.Config import ConfigurationProviderProtocol
-from AppCore.Data import APIClientProviderProtocol
+from AppCore.Data import APIClientProviderProtocol, LocalResourceDataSourceProtocol, CardSearchDataSource, CardSearchDataSourceDelegate
 from AppCore.Models import LocalCardResource, SearchConfiguration, TradingCard
 from AppCore.Observation import *
 from AppCore.Image.ImageResourceProcessorProtocol import ImageResourceProcessorProviderProtocol
@@ -28,7 +28,8 @@ from .PopoutImageManager import PopoutImageManager
 
 class MainProgramViewController(QWidget, 
                                 ImagePreviewViewControllerDelegate, 
-                                AddImageCTAViewControllerDelegate):
+                                AddImageCTAViewControllerDelegate, 
+                                CardSearchDataSourceDelegate):
     def __init__(self,
                  observation_tower: ObservationTower,
                  configuration_provider: ConfigurationProviderProtocol,
@@ -36,6 +37,7 @@ class MainProgramViewController(QWidget,
                  card_search_source_provider: APIClientProviderProtocol,
                  card_image_source_provider: CardImageSourceProviderProtocol, 
                  image_resource_processor_provider: ImageResourceProcessorProviderProtocol,
+                 card_search_data_source: CardSearchDataSource,
                  asset_provider: AssetProvider):
         super().__init__()
         
@@ -45,6 +47,9 @@ class MainProgramViewController(QWidget,
 
         application_core.delegate = self
         self.application_core = application_core
+
+        self._card_search_data_source = card_search_data_source
+        self._card_search_data_source.delegate = self
 
         horizontal_layout = QHBoxLayout()
         self.setLayout(horizontal_layout)
@@ -89,9 +94,9 @@ class MainProgramViewController(QWidget,
         self.card_search_view.set_search_focus()
 
     def stage_current_card_search_resource(self, index: int):
-        if self.application_core.can_stage_current_card_search_resource_to_stage_index(index) and self.application_core.current_card_search_resource is not None:
-            self.deployment_view.set_staging_image(self.application_core.current_card_search_resource, index)
-            self.application_core.stage_resource(index)
+        if self.application_core.can_stage_current_card_search_resource_to_stage_index(index) and self._card_search_data_source.current_card_search_resource is not None:
+            self.deployment_view.set_staging_image(self._card_search_data_source.current_card_search_resource, index)
+            self.application_core.stage_resource(self._card_search_data_source.current_card_search_resource, index)
 
     def load(self):
         self.application_core.load_production_resources()
@@ -108,31 +113,36 @@ class MainProgramViewController(QWidget,
     # app core
     def app_did_load_production_resources(self, app: ApplicationCore, card_resources: List[LocalCardResource]):
         self.deployment_view.clear_list()
-        staging_button_enabled = self.application_core.current_card_search_resource is not None
+        staging_button_enabled = self._card_search_data_source.current_card_search_resource is not None
         self.deployment_view.load_production_resources(card_resources, staging_button_enabled)
 
-    def app_did_complete_search(self, app: ApplicationCore, result_list: List[TradingCard], error: Optional[Exception]):
-        self.card_search_view.update_list(result_list)
-
-    def app_did_retrieve_card_resource_for_card_selection(self, app: ApplicationCore, card_resource: LocalCardResource, is_flippable: bool):
-        self.card_search_view.set_image(is_flippable, card_resource)
+    
 
     # search table view
     def tv_did_tap_search(self, table_view: SearchTableView, search_configuration: SearchConfiguration):
-        self.application_core.search(search_configuration)
+        self._card_search_data_source.search(search_configuration)
         
 
     def tv_did_select(self, table_view: SearchTableView, index: int):
-        self.application_core.select_card_resource_for_card_selection(index)
+        self._card_search_data_source.select_card_resource_for_card_selection(index)
         self.deployment_view.set_all_staging_button_enabled(True)
 
-    # card search
+    # MARK: - CardSearchDataSource
     def cs_did_tap_flip_button(self, cs: CardSearchPreviewViewController):
         self.flip_current_previewed_card_if_possible()
         
     def cs_did_tap_retry_button(self, cs: CardSearchPreviewViewController):
-        self.application_core.redownload_currently_selected_card_resource()
+        self._card_search_data_source.redownload_currently_selected_card_resource()
 
+    def flip_current_previewed_card_if_possible(self):
+        if self._card_search_data_source.current_previewed_trading_card_is_flippable():
+            self._card_search_data_source.flip_current_previewed_card()
+
+    def ds_completed_search_with_result(self, ds: CardSearchDataSource, result_list: List[TradingCard], error: Optional[Exception]):
+        self.card_search_view.update_list(result_list)
+
+    def ds_did_retrieve_card_resource_for_card_selection(self, ds: CardSearchDataSource, local_resource: LocalCardResource, is_flippable: bool):
+        self.card_search_view.set_image(is_flippable, local_resource)
 
     # image deployment view
     def idl_did_tap_staging_button(self, 
@@ -204,10 +214,6 @@ class MainProgramViewController(QWidget,
             msgBox.setWindowTitle("Error")
             msgBox.setStandardButtons(QMessageBox.StandardButton.Ok)
             msgBox.exec()
-
-    def flip_current_previewed_card_if_possible(self):
-        if self.application_core.current_previewed_trading_card_is_flippable():
-            self.application_core.flip_current_previewed_card()
     
     # MARK: - ImagePreviewViewControllerDelegate
     def ip_open_file(self, ip: ImagePreviewViewController, local_resource: LocalCardResource):

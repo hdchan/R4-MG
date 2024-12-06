@@ -1,5 +1,12 @@
+from typing import Optional
+
+from ..Models import LocalCardResource
+
+
 class LocalResourceDataSourceProtocol:
-    pass
+    @property
+    def selected_local_resource(self) -> Optional[LocalCardResource]:
+        return NotImplemented
 
 class LocalResourceDataSourceProviderProtocol:
     @property

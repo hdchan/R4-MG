@@ -17,8 +17,8 @@ from .Service import PlatformProtocol, PlatformServiceProvider
 from .ApplicationState import ApplicationState
 
 class ApplicationCoreDelegate:
-    def app_did_complete_search(self, app_core: ..., display_name_list: List[TradingCard], error: Optional[Exception]) -> None:
-        pass
+    # def app_did_complete_search(self, app_core: ..., display_name_list: List[TradingCard], error: Optional[Exception]) -> None:
+    #     pass
     
     def app_did_retrieve_card_resource_for_card_selection(self, app_core: ..., local_resource: LocalCardResource, is_flippable: bool) -> None:
         pass
@@ -30,14 +30,15 @@ class ApplicationCoreDelegate:
 class ApplicationCore(ImageResourceDeployerDelegate, CardSearchDataSourceDelegate, ApplicationState):
     def __init__(self, 
                  observation_tower: ObservationTower, 
-                 api_client_provider: APIClientProviderProtocol,
+                #  api_client_provider: APIClientProviderProtocol,
                  image_resource_processor_provider: ImageResourceProcessorProviderProtocol,
                  card_image_source_provider: CardImageSourceProviderProtocol,
                  configuration_provider: ConfigurationProviderProtocol):
         
-        self._data_source = CardSearchDataSource(observation_tower, 
-                                           api_client_provider)
-        self._data_source.delegate = self
+        # self._data_source = CardSearchDataSource(observation_tower, 
+        #                                         api_client_provider, 
+        #                                         image_resource_processor_provider)
+        # self._data_source.delegate = self
         
         self._image_resource_processor_provider = image_resource_processor_provider
         
@@ -56,15 +57,15 @@ class ApplicationCore(ImageResourceDeployerDelegate, CardSearchDataSourceDelegat
         self.delegate: Optional[ApplicationCoreDelegate] = None
         
         # stateful variables
-        self.selected_index: Optional[int] = None
-        self._selected_resource: Optional[LocalCardResource] = None
-        self._trading_card_providers: List[CardResourceProvider] = []
+        # self.selected_index: Optional[int] = None
+        # self._selected_resource: Optional[LocalCardResource] = None
+        # self._trading_card_providers: List[CardResourceProvider] = []
     
-    @property
-    def current_card_search_resource(self) -> Optional[LocalCardResource]:
-        if self._selected_resource is not None:
-            return copy.deepcopy(self._selected_resource)
-        return None
+    # @property
+    # def current_card_search_resource(self) -> Optional[LocalCardResource]:
+    #     if self._selected_resource is not None:
+    #         return copy.deepcopy(self._selected_resource)
+    #     return None
     
     @property
     def can_publish_staged_resources(self) -> bool:
@@ -78,56 +79,58 @@ class ApplicationCore(ImageResourceDeployerDelegate, CardSearchDataSourceDelegat
     def _platform(self) -> PlatformProtocol:
         return self._platform_service_provider.providePlatform()
 
-    def search(self, search_config: SearchConfiguration):
-        self._data_source.search(search_config)
+    # def search(self, search_config: SearchConfiguration):
+    #     self._data_source.search(search_config)
     
     
-    def current_previewed_trading_card_is_flippable(self) -> bool:
-        if self.selected_index is not None:
-            return self._trading_card_providers[self.selected_index].is_flippable
-        return False
+    # def current_previewed_trading_card_is_flippable(self) -> bool:
+    #     if self.selected_index is not None:
+    #         return self._trading_card_providers[self.selected_index].is_flippable
+    #     return False
     
-    def select_card_resource_for_card_selection(self, index: int):
-        if index < len(self._trading_card_providers):
-            self.selected_index = index
-            self._retrieve_card_resource_for_card_selection(index)
+    # def select_card_resource_for_card_selection(self, index: int):
+    #     if index < len(self._trading_card_providers):
+    #         self.selected_index = index
+    #         self._retrieve_card_resource_for_card_selection(index)
 
-    def flip_current_previewed_card(self):
-        if self.selected_index is not None and self.current_previewed_trading_card_is_flippable():
-            self._trading_card_providers[self.selected_index].flip()
-            self._retrieve_card_resource_for_card_selection(self.selected_index)
+    # def flip_current_previewed_card(self):
+    #     if self.selected_index is not None and self.current_previewed_trading_card_is_flippable():
+    #         self._trading_card_providers[self.selected_index].flip()
+    #         self._retrieve_card_resource_for_card_selection(self.selected_index)
     
-    def redownload_currently_selected_card_resource(self):
-        if self.selected_index is not None:
-            self._retrieve_card_resource_for_card_selection(self.selected_index, True)
+    # def redownload_currently_selected_card_resource(self):
+    #     if self.selected_index is not None:
+    #         self._retrieve_card_resource_for_card_selection(self.selected_index, True)
     
     # MARK: - DS Delegate methods
-    def ds_completed_search_with_result(self, ds: CardSearchDataSource, result_list: List[TradingCard], error: Optional[Exception]):
-        def create_trading_card_resource(trading_card: TradingCard):
-            return CardResourceProvider(trading_card, 
-                                        self._configuration_provider,
-                                        self._card_image_source_provider)
-        self._trading_card_providers = list(map(create_trading_card_resource, result_list))
-        if self.delegate is not None:
-            self.delegate.app_did_complete_search(self, result_list, error)
+    # def ds_completed_search_with_result(self, ds: CardSearchDataSource, result_list: List[TradingCard], error: Optional[Exception]):
+    #     def create_trading_card_resource(trading_card: TradingCard):
+    #         return CardResourceProvider(trading_card, 
+    #                                     self._configuration_provider,
+    #                                     self._card_image_source_provider)
+    #     self._trading_card_providers = list(map(create_trading_card_resource, result_list))
+    #     if self.delegate is not None:
+    #         self.delegate.app_did_complete_search(self, result_list, error)
 
     # MARK: - Resource Cacher
-    def _retrieve_card_resource_for_card_selection(self, index: int, retry: bool = False):
-        trading_card_resource_provider = self._trading_card_providers[index]
-        selected_resource = trading_card_resource_provider.local_resource
-        self._selected_resource = selected_resource
-        self._image_resource_processor_provider.image_resource_processor.async_store_local_resource(selected_resource, retry)
-        if self.delegate is not None:
-            self.delegate.app_did_retrieve_card_resource_for_card_selection(self, copy.deepcopy(selected_resource), trading_card_resource_provider.is_flippable)
+    # def _retrieve_card_resource_for_card_selection(self, index: int, retry: bool = False):
+    #     trading_card_resource_provider = self._trading_card_providers[index]
+    #     selected_resource = trading_card_resource_provider.local_resource
+    #     self._selected_resource = selected_resource
+    #     self._image_resource_processor_provider.image_resource_processor.async_store_local_resource(selected_resource, retry)
+    #     if self.delegate is not None:
+    #         self.delegate.app_did_retrieve_card_resource_for_card_selection(self, copy.deepcopy(selected_resource), trading_card_resource_provider.is_flippable)
     
 
     # MARK: - Resource manager
-    def can_stage_current_card_search_resource_to_stage_index(self, index: int) -> bool:
-        return self.current_card_search_resource is not None and index < len(self._resource_deployer.production_resources)
+    # def can_stage_current_card_search_resource_to_stage_index(self, index: int) -> bool:
+    #     return self.current_card_search_resource is not None and index < len(self._resource_deployer.production_resources)
 
-    def stage_resource(self, index: int):
-        if self.current_card_search_resource is not None:
-            self._resource_deployer.stage_resource(self.current_card_search_resource, index)
+    def can_stage_current_card_search_resource_to_stage_index(self, index: int) -> bool:
+        return index < len(self._resource_deployer.production_resources)
+
+    def stage_resource(self, local_resource: LocalCardResource, index: int):
+        self._resource_deployer.stage_resource(local_resource, index)
 
     def unstage_resource(self, index: int):
         self._resource_deployer.unstage_resource(index)
