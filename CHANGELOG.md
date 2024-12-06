@@ -1,5 +1,36 @@
 ## Changelog
 
+### 0.11.0
+#### Feature updates
+- Adds window dimension configuration
+- Add new card back
+- Add creation date metadata
+- Add recent history table view
+
+#### Engineering updates
+- Adds abstract image processor
+- Fix broken delegate to regenerate production image from link
+- Refactor search datasource out of application core
+- Refactoring assembly
+- Renaming "ProviderProtocol" to "Providing"
+- Create DependencyProviding
+- Adding async timer to configuration manager
+- Move platform service out of app core
+- Removing app core
+- Add time stamps to transmissions
+- Moving data source into tableview and removing delegates
+- Modularize table views
+- Inverted shortcut binding
+- Refactor MenuActionCoordinator
+- Refactor ImageDeploymentViewController and encapsulating logic
+- Fix proper datasource from preview
+- Limit post processing from production file
+- Add LocalResourceDataSourceProviding protocol to image preview
+
+### 0.10.1
+#### Feature updates
+- Fix broken delegate to regenerate production image from link
+
 ### 0.10.0
 #### Feature updates
 - Add clear cache and unstage all resources options
@@ -15,7 +46,7 @@
 - Adjusting observation logic
 - Consolidate downscale function
 - Consolidate image processing
-- Consolidating LocalResourceEvent
+- Consolidating LocalResourceFetchEvent
 - Removing more dependencies
 - Add old configuration to config updated event
 - Move card aspect and type out of app core

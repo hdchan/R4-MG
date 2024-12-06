@@ -4,6 +4,7 @@ from typing import Callable, TypeVar
 
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 
+from ..Config import ConfigurationManager
 from .NetworkerProtocol import (NetworkerProtocol, NetworkerProtocolCallback,
                                 NetworkRequestProtocol)
 
@@ -11,6 +12,10 @@ T = TypeVar("T")
 
 class LocalNetworker(NetworkerProtocol):
     
+    def __init__(self, 
+                 configuration_manager: ConfigurationManager):
+        self.configuration_manager = configuration_manager
+
     class ClientWorker(QObject):
         finished = pyqtSignal()
         
@@ -26,7 +31,7 @@ class LocalNetworker(NetworkerProtocol):
         thread = QThread()
         worker = LocalNetworker.ClientWorker()
         worker.moveToThread(thread)
-        thread.started.connect(partial(worker.load, self.configuration_provider.configuration.network_delay_duration))
+        thread.started.connect(partial(worker.load, self.configuration_manager.configuration.network_delay_duration))
         worker.finished.connect(callback)
         worker.finished.connect(thread.quit)
         worker.finished.connect(worker.deleteLater)

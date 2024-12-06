@@ -1,21 +1,18 @@
 from PyQt5.QtCore import QPoint, Qt, QUrl
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtMultimedia import QSoundEffect
-from PyQt5.QtWidgets import QLabel, QMenu, QVBoxLayout, QWidget, QAction
+from PyQt5.QtWidgets import QAction, QLabel, QMenu, QVBoxLayout, QWidget
 
-from AppCore.Config import ConfigurationProviderProtocol
-
-from ..Assets import AssetProvider
+from ...AppDependencyProviding import AppDependencyProviding
 
 
 class AboutViewController(QWidget):
     def __init__(self, 
-                 configuration_provider: ConfigurationProviderProtocol, 
-                 asset_provider: AssetProvider):
+                 app_dependencies_provider: AppDependencyProviding):
         super().__init__()
         self.setWindowTitle("About")
-        self.configuration_provider = configuration_provider
-        self.asset_provider = asset_provider
+        self.configuration_manager = app_dependencies_provider.configuration_manager
+        self.asset_provider = app_dependencies_provider.asset_provider
         self.sound_effect = None
         
         v_layout = QVBoxLayout()
@@ -23,7 +20,7 @@ class AboutViewController(QWidget):
         
         image = QPixmap()
         
-        image.load(asset_provider.image.logo_path)
+        image.load(self.asset_provider.image.logo_path)
         image = image.scaled(50, 50, Qt.AspectRatioMode.KeepAspectRatio)
         image_view = QLabel()
         image_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
@@ -32,7 +29,7 @@ class AboutViewController(QWidget):
         image_view.setPixmap(image)
         v_layout.addWidget(image_view)
         
-        configuration = configuration_provider.configuration
+        configuration = self.configuration_manager.configuration
         
         label = QLabel()
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)

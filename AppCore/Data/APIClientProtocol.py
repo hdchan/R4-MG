@@ -10,12 +10,17 @@ class APIClientProtocol:
         self.netorker = networker
 
     @property
-    def site_source_url(self) -> str:
+    def source_display_name(self) -> str:
         return NotImplemented
+
+    @property
+    def site_source_url(self) -> Optional[str]:
+        return None
         
     def search(self, search_configuration: SearchConfiguration, callback: APIClientSearchCallback) -> None:
         raise Exception()
     
-class APIClientProviderProtocol:
-    def provideClient(self) -> APIClientProtocol:
+class APIClientProviding:
+    @property
+    def client(self) -> APIClientProtocol:
         return NotImplemented

@@ -9,7 +9,7 @@ import platform
 
 class MockImageFetcher(ImageFetcherProtocol):
     def fetch(self, image_url: str) ->Image.Image:
-        time.sleep(self.configuration_provider.configuration.network_delay_duration)
+        time.sleep(self.configuration_manager.configuration.network_delay_duration)
         parsed_url = parse.urlparse(image_url)
         split_path = parsed_url.path.split('/')
         file_name = split_path[-2] + split_path[-1]

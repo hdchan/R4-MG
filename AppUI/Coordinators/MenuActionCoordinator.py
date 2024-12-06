@@ -1,245 +1,193 @@
 import webbrowser
+from typing import Callable
 
-from PyQt5.QtCore import QObject, Qt
-from PyQt5.QtWidgets import QAction, QMenu, QMenuBar, QWidget
+from PyQt5.QtWidgets import QAction, QMenu, QMenuBar
 
-from AppCore.Config import *
+from AppCore.Config.ConfigurationManager import *
+from AppCore.Service import PlatformServiceProtocol, PlatformServiceProvider
 
-from ..Assets import AssetProvider
-from ..MainProgramViewController import MainProgramViewController
-from ..Window import Window
-from .AboutViewController import AboutViewController
-from .SettingsViewController import SettingsViewController
-
-
-class MenuActionCoordinator(QObject):
-    def __init__(self,
-                 window: Window,
-                 main_program: MainProgramViewController,
+class MenuActionCoordinator(QMenuBar):
+    def __init__(self, 
                  configuration_manager: ConfigurationManager, 
-                 asset_provider: AssetProvider):
+                 platform_service_provider: PlatformServiceProvider):
         super().__init__()
-        self.main_program = main_program
-        self.configuration_manager = configuration_manager
-        self.asset_provider = asset_provider
-        self._menu_parent = window
-        self.attachMenuBar(window)
+        self._configuration_manager = configuration_manager
+        self._platform_service_provider = platform_service_provider
+        self.build_menu_bar()
         
-        self.settings = None
-        self.about = None
         
     @property
-    def configuration(self) -> Configuration:
-        return self.configuration_manager.configuration
+    def _configuration(self) -> Configuration:
+        return self._configuration_manager.configuration
+    
+    @property
+    def _platform_service(self) -> PlatformServiceProtocol:
+        return self._platform_service_provider.platform_service
 
-    def attachMenuBar(self, parent: QWidget):
-        self._menu_parent = parent
-        menu_bar = QMenuBar(parent)
-        menu_bar.setNativeMenuBar(False)
-
+    def build_menu_bar(self):
         # MARK: - File
-        file_menu = QMenu("&File", parent)
-        menu_bar.addMenu(file_menu)
+        self._file_menu = QMenu("&File")
+        self.addMenu(self._file_menu)
 
-        new_file_menu = QAction('New image file', parent)
-        new_file_menu.triggered.connect(self.new_file_tapped)
-        file_menu.addAction(new_file_menu)
+        self._new_file_menu = QAction('New image file')
+        self._new_file_menu.triggered.connect(self.did_toggle_card_title_detail_detailed)
+        self._file_menu.addAction(self._new_file_menu)
 
-        refresh_production_images = QAction('Refresh production images', parent)
-        refresh_production_images.triggered.connect(self.did_tap_refresh_production_images)
-        file_menu.addAction(refresh_production_images)
+        self._refresh_production_images = QAction('Refresh production images')
+        self._file_menu.addAction(self._refresh_production_images)
         
-        
-        open_production_dir = QAction('Reveal images in file explorer', parent)
-        open_production_dir.triggered.connect(self.did_open_production_dir)
-        file_menu.addAction(open_production_dir)
+        self._open_production_dir = QAction('Reveal images in file explorer')
+        self._open_production_dir.triggered.connect(self.did_open_production_dir)
+        self._file_menu.addAction(self._open_production_dir)
         
         # Actions
-        action_menu = QMenu("&Action", parent)
-        menu_bar.addMenu(action_menu)
+        self._action_menu = QMenu("&Action")
+        self.addMenu(self._action_menu)
 
-        unstage_all_staging_resources = QAction('Unstage all staging resources', parent)
-        unstage_all_staging_resources.triggered.connect(self.did_unstage_all_staging_resources)
-        action_menu.addAction(unstage_all_staging_resources)
+        self._unstage_all_staging_resources = QAction('Unstage all staging resources')
+        self._action_menu.addAction(self._unstage_all_staging_resources)
 
-        clear_cache_dir = QAction('Clear cache', parent)
-        clear_cache_dir.triggered.connect(self.did_clear_cache_dir)
-        action_menu.addAction(clear_cache_dir)
+        self._clear_cache_dir = QAction('Clear cache')
+        self._action_menu.addAction(self._clear_cache_dir)
 
         
         # MARK: - Settings
-        settings_menu = QAction("Settings", parent)
-        settings_menu.triggered.connect(self.did_tap_settings)
-        file_menu.addAction(settings_menu)
+        self._settings_menu = QAction("Settings")
+        self._file_menu.addAction(self._settings_menu)
         
         # MARK: - View
-        view_menu = QMenu("&View", parent)
-        menu_bar.addMenu(view_menu)
+        self._view_menu = QMenu("&View")
+        self.addMenu(self._view_menu)
         
-        show_resource_details = QAction('Show resource details', parent)
-        show_resource_details.triggered.connect(self.did_toggle_show_resource_details)
-        show_resource_details.setCheckable(True)
-        show_resource_details.setChecked(self.configuration.show_resource_details)
-        view_menu.addAction(show_resource_details)
+        self._show_resource_details = QAction('Show resource details')
+        self._show_resource_details.triggered.connect(self.did_toggle_show_resource_details)
+        self._show_resource_details.setCheckable(True)
+        self._show_resource_details.setChecked(self._configuration.show_resource_details)
+        self._view_menu.addAction(self._show_resource_details)
         
         
-        hide_image_preview = QAction('Hide image preview', parent)
-        hide_image_preview.triggered.connect(self.did_toggle_hide_image_preview)
-        hide_image_preview.setCheckable(True)
-        hide_image_preview.setChecked(self.configuration.hide_image_preview)
-        view_menu.addAction(hide_image_preview)
+        self._hide_image_preview = QAction('Hide image preview')
+        self._hide_image_preview.triggered.connect(self.did_toggle_hide_image_preview)
+        self._hide_image_preview.setCheckable(True)
+        self._hide_image_preview.setChecked(self._configuration.hide_image_preview)
+        self._view_menu.addAction(self._hide_image_preview)
 
 
-        card_title_detail = QMenu('Card title detail', parent)
-        view_menu.addMenu(card_title_detail)
+        self._card_title_detail = QMenu('Card title detail')
+        self._view_menu.addMenu(self._card_title_detail)
 
-        card_title_detail_short = QAction('Short', parent)
-        card_title_detail_short.triggered.connect(self.did_toggle_card_title_detail_short)
-        card_title_detail_short.setCheckable(True)
-        self.card_title_detail_short = card_title_detail_short
-        card_title_detail.addAction(card_title_detail_short)
+        self._card_title_detail_short = QAction('Short')
+        self._card_title_detail_short.triggered.connect(self.did_toggle_card_title_detail_short)
+        self._card_title_detail_short.setCheckable(True)
+        self._card_title_detail.addAction(self._card_title_detail_short)
 
-        card_title_detail_normal = QAction('Normal', parent)
-        card_title_detail_normal.triggered.connect(self.did_toggle_card_title_detail_normal)
-        card_title_detail_normal.setCheckable(True)
-        self.card_title_detail_normal = card_title_detail_normal
-        card_title_detail.addAction(card_title_detail_normal)
+        self._card_title_detail_normal = QAction('Normal')
+        self._card_title_detail_normal.triggered.connect(self.did_toggle_card_title_detail_normal)
+        self._card_title_detail_normal.setCheckable(True)
+        self._card_title_detail.addAction(self._card_title_detail_normal)
 
-        card_title_detail_detailed = QAction('Detailed', parent)
-        card_title_detail_detailed.triggered.connect(self.did_toggle_card_title_detail_detailed)
-        card_title_detail_detailed.setCheckable(True)
-        self.card_title_detail_detailed = card_title_detail_detailed
-        card_title_detail.addAction(card_title_detail_detailed)
+        self._card_title_detail_detailed = QAction('Detailed')
+        self._card_title_detail_detailed.triggered.connect(self.did_toggle_card_title_detail_detailed)
+        self._card_title_detail_detailed.setCheckable(True)
+        self._card_title_detail.addAction(self._card_title_detail_detailed)
 
         self._sync_card_title_detail_checkmarks()
 
         
         # MARK: - About
-        about_menu = QMenu("&Help", parent)
-        menu_bar.addMenu(about_menu)
+        self._help_menu = QMenu("&Help")
+        self.addMenu(self._help_menu)
 
-        check_update = QAction('Check for updates', parent)
-        check_update.triggered.connect(self.open_update_page)
-        about_menu.addAction(check_update)
+        self._check_update = QAction('Check for updates')
+        self._check_update.triggered.connect(self.open_update_page)
+        self._help_menu.addAction(self._check_update)
 
-        about = QAction(f"About", parent)
-        about.triggered.connect(self.open_about_page)
-        about_menu.addAction(about)
+        self._about_action = QAction("About")
+        self._help_menu.addAction(self._about_action)
 
         # MARK: - Developer
-        if self.configuration.is_developer_mode:
-            developer_menu = QMenu("&Developer", parent)
-            menu_bar.addMenu(developer_menu)
+        if self._configuration.is_developer_mode:
+            self._developer_menu = QMenu("&Developer")
+            self.addMenu(self._developer_menu)
 
-            open_configuration_dir = QAction('Reveal configuration in file explorer', parent)
-            open_configuration_dir.triggered.connect(self.did_open_configuration_dir)
-            developer_menu.addAction(open_configuration_dir)
+            self._open_configuration_dir = QAction('Reveal configuration in file explorer')
+            self._open_configuration_dir.triggered.connect(self.did_open_configuration_dir)
+            self._developer_menu.addAction(self._open_configuration_dir)
 
-            open_temp_dir = QAction('Reveal temp folder in file explorer', parent)
-            open_temp_dir.triggered.connect(self.did_open_temp_dir)
-            developer_menu.addAction(open_temp_dir)
+            self._open_temp_dir = QAction('Reveal temp folder in file explorer')
+            self._open_temp_dir.triggered.connect(self.did_open_temp_dir)
+            self._developer_menu.addAction(self._open_temp_dir)
 
-            mock_data_mode = QAction('Mock data', parent)
-            mock_data_mode.triggered.connect(self.did_toggle_mock_data_mode)
-            mock_data_mode.setCheckable(True)
-            mock_data_mode.setChecked(self.configuration.is_mock_data)
-            developer_menu.addAction(mock_data_mode)
+            self._mock_data_mode = QAction('Mock data')
+            self._mock_data_mode.triggered.connect(self.did_toggle_mock_data_mode)
+            self._mock_data_mode.setCheckable(True)
+            self._mock_data_mode.setChecked(self._configuration.is_mock_data)
+            self._developer_menu.addAction(self._mock_data_mode)
             
-            delay_network_mode = QAction('Delay network call', parent)
-            delay_network_mode.triggered.connect(self.did_toggle_delay_network_mode)
-            delay_network_mode.setCheckable(True)
-            delay_network_mode.setChecked(self.configuration.is_delay_network_mode)
-            developer_menu.addAction(delay_network_mode)
-            
-            popout_production_image_mode = QAction('Popout production images', parent)
-            popout_production_image_mode.triggered.connect(self.did_toggle_popout_production_images_mode)
-            popout_production_image_mode.setCheckable(True)
-            popout_production_image_mode.setChecked(self.configuration.is_popout_production_images_mode)
-            developer_menu.addAction(popout_production_image_mode)
-        
-        # return menu_bar
-        self._menu_parent.setMenuBar(menu_bar)
+            self._delay_network_mode = QAction('Delay network call')
+            self._delay_network_mode.triggered.connect(self.did_toggle_delay_network_mode)
+            self._delay_network_mode.setCheckable(True)
+            self._delay_network_mode.setChecked(self._configuration.is_delay_network_mode)
+            self._developer_menu.addAction(self._delay_network_mode)
 
-    def new_file_tapped(self):
-        self.main_program.prompt_generate_new_file()
+    # MARK: - binders
+    def bind_new_file(self, fn: Callable[[], None]):
+        self._new_file_menu.triggered.connect(fn)
 
-    def did_tap_refresh_production_images(self):
-        self.main_program.load()
+    def bind_refresh_production_images(self, fn: Callable[[], None]):
+        self._refresh_production_images.triggered.connect(fn)
+
+    def bind_unstage_all_staging_resources(self, fn: Callable[[], None]):
+        self._unstage_all_staging_resources.triggered.connect(fn)
+
+    def bind_clear_cache_dir(self, fn: Callable[[], None]):
+        self._clear_cache_dir.triggered.connect(fn)
+
+    def bind_open_settings_page(self, fn: Callable[[], None]):
+        self._settings_menu.triggered.connect(fn)
+
+    def bind_open_about_page(self, fn: Callable[[], None]):
+        self._about_action.triggered.connect(fn)
+
+    # MARK: - actions
+    def did_toggle_show_resource_details(self, is_on: bool):
+        self._configuration_manager.toggle_show_resource_details(is_on).save()
+
+    def did_toggle_hide_image_preview(self, is_on: bool):
+        self._configuration_manager.toggle_hide_image_preview(is_on).save()
 
     def did_toggle_mock_data_mode(self, is_on: bool):
-        self.configuration_manager.toggle_mock_data_mode(is_on).save()
+        self._configuration_manager.toggle_mock_data_mode(is_on).save()
         
     def did_toggle_delay_network_mode(self, is_on: bool):
-        self.configuration_manager.toggle_delay_network_mode(is_on).save()
-        
-    def did_toggle_popout_production_images_mode(self, is_on: bool):
-        self.configuration_manager.toggle_popout_production_images_mode(is_on).save()
+        self._configuration_manager.toggle_delay_network_mode(is_on).save()
     
-    def did_toggle_show_resource_details(self, is_on: bool):
-        self.configuration_manager.toggle_show_resource_details(is_on).save()
-    
-    def did_toggle_hide_image_preview(self, is_on: bool):
-        self.configuration_manager.toggle_hide_image_preview(is_on).save()
-
     def did_toggle_card_title_detail_short(self, is_on: bool):
-        self.configuration_manager.set_card_title_detail(Configuration.Settings.CardTitleDetail.SHORT).save()
+        self._configuration_manager.set_card_title_detail(Configuration.Settings.CardTitleDetail.SHORT).save()
         self._sync_card_title_detail_checkmarks()
 
     def did_toggle_card_title_detail_normal(self, is_on: bool):
-        self.configuration_manager.set_card_title_detail(Configuration.Settings.CardTitleDetail.NORMAL).save()
+        self._configuration_manager.set_card_title_detail(Configuration.Settings.CardTitleDetail.NORMAL).save()
         self._sync_card_title_detail_checkmarks()
 
     def did_toggle_card_title_detail_detailed(self, is_on: bool):
-        self.configuration_manager.set_card_title_detail(Configuration.Settings.CardTitleDetail.DETAILED).save()
+        self._configuration_manager.set_card_title_detail(Configuration.Settings.CardTitleDetail.DETAILED).save()
         self._sync_card_title_detail_checkmarks()
 
     def _sync_card_title_detail_checkmarks(self):
-        preference = self.configuration.card_title_detail
-        self.card_title_detail_short.setChecked(preference == Configuration.Settings.CardTitleDetail.SHORT)
-        self.card_title_detail_normal.setChecked(preference == Configuration.Settings.CardTitleDetail.NORMAL)
-        self.card_title_detail_detailed.setChecked(preference == Configuration.Settings.CardTitleDetail.DETAILED)
+        preference = self._configuration.card_title_detail
+        self._card_title_detail_short.setChecked(preference == Configuration.Settings.CardTitleDetail.SHORT)
+        self._card_title_detail_normal.setChecked(preference == Configuration.Settings.CardTitleDetail.NORMAL)
+        self._card_title_detail_detailed.setChecked(preference == Configuration.Settings.CardTitleDetail.DETAILED)
     
-    def did_open_production_dir(self):
-        self.main_program.open_production_dir()
-        
     def did_open_configuration_dir(self):
-        self.main_program.open_configuration_dir()
+        self._platform_service.open_file(self._configuration.config_directory)
+
+    def did_open_production_dir(self):
+        self._platform_service.open_file(self._configuration.production_file_path)
 
     def did_open_temp_dir(self):
-        self.main_program.open_temp_dir()
+        self._platform_service.open_file(self._configuration.temp_dir_path)
         
-    def did_tap_settings(self):
-        def remove_ref():
-            self.settings = None
-        if self.settings is None or self.settings.isHidden():
-            self.settings = SettingsViewController(self.configuration_manager)
-            self.settings.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
-            self.settings.destroyed.connect(remove_ref)
-            self.settings.show()
-        if not self.settings.isHidden():
-            self.settings.activateWindow()
-
-    def did_unstage_all_staging_resources(self):
-        self.main_program.confirm_unstage_all_resources()
-            
     def open_update_page(self):
         webbrowser.open("https://github.com/hdchan/R4-MG/releases")
-        
-    def did_clear_cache_dir(self):
-        self.main_program.confirm_clear_cache()
-        
-        
-    def open_about_page(self):
-        def remove_ref():
-            self.about = None
-        if self.about is None or self.about.isHidden():
-            self.about = AboutViewController(self.configuration_manager, 
-                                             self.asset_provider)
-            self.about.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
-            # https://stackoverflow.com/a/65357051
-            self.about.destroyed.connect(remove_ref)
-            self.about.show()
-        if not self.about.isHidden():
-            self.about.activateWindow()
-        
-        

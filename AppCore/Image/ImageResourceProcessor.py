@@ -1,14 +1,15 @@
 import os
 from pathlib import Path
-from typing import Optional, Set, Tuple, Callable
+from typing import Callable, Optional, Set, Tuple
 
 from PIL import Image, ImageDraw
-from PyQt5.QtCore import QObject, QRunnable, QThreadPool, pyqtSignal, QMutex
+from PyQt5.QtCore import QMutex, QObject, QRunnable, QThreadPool, pyqtSignal
 
-from ..ImageNetwork.ImageFetcherProvider import ImageFetcherProviderProtocol
+from ..ImageNetwork.ImageFetcherProvider import ImageFetcherProviding
 from ..Models import LocalCardResource
 from ..Observation import ObservationTower
-from ..Observation.Events import LocalResourceEvent
+from ..Observation.Events import LocalResourceFetchEvent
+from .ImageResourceProcessorProtocol import ImageResourceProcessorProtocol
 
 PNG_EXTENSION = '.png'
 THUMBNAIL_SIZE = 256
@@ -20,9 +21,9 @@ ROUNDED_CORDERS_MULTIPLIER_RELATIVE_TO_HEIGHT = ROUNDED_CORNERS / NORMAL_CARD_HE
 ImageDownscaleCallback = Callable[[Image.Image], Image.Image]
 ImageAddCornersCallback = Callable[[Image.Image, int], Image.Image]
 
-class ImageResourceProcessor:
+class ImageResourceProcessor(ImageResourceProcessorProtocol):
     def __init__(self,
-                 image_fetcher_provider: ImageFetcherProviderProtocol,
+                 image_fetcher_provider: ImageFetcherProviding,
                  observation_tower: ObservationTower):
         self.observation_tower = observation_tower
         self.image_fetcher_provider = image_fetcher_provider
@@ -58,7 +59,6 @@ class ImageResourceProcessor:
             worker = RotateImageWorker(local_resource, angle)
             worker.signals.finished.connect(self._unlock_resource_and_notify)
             self.pool.start(worker)
-            print('rotating')
     
     def regenerate_resource_preview(self, local_resource: LocalCardResource):
         if self._lock_resource_and_notify(local_resource):
@@ -74,7 +74,7 @@ class ImageResourceProcessor:
         self.working_resources.add(local_resource.image_path)
         self.mutex.unlock()
         open(local_resource.image_temp_path, 'a').close() # generate 0kb file before notification
-        self.observation_tower.notify(LocalResourceEvent(LocalResourceEvent.EventType.STARTED, local_resource))
+        self.observation_tower.notify(LocalResourceFetchEvent(LocalResourceFetchEvent.EventType.STARTED, local_resource))
         return True
         
     def _unlock_resource_and_notify(self, result: Tuple[LocalCardResource, Optional[Exception]]):
@@ -87,12 +87,13 @@ class ImageResourceProcessor:
             self.working_resources.remove(local_resource.image_path)
             self.mutex.unlock()
         if exception is not None:
-            self.observation_tower.notify(LocalResourceEvent(LocalResourceEvent.EventType.FAILED, local_resource))
+            self.observation_tower.notify(LocalResourceFetchEvent(LocalResourceFetchEvent.EventType.FAILED, local_resource))
         else:
-            self.observation_tower.notify(LocalResourceEvent(LocalResourceEvent.EventType.FINISHED, local_resource))
+            self.observation_tower.notify(LocalResourceFetchEvent(LocalResourceFetchEvent.EventType.FINISHED, local_resource))
 
     def _downscale_image(self, original_img: Image.Image) -> Image.Image:
         size = THUMBNAIL_SIZE, THUMBNAIL_SIZE
+        # TODO: recover from truncated image
         preview_img = original_img.copy().convert('RGBA')
         preview_img.thumbnail(size, Image.Resampling.BICUBIC)
         return preview_img
@@ -118,7 +119,7 @@ class WorkerSignals(QObject):
 class StoreImageWorker(QRunnable):
     def __init__(self, 
                  local_resource: LocalCardResource,
-                 image_fetcher_provider: ImageFetcherProviderProtocol, 
+                 image_fetcher_provider: ImageFetcherProviding, 
                  downscale_fn: ImageDownscaleCallback, 
                  add_corners_fn: ImageAddCornersCallback):
         super(StoreImageWorker, self).__init__()
@@ -131,7 +132,7 @@ class StoreImageWorker(QRunnable):
     def run(self):
         if self.local_resource.remote_image_url is not None:
             try:
-                img = self.image_fetcher_provider.provideImageFetcher().fetch(self.local_resource.remote_image_url)
+                img = self.image_fetcher_provider.image_fetcher.fetch(self.local_resource.remote_image_url)
                 img_height = min(img.height, img.width)
                 rad = int(img_height * ROUNDED_CORDERS_MULTIPLIER_RELATIVE_TO_HEIGHT)
                 large_img = self.add_corners_fn(img.convert('RGB'), rad)

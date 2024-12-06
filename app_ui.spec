@@ -12,6 +12,7 @@ a = Analysis(
 
         ('AppUI\\Assets\\Images\\logo.png', 'AppUI\\Assets\\Images'),
         ('AppUI\\Assets\\Images\\SWH_Logo_Black_preview.png', 'AppUI\\Assets\\Images'),
+        ('AppUI\\Assets\\Images\\cardback.png', 'AppUI\\Assets\\Images'),
         ('AppUI\\Assets\\Images\\r4-head.png', 'AppUI\\Assets\\Images'),
         ('AppUI\\Assets\\Images\\large_spark_of_rebellion_starfield_c4fdfaa6a7.png', 'AppUI\\Assets\\Images')
     ],

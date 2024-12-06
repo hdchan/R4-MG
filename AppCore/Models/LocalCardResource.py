@@ -1,5 +1,7 @@
 from pathlib import Path
 from typing import Optional, Tuple
+import os
+from datetime import datetime
 
 from PIL import Image
 
@@ -26,6 +28,13 @@ class LocalCardResource:
         self.remote_image_url = remote_image_url
         self.file_extension = file_extension
         self._size: Optional[Size] = None
+
+    def __eq__(self, other):  # type: ignore
+        if not isinstance(other, LocalCardResource):
+            # don't attempt to compare against unrelated types
+            return NotImplemented
+
+        return (self.image_path == other.image_path)
 
     '''
     is_ready = True, is_loading = True
@@ -80,4 +89,12 @@ class LocalCardResource:
         self._size = Image.open(self.image_path).size
         return self._size
             
-            
+    
+    @property
+    def created_date(self) -> datetime:
+        stat = os.stat(self.image_path)
+        try:
+            # On systems without birthtime (like Windows), use ctime instead
+            return datetime.fromtimestamp(stat.st_ctime)
+        except AttributeError:
+            return datetime.fromtimestamp(stat.st_birthtime)
