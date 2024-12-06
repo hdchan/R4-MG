@@ -38,11 +38,12 @@ class MainAssembly:
         image_fetcher_provider = self._assemble_image_fetcher_provider()
         image_source_provider = self._assemble_image_source_provider()
         application_core = ApplicationCore(observation_tower, 
-                                        api_client_provider, 
-                                        image_fetcher_provider, 
-                                        image_source_provider,
-                                        self.configuration_manager)
-        main_window = Window(self.configuration_manager, 
+                                           api_client_provider, 
+                                           image_fetcher_provider, 
+                                           image_source_provider,
+                                           self.configuration_manager)
+        main_window = Window(self.configuration_manager,
+                             self.configuration_manager,
                             observation_tower, 
                             self.asset_provider)
         main_program = MainProgramViewController(observation_tower,

@@ -1,7 +1,7 @@
 import io
 from copy import deepcopy
 from pathlib import Path
-
+from typing import Tuple
 import yaml
 
 from AppCore.Config.Configuration import *
@@ -33,6 +33,9 @@ class MutableConfiguration(Configuration):
 
     def set_is_r4_action_sound_effect_on(self, value: bool):
         self._settings.is_r4_action_sound_effect_on = value
+        
+    def set_window_size(self, size: Tuple[int, int]):
+        self._settings.window_size = size
 
 class ConfigurationManager(ConfigurationProviderProtocol):
     def __init__(self, observation_tower: ObservationTower):
@@ -104,6 +107,10 @@ class ConfigurationManager(ConfigurationProviderProtocol):
 
     def set_card_title_detail(self, detail: Configuration.Settings.CardTitleDetail) -> 'ConfigurationManager':
         self._configuration.set_card_title_detail(detail)
+        return self
+    
+    def set_window_size(self, size: Tuple[int, int]):
+        self._configuration.set_window_size(size)
         return self
     
     def toggle_image_source(self, is_on: bool) -> 'ConfigurationManager':
