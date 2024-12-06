@@ -5,7 +5,7 @@ from enum import Enum
 class Configuration:
     
     APP_NAME = 'R4-MG'
-    APP_VERSION = '0.10.0'
+    APP_VERSION = '0.10.1'
     
     class Toggles:
         class Keys:

@@ -226,7 +226,10 @@ class MainProgramViewController(QWidget,
         if ok:
             self.generate_new_file(text)
             self.load()
-            
+    
+    def ip_regenerate_production_file(self, ip: ImagePreviewViewController, local_resource: LocalCardResource):
+        self.generate_new_file(local_resource.file_name)
+
     def generate_new_file(self, file_name: str):
         try:
             self.application_core.generate_new_file(file_name, Image.open(self._asset_provider.image.swu_logo_black_path))

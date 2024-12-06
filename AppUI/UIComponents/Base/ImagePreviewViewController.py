@@ -257,6 +257,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
                 self.delegate.ip_regenerate_preview(self, self._local_resource)
             elif link == self.LinkKey.REGENERATE_PRODUCTION_FILE:
                 self.delegate.ip_regenerate_production_file(self, self._local_resource)
+                self._sync_image_view_state()
     
     def _toggle_resource_details_visibility(self):
         self._card_display_name.setHidden(self._configuration_provider.configuration.hide_image_preview)
