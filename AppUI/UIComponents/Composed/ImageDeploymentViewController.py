@@ -9,7 +9,7 @@ from AppCore.Models import LocalCardResource
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent, SearchEvent,
                                         TransmissionProtocol)
 from AppUI.UIComponents.Base.ImagePreviewViewController import *
-
+from AppCore.Image.ImageResourceProcessorProtocol import *
 
 class ImageDeploymentViewControllerDelegate:
     def id_did_tap_staging_button(self, id: ...) -> None:
@@ -23,7 +23,8 @@ class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
                  observation_tower: ObservationTower, 
                  configuration_provider: ConfigurationProviderProtocol, 
                  image_preview_delegate: ImagePreviewViewControllerDelegate, 
-                 asset_provider: AssetProvider):
+                 asset_provider: AssetProvider, 
+                 image_resource_processor_provider: ImageResourceProcessorProviderProtocol):
         super().__init__()
         self.observation_tower = observation_tower
         self.configuration_provider = configuration_provider
@@ -73,14 +74,16 @@ class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
 
         staging_image_view = ImagePreviewViewController(observation_tower, 
                                                         configuration_provider, 
-                                                        asset_provider)
+                                                        asset_provider, 
+                                                        image_resource_processor_provider)
         staging_image_view.delegate = image_preview_delegate
         layout.addWidget(staging_image_view, 4)
         self.staging_image_view = staging_image_view
 
         production_image_view = ImagePreviewViewController(observation_tower, 
                                                            configuration_provider, 
-                                                           asset_provider)
+                                                           asset_provider, 
+                                                           image_resource_processor_provider)
         production_image_view.delegate = image_preview_delegate
         layout.addWidget(production_image_view, 4)
         self.production_image_view = production_image_view

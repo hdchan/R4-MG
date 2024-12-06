@@ -10,8 +10,9 @@ class SWUDBAPIClientProvider(APIClientProviderProtocol):
         self.configuration_provider = configuration_provider
         self.real_client = real_client
         self.local_client = local_client
-        
-    def provideClient(self) -> APIClientProtocol:
+    
+    @property
+    def client(self) -> APIClientProtocol:
         if self.configuration_provider.configuration.search_source == Configuration.Settings.SearchSource.LOCAL:
             return self.local_client
         else:

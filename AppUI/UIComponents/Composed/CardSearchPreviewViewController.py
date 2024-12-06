@@ -14,7 +14,7 @@ from AppCore.Resource import CardImageSourceProviderProtocol
 
 from ...Assets import AssetProvider
 from ..Base import ImagePreviewViewController, SearchTableView
-
+from AppCore.Image.ImageResourceProcessorProtocol import *
 
 class CardSearchPreviewViewControllerDelegate:
     def cs_did_tap_flip_button(self, cs: ...) -> None:
@@ -29,7 +29,8 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
                  configuration_provider: ConfigurationProviderProtocol,
                  card_search_source_provider: APIClientProviderProtocol,
                  card_image_source_provider: CardImageSourceProviderProtocol, 
-                 asset_provider: AssetProvider):
+                 asset_provider: AssetProvider, 
+                 image_resource_processor_provider: ImageResourceProcessorProviderProtocol):
         super().__init__()
 
         layout = QVBoxLayout()
@@ -41,7 +42,8 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
         # https://stackoverflow.com/a/19011496
         staging_view = ImagePreviewViewController(observation_tower, 
                                                   configuration_provider, 
-                                                  asset_provider)
+                                                  asset_provider, 
+                                                  image_resource_processor_provider)
         staging_view.setMinimumHeight(300)
         staging_view.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
         self.staging_view = staging_view
@@ -142,13 +144,13 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
         
     
     def _load_source_labels(self):
-        search_source_url = self._card_search_source_provider.provideClient().site_source_url
+        search_source_url = self._card_search_source_provider.client.site_source_url
         if 'https://' in search_source_url:
             self.search_source_label.setText(f'Search source: <a href="{search_source_url}">{search_source_url}</a>')
         else:
             self.search_source_label.setText(f'Search source: {search_source_url}')
 
-        image_source_url = self._card_image_source_provider.provideSource().site_source_url()
+        image_source_url = self._card_image_source_provider.card_image_source.site_source_url()
         self.image_source_label.setText(f'Image source: <a href="{image_source_url}">{image_source_url}</a>')
         
     def handle_observation_tower_event(self, event: TransmissionProtocol):

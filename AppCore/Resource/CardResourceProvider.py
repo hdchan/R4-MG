@@ -22,7 +22,7 @@ class CardResourceProvider:
     
     @property
     def _card_image_source(self) -> CardImageSourceProtocol:
-        return self.card_image_source_provider.provideSource()
+        return self.card_image_source_provider.card_image_source
     
     def flip(self):
         if self.is_flippable:

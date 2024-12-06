@@ -10,8 +10,8 @@ class CardImageSourceProvider(CardImageSourceProviderProtocol):
         self.swudb_api = swudb_api
         self.swudb = swudb
         
-    
-    def provideSource(self) -> CardImageSourceProtocol:
+    @property
+    def card_image_source(self) -> CardImageSourceProtocol:
         if self.configuration_provider.configuration.image_source == Configuration.Settings.ImageSource.SWUDB:
             return self.swudb
         else:

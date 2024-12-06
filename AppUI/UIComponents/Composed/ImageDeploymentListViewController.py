@@ -15,7 +15,7 @@ from ...Assets import AssetProvider
 from ..Base import AddImageCTAViewController, AddImageCTAViewControllerDelegate
 from . import ImageDeploymentViewController, ImagePreviewViewControllerDelegate
 from ..Base.LoadingSpinner import LoadingSpinner
-
+from AppCore.Image.ImageResourceProcessorProtocol import *
 class ImageDeploymentListViewControllerDelegate:
     def idl_did_tap_staging_button(self, id_list: ..., id_cell: ImageDeploymentViewController, index: int) -> None:
         pass
@@ -32,7 +32,8 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
                  configuration_provider: ConfigurationProviderProtocol, 
                  asset_provider: AssetProvider, 
                  image_preview_delegate: Union[AddImageCTAViewControllerDelegate, ImagePreviewViewControllerDelegate], 
-                 app_state: ApplicationState):
+                 app_state: ApplicationState, 
+                 image_resource_processor_provider: ImageResourceProcessorProviderProtocol):
         super().__init__()
 
         self.observation_tower = observation_tower
@@ -40,6 +41,7 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
         self.asset_provider = asset_provider
         self.image_preview_delegate = image_preview_delegate
         self.app_state = app_state
+        self.image_resource_processor_provider = image_resource_processor_provider
 
         outer_container_layout = QVBoxLayout()
         self.setLayout(outer_container_layout)
@@ -134,7 +136,8 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
         item = ImageDeploymentViewController(self.observation_tower, 
                                              self.configuration_provider, 
                                              self.image_preview_delegate, 
-                                             self.asset_provider)
+                                             self.asset_provider, 
+                                             self.image_resource_processor_provider)
         item.delegate = self
         item.set_production_image(local_resource)
         if index <= 9:

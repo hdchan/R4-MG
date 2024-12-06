@@ -17,5 +17,6 @@ class APIClientProtocol:
         raise Exception()
     
 class APIClientProviderProtocol:
-    def provideClient(self) -> APIClientProtocol:
+    @property
+    def client(self) -> APIClientProtocol:
         return NotImplemented

@@ -12,6 +12,7 @@ from AppCore.Config import ConfigurationProviderProtocol
 from AppCore.Data import APIClientProviderProtocol
 from AppCore.Models import LocalCardResource, SearchConfiguration, TradingCard
 from AppCore.Observation import *
+from AppCore.Image.ImageResourceProcessorProtocol import ImageResourceProcessorProviderProtocol
 from AppCore.Resource import CardImageSourceProviderProtocol
 from AppUI.UIComponents import (AddImageCTAViewController,
                                 AddImageCTAViewControllerDelegate,
@@ -34,6 +35,7 @@ class MainProgramViewController(QWidget,
                  application_core: ApplicationCore, 
                  card_search_source_provider: APIClientProviderProtocol,
                  card_image_source_provider: CardImageSourceProviderProtocol, 
+                 image_resource_processor_provider: ImageResourceProcessorProviderProtocol,
                  asset_provider: AssetProvider):
         super().__init__()
         
@@ -55,7 +57,8 @@ class MainProgramViewController(QWidget,
                                                            configuration_provider,
                                                            card_search_source_provider,
                                                            card_image_source_provider, 
-                                                           asset_provider)
+                                                           asset_provider, 
+                                                           image_resource_processor_provider)
         card_search_view.setObjectName('stuff')
         self.setStyleSheet('QWidget#stuff { background-color:red; }')
         card_search_view.delegate = self
@@ -70,7 +73,8 @@ class MainProgramViewController(QWidget,
                                                             configuration_provider, 
                                                             asset_provider, 
                                                             self, 
-                                                            self.application_core)
+                                                            self.application_core, 
+                                                            image_resource_processor_provider)
         deployment_view.delegate = self
         self.deployment_view = deployment_view
         splitter.addWidget(deployment_view)
@@ -206,15 +210,6 @@ class MainProgramViewController(QWidget,
             self.application_core.flip_current_previewed_card()
     
     # MARK: - ImagePreviewViewControllerDelegate
-    def ip_rotate_resource(self, ip: ImagePreviewViewController, local_resource: LocalCardResource, angle: float):
-        self.application_core.rotate_and_save_resource(local_resource, angle)
-        
-    def ip_regenerate_preview(self, ip: ImagePreviewViewController, local_resource: LocalCardResource):
-        self.application_core.regenerate_resource_preview(local_resource)
-        
-    def ip_redownload_resource(self, ip: ImagePreviewViewController, local_resource: LocalCardResource):
-        self.application_core.redownload_resource(local_resource)
-    
     def ip_open_file(self, ip: ImagePreviewViewController, local_resource: LocalCardResource):
         self.application_core.open_file(local_resource)
 
@@ -226,7 +221,10 @@ class MainProgramViewController(QWidget,
         if ok:
             self.generate_new_file(text)
             self.load()
-            
+    
+    def ip_regenerate_production_file(self, ip: ImagePreviewViewController, local_resource: LocalCardResource):
+        self.generate_new_file(local_resource.file_name)
+
     def generate_new_file(self, file_name: str):
         try:
             self.application_core.generate_new_file(file_name, Image.open(self._asset_provider.image.swu_logo_black_path))

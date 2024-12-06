@@ -16,5 +16,6 @@ class CardImageSourceProtocol:
         return NotImplemented
     
 class CardImageSourceProviderProtocol:
-    def provideSource(self) -> CardImageSourceProtocol:
+    @property
+    def card_image_source(self) -> CardImageSourceProtocol:
         return NotImplemented

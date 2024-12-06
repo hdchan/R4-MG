@@ -26,20 +26,20 @@ class ApplicationCoreDelegate:
     def app_did_load_production_resources(self, app_core: ..., local_resource: List[LocalCardResource]) -> None:
         pass
 
-class ApplicationCore(ImageResourceDeployerDelegate, CardDataSourceDelegate, ApplicationState):
+
+class ApplicationCore(ImageResourceDeployerDelegate, CardSearchDataSourceDelegate, ApplicationState):
     def __init__(self, 
                  observation_tower: ObservationTower, 
                  api_client_provider: APIClientProviderProtocol,
-                 image_fetcher_provider: ImageFetcherProviderProtocol,
+                 image_resource_processor_provider: ImageResourceProcessorProviderProtocol,
                  card_image_source_provider: CardImageSourceProviderProtocol,
                  configuration_provider: ConfigurationProviderProtocol):
         
-        self._data_source = CardDataSource(observation_tower, 
+        self._data_source = CardSearchDataSource(observation_tower, 
                                            api_client_provider)
         self._data_source.delegate = self
         
-        self._resource_processor = ImageResourceProcessor(image_fetcher_provider,
-                                                    observation_tower)
+        self._image_resource_processor_provider = image_resource_processor_provider
         
         self._resource_deployer = ImageResourceDeployer(configuration_provider, 
                                                         observation_tower)
@@ -69,10 +69,6 @@ class ApplicationCore(ImageResourceDeployerDelegate, CardDataSourceDelegate, App
     @property
     def can_publish_staged_resources(self) -> bool:
         return self._resource_deployer.can_publish_staged_resources
-
-    # @property 
-    # def production_resources(self) -> List[LocalCardResource]:
-    #     return copy.deepcopy(self._resource_deployer.production_resources)
     
     @property
     def _configuration(self) -> Configuration:
@@ -105,10 +101,8 @@ class ApplicationCore(ImageResourceDeployerDelegate, CardDataSourceDelegate, App
         if self.selected_index is not None:
             self._retrieve_card_resource_for_card_selection(self.selected_index, True)
     
-    
-    
     # MARK: - DS Delegate methods
-    def ds_completed_search_with_result(self, ds: CardDataSource, result_list: List[TradingCard], error: Optional[Exception]):
+    def ds_completed_search_with_result(self, ds: CardSearchDataSource, result_list: List[TradingCard], error: Optional[Exception]):
         def create_trading_card_resource(trading_card: TradingCard):
             return CardResourceProvider(trading_card, 
                                         self._configuration_provider,
@@ -118,14 +112,11 @@ class ApplicationCore(ImageResourceDeployerDelegate, CardDataSourceDelegate, App
             self.delegate.app_did_complete_search(self, result_list, error)
 
     # MARK: - Resource Cacher
-    def redownload_resource(self, local_resource: LocalCardResource):
-        self._resource_processor.async_store_local_resource(local_resource, True)
-
     def _retrieve_card_resource_for_card_selection(self, index: int, retry: bool = False):
         trading_card_resource_provider = self._trading_card_providers[index]
         selected_resource = trading_card_resource_provider.local_resource
         self._selected_resource = selected_resource
-        self._resource_processor.async_store_local_resource(selected_resource, retry)
+        self._image_resource_processor_provider.image_resource_processor.async_store_local_resource(selected_resource, retry)
         if self.delegate is not None:
             self.delegate.app_did_retrieve_card_resource_for_card_selection(self, copy.deepcopy(selected_resource), trading_card_resource_provider.is_flippable)
     
@@ -147,7 +138,6 @@ class ApplicationCore(ImageResourceDeployerDelegate, CardDataSourceDelegate, App
     def load_production_resources(self):
         self._resource_deployer.load_production_resources()
 
-    
 
     def publish_staged_resources(self):
         return self._resource_deployer.publish_staged_resources()
@@ -155,13 +145,6 @@ class ApplicationCore(ImageResourceDeployerDelegate, CardDataSourceDelegate, App
     def generate_new_file(self, file_name: str, image: Optional[Image.Image] = None):
         self._resource_deployer.generate_new_file(file_name, image)
         
-    
-    # Image rotation
-    def rotate_and_save_resource(self, local_resource: LocalCardResource, angle: float):
-        self._resource_processor.rotate_and_save_resource(local_resource, angle)
-    
-    def regenerate_resource_preview(self, local_resource: LocalCardResource):
-        self._resource_processor.regenerate_resource_preview(local_resource)
     
 
     # MARK: - Resource Deployer Delegate methods

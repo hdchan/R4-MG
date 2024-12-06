@@ -10,5 +10,6 @@ class ImageFetcherProtocol:
         raise Exception()
     
 class ImageFetcherProviderProtocol:
-    def provideImageFetcher(self) -> ImageFetcherProtocol:
+    @property
+    def image_fetcher(self) -> ImageFetcherProtocol:
         return NotImplemented

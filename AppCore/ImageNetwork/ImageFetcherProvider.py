@@ -12,7 +12,8 @@ class ImageFetcherProvider(ImageFetcherProviderProtocol):
         self.real_client = real_client
         self.mock_client = mock_client
 
-    def provideImageFetcher(self) -> ImageFetcherProtocol:
+    @property
+    def image_fetcher(self) -> ImageFetcherProtocol:
         if self.configuration_provider.configuration.is_mock_data:
             return self.mock_client
         else:

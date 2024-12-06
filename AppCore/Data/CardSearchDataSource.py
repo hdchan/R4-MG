@@ -5,24 +5,24 @@ from AppCore.Data.APIClientProtocol import *
 from AppCore.Models import SearchConfiguration, TradingCard
 from AppCore.Observation import *
 from AppCore.Observation.Events import SearchEvent
+from AppCore.Data.LocalResourceDataSourceProtocol import LocalResourceDataSourceProtocol
 
-
-class CardDataSourceDelegate:
+class CardSearchDataSourceDelegate:
     def ds_completed_search_with_result(self, ds: ..., result_list: List[TradingCard], error: Optional[Exception]) -> None:
         pass
 
-class CardDataSource:
+class CardSearchDataSource(LocalResourceDataSourceProtocol):
     def __init__(self,
                  observation_tower: ObservationTower,
                  api_client_provider: APIClientProviderProtocol):
         self.observation_tower = observation_tower
         self.api_client_provider: APIClientProviderProtocol = api_client_provider
-        self.delegate: Optional[CardDataSourceDelegate]
+        self.delegate: Optional[CardSearchDataSourceDelegate]
         self._search_configuration = SearchConfiguration()
         
     @property
     def api_client(self) -> APIClientProtocol:
-        return self.api_client_provider.provideClient()
+        return self.api_client_provider.client
     
 
     def search(self, search_configuration: SearchConfiguration):

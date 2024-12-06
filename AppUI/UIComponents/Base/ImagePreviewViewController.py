@@ -5,6 +5,7 @@ from PyQt5.QtCore import QPoint, Qt
 from PyQt5.QtGui import QClipboard, QGuiApplication, QPixmap
 from PyQt5.QtWidgets import QAction, QLabel, QMenu, QVBoxLayout, QWidget
 
+from AppCore.Image.ImageResourceProcessorProtocol import *
 from AppCore.Config import Configuration, ConfigurationProviderProtocol
 from AppCore.Models import LocalCardResource
 from AppCore.Observation import *
@@ -18,15 +19,6 @@ from .LoadingSpinner import LoadingSpinner
 
 
 class ImagePreviewViewControllerDelegate:
-    def ip_rotate_resource(self, ip: ..., local_resource: LocalCardResource, angle: float) -> None:
-        pass
-    
-    def ip_regenerate_preview(self, ip: ..., local_resource: LocalCardResource) -> None:
-        pass
-    
-    def ip_redownload_resource(self, ip: ..., local_resource: LocalCardResource) -> None:
-        pass
-    
     def ip_regenerate_production_file(self, ip: ..., local_resource: LocalCardResource) -> None:
         pass
     
@@ -40,11 +32,13 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
                  observation_tower: ObservationTower, 
                  configuration_provider: ConfigurationProviderProtocol, 
-                 asset_provider: AssetProvider):
+                 asset_provider: AssetProvider, 
+                 image_resource_processor_provider: ImageResourceProcessorProviderProtocol):
         super().__init__()
         self.observation_tower = observation_tower
         self._configuration_provider = configuration_provider
         self._asset_provider = asset_provider
+        self._image_resource_processor_provider = image_resource_processor_provider
         self.delegate: Optional[ImagePreviewViewControllerDelegate] = None
         self._local_resource: Optional[LocalCardResource] = None
         
@@ -110,22 +104,26 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
         self._clear_image_info()
         self._sync_image_view_state()
     
+    @property
+    def _image_resource_processor(self):
+        return self._image_resource_processor_provider.image_resource_processor
+
     def _showContextMenu(self, pos: QPoint):
         def _notify_delegate_regenerate_preview():
             if self._local_resource is not None and self.delegate is not None:
-                self.delegate.ip_regenerate_preview(self, self._local_resource)
+                self._image_resource_processor.regenerate_resource_preview(self._local_resource)
                 
         def _notify_delegate_redownload_resource():
             if self._local_resource is not None and self.delegate is not None:
-                self.delegate.ip_redownload_resource(self, self._local_resource)
+                self._image_resource_processor.async_store_local_resource(self._local_resource, True)
        
         def _notify_delegate_rotate_right_image():
             if self._local_resource is not None and self.delegate is not None:
-                self.delegate.ip_rotate_resource(self, self._local_resource, -90)
+                self._image_resource_processor.rotate_and_save_resource(self._local_resource, -90)
         
         def _notify_delegate_rotate_left_image():
             if self._local_resource is not None and self.delegate is not None:
-                self.delegate.ip_rotate_resource(self, self._local_resource, 90)
+                self._image_resource_processor.rotate_and_save_resource(self._local_resource, 90)
 
         def open_file():
             if self._local_resource is not None and self.delegate is not None:
@@ -252,11 +250,13 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
     def _handle_link_activated(self, link: str):
         if self._local_resource is not None and self.delegate is not None:
             if link == self.LinkKey.REDOWNLOAD_IMAGE:
-                self.delegate.ip_redownload_resource(self, self._local_resource)
+                self._image_resource_processor.async_store_local_resource(self._local_resource, True)
             elif link == self.LinkKey.REGENERATE_PREVIEW:
-                self.delegate.ip_regenerate_preview(self, self._local_resource)
+                self._image_resource_processor
+                self._image_resource_processor.regenerate_resource_preview(self._local_resource)
             elif link == self.LinkKey.REGENERATE_PRODUCTION_FILE:
                 self.delegate.ip_regenerate_production_file(self, self._local_resource)
+                self._sync_image_view_state()
     
     def _toggle_resource_details_visibility(self):
         self._card_display_name.setHidden(self._configuration_provider.configuration.hide_image_preview)
