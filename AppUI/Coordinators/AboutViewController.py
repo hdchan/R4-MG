@@ -3,14 +3,14 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtMultimedia import QSoundEffect
 from PyQt5.QtWidgets import QLabel, QMenu, QVBoxLayout, QWidget, QAction
 
-from AppCore.Config import ConfigurationProviderProtocol
+from AppCore.Config import ConfigurationProviding
 
 from ..Assets import AssetProvider
 
 
 class AboutViewController(QWidget):
     def __init__(self, 
-                 configuration_provider: ConfigurationProviderProtocol, 
+                 configuration_provider: ConfigurationProviding, 
                  asset_provider: AssetProvider):
         super().__init__()
         self.setWindowTitle("About")

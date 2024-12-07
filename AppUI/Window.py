@@ -6,7 +6,7 @@ from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QKeyEvent, QCloseEvent
 from PyQt5.QtWidgets import QDesktopWidget, QMainWindow
 
-from AppCore.Config import ConfigurationProviderProtocol, ConfigurationManager
+from AppCore.Config import ConfigurationProviding, ConfigurationManager
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         TransmissionProtocol)
 from AppCore.Observation.ObservationTower import ObservationTower

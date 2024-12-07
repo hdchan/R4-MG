@@ -16,7 +16,7 @@ class APIClientProtocol:
     def search(self, search_configuration: SearchConfiguration, callback: APIClientSearchCallback) -> None:
         raise Exception()
     
-class APIClientProviderProtocol:
+class APIClientProviding:
     @property
     def client(self) -> APIClientProtocol:
         return NotImplemented

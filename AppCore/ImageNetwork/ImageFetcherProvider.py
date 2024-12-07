@@ -3,9 +3,9 @@ from ..Config.Configuration import *
 from .ImageFetcherProtocol import *
 
 
-class ImageFetcherProvider(ImageFetcherProviderProtocol):
+class ImageFetcherProvider(ImageFetcherProviding):
     def __init__(self, 
-                 configuration_provider: ConfigurationProviderProtocol, 
+                 configuration_provider: ConfigurationProviding, 
                  real_client: ImageFetcherProtocol, 
                  mock_client: ImageFetcherProtocol):
         self.configuration_provider = configuration_provider

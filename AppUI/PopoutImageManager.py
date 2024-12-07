@@ -2,13 +2,13 @@ from AppUI.UIComponents import ImagePopoutViewController
 from typing import Dict
 from AppCore.Models import LocalCardResource
 from AppCore.Observation import *
-from AppCore.Config import ConfigurationProviderProtocol
+from AppCore.Config import ConfigurationProviding
 import gc
 
 class PopoutImageManager:
     def __init__(self, 
                  obseration_tower: ObservationTower, 
-                 configuration_provider: ConfigurationProviderProtocol):
+                 configuration_provider: ConfigurationProviding):
         self.observation_tower = obseration_tower
         self.configuration_provider = configuration_provider
         self.popouts: Dict[str, object] = {}

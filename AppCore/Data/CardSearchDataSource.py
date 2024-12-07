@@ -1,6 +1,6 @@
 import copy
 from typing import List, Optional, Tuple
-from AppCore.Config import ConfigurationProviderProtocol
+from AppCore.Config import ConfigurationProviding
 from AppCore.Data.APIClientProtocol import *
 from AppCore.Models import SearchConfiguration, TradingCard, LocalCardResource
 from AppCore.Observation import *
@@ -8,7 +8,7 @@ from AppCore.Observation.Events import SearchEvent
 from AppCore.Data.LocalResourceDataSourceProtocol import LocalResourceDataSourceProtocol
 from AppCore.Resource import CardResourceProvider
 from AppCore.Image.ImageResourceProcessorProtocol import *
-from AppCore.Resource import CardImageSourceProviderProtocol
+from AppCore.Resource import CardImageSourceProviding
 class CardSearchDataSourceDelegate:
     def ds_completed_search_with_result(self, ds: ..., result_list: List[TradingCard], error: Optional[Exception]) -> None:
         pass
@@ -19,12 +19,12 @@ class CardSearchDataSourceDelegate:
 class CardSearchDataSource(LocalResourceDataSourceProtocol):
     def __init__(self,
                  observation_tower: ObservationTower,
-                 api_client_provider: APIClientProviderProtocol, 
-                 image_resource_processor_provider: ImageResourceProcessorProviderProtocol,
-                 configuration_provider: ConfigurationProviderProtocol,
-                 card_image_source_provider: CardImageSourceProviderProtocol):
+                 api_client_provider: APIClientProviding, 
+                 image_resource_processor_provider: ImageResourceProcessorProviding,
+                 configuration_provider: ConfigurationProviding,
+                 card_image_source_provider: CardImageSourceProviding):
         self._observation_tower = observation_tower
-        self._api_client_provider: APIClientProviderProtocol = api_client_provider
+        self._api_client_provider: APIClientProviding = api_client_provider
         self._configuration_provider = configuration_provider
         self._card_image_source_provider = card_image_source_provider
         self._image_resource_processor_provider = image_resource_processor_provider

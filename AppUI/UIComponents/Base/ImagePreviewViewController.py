@@ -5,7 +5,7 @@ from PyQt5.QtCore import QPoint, Qt
 from PyQt5.QtGui import QClipboard, QGuiApplication, QPixmap
 from PyQt5.QtWidgets import QAction, QLabel, QMenu, QVBoxLayout, QWidget
 
-from AppCore.Config import Configuration, ConfigurationProviderProtocol
+from AppCore.Config import Configuration, ConfigurationProviding
 from AppCore.Image.ImageResourceProcessorProtocol import *
 from AppCore.Models import LocalCardResource
 from AppCore.Observation import *
@@ -31,9 +31,9 @@ class ImagePreviewViewControllerDelegate:
 class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
                  observation_tower: ObservationTower, 
-                 configuration_provider: ConfigurationProviderProtocol, 
+                 configuration_provider: ConfigurationProviding, 
                  asset_provider: AssetProvider, 
-                 image_resource_processor_provider: ImageResourceProcessorProviderProtocol):
+                 image_resource_processor_provider: ImageResourceProcessorProviding):
         super().__init__()
         self.observation_tower = observation_tower
         self._configuration_provider = configuration_provider

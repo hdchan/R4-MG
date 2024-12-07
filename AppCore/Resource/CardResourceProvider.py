@@ -1,16 +1,16 @@
 from typing import Optional
-from ..Config import ConfigurationProviderProtocol
+from ..Config import ConfigurationProviding
 from ..Models.LocalCardResource import LocalCardResource
 from ..Models.TradingCard import TradingCard
-from .CardImageSourceProtocol import CardImageSourceProtocol, CardImageSourceProviderProtocol
+from .CardImageSourceProtocol import CardImageSourceProtocol, CardImageSourceProviding
 
 PNG_EXTENSION = '.png'
 
 class CardResourceProvider:
     def __init__(self, 
                  trading_card: TradingCard,
-                 configuration_provider: ConfigurationProviderProtocol,
-                 card_image_source_provider: CardImageSourceProviderProtocol):
+                 configuration_provider: ConfigurationProviding,
+                 card_image_source_provider: CardImageSourceProviding):
         self._trading_card = trading_card
         self._configuration_provider = configuration_provider
         self.card_image_source_provider = card_image_source_provider

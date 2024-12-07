@@ -8,7 +8,7 @@ class LocalResourceDataSourceProtocol:
     def selected_local_resource(self) -> Optional[LocalCardResource]:
         return NotImplemented
 
-class LocalResourceDataSourceProviderProtocol:
+class LocalResourceDataSourceProviding:
     @property
     def data_source(self) -> LocalResourceDataSourceProtocol:
         return NotImplemented

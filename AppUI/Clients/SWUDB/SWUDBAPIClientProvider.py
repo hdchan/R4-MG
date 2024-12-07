@@ -2,9 +2,9 @@ from AppCore.Config.Configuration import *
 from AppCore.Data.APIClientProtocol import *
 
 
-class SWUDBAPIClientProvider(APIClientProviderProtocol):
+class SWUDBAPIClientProvider(APIClientProviding):
     def __init__(self, 
-                 configuration_provider: ConfigurationProviderProtocol, 
+                 configuration_provider: ConfigurationProviding, 
                  real_client: APIClientProtocol, 
                  local_client: APIClientProtocol):
         self.configuration_provider = configuration_provider

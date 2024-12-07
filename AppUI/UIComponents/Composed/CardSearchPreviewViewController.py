@@ -4,13 +4,13 @@ from typing import List, Optional
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QSizePolicy,
                              QVBoxLayout, QWidget)
 
-from AppCore.Config import ConfigurationProviderProtocol
-from AppCore.Data import APIClientProviderProtocol
+from AppCore.Config import ConfigurationProviding
+from AppCore.Data import APIClientProviding
 from AppCore.Models import LocalCardResource, TradingCard
 from AppCore.Observation import *
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         LocalResourceEvent)
-from AppCore.Resource import CardImageSourceProviderProtocol
+from AppCore.Resource import CardImageSourceProviding
 
 from ...Assets import AssetProvider
 from ..Base import ImagePreviewViewController, SearchTableView
@@ -26,11 +26,11 @@ class CardSearchPreviewViewControllerDelegate:
 class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
                  observation_tower: ObservationTower, 
-                 configuration_provider: ConfigurationProviderProtocol,
-                 card_search_source_provider: APIClientProviderProtocol,
-                 card_image_source_provider: CardImageSourceProviderProtocol, 
+                 configuration_provider: ConfigurationProviding,
+                 card_search_source_provider: APIClientProviding,
+                 card_image_source_provider: CardImageSourceProviding, 
                  asset_provider: AssetProvider, 
-                 image_resource_processor_provider: ImageResourceProcessorProviderProtocol):
+                 image_resource_processor_provider: ImageResourceProcessorProviding):
         super().__init__()
 
         layout = QVBoxLayout()

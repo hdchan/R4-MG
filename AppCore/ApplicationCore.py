@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from PIL import Image
 
-from AppCore.Config import ConfigurationProviderProtocol
+from AppCore.Config import ConfigurationProviding
 from AppCore.Models import *
 
 from .ApplicationState import ApplicationState
@@ -23,7 +23,7 @@ class ApplicationCoreDelegate:
 class ApplicationCore(ImageResourceDeployerDelegate, CardSearchDataSourceDelegate, ApplicationState):
     def __init__(self, 
                  observation_tower: ObservationTower,
-                 configuration_provider: ConfigurationProviderProtocol):
+                 configuration_provider: ConfigurationProviding):
         
         self._resource_deployer = ImageResourceDeployer(configuration_provider, 
                                                         observation_tower)

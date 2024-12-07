@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QSizePolicy,
                              QVBoxLayout, QWidget)
 
-from AppCore import ConfigurationProviderProtocol, ObservationTower
+from AppCore import ConfigurationProviding, ObservationTower
 from AppCore.Models import LocalCardResource
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent, SearchEvent,
                                         TransmissionProtocol)
@@ -21,10 +21,10 @@ class ImageDeploymentViewControllerDelegate:
 class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
                  observation_tower: ObservationTower, 
-                 configuration_provider: ConfigurationProviderProtocol, 
+                 configuration_provider: ConfigurationProviding, 
                  image_preview_delegate: ImagePreviewViewControllerDelegate, 
                  asset_provider: AssetProvider, 
-                 image_resource_processor_provider: ImageResourceProcessorProviderProtocol):
+                 image_resource_processor_provider: ImageResourceProcessorProviding):
         super().__init__()
         self.observation_tower = observation_tower
         self.configuration_provider = configuration_provider

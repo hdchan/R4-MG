@@ -8,10 +8,10 @@ from PyQt5.QtWidgets import (QHBoxLayout, QInputDialog, QMessageBox, QSplitter,
                              QWidget)
 
 from AppCore.ApplicationCore import ApplicationCore
-from AppCore.Config import ConfigurationProviderProtocol
+from AppCore.Config import ConfigurationProviding
 from AppCore.Data import CardSearchDataSource, CardSearchDataSourceDelegate
 from AppCore.Image.ImageResourceProcessorProtocol import \
-    ImageResourceProcessorProviderProtocol
+    ImageResourceProcessorProviding
 from AppCore.Models import LocalCardResource, SearchConfiguration, TradingCard
 from AppCore.Observation import *
 from AppUI.UIComponents import (AddImageCTAViewController,
@@ -31,9 +31,9 @@ class MainProgramViewController(QWidget,
                                 CardSearchDataSourceDelegate):
     def __init__(self,
                  observation_tower: ObservationTower,
-                 configuration_provider: ConfigurationProviderProtocol,
+                 configuration_provider: ConfigurationProviding,
                  application_core: ApplicationCore,
-                 image_resource_processor_provider: ImageResourceProcessorProviderProtocol,
+                 image_resource_processor_provider: ImageResourceProcessorProviding,
                  card_search_data_source: CardSearchDataSource,
                  asset_provider: AssetProvider, 
                  card_search_preview_view_controller: CardSearchPreviewViewController):

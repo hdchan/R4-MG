@@ -7,7 +7,7 @@ from urllib.request import Request, urlopen
 
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 
-from ..Config import ConfigurationProviderProtocol
+from ..Config import ConfigurationProviding
 from .NetworkerProtocol import NetworkerProtocol, NetworkerProtocolCallback
 from .NetworkRequestProtocol import NetworkRequestProtocol
 
@@ -16,7 +16,7 @@ T = TypeVar("T")
 class RemoteNetworker(NetworkerProtocol):
 
     def __init__(self, 
-                 configuration_provider: ConfigurationProviderProtocol):
+                 configuration_provider: ConfigurationProviding):
         self.configuration_provider = configuration_provider
 
     class ClientWorker(QObject):

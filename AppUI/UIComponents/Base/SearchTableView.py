@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QLineEdit,
                              QListWidget, QPushButton, QVBoxLayout, QWidget)
 
-from AppCore.Config import Configuration, ConfigurationProviderProtocol
+from AppCore.Config import Configuration, ConfigurationProviding
 from AppCore.Models import SearchConfiguration, TradingCard
 from AppCore.Observation import *
 from AppCore.Observation.Events import ConfigurationUpdatedEvent, SearchEvent
@@ -24,7 +24,7 @@ class SearchTableViewDelegate:
 class SearchTableView(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
                  observation_tower: ObservationTower,
-                 configuration_provider: ConfigurationProviderProtocol):
+                 configuration_provider: ConfigurationProviding):
         super().__init__()
         
         self._shift_pressed = False

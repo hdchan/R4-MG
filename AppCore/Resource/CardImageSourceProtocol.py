@@ -15,7 +15,7 @@ class CardImageSourceProtocol:
     def back_art_url(self, trading_card: TradingCard) -> Optional[str]:
         return NotImplemented
     
-class CardImageSourceProviderProtocol:
+class CardImageSourceProviding:
     @property
     def card_image_source(self) -> CardImageSourceProtocol:
         return NotImplemented

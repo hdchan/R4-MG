@@ -1,6 +1,6 @@
 from .ImageResourceProcessorProtocol import *
 
-class ImageResourceProcessorProvider(ImageResourceProcessorProviderProtocol):
+class ImageResourceProcessorProvider(ImageResourceProcessorProviding):
 
     def __init__(self, image_resource_processor: ImageResourceProcessorProtocol):
         self._processor = image_resource_processor

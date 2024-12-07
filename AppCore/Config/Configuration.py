@@ -248,7 +248,7 @@ class Configuration:
             self.Keys.SETTINGS: self._settings.toJSON(self._toggles.developer_mode)
         }
         
-class ConfigurationProviderProtocol:
+class ConfigurationProviding:
     @property
     def configuration(self) -> Configuration:
         return NotImplemented

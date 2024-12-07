@@ -27,7 +27,7 @@ class ImageResourceDeployerDelegate:
     
 class ImageResourceDeployer:
     def __init__(self,
-                 configuration_provider: ConfigurationProviderProtocol, 
+                 configuration_provider: ConfigurationProviding, 
                  observation_tower: ObservationTower):
         self.observation_tower = observation_tower
         self.configuration_provider = configuration_provider

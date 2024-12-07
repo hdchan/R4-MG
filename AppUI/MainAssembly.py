@@ -34,7 +34,7 @@ class MainAssembly:
                                          SWUDBAPILocalClient(LocalNetworker(self.configuration_manager),
                                                             self.asset_provider))
     
-        def _assemble_image_resource_processor_provider(self) -> ImageResourceProcessorProviderProtocol:
+        def _assemble_image_resource_processor_provider(self) -> ImageResourceProcessorProviding:
             image_fetcher_provider = self._assemble_image_fetcher_provider()
             return ImageResourceProcessorProvider(ImageResourceProcessor(image_fetcher_provider,
                                                                          self.observation_tower))

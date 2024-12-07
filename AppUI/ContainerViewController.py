@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QTabWidget, QVBoxLayout, QWidget
 
-from AppCore.Config import ConfigurationProviderProtocol
+from AppCore.Config import ConfigurationProviding
 from AppCore.Observation import *
 from AppCore.Observation.Events import ConfigurationUpdatedEvent
 
@@ -10,7 +10,7 @@ class ContainerViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
                  basic_view: QWidget, 
                  advanced_view: QWidget, 
-                 configuration_provider: ConfigurationProviderProtocol, 
+                 configuration_provider: ConfigurationProviding, 
                  observation_tower: ObservationTower):
         
         

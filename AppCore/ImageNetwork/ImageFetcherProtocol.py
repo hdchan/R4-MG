@@ -1,15 +1,15 @@
 from PIL import Image
-from ..Config import ConfigurationProviderProtocol
+from ..Config import ConfigurationProviding
 from .ImageFetcherRequestProtocol import *
 
 class ImageFetcherProtocol:
-    def __init__(self, configuration_provider: ConfigurationProviderProtocol):
+    def __init__(self, configuration_provider: ConfigurationProviding):
         self.configuration_provider = configuration_provider
         
     def fetch(self, image_url: str) ->Image.Image:
         raise Exception()
     
-class ImageFetcherProviderProtocol:
+class ImageFetcherProviding:
     @property
     def image_fetcher(self) -> ImageFetcherProtocol:
         return NotImplemented

@@ -10,7 +10,7 @@ class ImageResourceProcessorProtocol:
     def regenerate_resource_preview(self, local_resource: LocalCardResource) -> None:
         raise Exception
     
-class ImageResourceProcessorProviderProtocol:
+class ImageResourceProcessorProviding:
     @property
     def image_resource_processor(self) -> ImageResourceProcessorProtocol:
         return NotImplemented

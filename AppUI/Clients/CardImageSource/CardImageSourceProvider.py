@@ -1,9 +1,9 @@
-from AppCore.Resource.CardImageSourceProtocol import CardImageSourceProtocol, CardImageSourceProviderProtocol
-from AppCore.Config import ConfigurationProviderProtocol, Configuration
+from AppCore.Resource.CardImageSourceProtocol import CardImageSourceProtocol, CardImageSourceProviding
+from AppCore.Config import ConfigurationProviding, Configuration
 
-class CardImageSourceProvider(CardImageSourceProviderProtocol):
+class CardImageSourceProvider(CardImageSourceProviding):
     def __init__(self,
-                 configuration_provider: ConfigurationProviderProtocol,
+                 configuration_provider: ConfigurationProviding,
                  swudb_api: CardImageSourceProtocol,
                  swudb: CardImageSourceProtocol):
         self.configuration_provider = configuration_provider

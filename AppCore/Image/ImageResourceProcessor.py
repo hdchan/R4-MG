@@ -5,7 +5,7 @@ from typing import Callable, Optional, Set, Tuple
 from PIL import Image, ImageDraw
 from PyQt5.QtCore import QMutex, QObject, QRunnable, QThreadPool, pyqtSignal
 
-from ..ImageNetwork.ImageFetcherProvider import ImageFetcherProviderProtocol
+from ..ImageNetwork.ImageFetcherProvider import ImageFetcherProviding
 from ..Models import LocalCardResource
 from ..Observation import ObservationTower
 from ..Observation.Events import LocalResourceEvent
@@ -23,7 +23,7 @@ ImageAddCornersCallback = Callable[[Image.Image, int], Image.Image]
 
 class ImageResourceProcessor(ImageResourceProcessorProtocol):
     def __init__(self,
-                 image_fetcher_provider: ImageFetcherProviderProtocol,
+                 image_fetcher_provider: ImageFetcherProviding,
                  observation_tower: ObservationTower):
         self.observation_tower = observation_tower
         self.image_fetcher_provider = image_fetcher_provider
@@ -119,7 +119,7 @@ class WorkerSignals(QObject):
 class StoreImageWorker(QRunnable):
     def __init__(self, 
                  local_resource: LocalCardResource,
-                 image_fetcher_provider: ImageFetcherProviderProtocol, 
+                 image_fetcher_provider: ImageFetcherProviding, 
                  downscale_fn: ImageDownscaleCallback, 
                  add_corners_fn: ImageAddCornersCallback):
         super(StoreImageWorker, self).__init__()
