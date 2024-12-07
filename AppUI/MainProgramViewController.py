@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QInputDialog, QMessageBox, QSplitter,
                              QWidget)
 
 from AppCore.ApplicationCore import ApplicationCore
-from AppCore.Data import CardSearchDataSource, CardSearchDataSourceDelegate
+from AppCore.Data.CardSearchDataSource import CardSearchDataSource, CardSearchDataSourceDelegate
 from AppCore.Models import LocalCardResource, SearchConfiguration, TradingCard
 from AppCore.Observation import *
 from AppUI.AppDependencyProviding import AppDependencyProviding

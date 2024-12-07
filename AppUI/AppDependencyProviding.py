@@ -1,4 +1,4 @@
-from AppCore import CoreDependencyProviding
+from AppCore.CoreDependencyProviding import CoreDependencyProviding
 from .Assets import AssetProvider
 
 class AppDependencyProviding(CoreDependencyProviding):

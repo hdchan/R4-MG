@@ -2,6 +2,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication
 
 from AppCore import *
+from AppCore.Data.CardSearchDataSource import *
 from AppCore.ApplicationCore import ApplicationCore
 from AppCore.Config import ConfigurationManager
 from AppCore.Image import *
@@ -13,13 +14,13 @@ from AppUI.MainProgramViewController import MainProgramViewController
 from AppUI.UIComponents import CardSearchPreviewViewController
 from AppUI.Window import Window
 
+from .AppDependencyProviding import *
 from .Assets import AssetProvider
 from .Clients import *
-from .AppDependencyProviding import *
 
 
 class MainAssembly:
-    class CoreDependencies(AppDependencyProviding):
+    class AppDependencies(AppDependencyProviding):
         def __init__(self):
             self._observation_tower = ObservationTower()
             self._configuration_manager = ConfigurationManager(self.observation_tower)
@@ -27,11 +28,15 @@ class MainAssembly:
             self._image_resource_processor_provider = self._assemble_image_resource_processor_provider()
             self._api_client_provider = self._assemble_api_client_provider()
             self._image_source_provider = self._assemble_image_source_provider()
-
+        
         @property
         def observation_tower(self) -> ObservationTower:
             return self._observation_tower
         
+        @property
+        def configuration_manager(self) -> ConfigurationManager:
+            return self._configuration_manager
+
         @property
         def configuration_provider(self) -> ConfigurationProviding:
             return self._configuration_manager
@@ -79,7 +84,7 @@ class MainAssembly:
         self.app.setApplicationName(Configuration.APP_NAME)
         self._style_app()
         
-        self._app_dependencies = self.CoreDependencies()
+        self._app_dependencies = self.AppDependencies()
 
         # https://www.pythonguis.com/tutorials/packaging-pyqt5-pyside2-applications-windows-pyinstaller/#setting-an-application-icon
         # https://stackoverflow.com/a/35865441
@@ -87,7 +92,7 @@ class MainAssembly:
         # https://forum.qt.io/topic/142136/how-to-change-the-application-name-pyqt5/4
         # self.app.setApplicationDisplayName(self.configuration_manager.configuration.app_display_name)
         
-        main_window = Window(self._app_dependencies._configuration_manager,
+        main_window = Window(self._app_dependencies.configuration_manager,
                             self._app_dependencies.observation_tower, 
                             self._app_dependencies.asset_provider)
         
@@ -96,7 +101,7 @@ class MainAssembly:
         
         self.menu_action_coordinator = MenuActionCoordinator(main_window,
                                                             main_program,
-                                                            self._app_dependencies._configuration_manager, 
+                                                            self._app_dependencies.configuration_manager, 
                                                             self._app_dependencies.asset_provider)
         
         self.shortcut_action_coordinator = ShortcutActionCoordinator(main_program)
@@ -115,11 +120,7 @@ class MainAssembly:
         application_core = ApplicationCore(self._app_dependencies.observation_tower,
                                            self._app_dependencies.configuration_provider)
         # TODO: inject card search data source into card search view
-        card_search_data_source = CardSearchDataSource(self._app_dependencies.observation_tower, 
-                                                       self._app_dependencies.api_client_provider, 
-                                                       self._app_dependencies.image_resource_processor_provider, 
-                                                       self._app_dependencies.configuration_provider, 
-                                                       self._app_dependencies.image_source_provider)
+        card_search_data_source = CardSearchDataSource(self._app_dependencies)
         
         card_search_view = CardSearchPreviewViewController(self._app_dependencies)
         

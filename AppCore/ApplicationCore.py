@@ -9,6 +9,7 @@ from AppCore.Models import *
 
 from .ApplicationState import ApplicationState
 from .Data import *
+from .Data.CardSearchDataSource import *
 from .Image import *
 from .Observation import *
 from .Observation.Events import *

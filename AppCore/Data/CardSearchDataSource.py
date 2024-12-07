@@ -1,14 +1,17 @@
 import copy
 from typing import List, Optional, Tuple
-from AppCore.Config import ConfigurationProviding
+
 from AppCore.Data.APIClientProtocol import *
-from AppCore.Models import SearchConfiguration, TradingCard, LocalCardResource
+from AppCore.Data.LocalResourceDataSourceProtocol import \
+    LocalResourceDataSourceProtocol
+from AppCore.Image.ImageResourceProcessorProtocol import *
+from AppCore.Models import LocalCardResource, SearchConfiguration, TradingCard
 from AppCore.Observation import *
 from AppCore.Observation.Events import SearchEvent
-from AppCore.Data.LocalResourceDataSourceProtocol import LocalResourceDataSourceProtocol
 from AppCore.Resource import CardResourceProvider
-from AppCore.Image.ImageResourceProcessorProtocol import *
-from AppCore.Resource import CardImageSourceProviding
+from AppCore.CoreDependencyProviding import CoreDependencyProviding
+
+
 class CardSearchDataSourceDelegate:
     def ds_completed_search_with_result(self, ds: ..., result_list: List[TradingCard], error: Optional[Exception]) -> None:
         pass
@@ -17,17 +20,13 @@ class CardSearchDataSourceDelegate:
         pass
 
 class CardSearchDataSource(LocalResourceDataSourceProtocol):
-    def __init__(self,
-                 observation_tower: ObservationTower,
-                 api_client_provider: APIClientProviding, 
-                 image_resource_processor_provider: ImageResourceProcessorProviding,
-                 configuration_provider: ConfigurationProviding,
-                 card_image_source_provider: CardImageSourceProviding):
-        self._observation_tower = observation_tower
-        self._api_client_provider: APIClientProviding = api_client_provider
-        self._configuration_provider = configuration_provider
-        self._card_image_source_provider = card_image_source_provider
-        self._image_resource_processor_provider = image_resource_processor_provider
+    def __init__(self, 
+                 core_dependency_providing: CoreDependencyProviding):
+        self._observation_tower = core_dependency_providing.observation_tower
+        self._api_client_provider = core_dependency_providing.api_client_provider
+        self._configuration_provider = core_dependency_providing.configuration_provider
+        self._card_image_source_provider = core_dependency_providing.image_source_provider
+        self._image_resource_processor_provider = core_dependency_providing.image_resource_processor_provider
 
         self.delegate: Optional[CardSearchDataSourceDelegate]
 
