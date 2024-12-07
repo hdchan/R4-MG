@@ -4,18 +4,21 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QAbstractSlider, QPushButton, QScrollArea,
                              QSizePolicy, QVBoxLayout, QWidget)
 
-from AppCore import (ApplicationState, ConfigurationProviding,
-                     ObservationTower)
+from AppCore import ApplicationState, ConfigurationProviding, ObservationTower
+from AppCore.Image.ImageResourceProcessorProtocol import *
 from AppCore.Models import LocalCardResource
 from AppCore.Observation import *
 from AppCore.Observation.Events import (LocalResourceEvent,
-                                        PublishStatusUpdatedEvent, PublishStagedResourcesEvent)
+                                        PublishStagedResourcesEvent,
+                                        PublishStatusUpdatedEvent)
+from AppUI.AppDependencyProviding import AppDependencyProviding
 
 from ...Assets import AssetProvider
 from ..Base import AddImageCTAViewController, AddImageCTAViewControllerDelegate
-from . import ImageDeploymentViewController, ImagePreviewViewControllerDelegate
 from ..Base.LoadingSpinner import LoadingSpinner
-from AppCore.Image.ImageResourceProcessorProtocol import *
+from . import ImageDeploymentViewController, ImagePreviewViewControllerDelegate
+
+
 class ImageDeploymentListViewControllerDelegate:
     def idl_did_tap_staging_button(self, id_list: ..., id_cell: ImageDeploymentViewController, index: int) -> None:
         pass
@@ -28,20 +31,17 @@ class ImageDeploymentListViewControllerDelegate:
 
 class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
-                 observation_tower: ObservationTower, 
-                 configuration_provider: ConfigurationProviding, 
-                 asset_provider: AssetProvider, 
+                 app_dependency_provider: AppDependencyProviding,
                  image_preview_delegate: Union[AddImageCTAViewControllerDelegate, ImagePreviewViewControllerDelegate], 
-                 app_state: ApplicationState, 
-                 image_resource_processor_provider: ImageResourceProcessorProviding):
+                 app_state: ApplicationState):
         super().__init__()
-
-        self.observation_tower = observation_tower
-        self.configuration_provider = configuration_provider
-        self.asset_provider = asset_provider
+        self.app_dependency_provider = app_dependency_provider
+        self.observation_tower = app_dependency_provider.observation_tower
+        self.configuration_provider = app_dependency_provider.configuration_provider
+        self.asset_provider = app_dependency_provider.asset_provider
         self.image_preview_delegate = image_preview_delegate
         self.app_state = app_state
-        self.image_resource_processor_provider = image_resource_processor_provider
+        self.image_resource_processor_provider = app_dependency_provider.image_resource_processor_provider
 
         outer_container_layout = QVBoxLayout()
         self.setLayout(outer_container_layout)
@@ -60,7 +60,7 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
         cells_container_layout.addWidget(deployment_cells_widget)
         
         
-        add_image_cta = AddImageCTAViewController(asset_provider)
+        add_image_cta = AddImageCTAViewController(app_dependency_provider.asset_provider)
         add_image_cta.delegate = image_preview_delegate
         cells_container_layout.addWidget(add_image_cta)
         
@@ -133,11 +133,8 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
                          local_resource: LocalCardResource,
                          staging_button_enabled: bool,
                          index: int):
-        item = ImageDeploymentViewController(self.observation_tower, 
-                                             self.configuration_provider, 
-                                             self.image_preview_delegate, 
-                                             self.asset_provider, 
-                                             self.image_resource_processor_provider)
+        item = ImageDeploymentViewController(self.app_dependency_provider,
+                                             self.image_preview_delegate)
         item.delegate = self
         item.set_production_image(local_resource)
         if index <= 9:

@@ -16,7 +16,7 @@ from AppCore.Observation.Events import (CacheClearedEvent,
 
 from ...Assets import AssetProvider
 from .LoadingSpinner import LoadingSpinner
-
+from AppUI.AppDependencyProviding import AppDependencyProviding
 
 class ImagePreviewViewControllerDelegate:
     def ip_regenerate_production_file(self, ip: ..., local_resource: LocalCardResource) -> None:
@@ -30,15 +30,12 @@ class ImagePreviewViewControllerDelegate:
 
 class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
-                 observation_tower: ObservationTower, 
-                 configuration_provider: ConfigurationProviding, 
-                 asset_provider: AssetProvider, 
-                 image_resource_processor_provider: ImageResourceProcessorProviding):
+                 app_dependency_provider: AppDependencyProviding):
         super().__init__()
-        self.observation_tower = observation_tower
-        self._configuration_provider = configuration_provider
-        self._asset_provider = asset_provider
-        self._image_resource_processor_provider = image_resource_processor_provider
+        self.observation_tower = app_dependency_provider.observation_tower
+        self._configuration_provider = app_dependency_provider.configuration_provider
+        self._asset_provider = app_dependency_provider.asset_provider
+        self._image_resource_processor_provider = app_dependency_provider.image_resource_processor_provider
         self.delegate: Optional[ImagePreviewViewControllerDelegate] = None
         self._local_resource: Optional[LocalCardResource] = None
         
@@ -88,7 +85,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
         self._toggle_resource_details_visibility()
         self._sync_image_view_state()
 
-        observation_tower.subscribe_multi(self, [ConfigurationUpdatedEvent, 
+        app_dependency_provider.observation_tower.subscribe_multi(self, [ConfigurationUpdatedEvent, 
                                                  LocalResourceEvent, 
                                                  PublishStatusUpdatedEvent, 
                                                  CacheClearedEvent])

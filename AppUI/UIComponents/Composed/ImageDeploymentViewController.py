@@ -4,13 +4,12 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QSizePolicy,
                              QVBoxLayout, QWidget)
 
-from AppCore import ConfigurationProviding, ObservationTower
 from AppCore.Models import LocalCardResource
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent, SearchEvent,
                                         TransmissionProtocol)
 from AppUI.UIComponents.Base.ImagePreviewViewController import *
 from AppCore.Image.ImageResourceProcessorProtocol import *
-
+from AppUI.AppDependencyProviding import AppDependencyProviding
 class ImageDeploymentViewControllerDelegate:
     def id_did_tap_staging_button(self, id: ...) -> None:
         pass
@@ -20,14 +19,11 @@ class ImageDeploymentViewControllerDelegate:
 
 class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
-                 observation_tower: ObservationTower, 
-                 configuration_provider: ConfigurationProviding, 
-                 image_preview_delegate: ImagePreviewViewControllerDelegate, 
-                 asset_provider: AssetProvider, 
-                 image_resource_processor_provider: ImageResourceProcessorProviding):
+                 app_dependency_provider: AppDependencyProviding,
+                 image_preview_delegate: ImagePreviewViewControllerDelegate):
         super().__init__()
-        self.observation_tower = observation_tower
-        self.configuration_provider = configuration_provider
+        self.observation_tower = app_dependency_provider.observation_tower
+        self.configuration_provider = app_dependency_provider.configuration_provider
         vertical_layout = QVBoxLayout()
         
         label = QLabel()
@@ -72,18 +68,12 @@ class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
         # first_column_widget.setFixedWidth(200)
         layout.addWidget(first_column_widget)
 
-        staging_image_view = ImagePreviewViewController(observation_tower, 
-                                                        configuration_provider, 
-                                                        asset_provider, 
-                                                        image_resource_processor_provider)
+        staging_image_view = ImagePreviewViewController(app_dependency_provider)
         staging_image_view.delegate = image_preview_delegate
         layout.addWidget(staging_image_view, 4)
         self.staging_image_view = staging_image_view
 
-        production_image_view = ImagePreviewViewController(observation_tower, 
-                                                           configuration_provider, 
-                                                           asset_provider, 
-                                                           image_resource_processor_provider)
+        production_image_view = ImagePreviewViewController(app_dependency_provider)
         production_image_view.delegate = image_preview_delegate
         layout.addWidget(production_image_view, 4)
         self.production_image_view = production_image_view
@@ -92,8 +82,8 @@ class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
 
         self.delegate: Optional[ImageDeploymentViewControllerDelegate] = None
         
-        observation_tower.subscribe(self, SearchEvent)
-        observation_tower.subscribe(self, ConfigurationUpdatedEvent)
+        app_dependency_provider.observation_tower.subscribe_multi(self, [SearchEvent, 
+                                                                         ConfigurationUpdatedEvent])
     
     
     def set_staging_image(self, local_resource: LocalCardResource):

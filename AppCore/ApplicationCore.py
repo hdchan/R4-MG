@@ -21,7 +21,7 @@ class ApplicationCoreDelegate:
 
 
 class ApplicationCore(ImageResourceDeployerDelegate, CardSearchDataSourceDelegate, ApplicationState):
-    def __init__(self, 
+    def __init__(self,
                  observation_tower: ObservationTower,
                  configuration_provider: ConfigurationProviding):
         

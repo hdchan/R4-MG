@@ -4,18 +4,13 @@ from typing import List, Optional
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QSizePolicy,
                              QVBoxLayout, QWidget)
 
-from AppCore.Config import ConfigurationProviding
-from AppCore.Data import APIClientProviding
 from AppCore.Models import LocalCardResource, TradingCard
 from AppCore.Observation import *
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         LocalResourceEvent)
-from AppCore.Resource import CardImageSourceProviding
-
-from ...Assets import AssetProvider
 from ..Base import ImagePreviewViewController, SearchTableView
 from AppCore.Image.ImageResourceProcessorProtocol import *
-
+from AppUI.AppDependencyProviding import AppDependencyProviding
 class CardSearchPreviewViewControllerDelegate:
     def cs_did_tap_flip_button(self, cs: ...) -> None:
         pass
@@ -24,26 +19,17 @@ class CardSearchPreviewViewControllerDelegate:
         pass
 
 class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
-    def __init__(self, 
-                 observation_tower: ObservationTower, 
-                 configuration_provider: ConfigurationProviding,
-                 card_search_source_provider: APIClientProviding,
-                 card_image_source_provider: CardImageSourceProviding, 
-                 asset_provider: AssetProvider, 
-                 image_resource_processor_provider: ImageResourceProcessorProviding):
+    def __init__(self, app_dependency_provider: AppDependencyProviding):
         super().__init__()
 
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
-        self._observation_tower = observation_tower
-        self._card_search_source_provider = card_search_source_provider
-        self._card_image_source_provider = card_image_source_provider
+        self._observation_tower = app_dependency_provider.observation_tower
+        self._card_search_source_provider = app_dependency_provider.api_client_provider
+        self._card_image_source_provider = app_dependency_provider.image_source_provider
         # https://stackoverflow.com/a/19011496
-        staging_view = ImagePreviewViewController(observation_tower, 
-                                                  configuration_provider, 
-                                                  asset_provider, 
-                                                  image_resource_processor_provider)
+        staging_view = ImagePreviewViewController(app_dependency_provider)
         staging_view.setMinimumHeight(300)
         staging_view.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
         self.staging_view = staging_view
@@ -70,8 +56,7 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
         buttons_layout.addWidget(retry_button)
         
         
-        search_table_view = SearchTableView(observation_tower,
-                                            configuration_provider)
+        search_table_view = SearchTableView(app_dependency_provider)
         search_table_view.delegate = self
         self.search_table_view = search_table_view
         layout.addWidget(search_table_view, 2)

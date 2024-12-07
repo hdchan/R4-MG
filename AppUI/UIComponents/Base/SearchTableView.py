@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QLineEdit,
                              QListWidget, QPushButton, QVBoxLayout, QWidget)
 
-from AppCore.Config import Configuration, ConfigurationProviding
+from AppCore.Config import Configuration
 from AppCore.Models import SearchConfiguration, TradingCard
 from AppCore.Observation import *
 from AppCore.Observation.Events import ConfigurationUpdatedEvent, SearchEvent
@@ -12,7 +12,7 @@ from AppCore.Observation.Events import ConfigurationUpdatedEvent, SearchEvent
 from ...Clients.SWUDB import CardType, SWUDBAPISearchConfiguration
 from ...Observation.Events import KeyboardEvent
 from .LoadingSpinner import LoadingSpinner
-
+from AppUI.AppDependencyProviding import AppDependencyProviding
 
 class SearchTableViewDelegate:
     def tv_did_select(self, sv: ..., index: int) -> None:
@@ -22,14 +22,12 @@ class SearchTableViewDelegate:
         pass
 
 class SearchTableView(QWidget, TransmissionReceiverProtocol):
-    def __init__(self, 
-                 observation_tower: ObservationTower,
-                 configuration_provider: ConfigurationProviding):
+    def __init__(self, app_dependency_provider: AppDependencyProviding):
         super().__init__()
         
         self._shift_pressed = False
         self._ctrl_pressed = False
-        self._configuration_provider = configuration_provider
+        self._configuration_provider = app_dependency_provider.configuration_provider
         self._result_list: Optional[List[TradingCard]] = None
 
         layout = QVBoxLayout()
@@ -83,7 +81,7 @@ class SearchTableView(QWidget, TransmissionReceiverProtocol):
         
         self._set_card_type_filter(None)
         
-        observation_tower.subscribe_multi(self, [SearchEvent, 
+        app_dependency_provider.observation_tower.subscribe_multi(self, [SearchEvent, 
                                                  KeyboardEvent, 
                                                  ConfigurationUpdatedEvent]) 
         

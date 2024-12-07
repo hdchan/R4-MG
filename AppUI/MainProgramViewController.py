@@ -8,12 +8,10 @@ from PyQt5.QtWidgets import (QHBoxLayout, QInputDialog, QMessageBox, QSplitter,
                              QWidget)
 
 from AppCore.ApplicationCore import ApplicationCore
-from AppCore.Config import ConfigurationProviding
 from AppCore.Data import CardSearchDataSource, CardSearchDataSourceDelegate
-from AppCore.Image.ImageResourceProcessorProtocol import \
-    ImageResourceProcessorProviding
 from AppCore.Models import LocalCardResource, SearchConfiguration, TradingCard
 from AppCore.Observation import *
+from AppUI.AppDependencyProviding import AppDependencyProviding
 from AppUI.UIComponents import (AddImageCTAViewController,
                                 AddImageCTAViewControllerDelegate,
                                 CardSearchPreviewViewController,
@@ -22,26 +20,21 @@ from AppUI.UIComponents import (AddImageCTAViewController,
 from AppUI.UIComponents.Base.ImagePreviewViewController import (
     ImagePreviewViewController, ImagePreviewViewControllerDelegate)
 
-from .Assets import AssetProvider
-
 
 class MainProgramViewController(QWidget, 
                                 ImagePreviewViewControllerDelegate, 
                                 AddImageCTAViewControllerDelegate, 
                                 CardSearchDataSourceDelegate):
     def __init__(self,
-                 observation_tower: ObservationTower,
-                 configuration_provider: ConfigurationProviding,
+                 app_dependency_provider: AppDependencyProviding,
                  application_core: ApplicationCore,
-                 image_resource_processor_provider: ImageResourceProcessorProviding,
                  card_search_data_source: CardSearchDataSource,
-                 asset_provider: AssetProvider, 
                  card_search_preview_view_controller: CardSearchPreviewViewController):
         super().__init__()
         
         self.sound_effect = None
-        self._asset_provider = asset_provider
-        self._observation_tower = observation_tower
+        self._asset_provider = app_dependency_provider.asset_provider
+        self._observation_tower = app_dependency_provider.observation_tower
 
         application_core.delegate = self
         self.application_core = application_core
@@ -61,12 +54,9 @@ class MainProgramViewController(QWidget,
         
         splitter.addWidget(self.card_search_view)
 
-        deployment_view = ImageDeploymentListViewController(observation_tower, 
-                                                            configuration_provider, 
-                                                            asset_provider, 
+        deployment_view = ImageDeploymentListViewController(app_dependency_provider, 
                                                             self, 
-                                                            self.application_core, 
-                                                            image_resource_processor_provider)
+                                                            self.application_core)
         deployment_view.delegate = self
         self.deployment_view = deployment_view
         splitter.addWidget(deployment_view)
