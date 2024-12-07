@@ -12,7 +12,6 @@ from .Data import *
 from .Image import *
 from .Observation import *
 from .Observation.Events import *
-from .Resource import CardImageSourceProviderProtocol
 from .Service import PlatformProtocol, PlatformServiceProvider
 
 
@@ -23,18 +22,12 @@ class ApplicationCoreDelegate:
 
 class ApplicationCore(ImageResourceDeployerDelegate, CardSearchDataSourceDelegate, ApplicationState):
     def __init__(self, 
-                 observation_tower: ObservationTower, 
-                 image_resource_processor_provider: ImageResourceProcessorProviderProtocol,
-                 card_image_source_provider: CardImageSourceProviderProtocol,
+                 observation_tower: ObservationTower,
                  configuration_provider: ConfigurationProviderProtocol):
-        
-        self._image_resource_processor_provider = image_resource_processor_provider
         
         self._resource_deployer = ImageResourceDeployer(configuration_provider, 
                                                         observation_tower)
         self._resource_deployer.delegate = self
-        
-        self._card_image_source_provider = card_image_source_provider
         
         self._configuration_provider = configuration_provider
         

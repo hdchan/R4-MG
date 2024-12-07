@@ -9,14 +9,11 @@ from PyQt5.QtWidgets import (QHBoxLayout, QInputDialog, QMessageBox, QSplitter,
 
 from AppCore.ApplicationCore import ApplicationCore
 from AppCore.Config import ConfigurationProviderProtocol
-from AppCore.Data import (APIClientProviderProtocol, CardSearchDataSource,
-                          CardSearchDataSourceDelegate,
-                          LocalResourceDataSourceProtocol)
+from AppCore.Data import CardSearchDataSource, CardSearchDataSourceDelegate
 from AppCore.Image.ImageResourceProcessorProtocol import \
     ImageResourceProcessorProviderProtocol
 from AppCore.Models import LocalCardResource, SearchConfiguration, TradingCard
 from AppCore.Observation import *
-from AppCore.Resource import CardImageSourceProviderProtocol
 from AppUI.UIComponents import (AddImageCTAViewController,
                                 AddImageCTAViewControllerDelegate,
                                 CardSearchPreviewViewController,
@@ -26,7 +23,6 @@ from AppUI.UIComponents.Base.ImagePreviewViewController import (
     ImagePreviewViewController, ImagePreviewViewControllerDelegate)
 
 from .Assets import AssetProvider
-from .PopoutImageManager import PopoutImageManager
 
 
 class MainProgramViewController(QWidget, 
@@ -36,12 +32,11 @@ class MainProgramViewController(QWidget,
     def __init__(self,
                  observation_tower: ObservationTower,
                  configuration_provider: ConfigurationProviderProtocol,
-                 application_core: ApplicationCore, 
-                 card_search_source_provider: APIClientProviderProtocol,
-                 card_image_source_provider: CardImageSourceProviderProtocol, 
+                 application_core: ApplicationCore,
                  image_resource_processor_provider: ImageResourceProcessorProviderProtocol,
                  card_search_data_source: CardSearchDataSource,
-                 asset_provider: AssetProvider):
+                 asset_provider: AssetProvider, 
+                 card_search_preview_view_controller: CardSearchPreviewViewController):
         super().__init__()
         
         self.sound_effect = None
@@ -60,21 +55,11 @@ class MainProgramViewController(QWidget,
         splitter = QSplitter(QtCore.Qt.Orientation.Horizontal)
         horizontal_layout.addWidget(splitter)
         
-        card_search_view = CardSearchPreviewViewController(observation_tower, 
-                                                           configuration_provider,
-                                                           card_search_source_provider,
-                                                           card_image_source_provider, 
-                                                           asset_provider, 
-                                                           image_resource_processor_provider)
-        card_search_view.setObjectName('stuff')
-        self.setStyleSheet('QWidget#stuff { background-color:red; }')
-        card_search_view.delegate = self
-        card_search_view.set_search_focus()
-        self.card_search_view = card_search_view
-        splitter.addWidget(card_search_view)
-
-        self.popout_manager = PopoutImageManager(observation_tower, 
-                                                 configuration_provider)
+        self.card_search_view = card_search_preview_view_controller
+        self.card_search_view.delegate = self
+        self.card_search_view.set_search_focus()
+        
+        splitter.addWidget(self.card_search_view)
 
         deployment_view = ImageDeploymentListViewController(observation_tower, 
                                                             configuration_provider, 

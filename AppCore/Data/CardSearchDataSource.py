@@ -83,22 +83,22 @@ class CardSearchDataSource(LocalResourceDataSourceProtocol):
 
     def current_previewed_trading_card_is_flippable(self) -> bool:
         if self._selected_index is not None:
-            return self._trading_card_providers[self.selected_index].is_flippable
+            return self._trading_card_providers[self._selected_index].is_flippable
         return False
 
     def select_card_resource_for_card_selection(self, index: int):
         if index < len(self._trading_card_providers):
-            self.selected_index = index
+            self._selected_index = index
             self._retrieve_card_resource_for_card_selection(index)
 
     def flip_current_previewed_card(self):
         if self._selected_index is not None and self.current_previewed_trading_card_is_flippable():
-            self._trading_card_providers[self.selected_index].flip()
-            self._retrieve_card_resource_for_card_selection(self.selected_index)
+            self._trading_card_providers[self._selected_index].flip()
+            self._retrieve_card_resource_for_card_selection(self._selected_index)
     
     def redownload_currently_selected_card_resource(self):
         if self._selected_index is not None:
-            self._retrieve_card_resource_for_card_selection(self.selected_index, True)
+            self._retrieve_card_resource_for_card_selection(self._selected_index, True)
 
     def _retrieve_card_resource_for_card_selection(self, index: int, retry: bool = False):
         trading_card_resource_provider = self._trading_card_providers[index]

@@ -17,14 +17,12 @@ from .Observation.Events import KeyboardEvent
 
 basedir = os.path.dirname(__file__)
 class Window(QMainWindow, TransmissionReceiverProtocol):
-    def __init__(self, 
-                 configuration_provider: ConfigurationProviderProtocol,
+    def __init__(self,
                  configuration_manager: ConfigurationManager,
                  observation_tower: ObservationTower, 
                  asset_provider: AssetProvider):
         """Initializer."""
         super().__init__()
-        self.configuration_provider = configuration_provider
         self.configuration_manager = configuration_manager
         self.asset_provider = asset_provider
         self.observation_tower = observation_tower
@@ -36,11 +34,11 @@ class Window(QMainWindow, TransmissionReceiverProtocol):
         self.debounce_time = 500
         
         width, height = 400+900, 900
-        if (self.configuration_provider.configuration.window_size[0] is not None and
-            self.configuration_provider.configuration.window_size[1] is not None):
+        if (self.configuration_manager.configuration.window_size[0] is not None and
+            self.configuration_manager.configuration.window_size[1] is not None):
             
-            width = self.configuration_provider.configuration.window_size[0]
-            height = self.configuration_provider.configuration.window_size[1]
+            width = self.configuration_manager.configuration.window_size[0]
+            height = self.configuration_manager.configuration.window_size[1]
         
         self.setGeometry(0, 0, width, height)
         qtRectangle = self.frameGeometry()
@@ -53,7 +51,7 @@ class Window(QMainWindow, TransmissionReceiverProtocol):
         observation_tower.subscribe(self, ConfigurationUpdatedEvent)
 
     def _load_window(self):
-        self.setWindowTitle(self.configuration_provider.configuration.app_display_name)
+        self.setWindowTitle(self.configuration_manager.configuration.app_display_name)
         # https://www.pythonguis.com/tutorials/packaging-pyqt5-pyside2-applications-windows-pyinstaller/#setting-an-application-icon
         # self.setWindowIcon(QIcon(self.asset_provider.image.logo_path))
 
