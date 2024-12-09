@@ -1,14 +1,32 @@
 import os
 import platform
 import subprocess
-
-
+from ..Config import ConfigurationProviding
+from ..Observation import ObservationTower
+from ..Observation.Events import *
+import shutil
 class PlatformServiceProtocol:
+
+    def __init__(self, 
+               configuration_provider: ConfigurationProviding,
+               observation_tower: ObservationTower):
+        self._configuration_provider = configuration_provider
+        self._observation_tower = observation_tower
+
+    @property
+    def _configuration(self) -> Configuration:
+        return self._configuration_provider.configuration
+
     def open_file(self, file_path: str) -> None:
         pass
 
     def open_file_path_and_select_file(self, file_path: str) -> None:
         pass
+    
+    def clear_cache(self):
+        shutil.rmtree(self._configuration.cache_file_path)
+        self._observation_tower.notify(CacheClearedEvent())
+
 
 class PlatformServiceProvider:
     class Mac(PlatformServiceProtocol):
@@ -25,9 +43,13 @@ class PlatformServiceProvider:
         def open_file_path_and_select_file(self, file_path: str) -> None:
             subprocess.Popen(rf'explorer /select,"{os.path.abspath(file_path)}"')
 
-    def __init__(self):
-        self._mac = self.Mac()
-        self._windows = self.Windows()
+    def __init__(self, 
+                 configuration_provider: ConfigurationProviding, 
+                 observation_tower: ObservationTower):
+        self._configuration_provider = configuration_provider
+        self._observation_tower = observation_tower
+        self._mac = self.Mac(configuration_provider, observation_tower)
+        self._windows = self.Windows(configuration_provider, observation_tower)
 
     @property
     def platform_service(self) -> PlatformServiceProtocol:

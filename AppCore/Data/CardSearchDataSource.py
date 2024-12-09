@@ -2,12 +2,11 @@ import copy
 from typing import List, Optional, Tuple
 
 from AppCore.Data.APIClientProtocol import *
-from AppCore.Data.LocalResourceDataSourceProtocol import \
-    LocalResourceDataSourceProtocol
+from AppCore.Data.LocalResourceDataSourceProtocol import *
 from AppCore.Image.ImageResourceProcessorProtocol import *
 from AppCore.Models import LocalCardResource, SearchConfiguration, TradingCard
 from AppCore.Observation import *
-from AppCore.Observation.Events import SearchEvent
+from AppCore.Observation.Events import SearchEvent, LocalResourceSelectedEvent
 from AppCore.Resource import CardResourceProvider
 from AppCore.CoreDependencyProviding import CoreDependencyProviding
 
@@ -19,7 +18,7 @@ class CardSearchDataSourceDelegate:
     def ds_did_retrieve_card_resource_for_card_selection(self, ds: ..., local_resource: LocalCardResource, is_flippable: bool) -> None:
         pass
 
-class CardSearchDataSource(LocalResourceDataSourceProtocol):
+class CardSearchDataSource(LocalResourceDataSourceProtocol, LocalResourceDataSourceProviding):
     def __init__(self, 
                  core_dependency_providing: CoreDependencyProviding, 
                  api_client_provider: APIClientProviding):
@@ -44,6 +43,10 @@ class CardSearchDataSource(LocalResourceDataSourceProtocol):
     @property
     def _image_resource_processor(self) -> ImageResourceProcessorProtocol:
         return self._image_resource_processor_provider.image_resource_processor
+
+    @property
+    def data_source(self) -> LocalResourceDataSourceProtocol:
+        return self
 
     @property
     def selected_local_resource(self) -> Optional[LocalCardResource]:
@@ -104,6 +107,7 @@ class CardSearchDataSource(LocalResourceDataSourceProtocol):
         trading_card_resource_provider = self._trading_card_providers[index]
         selected_resource = trading_card_resource_provider.local_resource
         self._selected_resource = selected_resource
+        self._observation_tower.notify(LocalResourceSelectedEvent(selected_resource))
         self._image_resource_processor_provider.image_resource_processor.async_store_local_resource(selected_resource, retry)
         if self.delegate is not None:
             self.delegate.ds_did_retrieve_card_resource_for_card_selection(self, copy.deepcopy(selected_resource), trading_card_resource_provider.is_flippable)

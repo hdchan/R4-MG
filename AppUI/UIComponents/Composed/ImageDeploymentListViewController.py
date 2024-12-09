@@ -2,46 +2,43 @@ from typing import List, Optional, Union
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QPushButton, QScrollArea, QSizePolicy,
-                             QVBoxLayout, QWidget)
+                             QVBoxLayout, QWidget, QMessageBox)
 
 from AppCore import ApplicationState
 from AppCore.Image.ImageResourceProcessorProtocol import *
+from AppCore.Image.ImageResourceDeployer import ImageResourceDeployer
 from AppCore.Models import LocalCardResource
 from AppCore.Observation import *
-from AppCore.Observation.Events import (LocalResourceEvent,
+from AppCore.Observation.Events import (LocalResourceFetchEvent,
                                         PublishStagedResourcesEvent,
-                                        PublishStatusUpdatedEvent)
+                                        PublishStatusUpdatedEvent, LocalResourceSelectedEvent, ProductionResourcesLoadedEvent)
 from AppUI.AppDependencyProviding import AppDependencyProviding
 
 from ..Base import AddImageCTAViewController, AddImageCTAViewControllerDelegate
 from ..Base.LoadingSpinner import LoadingSpinner
 from . import ImageDeploymentViewController, ImagePreviewViewControllerDelegate
-
+from AppCore.Data.LocalResourceDataSourceProtocol import *
 
 class ImageDeploymentListViewControllerDelegate:
-    def idl_did_tap_staging_button(self, id_list: ..., id_cell: ImageDeploymentViewController, index: int) -> None:
-        pass
-
-    def idl_did_tap_unstaging_button(self, id_list: ..., id_cell: ImageDeploymentViewController, index: int) -> None:
-        pass
     
     def idl_did_tap_production_button(self, id_list: ...) -> None:
         pass
 
 
+
 class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
                  app_dependency_provider: AppDependencyProviding,
-                 image_preview_delegate: Union[AddImageCTAViewControllerDelegate, ImagePreviewViewControllerDelegate], 
-                 app_state: ApplicationState):
+                 image_resource_deployer: ImageResourceDeployer,
+                 local_resource_data_source_provider: LocalResourceDataSourceProviding):
         super().__init__()
         self.app_dependency_provider = app_dependency_provider
         self.observation_tower = app_dependency_provider.observation_tower
         self.configuration_provider = app_dependency_provider.configuration_provider
         self.asset_provider = app_dependency_provider.asset_provider
-        self._image_resource_deployer = app_dependency_provider.image_resource_deployer
-        self.image_preview_delegate = image_preview_delegate
-        self.app_state = app_state
+        self._image_resource_deployer = image_resource_deployer
+        self._local_resource_data_source_provider = local_resource_data_source_provider
+        # self.image_preview_delegate = image_preview_delegate
         self.image_resource_processor_provider = app_dependency_provider.image_resource_processor_provider
 
         outer_container_layout = QVBoxLayout()
@@ -62,7 +59,8 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
         
         
         add_image_cta = AddImageCTAViewController(app_dependency_provider.asset_provider)
-        add_image_cta.delegate = image_preview_delegate
+        # add_image_cta.delegate = image_preview_delegate
+        self.add_image_cta = add_image_cta
         cells_container_layout.addWidget(add_image_cta)
         
         
@@ -92,9 +90,15 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
         self.delegate: Optional[ImageDeploymentListViewControllerDelegate] = None
         
         self.observation_tower.subscribe_multi(self, [PublishStatusUpdatedEvent, 
-                                                      LocalResourceEvent, 
-                                                      PublishStagedResourcesEvent])
+                                                      LocalResourceFetchEvent, 
+                                                      PublishStagedResourcesEvent, 
+                                                      LocalResourceSelectedEvent, 
+                                                      ProductionResourcesLoadedEvent])
     
+    @property
+    def local_resource_data_source(self) -> LocalResourceDataSourceProtocol:
+        return self._local_resource_data_source_provider.data_source
+
     def load_production_resources(self, card_resources: List[LocalCardResource], staging_button_enabled: bool):
         for index, resource in enumerate(card_resources):
             self._create_list_item(resource,
@@ -136,16 +140,19 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
 
     def id_did_tap_staging_button(self, id_cell: ImageDeploymentViewController):
         for idx, i in enumerate(self.list_items):
-            if i == id_cell and self.delegate is not None:
+            if i == id_cell:
                 # need to dynamically get datasource here
-                # self._image_resource_deployer.stage_resource()
-                self.delegate.idl_did_tap_staging_button(self, id_cell, idx)
+                local_resource = self.local_resource_data_source.selected_local_resource
+                if local_resource is not None:
+                    self._image_resource_deployer.stage_resource(local_resource, idx)
+                    self.set_staging_image(local_resource, idx)
 
     def id_did_tap_unstaging_button(self, id_cell: ImageDeploymentViewController):
         for idx, i in enumerate(self.list_items):
-            if i == id_cell and self.delegate is not None:
-                # self._image_resource_deployer.unstage_resource(idx)
-                self.delegate.idl_did_tap_unstaging_button(self, id_cell, idx)
+            if i == id_cell:
+                self._image_resource_deployer.unstage_resource(idx)
+                self.clear_staging_image(idx)
+                # self.delegate.idl_did_tap_unstaging_button(self, id_cell, idx)
 
     def set_staging_image(self, local_resource: LocalCardResource, index: int):
         self.list_items[index].set_staging_image(local_resource)
@@ -162,8 +169,18 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
             i.clear_staging_image()
 
     def tapped_production_button(self):
-        if self.delegate is not None:
-            self.delegate.idl_did_tap_production_button(self)
+        try:
+            self._image_resource_deployer.publish_staged_resources()
+            self._image_resource_deployer.load_production_resources()
+        except Exception as error:
+            # failed to publish
+            # show error messages
+            msgBox = QMessageBox()
+            msgBox.setIcon(QMessageBox.Icon.Critical)
+            msgBox.setText(str(error))
+            msgBox.setWindowTitle("Error")
+            msgBox.setStandardButtons(QMessageBox.StandardButton.Ok)
+            msgBox.exec()
         
     def set_all_staging_button_enabled(self, enabled: bool):
         for i in self.list_items:
@@ -178,9 +195,19 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
 
     def handle_observation_tower_event(self, event: TransmissionProtocol):
         if (type(event) == PublishStatusUpdatedEvent or 
-            type(event) == LocalResourceEvent):
-            self.set_production_button_enabled(self.app_state.can_publish_staged_resources)
+            type(event) == LocalResourceFetchEvent):
+            can_publish_staged_resources = self._image_resource_deployer.can_publish_staged_resources
+            self.set_production_button_enabled(can_publish_staged_resources)
 
+        if type(event) == LocalResourceSelectedEvent:
+            self.set_all_staging_button_enabled(True)
+
+
+        if type(event) == ProductionResourcesLoadedEvent:
+            production_resources = self._image_resource_deployer.production_resources
+            staging_button_enabled = self.local_resource_data_source.selected_local_resource is not None
+            self.clear_list()
+            self.load_production_resources(production_resources, staging_button_enabled)
         # if type(event) == PublishStagedResourcesEvent:
         #     if event.event_type == PublishStagedResourcesEvent.EventType.STARTED:
         #         self.loading_spinner.start()

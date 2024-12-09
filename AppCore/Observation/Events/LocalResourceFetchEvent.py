@@ -4,7 +4,7 @@ from ...Models.LocalCardResource import LocalCardResource
 from ..TransmissionProtocol import TransmissionProtocol
 
 
-class LocalResourceEvent(TransmissionProtocol):
+class LocalResourceFetchEvent(TransmissionProtocol):
     class EventType(Enum):
         STARTED = 1
         FINISHED = 2

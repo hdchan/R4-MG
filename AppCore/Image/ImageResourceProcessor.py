@@ -8,7 +8,7 @@ from PyQt5.QtCore import QMutex, QObject, QRunnable, QThreadPool, pyqtSignal
 from ..ImageNetwork.ImageFetcherProvider import ImageFetcherProviding
 from ..Models import LocalCardResource
 from ..Observation import ObservationTower
-from ..Observation.Events import LocalResourceEvent
+from ..Observation.Events import LocalResourceFetchEvent
 from .ImageResourceProcessorProtocol import ImageResourceProcessorProtocol
 
 PNG_EXTENSION = '.png'
@@ -75,7 +75,7 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol):
         self.working_resources.add(local_resource.image_path)
         self.mutex.unlock()
         open(local_resource.image_temp_path, 'a').close() # generate 0kb file before notification
-        self.observation_tower.notify(LocalResourceEvent(LocalResourceEvent.EventType.STARTED, local_resource))
+        self.observation_tower.notify(LocalResourceFetchEvent(LocalResourceFetchEvent.EventType.STARTED, local_resource))
         return True
         
     def _unlock_resource_and_notify(self, result: Tuple[LocalCardResource, Optional[Exception]]):
@@ -88,9 +88,9 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol):
             self.working_resources.remove(local_resource.image_path)
             self.mutex.unlock()
         if exception is not None:
-            self.observation_tower.notify(LocalResourceEvent(LocalResourceEvent.EventType.FAILED, local_resource))
+            self.observation_tower.notify(LocalResourceFetchEvent(LocalResourceFetchEvent.EventType.FAILED, local_resource))
         else:
-            self.observation_tower.notify(LocalResourceEvent(LocalResourceEvent.EventType.FINISHED, local_resource))
+            self.observation_tower.notify(LocalResourceFetchEvent(LocalResourceFetchEvent.EventType.FINISHED, local_resource))
 
     def _downscale_image(self, original_img: Image.Image) -> Image.Image:
         size = THUMBNAIL_SIZE, THUMBNAIL_SIZE

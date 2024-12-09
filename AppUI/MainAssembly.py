@@ -3,7 +3,6 @@ from PyQt5.QtWidgets import QApplication
 
 from AppCore import *
 from AppCore.Data.CardSearchDataSource import *
-from AppCore.ApplicationCore import ApplicationCore
 from AppCore.Config import ConfigurationManager
 from AppCore.Image import *
 from AppCore.ImageNetwork import MockImageFetcher, RemoteImageFetcher
@@ -11,7 +10,7 @@ from AppCore.Network import *
 from AppCore.Observation.ObservationTower import ObservationTower
 from AppUI.Coordinators import MenuActionCoordinator, ShortcutActionCoordinator
 from AppUI.MainProgramViewController import MainProgramViewController
-from AppUI.UIComponents import CardSearchPreviewViewController
+from AppUI.UIComponents import CardSearchPreviewViewController, ImageDeploymentListViewController
 from AppUI.Window import Window
 
 from .AppDependencyProviding import *
@@ -25,9 +24,9 @@ class MainAssembly:
             self._observation_tower = ObservationTower()
             self._configuration_manager = ConfigurationManager(self.observation_tower)
             self._asset_provider = AssetProvider()
-            self._platform_service_provider = PlatformServiceProvider()
-            self._image_resource_deployer = ImageResourceDeployer(self._configuration_manager, 
-                                                                  self.observation_tower)
+            self._platform_service_provider = PlatformServiceProvider(self._configuration_manager, 
+                                                                      self._observation_tower)
+            
             self._image_resource_processor_provider = self._assemble_image_resource_processor_provider()
             self._api_client_provider = self._assemble_api_client_provider()
             self._image_source_provider = self._assemble_image_source_provider()
@@ -55,10 +54,6 @@ class MainAssembly:
         @property
         def image_resource_processor_provider(self) -> ImageResourceProcessorProviding:
             return self._image_resource_processor_provider
-
-        @property
-        def image_resource_deployer(self) -> ImageResourceDeployer:
-            return self._image_resource_deployer
 
         @property
         def api_client_provider(self) -> APIClientProviding:
@@ -110,7 +105,7 @@ class MainAssembly:
                             self._app_dependencies.asset_provider)
         
         main_program = self._assemble_main_program()
-        main_program.load()
+        # main_program.load()
         
         self.menu_action_coordinator = MenuActionCoordinator(main_window,
                                                             main_program,
@@ -131,16 +126,27 @@ class MainAssembly:
         self.app.setFont(custom_font)
 
     def _assemble_main_program(self) -> MainProgramViewController:
-        application_core = ApplicationCore(self._app_dependencies.observation_tower,
-                                           self._app_dependencies.configuration_provider)
-        
         card_search_view = CardSearchPreviewViewController(self._app_dependencies, 
                                                            self.card_search_data_source)
         
-        return MainProgramViewController(self._app_dependencies,
-                                         application_core,
+        image_resource_deployer = ImageResourceDeployer(self._app_dependencies.configuration_provider,
+                                                        self._app_dependencies.observation_tower)
+        
+        deployment_view = ImageDeploymentListViewController(self._app_dependencies, 
+                                                            image_resource_deployer, 
+                                                            self.card_search_data_source)
+        # deployment_view.delegate = self
+
+        main_program = MainProgramViewController(self._app_dependencies,
                                          self.card_search_data_source,
-                                         card_search_view)
+                                         image_resource_deployer,
+                                         card_search_view, 
+                                         deployment_view)
+        # TODO - remove
+        deployment_view.image_preview_delegate = main_program
+        deployment_view.add_image_cta.delegate = main_program
+        image_resource_deployer.load_production_resources()
+        return main_program
 
     
 

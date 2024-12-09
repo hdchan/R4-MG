@@ -10,6 +10,9 @@ class ImageResourceProcessorProtocol:
     def regenerate_resource_preview(self, local_resource: LocalCardResource) -> None:
         raise Exception
     
+    # def generate_placeholder(self, local_resource: LocalCardResource, placeholder_image: Optional[Image.Image] = None) -> None:
+    #     raise Exception
+    
 class ImageResourceProcessorProviding:
     @property
     def image_resource_processor(self) -> ImageResourceProcessorProtocol:

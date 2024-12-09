@@ -14,7 +14,7 @@ class ShortcutActionCoordinator:
         self._card_search_data_source = card_search_data_source
         # Needs to block ability to publish if not able to
         self.production_shortcut = QShortcut(QKeySequence(Qt.Modifier.CTRL + Qt.Key.Key_P), main_program)
-        self.production_shortcut.activated.connect(main_program.shortcut_production_button)
+        # self.production_shortcut.activated.connect(main_program.shortcut_production_button)
 
         self.focus_search = QShortcut(QKeySequence(Qt.Modifier.CTRL + Qt.Key.Key_L), main_program)
         self.focus_search.activated.connect(main_program.set_search_bar_focus)
@@ -36,7 +36,8 @@ class ShortcutActionCoordinator:
         ]
         for i, k in enumerate(key_pad):
             self.staging_shortcut = QShortcut(QKeySequence(Qt.Modifier.CTRL + k), main_program)
-            self.staging_shortcut.activated.connect(partial(main_program.stage_current_card_search_resource, i))
+            # TODO: repair
+            # self.staging_shortcut.activated.connect(partial(main_program.stage_current_card_search_resource, i))
             
             
         self.search_shortcut = QShortcut(QKeySequence(Qt.Key.Key_Return), main_program)

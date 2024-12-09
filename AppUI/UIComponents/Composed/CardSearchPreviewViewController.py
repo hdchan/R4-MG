@@ -9,7 +9,7 @@ from AppCore.Image.ImageResourceProcessorProtocol import *
 from AppCore.Models import LocalCardResource, SearchConfiguration, TradingCard
 from AppCore.Observation import *
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
-                                        LocalResourceEvent)
+                                        LocalResourceFetchEvent)
 from AppUI.AppDependencyProviding import AppDependencyProviding
 
 from ..Base import ImagePreviewViewController, SearchTableView
@@ -74,14 +74,12 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
         self._load_source_labels()
         
         self._current_resource = None
-        self._observation_tower.subscribe_multi(self, [LocalResourceEvent, 
+        self._observation_tower.subscribe_multi(self, [LocalResourceFetchEvent, 
                                                        ConfigurationUpdatedEvent])
 
 
     def tv_did_select(self, sv: SearchTableView, index: int):
         self._card_search_data_source.select_card_resource_for_card_selection(index)
-        # TODO: need to set all staging button enabled
-        # self.deployment_view.set_all_staging_button_enabled(True)
 
     def tv_did_tap_search(self, sv: SearchTableView, search_configuration: SearchConfiguration) -> None:
         self._card_search_data_source.search(search_configuration)
@@ -105,7 +103,6 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
         self._current_resource = local_resource
         self.staging_view.set_image(local_resource)
         self.flip_button.setEnabled(is_flippable)
-        # self.retry_button.setEnabled(local_resource.remote_image_url is not None)
         self._sync_retry_button()
         
 
@@ -138,6 +135,6 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
     def handle_observation_tower_event(self, event: TransmissionProtocol):
         if type(event) == ConfigurationUpdatedEvent:
             self._load_source_labels()
-        if type(event) == LocalResourceEvent:
+        if type(event) == LocalResourceFetchEvent:
             self._sync_retry_button()
                     

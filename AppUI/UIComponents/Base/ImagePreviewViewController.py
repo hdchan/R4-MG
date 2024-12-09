@@ -11,7 +11,7 @@ from AppCore.Models import LocalCardResource
 from AppCore.Observation import *
 from AppCore.Observation.Events import (CacheClearedEvent,
                                         ConfigurationUpdatedEvent,
-                                        LocalResourceEvent,
+                                        LocalResourceFetchEvent,
                                         PublishStatusUpdatedEvent)
 from AppCore.Service.PlatformServiceProvider import *
 from ...Assets import AssetProvider
@@ -31,7 +31,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
         self._asset_provider = app_dependency_provider.asset_provider
         self._image_resource_processor_provider = app_dependency_provider.image_resource_processor_provider
         self._platform_service_provider = app_dependency_provider.platform_service_provider
-        self.delegate: Optional[ImagePreviewViewControllerDelegate] = None
+        # self.delegate: Optional[ImagePreviewViewControllerDelegate] = None
         self._local_resource: Optional[LocalCardResource] = None
         
         
@@ -77,7 +77,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
         self._sync_image_view_state()
 
         app_dependency_provider.observation_tower.subscribe_multi(self, [ConfigurationUpdatedEvent, 
-                                                 LocalResourceEvent, 
+                                                 LocalResourceFetchEvent, 
                                                  PublishStatusUpdatedEvent, 
                                                  CacheClearedEvent])
     
@@ -102,28 +102,28 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
 
     def _showContextMenu(self, pos: QPoint):
         def _notify_delegate_regenerate_preview():
-            if self._local_resource is not None and self.delegate is not None:
+            if self._local_resource is not None:
                 self._image_resource_processor.regenerate_resource_preview(self._local_resource)
                 
         def _notify_delegate_redownload_resource():
-            if self._local_resource is not None and self.delegate is not None:
+            if self._local_resource is not None:
                 self._image_resource_processor.async_store_local_resource(self._local_resource, True)
        
         def _notify_delegate_rotate_right_image():
-            if self._local_resource is not None and self.delegate is not None:
+            if self._local_resource is not None:
                 self._image_resource_processor.rotate_and_save_resource(self._local_resource, -90)
         
         def _notify_delegate_rotate_left_image():
-            if self._local_resource is not None and self.delegate is not None:
+            if self._local_resource is not None:
                 self._image_resource_processor.rotate_and_save_resource(self._local_resource, 90)
 
         def open_file():
-            if self._local_resource is not None and self.delegate is not None:
+            if self._local_resource is not None:
                 self._platform_service.open_file(self._local_resource.image_path)
                 # self.delegate.ip_open_file(self, self._local_resource)
 
         def open_file_path():
-            if self._local_resource is not None and self.delegate is not None:
+            if self._local_resource is not None:
                 self._platform_service.open_file_path_and_select_file(self._local_resource.image_path)
                 # self.delegate.ip_open_file_path_and_select_file(self, self._local_resource)
             
@@ -242,7 +242,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
         return " - "
     
     def _handle_link_activated(self, link: str):
-        if self._local_resource is not None and self.delegate is not None:
+        if self._local_resource is not None:
             if link == self.LinkKey.REDOWNLOAD_IMAGE:
                 self._image_resource_processor.async_store_local_resource(self._local_resource, True)
             elif link == self.LinkKey.REGENERATE_PREVIEW:
@@ -279,10 +279,10 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
             type(event) == CacheClearedEvent):
             self._sync_image_view_state()
             
-        if type(event) == LocalResourceEvent:
+        if type(event) == LocalResourceFetchEvent:
             if self._local_resource is not None and self._local_resource.image_preview_path == event.local_resource.image_preview_path:
                 self._sync_image_view_state()
-                if event.event_type == LocalResourceEvent.EventType.FAILED:
+                if event.event_type == LocalResourceFetchEvent.EventType.FAILED:
                     print(f"Failed resource: {self._local_resource.image_preview_path}")
-                elif event.event_type == LocalResourceEvent.EventType.FINISHED:
+                elif event.event_type == LocalResourceFetchEvent.EventType.FINISHED:
                     print(f"Reloading resource: {self._local_resource.image_preview_path}")

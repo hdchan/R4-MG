@@ -7,17 +7,16 @@ from PyQt5.QtMultimedia import QSoundEffect
 from PyQt5.QtWidgets import (QHBoxLayout, QInputDialog, QMessageBox, QSplitter,
                              QWidget)
 
-from AppCore.ApplicationCore import ApplicationCore
 from AppCore.Data.CardSearchDataSource import (CardSearchDataSource,
                                                CardSearchDataSourceDelegate)
+from AppCore.Image.ImageResourceDeployer import ImageResourceDeployer
 from AppCore.Models import LocalCardResource, TradingCard
 from AppCore.Observation import *
 from AppUI.AppDependencyProviding import AppDependencyProviding
 from AppUI.UIComponents import (AddImageCTAViewController,
                                 AddImageCTAViewControllerDelegate,
                                 CardSearchPreviewViewController,
-                                ImageDeploymentListViewController,
-                                ImageDeploymentViewController)
+                                ImageDeploymentListViewController)
 from AppUI.UIComponents.Base.ImagePreviewViewController import (
     ImagePreviewViewController, ImagePreviewViewControllerDelegate)
 
@@ -28,17 +27,18 @@ class MainProgramViewController(QWidget,
                                 CardSearchDataSourceDelegate):
     def __init__(self,
                  app_dependency_provider: AppDependencyProviding,
-                 application_core: ApplicationCore,
                  card_search_data_source: CardSearchDataSource,
-                 card_search_preview_view_controller: CardSearchPreviewViewController):
+                 image_resource_deployer: ImageResourceDeployer,
+                 card_search_preview_view_controller: CardSearchPreviewViewController,
+                 deployment_view_controller: ImageDeploymentListViewController):
         super().__init__()
         
         self.sound_effect = None
         self._asset_provider = app_dependency_provider.asset_provider
         self._observation_tower = app_dependency_provider.observation_tower
+        self._platform_service_provider = app_dependency_provider.platform_service_provider
+        self._image_resource_deployer = image_resource_deployer
 
-        application_core.delegate = self
-        self.application_core = application_core
 
         self._card_search_data_source = card_search_data_source
         self._card_search_data_source.delegate = self
@@ -54,25 +54,14 @@ class MainProgramViewController(QWidget,
         
         splitter.addWidget(self.card_search_view)
 
-        deployment_view = ImageDeploymentListViewController(app_dependency_provider, 
-                                                            self, 
-                                                            self.application_core)
-        deployment_view.delegate = self
-        self.deployment_view = deployment_view
-        splitter.addWidget(deployment_view)
+        
+        self.deployment_view = deployment_view_controller
+        splitter.addWidget(deployment_view_controller)
         splitter.setSizes([400,900])
 
 
     def set_search_bar_focus(self):
         self.card_search_view.set_search_focus()
-
-    def stage_current_card_search_resource(self, index: int):
-        if self.application_core.can_stage_current_card_search_resource_to_stage_index(index) and self._card_search_data_source.current_card_search_resource is not None:
-            self.deployment_view.set_staging_image(self._card_search_data_source.current_card_search_resource, index)
-            self.application_core.stage_resource(self._card_search_data_source.current_card_search_resource, index)
-
-    def load(self):
-        self.application_core.load_production_resources()
 
     def search(self):
         self.card_search_view.search()
@@ -83,40 +72,11 @@ class MainProgramViewController(QWidget,
     def search_base(self):
         self.card_search_view.search_base()
 
-    # MARK: - AppCoreDelegate
-    def app_did_load_production_resources(self, app: ApplicationCore, card_resources: List[LocalCardResource]):
-        self.deployment_view.clear_list()
-        staging_button_enabled = self._card_search_data_source.current_card_search_resource is not None
-        self.deployment_view.load_production_resources(card_resources, staging_button_enabled)
-
-    # MARK: - TableViewDelegate
-    # def tv_did_tap_search(self, table_view: SearchTableView, search_configuration: SearchConfiguration):
-    #     self._card_search_data_source.search(search_configuration)
-        
-    # def tv_did_select(self, table_view: SearchTableView, index: int):
-    #     self._card_search_data_source.select_card_resource_for_card_selection(index)
-    #     self.deployment_view.set_all_staging_button_enabled(True)
-
     def ds_completed_search_with_result(self, ds: CardSearchDataSource, result_list: List[TradingCard], error: Optional[Exception]):
         self.card_search_view.update_list(result_list)
 
     def ds_did_retrieve_card_resource_for_card_selection(self, ds: CardSearchDataSource, local_resource: LocalCardResource, is_flippable: bool):
         self.card_search_view.set_image(is_flippable, local_resource)
-
-    # image deployment view
-    def idl_did_tap_staging_button(self, 
-                                   id_list: ImageDeploymentListViewController, 
-                                   id_cell: ImageDeploymentViewController, 
-                                   index: int):
-        self.stage_current_card_search_resource(index)
-
-    def idl_did_tap_unstaging_button(self, 
-                                     id_list: ImageDeploymentListViewController, 
-                                     id_cell: ImageDeploymentViewController,
-                                     index: int):
-        self.deployment_view.clear_staging_image(index)
-        self.application_core.unstage_resource(index)
-
 
 
     def confirm_unstage_all_resources(self):
@@ -132,7 +92,7 @@ class MainProgramViewController(QWidget,
 
     def _unstage_all_resources(self):
             self.deployment_view.clear_all_staging_images()
-            self.application_core.unstage_all_resources()
+            self._image_resource_deployer.unstage_all_resources()
 
     def confirm_clear_cache(self):
         dlg = QMessageBox(self)
@@ -144,15 +104,13 @@ class MainProgramViewController(QWidget,
 
         if button == QMessageBox.StandardButton.Yes:
             self._unstage_all_resources()
-            self.application_core.clear_cache()
+            self._platform_service_provider.platform_service.clear_cache()
         
 
-    def shortcut_production_button(self):
-        if self.application_core.can_publish_staged_resources:
-            self.publish_staged_resources()
-            
-    def idl_did_tap_production_button(self, id_list: ImageDeploymentListViewController):
-        self.publish_staged_resources()
+    # TODO: fix
+    # def shortcut_production_button(self):
+    #     if self.application_core.can_publish_staged_resources:
+    #         self.publish_staged_resources()
     
     def _play_sound_effect(self):
         self.sound_effect = QSoundEffect()
@@ -161,34 +119,21 @@ class MainProgramViewController(QWidget,
         print(f'playing sound effect: {self._asset_provider.audio.r4_effect_path}')
         self.sound_effect.play()
 
-    def publish_staged_resources(self):
-        try:
-            self.application_core.publish_staged_resources()
-            # self._play_sound_effect()
-            self.application_core.load_production_resources()
-        except Exception as error:
-            # failed to publish
-            # show error messages
-            msgBox = QMessageBox()
-            msgBox.setIcon(QMessageBox.Icon.Critical)
-            msgBox.setText(str(error))
-            msgBox.setWindowTitle("Error")
-            msgBox.setStandardButtons(QMessageBox.StandardButton.Ok)
-            msgBox.exec()
     
     # MARK: - ImagePreviewViewControllerDelegate
     def prompt_generate_new_file(self):
         text, ok = QInputDialog.getText(self, 'Create new image file', 'Enter file name:')
         if ok:
             self.generate_new_file(text)
-            self.load()
+            self._image_resource_deployer.load_production_resources()
     
     def ip_regenerate_production_file(self, ip: ImagePreviewViewController, local_resource: LocalCardResource):
         self.generate_new_file(local_resource.file_name)
 
+    # TODO consolidate this
     def generate_new_file(self, file_name: str):
         try:
-            self.application_core.generate_new_file(file_name, Image.open(self._asset_provider.image.swu_logo_black_path))
+            self._image_resource_deployer.generate_new_file(file_name, Image.open(self._asset_provider.image.swu_logo_black_path))
         except Exception as error:
             msgBox = QMessageBox()
             msgBox.setIcon(QMessageBox.Icon.Critical)

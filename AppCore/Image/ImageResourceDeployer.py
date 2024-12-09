@@ -9,7 +9,8 @@ from PyQt5.QtCore import QThreadPool, pyqtSignal, QObject, QRunnable
 from AppCore.Models import LocalCardResource
 from AppCore.Observation import *
 from AppCore.Observation.Events import (PublishStagedResourcesEvent,
-                                        PublishStatusUpdatedEvent)
+                                        PublishStatusUpdatedEvent, 
+                                        ProductionResourcesLoadedEvent)
 
 from ..ImageNetwork.ImageFetcherProvider import *
 
@@ -74,8 +75,9 @@ class ImageResourceDeployer:
                     preview_img.save(resource.image_preview_path)
 
         self.production_resources = local_resources
-        if self.delegate is not None:
-            self.delegate.rd_did_load_production_resources(self, local_resources)
+        self.observation_tower.notify(ProductionResourcesLoadedEvent())
+        # if self.delegate is not None:
+        #     self.delegate.rd_did_load_production_resources(self, local_resources)
 
     def stage_resource(self, local_card_resource: LocalCardResource, index: int):
         # Cache emptied handled on UI

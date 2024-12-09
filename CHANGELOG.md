@@ -15,7 +15,7 @@
 - Adjusting observation logic
 - Consolidate downscale function
 - Consolidate image processing
-- Consolidating LocalResourceEvent
+- Consolidating LocalResourceFetchEvent
 - Removing more dependencies
 - Add old configuration to config updated event
 - Move card aspect and type out of app core
