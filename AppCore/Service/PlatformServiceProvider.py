@@ -29,7 +29,7 @@ class PlatformServiceProvider:
         self._mac = self.Mac()
         self._windows = self.Windows()
 
-    def providePlatform(self) -> PlatformProtocol:
+    def platform(self) -> PlatformProtocol:
         if platform.system() == "Darwin":
             return self._mac
         elif platform.system() == "Windows":

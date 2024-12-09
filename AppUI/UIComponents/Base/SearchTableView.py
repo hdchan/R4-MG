@@ -164,6 +164,7 @@ class SearchTableView(QWidget, TransmissionReceiverProtocol):
                 elif self._configuration_provider.configuration.card_title_detail == Configuration.Settings.CardTitleDetail.DETAILED:
                     display_name = i.friendly_display_name_detailed
                 self.result_list.addItem(display_name)
+                # self.result_list.item(len(self.result_list) - 1).setToolTip("<img src='https://cdn.swu-db.com/images/cards/TWI/269.png' />") 
             # important that this is the last thing that happens
             self.set_item_active(selected_index)
             self._set_search_components_enabled(True)

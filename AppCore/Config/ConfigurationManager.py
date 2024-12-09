@@ -3,6 +3,7 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Tuple
 import yaml
+from PyQt5.QtCore import QTimer
 
 from AppCore.Config.Configuration import *
 from AppCore.Observation.Events import ConfigurationUpdatedEvent
@@ -54,6 +55,11 @@ class ConfigurationManager(ConfigurationProviding):
         
         self._real_configuration = deepcopy(self._configuration)
 
+        self._save_async_timer = QTimer()
+        self._save_async_timer.setSingleShot(True)
+        self._save_async_timer.timeout.connect(self.save)
+        self.debounce_time = 500
+
     @property
     def configuration(self) -> Configuration:
         return self._real_configuration
@@ -72,10 +78,14 @@ class ConfigurationManager(ConfigurationProviding):
         self._configuration = deepcopy(self._real_configuration)
 
     def save(self):
+        print('saving configuration')
         old_configuration = deepcopy(self._real_configuration)
         self._real_configuration = self._configuration
         self._configuration = deepcopy(self._real_configuration)
         self._notify_configuration_changed(old_configuration)
+
+    def save_async(self):
+        self._save_async_timer.start(self.debounce_time)
 
     def toggle_hide_image_preview(self, is_on: bool) -> 'ConfigurationManager':
         self._configuration.set_hide_image_preview(is_on)

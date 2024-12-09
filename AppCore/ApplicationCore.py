@@ -48,7 +48,7 @@ class ApplicationCore(ImageResourceDeployerDelegate, CardSearchDataSourceDelegat
     
     @property
     def _platform(self) -> PlatformProtocol:
-        return self._platform_service_provider.providePlatform()
+        return self._platform_service_provider.platform()
     
     def can_stage_current_card_search_resource_to_stage_index(self, index: int) -> bool:
         return index < len(self._resource_deployer.production_resources)

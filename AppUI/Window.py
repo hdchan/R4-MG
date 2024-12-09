@@ -1,7 +1,6 @@
 
 import os
 from typing import Optional
-from PyQt5.QtCore import QTimer
 
 from PyQt5.QtGui import QKeyEvent, QCloseEvent
 from PyQt5.QtWidgets import QDesktopWidget, QMainWindow
@@ -26,12 +25,6 @@ class Window(QMainWindow, TransmissionReceiverProtocol):
         self.configuration_manager = configuration_manager
         self.asset_provider = asset_provider
         self.observation_tower = observation_tower
-        
-        
-        self.timer = QTimer()
-        self.timer.setSingleShot(True)
-        self.timer.timeout.connect(self._save_window_position)
-        self.debounce_time = 500
         
         width, height = 400+900, 900
         if (self.configuration_manager.configuration.window_size[0] is not None and
@@ -69,13 +62,7 @@ class Window(QMainWindow, TransmissionReceiverProtocol):
     def closeEvent(self, a0: Optional[QCloseEvent]):
         print('closing')
     
-    def _save_window_position(self):
-        
-        size = self.frameGeometry()
-        print(f'saving {size}')
-        self.configuration_manager.set_window_size((size.width(), size.height())).save()
-        
     def resizeEvent(self, event):
-        self.timer.start(self.debounce_time)
-        
+        size = self.frameGeometry()
+        self.configuration_manager.set_window_size((size.width(), size.height())).save_async()
         super(Window, self).resizeEvent(event)
