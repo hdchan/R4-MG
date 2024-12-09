@@ -6,9 +6,12 @@ from PyQt5.QtWidgets import QShortcut
 
 from ..MainProgramViewController import MainProgramViewController
 
+from AppCore.Data.CardSearchDataSource import CardSearchDataSource
 
 class ShortcutActionCoordinator:
-    def __init__(self, main_program: MainProgramViewController):
+    def __init__(self, main_program: MainProgramViewController, 
+                 card_search_data_source: CardSearchDataSource):
+        self._card_search_data_source = card_search_data_source
         # Needs to block ability to publish if not able to
         self.production_shortcut = QShortcut(QKeySequence(Qt.Modifier.CTRL + Qt.Key.Key_P), main_program)
         self.production_shortcut.activated.connect(main_program.shortcut_production_button)
@@ -17,7 +20,7 @@ class ShortcutActionCoordinator:
         self.focus_search.activated.connect(main_program.set_search_bar_focus)
 
         self.flip_shortcut = QShortcut(QKeySequence(Qt.Modifier.CTRL + Qt.Key.Key_F), main_program)
-        self.flip_shortcut.activated.connect(main_program.flip_current_previewed_card_if_possible)
+        self.flip_shortcut.activated.connect(card_search_data_source.flip_current_previewed_card)
 
         key_pad = [
             Qt.Key.Key_1,

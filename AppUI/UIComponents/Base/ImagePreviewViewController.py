@@ -13,19 +13,13 @@ from AppCore.Observation.Events import (CacheClearedEvent,
                                         ConfigurationUpdatedEvent,
                                         LocalResourceEvent,
                                         PublishStatusUpdatedEvent)
-
+from AppCore.Service.PlatformServiceProvider import *
 from ...Assets import AssetProvider
 from .LoadingSpinner import LoadingSpinner
 from AppUI.AppDependencyProviding import AppDependencyProviding
 
 class ImagePreviewViewControllerDelegate:
     def ip_regenerate_production_file(self, ip: ..., local_resource: LocalCardResource) -> None:
-        pass
-    
-    def ip_open_file(self, ip: ..., local_resource: LocalCardResource) -> None:
-        pass
-
-    def ip_open_file_path_and_select_file(self, ip: ..., local_resource: LocalCardResource) -> None:
         pass
 
 class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
@@ -36,6 +30,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
         self._configuration_provider = app_dependency_provider.configuration_provider
         self._asset_provider = app_dependency_provider.asset_provider
         self._image_resource_processor_provider = app_dependency_provider.image_resource_processor_provider
+        self._platform_service_provider = app_dependency_provider.platform_service_provider
         self.delegate: Optional[ImagePreviewViewControllerDelegate] = None
         self._local_resource: Optional[LocalCardResource] = None
         
@@ -52,7 +47,6 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
         self._image_view.linkActivated.connect(self._handle_link_activated) # should only connect once
         self._image_view.customContextMenuRequested.connect(self._showContextMenu)
         self._image_view.setMinimumSize(256, 100)
-        # self._image_view.setStyleSheet('background-color:red')
         self.loading_spinner = LoadingSpinner(self._image_view)
         
         # self._image_view.mousePressEvent = self._tapped_image # causes memory leak in child
@@ -63,9 +57,6 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
         image_info_widget.setLayout(image_info_layout)
         self._image_info_widget = image_info_widget
         layout.addWidget(image_info_widget)
-        
-        # self._image_info_widget.setHidden(not self._configuration_provider.configuration.show_resource_details)
-        
         
         
         self._card_display_name = QLabel()
@@ -102,6 +93,10 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
         self._sync_image_view_state()
     
     @property
+    def _platform_service(self) -> PlatformServiceProtocol:
+        return self._platform_service_provider.platform_service
+
+    @property
     def _image_resource_processor(self):
         return self._image_resource_processor_provider.image_resource_processor
 
@@ -124,11 +119,13 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
 
         def open_file():
             if self._local_resource is not None and self.delegate is not None:
-                self.delegate.ip_open_file(self, self._local_resource)
+                self._platform_service.open_file(self._local_resource.image_path)
+                # self.delegate.ip_open_file(self, self._local_resource)
 
         def open_file_path():
             if self._local_resource is not None and self.delegate is not None:
-                self.delegate.ip_open_file_path_and_select_file(self, self._local_resource)
+                self._platform_service.open_file_path_and_select_file(self._local_resource.image_path)
+                # self.delegate.ip_open_file_path_and_select_file(self, self._local_resource)
             
         def open_image_url():
             if self._local_resource is not None and self._local_resource.remote_image_url is not None:

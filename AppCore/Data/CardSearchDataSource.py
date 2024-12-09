@@ -21,9 +21,10 @@ class CardSearchDataSourceDelegate:
 
 class CardSearchDataSource(LocalResourceDataSourceProtocol):
     def __init__(self, 
-                 core_dependency_providing: CoreDependencyProviding):
+                 core_dependency_providing: CoreDependencyProviding, 
+                 api_client_provider: APIClientProviding):
         self._observation_tower = core_dependency_providing.observation_tower
-        self._api_client_provider = core_dependency_providing.api_client_provider
+        self._api_client_provider = api_client_provider
         self._configuration_provider = core_dependency_providing.configuration_provider
         self._card_image_source_provider = core_dependency_providing.image_source_provider
         self._image_resource_processor_provider = core_dependency_providing.image_resource_processor_provider

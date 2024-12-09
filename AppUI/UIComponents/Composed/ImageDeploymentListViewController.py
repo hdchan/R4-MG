@@ -39,6 +39,7 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
         self.observation_tower = app_dependency_provider.observation_tower
         self.configuration_provider = app_dependency_provider.configuration_provider
         self.asset_provider = app_dependency_provider.asset_provider
+        self._image_resource_deployer = app_dependency_provider.image_resource_deployer
         self.image_preview_delegate = image_preview_delegate
         self.app_state = app_state
         self.image_resource_processor_provider = app_dependency_provider.image_resource_processor_provider
@@ -136,11 +137,14 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
     def id_did_tap_staging_button(self, id_cell: ImageDeploymentViewController):
         for idx, i in enumerate(self.list_items):
             if i == id_cell and self.delegate is not None:
+                # need to dynamically get datasource here
+                # self._image_resource_deployer.stage_resource()
                 self.delegate.idl_did_tap_staging_button(self, id_cell, idx)
 
     def id_did_tap_unstaging_button(self, id_cell: ImageDeploymentViewController):
         for idx, i in enumerate(self.list_items):
             if i == id_cell and self.delegate is not None:
+                # self._image_resource_deployer.unstage_resource(idx)
                 self.delegate.idl_did_tap_unstaging_button(self, id_cell, idx)
 
     def set_staging_image(self, local_resource: LocalCardResource, index: int):

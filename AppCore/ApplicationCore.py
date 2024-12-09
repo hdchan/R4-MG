@@ -13,7 +13,6 @@ from .Data.CardSearchDataSource import *
 from .Image import *
 from .Observation import *
 from .Observation.Events import *
-from .Service import PlatformProtocol, PlatformServiceProvider
 
 
 class ApplicationCoreDelegate:
@@ -33,8 +32,6 @@ class ApplicationCore(ImageResourceDeployerDelegate, CardSearchDataSourceDelegat
         self._configuration_provider = configuration_provider
         
         self._observation_tower = observation_tower
-
-        self._platform_service_provider = PlatformServiceProvider()
         
         self.delegate: Optional[ApplicationCoreDelegate] = None
     
@@ -45,10 +42,6 @@ class ApplicationCore(ImageResourceDeployerDelegate, CardSearchDataSourceDelegat
     @property
     def _configuration(self) -> Configuration:
         return self._configuration_provider.configuration
-    
-    @property
-    def _platform(self) -> PlatformProtocol:
-        return self._platform_service_provider.platform()
     
     def can_stage_current_card_search_resource_to_stage_index(self, index: int) -> bool:
         return index < len(self._resource_deployer.production_resources)
@@ -78,23 +71,7 @@ class ApplicationCore(ImageResourceDeployerDelegate, CardSearchDataSourceDelegat
     def rd_did_load_production_resources(self, rd: ImageResourceDeployer, local_resources: List[LocalCardResource]):
         if self.delegate is not None:
             self.delegate.app_did_load_production_resources(self, copy.deepcopy(local_resources))
-
-    # OS operations
-    def open_production_dir(self):
-        self._platform.open_file(self._configuration.production_file_path)
         
-    def open_temp_dir(self):
-        self._platform.open_file(self._configuration.temp_dir_path)
-
-    def open_configuration_dir(self):
-        self._platform.open_file(self._configuration.config_directory)
-        
-    def open_file(self, local_resource: LocalCardResource):
-        self._platform.open_file(local_resource.image_path)
-    
-    def open_file_path_and_select_file(self, local_resource: LocalCardResource):
-        self._platform.open_file_path_and_select_file(local_resource.image_path)
-
     def clear_cache(self):
         shutil.rmtree(self._configuration.cache_file_path)
         self._observation_tower.notify(CacheClearedEvent())

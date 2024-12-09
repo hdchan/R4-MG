@@ -4,8 +4,9 @@ from PyQt5.QtCore import QObject, Qt
 from PyQt5.QtWidgets import QAction, QMenu, QMenuBar, QWidget
 
 from AppCore.Config import *
+from AppCore.Service import PlatformServiceProtocol
+from AppUI.AppDependencyProviding import AppDependencyProviding
 
-from ..Assets import AssetProvider
 from ..MainProgramViewController import MainProgramViewController
 from ..Window import Window
 from .AboutViewController import AboutViewController
@@ -16,12 +17,14 @@ class MenuActionCoordinator(QObject):
     def __init__(self,
                  window: Window,
                  main_program: MainProgramViewController,
-                 configuration_manager: ConfigurationManager, 
-                 asset_provider: AssetProvider):
+                 configuration_manager: ConfigurationManager,
+                 app_dependency_provider: AppDependencyProviding):
         super().__init__()
         self.main_program = main_program
         self.configuration_manager = configuration_manager
-        self.asset_provider = asset_provider
+        self.asset_provider = app_dependency_provider.asset_provider
+        self._platform_service_provider = app_dependency_provider.platform_service_provider
+        self._app_dependency_provider = app_dependency_provider
         self._menu_parent = window
         self.attachMenuBar(window)
         
@@ -31,6 +34,10 @@ class MenuActionCoordinator(QObject):
     @property
     def configuration(self) -> Configuration:
         return self.configuration_manager.configuration
+
+    @property
+    def _platform_service(self) -> PlatformServiceProtocol:
+        return self._platform_service_provider.platform_service
 
     def attachMenuBar(self, parent: QWidget):
         self._menu_parent = parent
@@ -200,13 +207,16 @@ class MenuActionCoordinator(QObject):
         self.card_title_detail_detailed.setChecked(preference == Configuration.Settings.CardTitleDetail.DETAILED)
     
     def did_open_production_dir(self):
-        self.main_program.open_production_dir()
+        self._platform_service.open_file(self.configuration.production_file_path)
+        # self.main_program.open_production_dir()
         
     def did_open_configuration_dir(self):
-        self.main_program.open_configuration_dir()
+        self._platform_service.open_file(self.configuration.config_directory)
+        # self.main_program.open_configuration_dir()
 
     def did_open_temp_dir(self):
-        self.main_program.open_temp_dir()
+        self._platform_service.open_file(self.configuration.temp_dir_path)
+        # self.main_program.open_temp_dir()
         
     def did_tap_settings(self):
         def remove_ref():

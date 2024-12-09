@@ -25,6 +25,9 @@ class MainAssembly:
             self._observation_tower = ObservationTower()
             self._configuration_manager = ConfigurationManager(self.observation_tower)
             self._asset_provider = AssetProvider()
+            self._platform_service_provider = PlatformServiceProvider()
+            self._image_resource_deployer = ImageResourceDeployer(self._configuration_manager, 
+                                                                  self.observation_tower)
             self._image_resource_processor_provider = self._assemble_image_resource_processor_provider()
             self._api_client_provider = self._assemble_api_client_provider()
             self._image_source_provider = self._assemble_image_source_provider()
@@ -46,8 +49,16 @@ class MainAssembly:
             return self._asset_provider
         
         @property
+        def platform_service_provider(self) -> PlatformServiceProvider:
+            return self._platform_service_provider
+
+        @property
         def image_resource_processor_provider(self) -> ImageResourceProcessorProviding:
             return self._image_resource_processor_provider
+
+        @property
+        def image_resource_deployer(self) -> ImageResourceDeployer:
+            return self._image_resource_deployer
 
         @property
         def api_client_provider(self) -> APIClientProviding:
@@ -86,6 +97,8 @@ class MainAssembly:
         
         self._app_dependencies = self.AppDependencies()
 
+        self.card_search_data_source = CardSearchDataSource(self._app_dependencies, 
+                                                       self._app_dependencies.api_client_provider)
         # https://www.pythonguis.com/tutorials/packaging-pyqt5-pyside2-applications-windows-pyinstaller/#setting-an-application-icon
         # https://stackoverflow.com/a/35865441
         self.app.setWindowIcon(QIcon(self._app_dependencies.asset_provider.image.logo_path))
@@ -102,9 +115,10 @@ class MainAssembly:
         self.menu_action_coordinator = MenuActionCoordinator(main_window,
                                                             main_program,
                                                             self._app_dependencies.configuration_manager, 
-                                                            self._app_dependencies.asset_provider)
+                                                            self._app_dependencies)
         
-        self.shortcut_action_coordinator = ShortcutActionCoordinator(main_program)
+        self.shortcut_action_coordinator = ShortcutActionCoordinator(main_program, 
+                                                                     self.card_search_data_source)
 
         main_window.setCentralWidget(main_program)
         main_window.show()
@@ -119,14 +133,13 @@ class MainAssembly:
     def _assemble_main_program(self) -> MainProgramViewController:
         application_core = ApplicationCore(self._app_dependencies.observation_tower,
                                            self._app_dependencies.configuration_provider)
-        # TODO: inject card search data source into card search view
-        card_search_data_source = CardSearchDataSource(self._app_dependencies)
         
-        card_search_view = CardSearchPreviewViewController(self._app_dependencies)
+        card_search_view = CardSearchPreviewViewController(self._app_dependencies, 
+                                                           self.card_search_data_source)
         
         return MainProgramViewController(self._app_dependencies,
                                          application_core,
-                                         card_search_data_source,
+                                         self.card_search_data_source,
                                          card_search_view)
 
     

@@ -8,15 +8,16 @@ from PyQt5.QtWidgets import (QHBoxLayout, QInputDialog, QMessageBox, QSplitter,
                              QWidget)
 
 from AppCore.ApplicationCore import ApplicationCore
-from AppCore.Data.CardSearchDataSource import CardSearchDataSource, CardSearchDataSourceDelegate
-from AppCore.Models import LocalCardResource, SearchConfiguration, TradingCard
+from AppCore.Data.CardSearchDataSource import (CardSearchDataSource,
+                                               CardSearchDataSourceDelegate)
+from AppCore.Models import LocalCardResource, TradingCard
 from AppCore.Observation import *
 from AppUI.AppDependencyProviding import AppDependencyProviding
 from AppUI.UIComponents import (AddImageCTAViewController,
                                 AddImageCTAViewControllerDelegate,
                                 CardSearchPreviewViewController,
                                 ImageDeploymentListViewController,
-                                ImageDeploymentViewController, SearchTableView)
+                                ImageDeploymentViewController)
 from AppUI.UIComponents.Base.ImagePreviewViewController import (
     ImagePreviewViewController, ImagePreviewViewControllerDelegate)
 
@@ -49,7 +50,6 @@ class MainProgramViewController(QWidget,
         horizontal_layout.addWidget(splitter)
         
         self.card_search_view = card_search_preview_view_controller
-        self.card_search_view.delegate = self
         self.card_search_view.set_search_focus()
         
         splitter.addWidget(self.card_search_view)
@@ -90,23 +90,12 @@ class MainProgramViewController(QWidget,
         self.deployment_view.load_production_resources(card_resources, staging_button_enabled)
 
     # MARK: - TableViewDelegate
-    def tv_did_tap_search(self, table_view: SearchTableView, search_configuration: SearchConfiguration):
-        self._card_search_data_source.search(search_configuration)
+    # def tv_did_tap_search(self, table_view: SearchTableView, search_configuration: SearchConfiguration):
+    #     self._card_search_data_source.search(search_configuration)
         
-    def tv_did_select(self, table_view: SearchTableView, index: int):
-        self._card_search_data_source.select_card_resource_for_card_selection(index)
-        self.deployment_view.set_all_staging_button_enabled(True)
-
-    # MARK: - CardSearchDataSource
-    def cs_did_tap_flip_button(self, cs: CardSearchPreviewViewController):
-        self.flip_current_previewed_card_if_possible()
-        
-    def cs_did_tap_retry_button(self, cs: CardSearchPreviewViewController):
-        self._card_search_data_source.redownload_currently_selected_card_resource()
-
-    def flip_current_previewed_card_if_possible(self):
-        if self._card_search_data_source.current_previewed_trading_card_is_flippable():
-            self._card_search_data_source.flip_current_previewed_card()
+    # def tv_did_select(self, table_view: SearchTableView, index: int):
+    #     self._card_search_data_source.select_card_resource_for_card_selection(index)
+    #     self.deployment_view.set_all_staging_button_enabled(True)
 
     def ds_completed_search_with_result(self, ds: CardSearchDataSource, result_list: List[TradingCard], error: Optional[Exception]):
         self.card_search_view.update_list(result_list)
@@ -188,12 +177,6 @@ class MainProgramViewController(QWidget,
             msgBox.exec()
     
     # MARK: - ImagePreviewViewControllerDelegate
-    def ip_open_file(self, ip: ImagePreviewViewController, local_resource: LocalCardResource):
-        self.application_core.open_file(local_resource)
-
-    def ip_open_file_path_and_select_file(self, ip: ImagePreviewViewController, local_resource: LocalCardResource):
-        self.application_core.open_file_path_and_select_file(local_resource)
-
     def prompt_generate_new_file(self):
         text, ok = QInputDialog.getText(self, 'Create new image file', 'Enter file name:')
         if ok:
@@ -220,13 +203,3 @@ class MainProgramViewController(QWidget,
         
     def aicta_did_tap_generate_button(self, aicta: AddImageCTAViewController):
         self.prompt_generate_new_file()
-
-    # Platform operations
-    def open_production_dir(self):
-        self.application_core.open_production_dir()
-        
-    def open_configuration_dir(self):
-        self.application_core.open_configuration_dir()
-
-    def open_temp_dir(self):
-        self.application_core.open_temp_dir()

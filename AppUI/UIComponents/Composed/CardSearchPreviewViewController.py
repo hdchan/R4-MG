@@ -1,33 +1,33 @@
 
-from typing import List, Optional
+from typing import List
 
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QSizePolicy,
                              QVBoxLayout, QWidget)
 
-from AppCore.Models import LocalCardResource, TradingCard
+from AppCore.Data.CardSearchDataSource import CardSearchDataSource
+from AppCore.Image.ImageResourceProcessorProtocol import *
+from AppCore.Models import LocalCardResource, SearchConfiguration, TradingCard
 from AppCore.Observation import *
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         LocalResourceEvent)
-from ..Base import ImagePreviewViewController, SearchTableView
-from AppCore.Image.ImageResourceProcessorProtocol import *
 from AppUI.AppDependencyProviding import AppDependencyProviding
-class CardSearchPreviewViewControllerDelegate:
-    def cs_did_tap_flip_button(self, cs: ...) -> None:
-        pass
-    
-    def cs_did_tap_retry_button(self, cs: ...) -> None:
-        pass
+
+from ..Base import ImagePreviewViewController, SearchTableView
+
 
 class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
-    def __init__(self, app_dependency_provider: AppDependencyProviding):
+    def __init__(self, 
+                 app_dependency_provider: AppDependencyProviding, 
+                 card_search_data_source: CardSearchDataSource):
         super().__init__()
+        self._observation_tower = app_dependency_provider.observation_tower
+        self._card_search_source_provider = app_dependency_provider.api_client_provider
+        self._card_image_source_provider = app_dependency_provider.image_source_provider
+        self._card_search_data_source = card_search_data_source
 
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
-        self._observation_tower = app_dependency_provider.observation_tower
-        self._card_search_source_provider = app_dependency_provider.api_client_provider
-        self._card_image_source_provider = app_dependency_provider.image_source_provider
         # https://stackoverflow.com/a/19011496
         staging_view = ImagePreviewViewController(app_dependency_provider)
         staging_view.setMinimumHeight(300)
@@ -77,15 +77,14 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
         self._observation_tower.subscribe_multi(self, [LocalResourceEvent, 
                                                        ConfigurationUpdatedEvent])
 
-    @property
-    def delegate(self) -> Optional[CardSearchPreviewViewControllerDelegate]:
-        return self._delegate
-    
-    @delegate.setter
-    def delegate(self, value: CardSearchPreviewViewControllerDelegate):
-        self._delegate = value
-        self.search_table_view.delegate = value
-        self.staging_view.delegate = value
+
+    def tv_did_select(self, sv: SearchTableView, index: int):
+        self._card_search_data_source.select_card_resource_for_card_selection(index)
+        # TODO: need to set all staging button enabled
+        # self.deployment_view.set_all_staging_button_enabled(True)
+
+    def tv_did_tap_search(self, sv: SearchTableView, search_configuration: SearchConfiguration) -> None:
+        self._card_search_data_source.search(search_configuration)
 
     def search(self):
         self.search_table_view.search()
@@ -114,12 +113,10 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
         self.search_table_view.update_list(result_list)
 
     def tapped_flip_button(self):
-        if self.delegate is not None:
-            self.delegate.cs_did_tap_flip_button(self)
+        self._card_search_data_source.flip_current_previewed_card()
         
     def tapped_retry_button(self):
-        if self.delegate is not None:
-            self.delegate.cs_did_tap_retry_button(self)
+        self._card_search_data_source.redownload_currently_selected_card_resource()
     
     def _sync_retry_button(self):
         if self._current_resource is not None:

@@ -1,9 +1,8 @@
 from AppCore.Config import ConfigurationProviding
-from AppCore.Data import APIClientProviding
-from AppCore.Image import ImageResourceProcessorProviding
+from AppCore.Image import ImageResourceProcessorProviding, ImageResourceDeployer
 from AppCore.Observation.ObservationTower import ObservationTower
 from AppCore.Resource import CardImageSourceProviding
-
+from AppCore.Service import PlatformServiceProvider
 
 class CoreDependencyProviding:
     @property
@@ -17,11 +16,15 @@ class CoreDependencyProviding:
     @property
     def image_resource_processor_provider(self) -> ImageResourceProcessorProviding:
         return NotImplemented
-
-    @property
-    def api_client_provider(self) -> APIClientProviding:
-        return NotImplemented
     
     @property
     def image_source_provider(self) -> CardImageSourceProviding:
+        return NotImplemented
+    
+    @property
+    def platform_service_provider(self) -> PlatformServiceProvider:
+        return NotImplemented
+    
+    @property
+    def image_resource_deployer(self) -> ImageResourceDeployer:
         return NotImplemented
