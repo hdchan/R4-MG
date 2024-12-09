@@ -1,5 +1,16 @@
 ## Changelog
 
+### 0.11.0
+#### Feature updates
+-
+
+#### Engineering updates
+-
+
+### 0.10.1
+#### Feature updates
+- Fix broken delegate to regenerate production image from link
+- 
 ### 0.10.0
 #### Feature updates
 - Add clear cache and unstage all resources options
