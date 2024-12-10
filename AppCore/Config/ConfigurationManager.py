@@ -38,7 +38,7 @@ class MutableConfiguration(Configuration):
     def set_window_size(self, size: Tuple[int, int]):
         self._settings.window_size = size
 
-class ConfigurationManager(ConfigurationProviding):
+class ConfigurationManager:
     def __init__(self, observation_tower: ObservationTower):
         self._configuration = MutableConfiguration()
         

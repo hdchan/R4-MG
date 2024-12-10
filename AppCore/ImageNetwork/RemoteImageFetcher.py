@@ -21,7 +21,7 @@ class RemoteImageFetcher(ImageFetcherProtocol):
             try:
                 # raise Exception(retry_count)
                 print(f'fetching real image: {image_url}')
-                time.sleep(self.configuration_provider.configuration.network_delay_duration)
+                time.sleep(self.configuration_manager.configuration.network_delay_duration)
                 # https://stackoverflow.com/questions/41106599/python-3-5-urllib-request-urlopen-progress-bar-available
                 # with request.urlopen(image_url) as response:
                 #     total_size = int(response.headers.get('Content-Length', 0))

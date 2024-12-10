@@ -22,7 +22,7 @@ class MainAssembly:
     class AppDependencies(AppDependencyProviding):
         def __init__(self):
             self._observation_tower = ObservationTower()
-            self._configuration_manager = ConfigurationManager(self.observation_tower)
+            self._configuration_manager = ConfigurationManager(self._observation_tower)
             self._asset_provider = AssetProvider()
             self._platform_service_provider = PlatformServiceProvider(self._configuration_manager, 
                                                                       self._observation_tower)
@@ -37,10 +37,6 @@ class MainAssembly:
         
         @property
         def configuration_manager(self) -> ConfigurationManager:
-            return self._configuration_manager
-
-        @property
-        def configuration_provider(self) -> ConfigurationProviding:
             return self._configuration_manager
         
         @property
@@ -64,9 +60,9 @@ class MainAssembly:
             return self._image_source_provider
         
         def _assemble_api_client_provider(self) -> APIClientProviding:
-            return SWUDBAPIClientProvider(self.configuration_provider, 
-                                         SWUDBAPIRemoteClient(RemoteNetworker(self.configuration_provider)), 
-                                         SWUDBAPILocalClient(LocalNetworker(self.configuration_provider),
+            return SWUDBAPIClientProvider(self.configuration_manager, 
+                                         SWUDBAPIRemoteClient(RemoteNetworker(self.configuration_manager)), 
+                                         SWUDBAPILocalClient(LocalNetworker(self.configuration_manager),
                                                             self.asset_provider))
     
         def _assemble_image_resource_processor_provider(self) -> ImageResourceProcessorProviding:
@@ -75,12 +71,12 @@ class MainAssembly:
                                                                          self.observation_tower))
         
         def _assemble_image_fetcher_provider(self) -> ImageFetcherProviding:
-            return ImageFetcherProvider(self.configuration_provider, 
-                                        RemoteImageFetcher(self.configuration_provider),
-                                        MockImageFetcher(self.configuration_provider))
+            return ImageFetcherProvider(self.configuration_manager, 
+                                        RemoteImageFetcher(self.configuration_manager),
+                                        MockImageFetcher(self.configuration_manager))
         
         def _assemble_image_source_provider(self) -> CardImageSourceProviding:
-            return CardImageSourceProvider(self.configuration_provider,
+            return CardImageSourceProvider(self.configuration_manager,
                                            SWUDBAPIImageSource(),
                                            SWUDBImageSource())
 
@@ -92,8 +88,7 @@ class MainAssembly:
         
         self._app_dependencies = self.AppDependencies()
 
-        self.card_search_data_source = CardSearchDataSource(self._app_dependencies, 
-                                                       self._app_dependencies.api_client_provider)
+        
         # https://www.pythonguis.com/tutorials/packaging-pyqt5-pyside2-applications-windows-pyinstaller/#setting-an-application-icon
         # https://stackoverflow.com/a/35865441
         self.app.setWindowIcon(QIcon(self._app_dependencies.asset_provider.image.logo_path))
@@ -113,7 +108,7 @@ class MainAssembly:
                                                             self._app_dependencies)
         
         self.shortcut_action_coordinator = ShortcutActionCoordinator(main_program, 
-                                                                     self.card_search_data_source)
+                                                                     main_program.card_search_data_source)
 
         main_window.setCentralWidget(main_program)
         main_window.show()
@@ -126,19 +121,22 @@ class MainAssembly:
         self.app.setFont(custom_font)
 
     def _assemble_main_program(self) -> MainProgramViewController:
-        card_search_view = CardSearchPreviewViewController(self._app_dependencies, 
-                                                           self.card_search_data_source)
+        card_search_data_source = CardSearchDataSource(self._app_dependencies, 
+                                                       self._app_dependencies.api_client_provider)
         
-        image_resource_deployer = ImageResourceDeployer(self._app_dependencies.configuration_provider,
+        card_search_view = CardSearchPreviewViewController(self._app_dependencies, 
+                                                           card_search_data_source)
+        
+        image_resource_deployer = ImageResourceDeployer(self._app_dependencies.configuration_manager,
                                                         self._app_dependencies.observation_tower)
         
         deployment_view = ImageDeploymentListViewController(self._app_dependencies, 
                                                             image_resource_deployer, 
-                                                            self.card_search_data_source)
+                                                            card_search_data_source)
         # deployment_view.delegate = self
 
         main_program = MainProgramViewController(self._app_dependencies,
-                                         self.card_search_data_source,
+                                         card_search_data_source,
                                          image_resource_deployer,
                                          card_search_view, 
                                          deployment_view)

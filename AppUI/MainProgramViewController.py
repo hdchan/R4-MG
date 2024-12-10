@@ -39,7 +39,6 @@ class MainProgramViewController(QWidget,
         self._platform_service_provider = app_dependency_provider.platform_service_provider
         self._image_resource_deployer = image_resource_deployer
 
-
         self._card_search_data_source = card_search_data_source
         self._card_search_data_source.delegate = self
 
@@ -59,6 +58,9 @@ class MainProgramViewController(QWidget,
         splitter.addWidget(deployment_view_controller)
         splitter.setSizes([400,900])
 
+    @property
+    def card_search_data_source(self) -> CardSearchDataSource:
+        return self._card_search_data_source
 
     def set_search_bar_focus(self):
         self.card_search_view.set_search_focus()

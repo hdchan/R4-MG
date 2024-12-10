@@ -5,7 +5,7 @@ from PyQt5.QtCore import QPoint, Qt
 from PyQt5.QtGui import QClipboard, QGuiApplication, QPixmap
 from PyQt5.QtWidgets import QAction, QLabel, QMenu, QVBoxLayout, QWidget
 
-from AppCore.Config import Configuration, ConfigurationProviding
+from AppCore.Config import Configuration, ConfigurationManager
 from AppCore.Image.ImageResourceProcessorProtocol import *
 from AppCore.Models import LocalCardResource
 from AppCore.Observation import *
@@ -27,7 +27,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
                  app_dependency_provider: AppDependencyProviding):
         super().__init__()
         self.observation_tower = app_dependency_provider.observation_tower
-        self._configuration_provider = app_dependency_provider.configuration_provider
+        self._configuration_manager = app_dependency_provider.configuration_manager
         self._asset_provider = app_dependency_provider.asset_provider
         self._image_resource_processor_provider = app_dependency_provider.image_resource_processor_provider
         self._platform_service_provider = app_dependency_provider.platform_service_provider
@@ -212,7 +212,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
         elif self._local_resource.is_ready:
             self.loading_spinner.stop()
             self._set_image_info()
-            if self._configuration_provider.configuration.hide_image_preview: # show text only
+            if self._configuration_manager.configuration.hide_image_preview: # show text only
                 self._image_view.setText(self._dynamic_display_name(self._local_resource))
                 
             else: # show image
@@ -233,11 +233,11 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
     
         
     def _dynamic_display_name(self, local_resource: LocalCardResource) -> str:
-        if self._configuration_provider.configuration.card_title_detail == Configuration.Settings.CardTitleDetail.NORMAL:
+        if self._configuration_manager.configuration.card_title_detail == Configuration.Settings.CardTitleDetail.NORMAL:
             return local_resource.display_name
-        elif self._configuration_provider.configuration.card_title_detail == Configuration.Settings.CardTitleDetail.SHORT:
+        elif self._configuration_manager.configuration.card_title_detail == Configuration.Settings.CardTitleDetail.SHORT:
             return local_resource.display_name_short
-        elif self._configuration_provider.configuration.card_title_detail == Configuration.Settings.CardTitleDetail.DETAILED:
+        elif self._configuration_manager.configuration.card_title_detail == Configuration.Settings.CardTitleDetail.DETAILED:
             return local_resource.display_name_detailed
         return " - "
     
@@ -253,8 +253,8 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
                 self._sync_image_view_state()
     
     def _toggle_resource_details_visibility(self):
-        self._card_display_name.setHidden(self._configuration_provider.configuration.hide_image_preview)
-        self._image_info_widget.setHidden(not self._configuration_provider.configuration.show_resource_details or self._local_resource is None)
+        self._card_display_name.setHidden(self._configuration_manager.configuration.hide_image_preview)
+        self._image_info_widget.setHidden(not self._configuration_manager.configuration.show_resource_details or self._local_resource is None)
     
     def _set_image_info(self):
         if self._local_resource is not None and self._local_resource.is_ready:

@@ -24,7 +24,7 @@ class CardSearchDataSource(LocalResourceDataSourceProtocol, LocalResourceDataSou
                  api_client_provider: APIClientProviding):
         self._observation_tower = core_dependency_providing.observation_tower
         self._api_client_provider = api_client_provider
-        self._configuration_provider = core_dependency_providing.configuration_provider
+        self._configuration_manager = core_dependency_providing.configuration_manager
         self._card_image_source_provider = core_dependency_providing.image_source_provider
         self._image_resource_processor_provider = core_dependency_providing.image_resource_processor_provider
 
@@ -70,7 +70,7 @@ class CardSearchDataSource(LocalResourceDataSourceProtocol, LocalResourceDataSou
             if error is None and result_list is not None:
                 def create_trading_card_resource(trading_card: TradingCard):
                     return CardResourceProvider(trading_card, 
-                                                self._configuration_provider,
+                                                self._configuration_manager,
                                                 self._card_image_source_provider)
                 self._trading_card_providers = list(map(create_trading_card_resource, result_list))
                 if self.delegate is not None:

@@ -28,10 +28,10 @@ class ImageResourceDeployerDelegate:
     
 class ImageResourceDeployer:
     def __init__(self,
-                 configuration_provider: ConfigurationProviding, 
+                 configuration_manager: ConfigurationManager, 
                  observation_tower: ObservationTower):
         self.observation_tower = observation_tower
-        self.configuration_provider = configuration_provider
+        self.configuration_manager = configuration_manager
         self.production_resources: List[LocalCardResource] = []
         self.staged_resources: List[StagedCardResource] = []
         self._can_publish_state = len(self.staged_resources) != 0
@@ -40,7 +40,7 @@ class ImageResourceDeployer:
 
     @property
     def configuration(self) -> Configuration:
-        return self.configuration_provider.configuration
+        return self.configuration_manager.configuration
     
     def _downscale_image(self, original_img: Image.Image) -> Image.Image:
             size = THUMBNAIL_SIZE, THUMBNAIL_SIZE

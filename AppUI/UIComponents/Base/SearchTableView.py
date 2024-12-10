@@ -27,7 +27,7 @@ class SearchTableView(QWidget, TransmissionReceiverProtocol):
         
         self._shift_pressed = False
         self._ctrl_pressed = False
-        self._configuration_provider = app_dependency_provider.configuration_provider
+        self._configuration_manager = app_dependency_provider.configuration_manager
         self._result_list: Optional[List[TradingCard]] = None
 
         layout = QVBoxLayout()
@@ -159,9 +159,9 @@ class SearchTableView(QWidget, TransmissionReceiverProtocol):
             self.result_list.clear()
             for i in self._result_list:
                 display_name = i.friendly_display_name
-                if self._configuration_provider.configuration.card_title_detail == Configuration.Settings.CardTitleDetail.SHORT:
+                if self._configuration_manager.configuration.card_title_detail == Configuration.Settings.CardTitleDetail.SHORT:
                     display_name = i.friendly_display_name_short
-                elif self._configuration_provider.configuration.card_title_detail == Configuration.Settings.CardTitleDetail.DETAILED:
+                elif self._configuration_manager.configuration.card_title_detail == Configuration.Settings.CardTitleDetail.DETAILED:
                     display_name = i.friendly_display_name_detailed
                 self.result_list.addItem(display_name)
                 # self.result_list.item(len(self.result_list) - 1).setToolTip("<img src='https://cdn.swu-db.com/images/cards/TWI/269.png' />") 

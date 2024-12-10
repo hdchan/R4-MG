@@ -3,18 +3,18 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtMultimedia import QSoundEffect
 from PyQt5.QtWidgets import QLabel, QMenu, QVBoxLayout, QWidget, QAction
 
-from AppCore.Config import ConfigurationProviding
+from AppCore.Config import ConfigurationManager
 
 from ..Assets import AssetProvider
 
 
 class AboutViewController(QWidget):
     def __init__(self, 
-                 configuration_provider: ConfigurationProviding, 
+                 configuration_manager: ConfigurationManager, 
                  asset_provider: AssetProvider):
         super().__init__()
         self.setWindowTitle("About")
-        self.configuration_provider = configuration_provider
+        self.configuration_manager = configuration_manager
         self.asset_provider = asset_provider
         self.sound_effect = None
         
@@ -32,7 +32,7 @@ class AboutViewController(QWidget):
         image_view.setPixmap(image)
         v_layout.addWidget(image_view)
         
-        configuration = configuration_provider.configuration
+        configuration = configuration_manager.configuration
         
         label = QLabel()
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)

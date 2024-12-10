@@ -1,21 +1,21 @@
 import os
 import platform
 import subprocess
-from ..Config import ConfigurationProviding
+from ..Config import ConfigurationManager
 from ..Observation import ObservationTower
 from ..Observation.Events import *
 import shutil
 class PlatformServiceProtocol:
 
     def __init__(self, 
-               configuration_provider: ConfigurationProviding,
+               configuration_manager: ConfigurationManager,
                observation_tower: ObservationTower):
-        self._configuration_provider = configuration_provider
+        self._configuration_manager = configuration_manager
         self._observation_tower = observation_tower
 
     @property
     def _configuration(self) -> Configuration:
-        return self._configuration_provider.configuration
+        return self._configuration_manager.configuration
 
     def open_file(self, file_path: str) -> None:
         pass
@@ -44,12 +44,12 @@ class PlatformServiceProvider:
             subprocess.Popen(rf'explorer /select,"{os.path.abspath(file_path)}"')
 
     def __init__(self, 
-                 configuration_provider: ConfigurationProviding, 
+                 configuration_manager: ConfigurationManager, 
                  observation_tower: ObservationTower):
-        self._configuration_provider = configuration_provider
+        self._configuration_manager = configuration_manager
         self._observation_tower = observation_tower
-        self._mac = self.Mac(configuration_provider, observation_tower)
-        self._windows = self.Windows(configuration_provider, observation_tower)
+        self._mac = self.Mac(configuration_manager, observation_tower)
+        self._windows = self.Windows(configuration_manager, observation_tower)
 
     @property
     def platform_service(self) -> PlatformServiceProtocol:

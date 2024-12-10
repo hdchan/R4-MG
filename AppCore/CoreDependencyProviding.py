@@ -1,4 +1,4 @@
-from AppCore.Config import ConfigurationProviding
+from AppCore.Config import ConfigurationManager
 from AppCore.Image import ImageResourceProcessorProviding
 from AppCore.Observation.ObservationTower import ObservationTower
 from AppCore.Resource import CardImageSourceProviding
@@ -10,7 +10,7 @@ class CoreDependencyProviding:
         return NotImplemented
     
     @property
-    def configuration_provider(self) -> ConfigurationProviding:
+    def configuration_manager(self) -> ConfigurationManager:
         return NotImplemented
     
     @property

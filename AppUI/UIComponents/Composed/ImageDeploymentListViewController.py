@@ -34,7 +34,7 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
         super().__init__()
         self.app_dependency_provider = app_dependency_provider
         self.observation_tower = app_dependency_provider.observation_tower
-        self.configuration_provider = app_dependency_provider.configuration_provider
+        self.configuration_manager = app_dependency_provider.configuration_manager
         self.asset_provider = app_dependency_provider.asset_provider
         self._image_resource_deployer = image_resource_deployer
         self._local_resource_data_source_provider = local_resource_data_source_provider

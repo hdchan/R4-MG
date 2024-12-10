@@ -1,5 +1,5 @@
 from typing import Optional
-from ..Config import ConfigurationProviding
+from ..Config import ConfigurationManager
 from ..Models.LocalCardResource import LocalCardResource
 from ..Models.TradingCard import TradingCard
 from .CardImageSourceProtocol import CardImageSourceProtocol, CardImageSourceProviding
@@ -9,10 +9,10 @@ PNG_EXTENSION = '.png'
 class CardResourceProvider:
     def __init__(self, 
                  trading_card: TradingCard,
-                 configuration_provider: ConfigurationProviding,
+                 configuration_manager: ConfigurationManager,
                  card_image_source_provider: CardImageSourceProviding):
         self._trading_card = trading_card
-        self._configuration_provider = configuration_provider
+        self._configuration_manager = configuration_manager
         self.card_image_source_provider = card_image_source_provider
         self._show_front: bool = True
     
@@ -43,11 +43,11 @@ class CardResourceProvider:
     
     @property
     def _image_path(self) -> str:
-        return f'{self._configuration_provider.configuration.cache_file_path}{self._site_source_path}/'
+        return f'{self._configuration_manager.configuration.cache_file_path}{self._site_source_path}/'
     
     @property
     def _image_preview_path(self) -> str:
-        return f'{self._configuration_provider.configuration.cache_preview_file_path}{self._site_source_path}/'
+        return f'{self._configuration_manager.configuration.cache_preview_file_path}{self._site_source_path}/'
     
     @property
     def front_local_resource(self) -> LocalCardResource:
