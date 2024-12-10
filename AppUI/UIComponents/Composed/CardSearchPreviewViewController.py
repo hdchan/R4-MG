@@ -128,13 +128,15 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
     
     def _load_source_labels(self):
         search_source_url = self._card_search_data_source.site_source_url
-        if 'https://' in search_source_url:
-            self.search_source_label.setText(f'Search source: <a href="{search_source_url}">{search_source_url}</a>')
+        if search_source_url is not None:
+            self.search_source_label.setText(f'Search source: <a href="{search_source_url}">{self._card_search_data_source.source_display_name}</a>')
         else:
-            self.search_source_label.setText(f'Search source: {search_source_url}')
+            self.search_source_label.setText(f'Search source: {self._card_search_data_source.source_display_name}')
+            
 
-        image_source_url = self._card_image_source_provider.card_image_source.site_source_url()
-        self.image_source_label.setText(f'Image source: <a href="{image_source_url}">{image_source_url}</a>')
+        image_source_display_name = self._card_image_source_provider.card_image_source.site_source_identifier
+        image_source_url = self._card_image_source_provider.card_image_source.site_source_url
+        self.image_source_label.setText(f'Image source: <a href="{image_source_url}">{image_source_display_name}</a>')
         
     def handle_observation_tower_event(self, event: TransmissionProtocol):
         if type(event) == ConfigurationUpdatedEvent:

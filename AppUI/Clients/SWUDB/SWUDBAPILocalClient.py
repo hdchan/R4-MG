@@ -20,8 +20,12 @@ class SWUDBAPILocalClient(APIClientProtocol):
         self.__response_card_list: Optional[List[TradingCard]] = None
     
     @property
-    def site_source_url(self) -> str:
+    def source_display_name(self) -> str:
         return "Local (SOR, SHD, TWI)"
+    
+    @property
+    def site_source_url(self) -> Optional[str]:
+        return None
 
     def search(self, search_configuration: SearchConfiguration, callback: APIClientSearchCallback):
         def completed_search():

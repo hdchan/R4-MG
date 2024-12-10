@@ -10,6 +10,10 @@ from .Requests import SearchRequest, SWUDBAPISearchConfiguration
 class SWUDBAPIRemoteClient(APIClientProtocol):
 
     @property
+    def source_display_name(self) -> str:
+        return "https://www.swu-db.com/"
+
+    @property
     def site_source_url(self) -> str:
         return "https://www.swu-db.com/"
 

@@ -3,9 +3,11 @@ from typing import Optional
 
 class CardImageSourceProtocol:
     
+    @property
     def site_source_url(self) -> str:
         return NotImplemented
     
+    @property
     def site_source_identifier(self) -> str:
         return NotImplemented
     

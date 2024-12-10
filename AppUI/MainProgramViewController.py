@@ -48,6 +48,7 @@ class MainProgramViewController(QWidget,
 
         
         self.deployment_view = deployment_view_controller
+        
         splitter.addWidget(deployment_view_controller)
         splitter.setSizes([400,900])
 

@@ -39,7 +39,7 @@ class CardResourceProvider:
                 return self.back_local_resource
     @property
     def _site_source_path(self) -> str:
-        return self._card_image_source.site_source_identifier()
+        return self._card_image_source.site_source_identifier
     
     @property
     def _image_path(self) -> str:

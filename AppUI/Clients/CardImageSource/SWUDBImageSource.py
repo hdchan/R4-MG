@@ -4,9 +4,11 @@ from typing import Optional
 
 class SWUDBImageSource(CardImageSourceProtocol):
     
+    @property
     def site_source_url(self) -> str:
         return 'https://www.swudb.com/'
     
+    @property
     def site_source_identifier(self) -> str:
         return 'www.swudb.com'
     
