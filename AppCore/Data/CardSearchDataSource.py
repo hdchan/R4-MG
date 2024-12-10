@@ -35,7 +35,11 @@ class CardSearchDataSource(LocalResourceDataSourceProtocol, LocalResourceDataSou
         self._selected_index: Optional[int] = None
         self._selected_resource: Optional[LocalCardResource] = None
         self._trading_card_providers: List[CardResourceProvider] = []
-        
+    
+    @property
+    def site_source_url(self) -> str:
+        return self._api_client.site_source_url
+    
     @property
     def _api_client(self) -> APIClientProtocol:
         return self._api_client_provider.client

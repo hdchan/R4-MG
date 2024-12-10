@@ -24,7 +24,6 @@ class MenuActionCoordinator(QObject):
         self.configuration_manager = configuration_manager
         self.asset_provider = app_dependency_provider.asset_provider
         self._platform_service_provider = app_dependency_provider.platform_service_provider
-        self._app_dependency_provider = app_dependency_provider
         self._menu_parent = window
         self.attachMenuBar(window)
         

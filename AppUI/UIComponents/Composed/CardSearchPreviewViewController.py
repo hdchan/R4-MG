@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QSizePolicy,
 from AppCore.Data.CardSearchDataSource import CardSearchDataSource
 from AppCore.Image.ImageResourceProcessorProtocol import *
 from AppCore.Models import LocalCardResource, SearchConfiguration, TradingCard
+
 from AppCore.Observation import *
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         LocalResourceFetchEvent)
@@ -21,7 +22,6 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
                  card_search_data_source: CardSearchDataSource):
         super().__init__()
         self._observation_tower = app_dependency_provider.observation_tower
-        self._card_search_source_provider = app_dependency_provider.api_client_provider
         self._card_image_source_provider = app_dependency_provider.image_source_provider
         self._card_search_data_source = card_search_data_source
 
@@ -77,7 +77,6 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
         self._observation_tower.subscribe_multi(self, [LocalResourceFetchEvent, 
                                                        ConfigurationUpdatedEvent])
 
-
     def tv_did_select(self, sv: SearchTableView, index: int):
         self._card_search_data_source.select_card_resource_for_card_selection(index)
 
@@ -123,7 +122,7 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
         
     
     def _load_source_labels(self):
-        search_source_url = self._card_search_source_provider.client.site_source_url
+        search_source_url = self._card_search_data_source.site_source_url
         if 'https://' in search_source_url:
             self.search_source_label.setText(f'Search source: <a href="{search_source_url}">{search_source_url}</a>')
         else:

@@ -63,7 +63,7 @@ class MainAssembly:
             return SWUDBAPIClientProvider(self.configuration_manager, 
                                          SWUDBAPIRemoteClient(RemoteNetworker(self.configuration_manager)), 
                                          SWUDBAPILocalClient(LocalNetworker(self.configuration_manager),
-                                                            self.asset_provider))
+                                                             self.asset_provider))
     
         def _assemble_image_resource_processor_provider(self) -> ImageResourceProcessorProviding:
             image_fetcher_provider = self._assemble_image_fetcher_provider()
@@ -88,7 +88,6 @@ class MainAssembly:
         
         self._app_dependencies = self.AppDependencies()
 
-        
         # https://www.pythonguis.com/tutorials/packaging-pyqt5-pyside2-applications-windows-pyinstaller/#setting-an-application-icon
         # https://stackoverflow.com/a/35865441
         self.app.setWindowIcon(QIcon(self._app_dependencies.asset_provider.image.logo_path))
@@ -99,8 +98,14 @@ class MainAssembly:
                             self._app_dependencies.observation_tower, 
                             self._app_dependencies.asset_provider)
         
-        main_program = self._assemble_main_program()
-        # main_program.load()
+        card_search_data_source = CardSearchDataSource(self._app_dependencies, 
+                                                       self._app_dependencies.api_client_provider)
+        
+        
+        image_resource_deployer = ImageResourceDeployer(self._app_dependencies.configuration_manager,
+                                                        self._app_dependencies.observation_tower)
+        
+        main_program = self._assemble_main_program(card_search_data_source, image_resource_deployer)
         
         self.menu_action_coordinator = MenuActionCoordinator(main_window,
                                                             main_program,
@@ -108,7 +113,7 @@ class MainAssembly:
                                                             self._app_dependencies)
         
         self.shortcut_action_coordinator = ShortcutActionCoordinator(main_program, 
-                                                                     main_program.card_search_data_source)
+                                                                     card_search_data_source)
 
         main_window.setCentralWidget(main_program)
         main_window.show()
@@ -119,21 +124,16 @@ class MainAssembly:
         custom_font = self.app.font()
         custom_font.setPointSize(10)
         self.app.setFont(custom_font)
-
-    def _assemble_main_program(self) -> MainProgramViewController:
-        card_search_data_source = CardSearchDataSource(self._app_dependencies, 
-                                                       self._app_dependencies.api_client_provider)
         
+
+    def _assemble_main_program(self, card_search_data_source: CardSearchDataSource, 
+                               image_resource_deployer: ImageResourceDeployer) -> MainProgramViewController:
         card_search_view = CardSearchPreviewViewController(self._app_dependencies, 
                                                            card_search_data_source)
-        
-        image_resource_deployer = ImageResourceDeployer(self._app_dependencies.configuration_manager,
-                                                        self._app_dependencies.observation_tower)
         
         deployment_view = ImageDeploymentListViewController(self._app_dependencies, 
                                                             image_resource_deployer, 
                                                             card_search_data_source)
-        # deployment_view.delegate = self
 
         main_program = MainProgramViewController(self._app_dependencies,
                                          card_search_data_source,
@@ -144,6 +144,7 @@ class MainAssembly:
         deployment_view.image_preview_delegate = main_program
         deployment_view.add_image_cta.delegate = main_program
         image_resource_deployer.load_production_resources()
+        
         return main_program
 
     
