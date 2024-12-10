@@ -1,29 +1,24 @@
-from typing import List, Optional, Union
+from typing import List, Optional
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QPushButton, QScrollArea, QSizePolicy,
-                             QVBoxLayout, QWidget, QMessageBox)
+from PyQt5.QtWidgets import (QMessageBox, QPushButton, QScrollArea,
+                             QSizePolicy, QVBoxLayout, QWidget)
 
-from AppCore import ApplicationState
-from AppCore.Image.ImageResourceProcessorProtocol import *
+from AppCore.Data.LocalResourceDataSourceProtocol import *
 from AppCore.Image.ImageResourceDeployer import ImageResourceDeployer
+from AppCore.Image.ImageResourceProcessorProtocol import *
 from AppCore.Models import LocalCardResource
 from AppCore.Observation import *
 from AppCore.Observation.Events import (LocalResourceFetchEvent,
+                                        LocalResourceSelectedEvent,
+                                        ProductionResourcesLoadedEvent,
                                         PublishStagedResourcesEvent,
-                                        PublishStatusUpdatedEvent, LocalResourceSelectedEvent, ProductionResourcesLoadedEvent)
+                                        PublishStatusUpdatedEvent)
 from AppUI.AppDependencyProviding import AppDependencyProviding
 
-from ..Base import AddImageCTAViewController, AddImageCTAViewControllerDelegate
+from ..Base import AddImageCTAViewController
 from ..Base.LoadingSpinner import LoadingSpinner
-from . import ImageDeploymentViewController, ImagePreviewViewControllerDelegate
-from AppCore.Data.LocalResourceDataSourceProtocol import *
-
-class ImageDeploymentListViewControllerDelegate:
-    
-    def idl_did_tap_production_button(self, id_list: ...) -> None:
-        pass
-
+from . import ImageDeploymentViewController
 
 
 class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
@@ -38,7 +33,6 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
         self.asset_provider = app_dependency_provider.asset_provider
         self._image_resource_deployer = image_resource_deployer
         self._local_resource_data_source_provider = local_resource_data_source_provider
-        # self.image_preview_delegate = image_preview_delegate
         self.image_resource_processor_provider = app_dependency_provider.image_resource_processor_provider
 
         outer_container_layout = QVBoxLayout()
@@ -59,20 +53,13 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
         
         
         add_image_cta = AddImageCTAViewController(app_dependency_provider.asset_provider)
-        # add_image_cta.delegate = image_preview_delegate
         self.add_image_cta = add_image_cta
         cells_container_layout.addWidget(add_image_cta)
         
         
         self.scroll_view = QScrollArea(self)
-        # https://stackoverflow.com/a/75781450
-        # scroll_view.verticalScrollBar().actionTriggered.connect(self.scrolled)
-        # self.position = self.scroll_view.verticalScrollBar().sliderPosition()
-        # self.scroll_view.verticalScrollBar().actionTriggered.connect(self.on_scroll)
-        # self.scroll_view.verticalScrollBar().valueChanged.connect(self.scrolled)
         self.scroll_view.setWidget(cells_container_widget)
         self.scroll_view.setWidgetResizable(True)
-        # self.scroll = scroll_view
         outer_container_layout.addWidget(self.scroll_view)
         
 
@@ -86,8 +73,6 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
         self.list_items: List[ImageDeploymentViewController] = []
         
         self.loading_spinner = LoadingSpinner(self)
-        
-        self.delegate: Optional[ImageDeploymentListViewControllerDelegate] = None
         
         self.observation_tower.subscribe_multi(self, [PublishStatusUpdatedEvent, 
                                                       LocalResourceFetchEvent, 
@@ -105,8 +90,6 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
                                    staging_button_enabled,
                                    index)
             
-        # print(self.scroll_view.verticalScrollBar().sliderPosition(), self.scroll_view.verticalScrollBar().maximum())
-
     def _create_list_item(self,
                          local_resource: LocalCardResource,
                          staging_button_enabled: bool,
@@ -154,7 +137,6 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
             if i == id_cell:
                 self._image_resource_deployer.unstage_resource(idx)
                 self.clear_staging_image(idx)
-                # self.delegate.idl_did_tap_unstaging_button(self, id_cell, idx)
 
     def set_staging_image(self, local_resource: LocalCardResource, index: int):
         self.list_items[index].set_staging_image(local_resource)
@@ -174,18 +156,19 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
         self.publish_to_production()
             
     def publish_to_production(self):
-        try:
-            self._image_resource_deployer.publish_staged_resources()
-            self._image_resource_deployer.load_production_resources()
-        except Exception as error:
-            # failed to publish
-            # show error messages
-            msgBox = QMessageBox()
-            msgBox.setIcon(QMessageBox.Icon.Critical)
-            msgBox.setText(str(error))
-            msgBox.setWindowTitle("Error")
-            msgBox.setStandardButtons(QMessageBox.StandardButton.Ok)
-            msgBox.exec()
+        if self.local_resource_data_source.selected_local_resource is not None:
+            try:
+                self._image_resource_deployer.publish_staged_resources()
+                self._image_resource_deployer.load_production_resources()
+            except Exception as error:
+                # failed to publish
+                # show error messages
+                msgBox = QMessageBox()
+                msgBox.setIcon(QMessageBox.Icon.Critical)
+                msgBox.setText(str(error))
+                msgBox.setWindowTitle("Error")
+                msgBox.setStandardButtons(QMessageBox.StandardButton.Ok)
+                msgBox.exec()
         
     def set_all_staging_button_enabled(self, enabled: bool):
         for i in self.list_items:
@@ -207,14 +190,8 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
         if type(event) == LocalResourceSelectedEvent:
             self.set_all_staging_button_enabled(True)
 
-
         if type(event) == ProductionResourcesLoadedEvent:
             production_resources = self._image_resource_deployer.production_resources
             staging_button_enabled = self.local_resource_data_source.selected_local_resource is not None
             self.clear_list()
             self.load_production_resources(production_resources, staging_button_enabled)
-        # if type(event) == PublishStagedResourcesEvent:
-        #     if event.event_type == PublishStagedResourcesEvent.EventType.STARTED:
-        #         self.loading_spinner.start()
-        #     else:
-        #         self.loading_spinner.stop()

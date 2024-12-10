@@ -63,6 +63,7 @@ class Window(QMainWindow, TransmissionReceiverProtocol):
         print('closing')
     
     def resizeEvent(self, event):
-        size = self.frameGeometry()
+        # must use event value here to get size
+        size = event.size()
         self.configuration_manager.set_window_size((size.width(), size.height())).save_async()
         super(Window, self).resizeEvent(event)

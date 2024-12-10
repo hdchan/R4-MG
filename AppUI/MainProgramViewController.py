@@ -1,5 +1,3 @@
-from typing import List, Optional
-
 from PIL import Image
 from PyQt5 import QtCore
 from PyQt5.QtCore import QUrl
@@ -80,13 +78,6 @@ class MainProgramViewController(QWidget,
         if button == QMessageBox.StandardButton.Yes:
             self._unstage_all_resources()
             self._platform_service_provider.platform_service.clear_cache()
-    
-    def _play_sound_effect(self):
-        self.sound_effect = QSoundEffect()
-        self.sound_effect.setVolume(0.5)
-        self.sound_effect.setSource(QUrl.fromLocalFile(self._asset_provider.audio.r4_affirmative_path))
-        print(f'playing sound effect: {self._asset_provider.audio.r4_effect_path}')
-        self.sound_effect.play()
 
     
     # MARK: - ImagePreviewViewControllerDelegate
@@ -110,10 +101,6 @@ class MainProgramViewController(QWidget,
             msgBox.setWindowTitle("Error")
             msgBox.setStandardButtons(QMessageBox.StandardButton.Ok)
             msgBox.exec()
-        
-    
-    def regenerate_production_file(self, local_resource: LocalCardResource):
-        self.generate_new_file(local_resource.file_name)
         
     def aicta_did_tap_generate_button(self, aicta: AddImageCTAViewController):
         self.prompt_generate_new_file()

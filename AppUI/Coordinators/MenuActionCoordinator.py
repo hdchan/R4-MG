@@ -156,12 +156,6 @@ class MenuActionCoordinator(QObject):
             delay_network_mode.setCheckable(True)
             delay_network_mode.setChecked(self.configuration.is_delay_network_mode)
             developer_menu.addAction(delay_network_mode)
-            
-            popout_production_image_mode = QAction('Popout production images', parent)
-            popout_production_image_mode.triggered.connect(self.did_toggle_popout_production_images_mode)
-            popout_production_image_mode.setCheckable(True)
-            popout_production_image_mode.setChecked(self.configuration.is_popout_production_images_mode)
-            developer_menu.addAction(popout_production_image_mode)
         
         # return menu_bar
         self._menu_parent.setMenuBar(menu_bar)
@@ -177,9 +171,6 @@ class MenuActionCoordinator(QObject):
         
     def did_toggle_delay_network_mode(self, is_on: bool):
         self.configuration_manager.toggle_delay_network_mode(is_on).save()
-        
-    def did_toggle_popout_production_images_mode(self, is_on: bool):
-        self.configuration_manager.toggle_popout_production_images_mode(is_on).save()
     
     def did_toggle_show_resource_details(self, is_on: bool):
         self.configuration_manager.toggle_show_resource_details(is_on).save()

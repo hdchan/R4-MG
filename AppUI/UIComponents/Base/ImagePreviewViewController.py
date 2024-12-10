@@ -39,6 +39,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
         self.setLayout(layout)
         
         label = QLabel(self)
+        label.setWordWrap(True)
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(label)
         
@@ -60,15 +61,18 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
         
         
         self._card_display_name = QLabel()
+        self._card_display_name.setWordWrap(True)
         self._card_display_name.setOpenExternalLinks(True)
         self._card_display_name.setAlignment(Qt.AlignmentFlag.AlignCenter)
         image_info_layout.addWidget(self._card_display_name)
         
         self._size_info_label = QLabel()
+        self._size_info_label.setWordWrap(True)
         self._size_info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         image_info_layout.addWidget(self._size_info_label)
         
         self._image_url_label = QLabel()
+        self._image_url_label.setWordWrap(True)
         self._image_url_label.setOpenExternalLinks(True)
         self._image_url_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         image_info_layout.addWidget(self._image_url_label)

@@ -2,6 +2,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication
 
 from AppCore import *
+from AppCore.CoreDependencies import CoreDependencies
 from AppCore.Data.CardSearchDataSource import *
 from AppCore.Config import ConfigurationManager
 from AppCore.Image import *
@@ -20,34 +21,18 @@ from .Clients import *
 # TODO: graphing algorithm to sort dependencies?
 
 class MainAssembly:
-    class AppDependencies(AppDependencyProviding):
+    class AppDependencies(CoreDependencies, AppDependencyProviding):
         def __init__(self):
-            self._observation_tower = ObservationTower()
-            self._configuration_manager = ConfigurationManager(self._observation_tower)
+            super().__init__()
             self._asset_provider = AssetProvider()
-            self._platform_service_provider = PlatformServiceProvider(self._configuration_manager, 
-                                                                      self._observation_tower)
-            
             self._image_resource_processor_provider = self._assemble_image_resource_processor_provider()
             self._api_client_provider = self._assemble_api_client_provider()
             self._image_source_provider = self._assemble_image_source_provider()
-        
-        @property
-        def observation_tower(self) -> ObservationTower:
-            return self._observation_tower
-        
-        @property
-        def configuration_manager(self) -> ConfigurationManager:
-            return self._configuration_manager
-        
+            
         @property
         def asset_provider(self) -> AssetProvider:
             return self._asset_provider
         
-        @property
-        def platform_service_provider(self) -> PlatformServiceProvider:
-            return self._platform_service_provider
-
         @property
         def image_resource_processor_provider(self) -> ImageResourceProcessorProviding:
             return self._image_resource_processor_provider
@@ -61,9 +46,9 @@ class MainAssembly:
             return self._image_source_provider
         
         def _assemble_api_client_provider(self) -> APIClientProviding:
-            return SWUDBAPIClientProvider(self.configuration_manager, 
-                                         SWUDBAPIRemoteClient(RemoteNetworker(self.configuration_manager)), 
-                                         SWUDBAPILocalClient(LocalNetworker(self.configuration_manager),
+            return SWUDBAPIClientProvider(self._configuration_manager, 
+                                         SWUDBAPIRemoteClient(RemoteNetworker(self._configuration_manager)), 
+                                         SWUDBAPILocalClient(LocalNetworker(self._configuration_manager),
                                                              self.asset_provider))
     
         def _assemble_image_resource_processor_provider(self) -> ImageResourceProcessorProviding:
@@ -72,12 +57,12 @@ class MainAssembly:
                                                                          self.observation_tower))
         
         def _assemble_image_fetcher_provider(self) -> ImageFetcherProviding:
-            return ImageFetcherProvider(self.configuration_manager, 
-                                        RemoteImageFetcher(self.configuration_manager),
-                                        MockImageFetcher(self.configuration_manager))
+            return ImageFetcherProvider(self._configuration_manager, 
+                                        RemoteImageFetcher(self._configuration_manager),
+                                        MockImageFetcher(self._configuration_manager))
         
         def _assemble_image_source_provider(self) -> CardImageSourceProviding:
-            return CardImageSourceProvider(self.configuration_manager,
+            return CardImageSourceProvider(self._configuration_manager,
                                            SWUDBAPIImageSource(),
                                            SWUDBImageSource())
 
@@ -122,8 +107,6 @@ class MainAssembly:
         deployment_view.add_image_cta.delegate = main_program
         image_resource_deployer.load_production_resources()
         
-        # main_program = self._assemble_main_program(card_search_data_source, image_resource_deployer)
-        
         self.menu_action_coordinator = MenuActionCoordinator(main_window,
                                                             main_program,
                                                             self._app_dependencies.configuration_manager, 
@@ -142,33 +125,3 @@ class MainAssembly:
         custom_font = self.app.font()
         custom_font.setPointSize(10)
         self.app.setFont(custom_font)
-        
-
-    # def _assemble_main_program(self, card_search_data_source: CardSearchDataSource, 
-    #                            image_resource_deployer: ImageResourceDeployer) -> MainProgramViewController:
-    #     card_search_view = CardSearchPreviewViewController(self._app_dependencies, 
-    #                                                        card_search_data_source)
-        
-    #     deployment_view = ImageDeploymentListViewController(self._app_dependencies, 
-    #                                                         image_resource_deployer, 
-    #                                                         card_search_data_source)
-
-    #     main_program = MainProgramViewController(self._app_dependencies,
-    #                                      card_search_data_source,
-    #                                      image_resource_deployer,
-    #                                      card_search_view, 
-    #                                      deployment_view)
-    #     # TODO - remove
-    #     deployment_view.image_preview_delegate = main_program
-    #     deployment_view.add_image_cta.delegate = main_program
-    #     image_resource_deployer.load_production_resources()
-        
-    #     return main_program
-
-    
-
-    
-    
-    
-        
-    
