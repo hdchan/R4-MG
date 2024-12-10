@@ -1,5 +1,5 @@
 
-from typing import List
+from typing import List, Optional
 
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QSizePolicy,
                              QVBoxLayout, QWidget)
@@ -24,6 +24,7 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
         self._observation_tower = app_dependency_provider.observation_tower
         self._card_image_source_provider = app_dependency_provider.image_source_provider
         self._card_search_data_source = card_search_data_source
+        card_search_data_source.delegate = self
 
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -82,6 +83,12 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
 
     def tv_did_tap_search(self, sv: SearchTableView, search_configuration: SearchConfiguration) -> None:
         self._card_search_data_source.search(search_configuration)
+        
+    def ds_completed_search_with_result(self, ds: CardSearchDataSource, result_list: List[TradingCard], error: Optional[Exception]):
+        self.update_list(result_list)
+
+    def ds_did_retrieve_card_resource_for_card_selection(self, ds: CardSearchDataSource, local_resource: LocalCardResource, is_flippable: bool):
+        self.set_image(is_flippable, local_resource)
 
     def search(self):
         self.search_table_view.search()

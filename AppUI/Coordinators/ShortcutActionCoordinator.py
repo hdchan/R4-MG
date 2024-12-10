@@ -2,25 +2,28 @@ from functools import partial
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeySequence
-from PyQt5.QtWidgets import QShortcut
+from PyQt5.QtWidgets import QShortcut, QWidget
 
-from ..MainProgramViewController import MainProgramViewController
+from AppUI.UIComponents.Composed import (CardSearchPreviewViewController,
+                                         ImageDeploymentListViewController)
 
-from AppCore.Data.CardSearchDataSource import CardSearchDataSource
 
 class ShortcutActionCoordinator:
-    def __init__(self, main_program: MainProgramViewController, 
-                 card_search_data_source: CardSearchDataSource):
-        self._card_search_data_source = card_search_data_source
+    def __init__(self, 
+                 parent: QWidget, 
+                 card_search_view: CardSearchPreviewViewController, 
+                 deployment_view: ImageDeploymentListViewController):
+        self._card_search_view = card_search_view
+        self._deployment_view = deployment_view
         # Needs to block ability to publish if not able to
-        self.production_shortcut = QShortcut(QKeySequence(Qt.Modifier.CTRL + Qt.Key.Key_P), main_program)
-        # self.production_shortcut.activated.connect(main_program.shortcut_production_button)
+        self.production_shortcut = QShortcut(QKeySequence(Qt.Modifier.CTRL + Qt.Key.Key_P), parent)
+        self.production_shortcut.activated.connect(deployment_view.publish_to_production)
 
-        self.focus_search = QShortcut(QKeySequence(Qt.Modifier.CTRL + Qt.Key.Key_L), main_program)
-        self.focus_search.activated.connect(main_program.set_search_bar_focus)
+        self.focus_search = QShortcut(QKeySequence(Qt.Modifier.CTRL + Qt.Key.Key_L), parent)
+        self.focus_search.activated.connect(card_search_view.set_search_focus)
 
-        self.flip_shortcut = QShortcut(QKeySequence(Qt.Modifier.CTRL + Qt.Key.Key_F), main_program)
-        self.flip_shortcut.activated.connect(card_search_data_source.flip_current_previewed_card)
+        self.flip_shortcut = QShortcut(QKeySequence(Qt.Modifier.CTRL + Qt.Key.Key_F), parent)
+        self.flip_shortcut.activated.connect(card_search_view.tapped_flip_button)
 
         key_pad = [
             Qt.Key.Key_1,
@@ -35,16 +38,15 @@ class ShortcutActionCoordinator:
             Qt.Key.Key_0,
         ]
         for i, k in enumerate(key_pad):
-            self.staging_shortcut = QShortcut(QKeySequence(Qt.Modifier.CTRL + k), main_program)
-            # TODO: repair
-            # self.staging_shortcut.activated.connect(partial(main_program.stage_current_card_search_resource, i))
+            self.staging_shortcut = QShortcut(QKeySequence(Qt.Modifier.CTRL + k), parent)
+            self.staging_shortcut.activated.connect(partial(self._deployment_view.stage_current_image, i))
             
             
-        self.search_shortcut = QShortcut(QKeySequence(Qt.Key.Key_Return), main_program)
-        self.search_shortcut.activated.connect(main_program.search)
+        self.search_shortcut = QShortcut(QKeySequence(Qt.Key.Key_Return), parent)
+        self.search_shortcut.activated.connect(card_search_view.search)
         
-        self.search_leader_shortcut = QShortcut(QKeySequence(Qt.Modifier.CTRL + Qt.Key.Key_Return), main_program)
-        self.search_leader_shortcut.activated.connect(main_program.search_leader)
+        self.search_leader_shortcut = QShortcut(QKeySequence(Qt.Modifier.CTRL + Qt.Key.Key_Return), parent)
+        self.search_leader_shortcut.activated.connect(card_search_view.search_leader)
         
-        self.search_base_shortcut = QShortcut(QKeySequence(Qt.Modifier.SHIFT + Qt.Key.Key_Return), main_program)
-        self.search_base_shortcut.activated.connect(main_program.search_base)
+        self.search_base_shortcut = QShortcut(QKeySequence(Qt.Modifier.SHIFT + Qt.Key.Key_Return), parent)
+        self.search_base_shortcut.activated.connect(card_search_view.search_base)

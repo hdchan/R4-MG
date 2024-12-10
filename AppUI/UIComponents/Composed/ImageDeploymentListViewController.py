@@ -141,11 +141,13 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
     def id_did_tap_staging_button(self, id_cell: ImageDeploymentViewController):
         for idx, i in enumerate(self.list_items):
             if i == id_cell:
-                # need to dynamically get datasource here
-                local_resource = self.local_resource_data_source.selected_local_resource
-                if local_resource is not None:
-                    self._image_resource_deployer.stage_resource(local_resource, idx)
-                    self.set_staging_image(local_resource, idx)
+                self.stage_current_image(idx)
+
+    def stage_current_image(self, idx: int):
+        local_resource = self.local_resource_data_source.selected_local_resource
+        if local_resource is not None:
+            self._image_resource_deployer.stage_resource(local_resource, idx)
+            self.set_staging_image(local_resource, idx)
 
     def id_did_tap_unstaging_button(self, id_cell: ImageDeploymentViewController):
         for idx, i in enumerate(self.list_items):
@@ -169,6 +171,9 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
             i.clear_staging_image()
 
     def tapped_production_button(self):
+        self.publish_to_production()
+            
+    def publish_to_production(self):
         try:
             self._image_resource_deployer.publish_staged_resources()
             self._image_resource_deployer.load_production_resources()

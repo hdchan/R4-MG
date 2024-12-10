@@ -7,10 +7,9 @@ from PyQt5.QtMultimedia import QSoundEffect
 from PyQt5.QtWidgets import (QHBoxLayout, QInputDialog, QMessageBox, QSplitter,
                              QWidget)
 
-from AppCore.Data.CardSearchDataSource import (CardSearchDataSource,
-                                               CardSearchDataSourceDelegate)
+from AppCore.Data.CardSearchDataSource import CardSearchDataSourceDelegate
 from AppCore.Image.ImageResourceDeployer import ImageResourceDeployer
-from AppCore.Models import LocalCardResource, TradingCard
+from AppCore.Models import LocalCardResource
 from AppCore.Observation import *
 from AppUI.AppDependencyProviding import AppDependencyProviding
 from AppUI.UIComponents import (AddImageCTAViewController,
@@ -27,7 +26,6 @@ class MainProgramViewController(QWidget,
                                 CardSearchDataSourceDelegate):
     def __init__(self,
                  app_dependency_provider: AppDependencyProviding,
-                 card_search_data_source: CardSearchDataSource,
                  image_resource_deployer: ImageResourceDeployer,
                  card_search_preview_view_controller: CardSearchPreviewViewController,
                  deployment_view_controller: ImageDeploymentListViewController):
@@ -38,9 +36,6 @@ class MainProgramViewController(QWidget,
         self._observation_tower = app_dependency_provider.observation_tower
         self._platform_service_provider = app_dependency_provider.platform_service_provider
         self._image_resource_deployer = image_resource_deployer
-
-        self._card_search_data_source = card_search_data_source
-        self._card_search_data_source.delegate = self
 
         horizontal_layout = QHBoxLayout()
         self.setLayout(horizontal_layout)
@@ -57,28 +52,6 @@ class MainProgramViewController(QWidget,
         self.deployment_view = deployment_view_controller
         splitter.addWidget(deployment_view_controller)
         splitter.setSizes([400,900])
-
-    @property
-    def card_search_data_source(self) -> CardSearchDataSource:
-        return self._card_search_data_source
-
-    def set_search_bar_focus(self):
-        self.card_search_view.set_search_focus()
-
-    def search(self):
-        self.card_search_view.search()
-        
-    def search_leader(self):
-        self.card_search_view.search_leader()
-        
-    def search_base(self):
-        self.card_search_view.search_base()
-
-    def ds_completed_search_with_result(self, ds: CardSearchDataSource, result_list: List[TradingCard], error: Optional[Exception]):
-        self.card_search_view.update_list(result_list)
-
-    def ds_did_retrieve_card_resource_for_card_selection(self, ds: CardSearchDataSource, local_resource: LocalCardResource, is_flippable: bool):
-        self.card_search_view.set_image(is_flippable, local_resource)
 
 
     def confirm_unstage_all_resources(self):
@@ -107,12 +80,6 @@ class MainProgramViewController(QWidget,
         if button == QMessageBox.StandardButton.Yes:
             self._unstage_all_resources()
             self._platform_service_provider.platform_service.clear_cache()
-        
-
-    # TODO: fix
-    # def shortcut_production_button(self):
-    #     if self.application_core.can_publish_staged_resources:
-    #         self.publish_staged_resources()
     
     def _play_sound_effect(self):
         self.sound_effect = QSoundEffect()
