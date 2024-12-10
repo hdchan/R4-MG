@@ -28,7 +28,7 @@ class CardSearchDataSource(LocalResourceDataSourceProtocol, LocalResourceDataSou
         self._card_image_source_provider = core_dependency_providing.image_source_provider
         self._image_resource_processor_provider = core_dependency_providing.image_resource_processor_provider
 
-        self.delegate: Optional[CardSearchDataSourceDelegate]
+        self.delegate: Optional[CardSearchDataSourceDelegate] = None
 
         # stateful variables
         self._search_configuration = SearchConfiguration()
@@ -69,8 +69,9 @@ class CardSearchDataSource(LocalResourceDataSourceProtocol, LocalResourceDataSou
         return None
 
     def search(self, search_configuration: SearchConfiguration):
-        self._observation_tower.notify(SearchEvent(SearchEvent.EventType.STARTED,
-                                                  copy.deepcopy(search_configuration)))
+        initial_event = SearchEvent(SearchEvent.EventType.STARTED,
+                                    copy.deepcopy(search_configuration))
+        self._observation_tower.notify(initial_event)
 
         def completed_with_search_result(result: Tuple[Optional[List[TradingCard]], Optional[Exception]]):
             result_list, error = result
@@ -86,9 +87,10 @@ class CardSearchDataSource(LocalResourceDataSourceProtocol, LocalResourceDataSou
             else:
                 if self.delegate is not None:
                     self.delegate.ds_completed_search_with_result(self, [], error)
-                    
-            self._observation_tower.notify(SearchEvent(SearchEvent.EventType.FINISHED,
-                                                      copy.deepcopy(search_configuration)))
+            finished_event = SearchEvent(SearchEvent.EventType.FINISHED,
+                                         copy.deepcopy(search_configuration))
+            finished_event.predecessor = initial_event
+            self._observation_tower.notify(finished_event)
 
         self._api_client.search(search_configuration, completed_with_search_result)
 

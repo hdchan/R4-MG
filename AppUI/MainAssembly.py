@@ -92,7 +92,7 @@ class MainAssembly:
                                                         self._app_dependencies.observation_tower)
         
         card_search_view = CardSearchPreviewViewController(self._app_dependencies, 
-                                                           card_search_data_source)
+                                                           card_search_data_source, self._app_dependencies.recent_published_data_source)
         
         deployment_view = ImageDeploymentListViewController(self._app_dependencies, 
                                                             image_resource_deployer, 

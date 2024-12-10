@@ -1,26 +1,23 @@
 import os
 import shutil
 import time
+from copy import deepcopy
 from pathlib import Path
 from typing import List, Optional
 
 from PIL import Image
-from PyQt5.QtCore import QThreadPool, pyqtSignal, QObject, QRunnable
-from AppCore.Models import LocalCardResource
+from PyQt5.QtCore import QObject, QRunnable, QThreadPool, pyqtSignal
+
+from AppCore.Models import LocalCardResource, StagedCardResource
 from AppCore.Observation import *
-from AppCore.Observation.Events import (PublishStagedResourcesEvent,
-                                        PublishStatusUpdatedEvent, 
-                                        ProductionResourcesLoadedEvent)
+from AppCore.Observation.Events import (ProductionResourcesLoadedEvent,
+                                        PublishStagedResourcesEvent,
+                                        PublishStatusUpdatedEvent)
 
 from ..ImageNetwork.ImageFetcherProvider import *
 
 PNG_EXTENSION = '.png'
 THUMBNAIL_SIZE = 256
-
-class StagedCardResource:
-    def __init__(self, local_card_resource: LocalCardResource, production_resource: LocalCardResource):
-        self.local_card_resource = local_card_resource
-        self.production_resource = production_resource
 
 class ImageResourceDeployerDelegate:
     def rd_did_load_production_resources(self, rd: ..., local_resources: List[LocalCardResource]) -> None:
@@ -114,7 +111,9 @@ class ImageResourceDeployer:
         Publishes staged resources. Returns True if success.
         Otherwise returns false.
         """
-        self.observation_tower.notify(PublishStagedResourcesEvent(PublishStagedResourcesEvent.EventType.STARTED))
+        copy_staged_resources = deepcopy(self.staged_resources)
+        initial_event = PublishStagedResourcesEvent(PublishStagedResourcesEvent.EventType.STARTED, copy_staged_resources)
+        self.observation_tower.notify(initial_event)
         if self.can_publish_staged_resources: # don't publish resources if one does not work
             self._generate_directories_if_needed()
             for r in self.staged_resources:
@@ -129,10 +128,14 @@ class ImageResourceDeployer:
                     # gets regenerated from reload
                     # do nothing because preview file is not critical, or maybe can regenerate file
             self.unstage_all_resources()
-            self.observation_tower.notify(PublishStagedResourcesEvent(PublishStagedResourcesEvent.EventType.FINISHED))
+            finished_event = PublishStagedResourcesEvent(PublishStagedResourcesEvent.EventType.FINISHED, copy_staged_resources)
+            finished_event.predecessor = initial_event
+            self.observation_tower.notify(finished_event)
         else:
             self._notify_publish_status_changed_if_needed()
-            self.observation_tower.notify(PublishStagedResourcesEvent(PublishStagedResourcesEvent.EventType.FAILED))
+            failed_event = PublishStagedResourcesEvent(PublishStagedResourcesEvent.EventType.FAILED, copy_staged_resources)
+            failed_event.predecessor = initial_event
+            self.observation_tower.notify(failed_event)
             raise Exception("Failed to publish. Please redownload resources and retry.")
         
     def generate_new_file(self, file_name: str, image: Optional[Image.Image] = None):

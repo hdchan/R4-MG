@@ -13,5 +13,6 @@ class LocalResourceFetchEvent(TransmissionProtocol):
     def __init__(self, 
                  event_type: EventType,
                  local_resource: LocalCardResource):
+        super().__init__()
         self.event_type = event_type
         self.local_resource = local_resource

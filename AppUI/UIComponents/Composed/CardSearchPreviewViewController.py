@@ -1,14 +1,15 @@
 from typing import List, Optional
 
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QSizePolicy,
-                             QVBoxLayout, QWidget)
+                             QVBoxLayout, QWidget, QTabWidget, QListWidget)
 
 from AppCore.Data.CardSearchDataSource import CardSearchDataSource
+from AppCore.Data.RecentPublishedDataSource import RecentPublishedDataSource
 from AppCore.Image.ImageResourceProcessorProtocol import *
 from AppCore.Models import LocalCardResource, SearchConfiguration, TradingCard
 from AppCore.Observation import *
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
-                                        LocalResourceFetchEvent)
+                                        LocalResourceFetchEvent, PublishStagedResourcesEvent)
 from AppUI.AppDependencyProviding import AppDependencyProviding
 
 from ..Base import ImagePreviewViewController, SearchTableView
@@ -17,22 +18,35 @@ from ..Base import ImagePreviewViewController, SearchTableView
 class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
                  app_dependency_provider: AppDependencyProviding, 
-                 card_search_data_source: CardSearchDataSource):
+                 card_search_data_source: CardSearchDataSource, 
+                 recent_published_data_source: RecentPublishedDataSource):
         super().__init__()
         self._observation_tower = app_dependency_provider.observation_tower
         self._card_image_source_provider = app_dependency_provider.image_source_provider
         self._card_search_data_source = card_search_data_source
         card_search_data_source.delegate = self
+        self._recent_published_data_source = recent_published_data_source
 
-        layout = QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(layout)
+        lay = QVBoxLayout()
+        lay.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(lay)
+
         # https://stackoverflow.com/a/19011496
         staging_view = ImagePreviewViewController(app_dependency_provider)
         staging_view.setMinimumHeight(300)
         staging_view.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
         self.staging_view = staging_view
-        layout.addWidget(staging_view)
+        lay.addWidget(staging_view)
+
+        self.tabs = QTabWidget()
+        lay.addWidget(self.tabs)
+        
+        layout = QVBoxLayout()
+        layout_widget = QWidget()
+        layout_widget.setLayout(layout)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.tab1 = layout_widget
+        self.tabs.addTab(self.tab1, "Search")
 
         buttons_layout = QHBoxLayout()
         buttons_widget = QWidget()
@@ -72,9 +86,19 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
 
         self._load_source_labels()
         
+        
+        self._history_list = QListWidget()
+        
+        history_layout = QVBoxLayout()
+        history_widget = QWidget()
+        history_widget.setLayout(history_layout)
+        history_layout.addWidget(self._history_list)
+        self.tabs.addTab(history_widget, "History")
+        
         self._current_resource = None
         self._observation_tower.subscribe_multi(self, [LocalResourceFetchEvent, 
-                                                       ConfigurationUpdatedEvent])
+                                                       ConfigurationUpdatedEvent, 
+                                                       PublishStagedResourcesEvent])
 
     def tv_did_select(self, sv: SearchTableView, index: int):
         self._card_search_data_source.select_card_resource_for_card_selection(index)
@@ -82,10 +106,16 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
     def tv_did_tap_search(self, sv: SearchTableView, search_configuration: SearchConfiguration) -> None:
         self._card_search_data_source.search(search_configuration)
         
-    def ds_completed_search_with_result(self, ds: CardSearchDataSource, result_list: List[TradingCard], error: Optional[Exception]):
+    def ds_completed_search_with_result(self, 
+                                        ds: CardSearchDataSource, 
+                                        result_list: List[TradingCard], 
+                                        error: Optional[Exception]):
         self.update_list(result_list)
 
-    def ds_did_retrieve_card_resource_for_card_selection(self, ds: CardSearchDataSource, local_resource: LocalCardResource, is_flippable: bool):
+    def ds_did_retrieve_card_resource_for_card_selection(self, 
+                                                         ds: CardSearchDataSource, 
+                                                         local_resource: LocalCardResource, 
+                                                         is_flippable: bool):
         self.set_image(is_flippable, local_resource)
 
     def search(self):
@@ -108,6 +138,11 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
         self.staging_view.set_image(local_resource)
         self.flip_button.setEnabled(is_flippable)
         self._sync_retry_button()
+    
+    def update_history_list(self):
+        self._history_list.clear()
+        for r in reversed(self._recent_published_data_source.published_resources_history):
+            self._history_list.addItem(r.display_name)
         
 
     def update_list(self, result_list: List[TradingCard]):
@@ -143,4 +178,6 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
             self._load_source_labels()
         if type(event) == LocalResourceFetchEvent:
             self._sync_retry_button()
+        if type(event) == PublishStagedResourcesEvent:
+            self.update_history_list()
                     
