@@ -2,29 +2,26 @@
 import os
 from typing import Optional
 
-from PyQt5.QtGui import QKeyEvent, QCloseEvent
+from PyQt5.QtGui import QCloseEvent, QKeyEvent
 from PyQt5.QtWidgets import QDesktopWidget, QMainWindow
 
-from AppCore.Config import ConfigurationManager
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         TransmissionProtocol)
-from AppCore.Observation.ObservationTower import ObservationTower
-from AppCore.Observation.TransmissionReceiverProtocol import TransmissionReceiverProtocol
+from AppCore.Observation.TransmissionReceiverProtocol import \
+    TransmissionReceiverProtocol
 
-from .Assets import AssetProvider
+from .AppDependencyProviding import AppDependencyProviding
 from .Observation.Events import KeyboardEvent
 
 basedir = os.path.dirname(__file__)
 class Window(QMainWindow, TransmissionReceiverProtocol):
     def __init__(self,
-                 configuration_manager: ConfigurationManager,
-                 observation_tower: ObservationTower, 
-                 asset_provider: AssetProvider):
+                 app_dependencies: AppDependencyProviding):
         """Initializer."""
         super().__init__()
-        self.configuration_manager = configuration_manager
-        self.asset_provider = asset_provider
-        self.observation_tower = observation_tower
+        self.configuration_manager = app_dependencies.configuration_manager
+        self.asset_provider = app_dependencies.asset_provider
+        self.observation_tower = app_dependencies.observation_tower
         
         width, height = 400+900, 900
         if (self.configuration_manager.configuration.window_size[0] is not None and
@@ -41,7 +38,7 @@ class Window(QMainWindow, TransmissionReceiverProtocol):
 
         self._load_window()
         
-        observation_tower.subscribe(self, ConfigurationUpdatedEvent)
+        self.observation_tower.subscribe(self, ConfigurationUpdatedEvent)
 
     def _load_window(self):
         self.setWindowTitle(self.configuration_manager.configuration.app_display_name)

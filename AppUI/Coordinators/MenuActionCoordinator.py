@@ -17,11 +17,10 @@ class MenuActionCoordinator(QObject):
     def __init__(self,
                  window: Window,
                  main_program: MainProgramViewController,
-                 configuration_manager: ConfigurationManager,
                  app_dependency_provider: AppDependencyProviding):
         super().__init__()
         self.main_program = main_program
-        self.configuration_manager = configuration_manager
+        self.configuration_manager = app_dependency_provider.configuration_manager
         self.asset_provider = app_dependency_provider.asset_provider
         self._platform_service_provider = app_dependency_provider.platform_service_provider
         self._menu_parent = window

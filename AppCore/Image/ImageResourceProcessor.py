@@ -59,7 +59,6 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol):
             worker = RotateImageWorker(local_resource, angle)
             worker.signals.finished.connect(self._unlock_resource_and_notify)
             self.pool.start(worker)
-            print('rotating')
     
     def regenerate_resource_preview(self, local_resource: LocalCardResource):
         if self._lock_resource_and_notify(local_resource):

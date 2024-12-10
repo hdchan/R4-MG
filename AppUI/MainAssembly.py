@@ -4,14 +4,13 @@ from PyQt5.QtWidgets import QApplication
 from AppCore import *
 from AppCore.CoreDependencies import CoreDependencies
 from AppCore.Data.CardSearchDataSource import *
-from AppCore.Config import ConfigurationManager
 from AppCore.Image import *
 from AppCore.ImageNetwork import MockImageFetcher, RemoteImageFetcher
 from AppCore.Network import *
-from AppCore.Observation.ObservationTower import ObservationTower
 from AppUI.Coordinators import MenuActionCoordinator, ShortcutActionCoordinator
 from AppUI.MainProgramViewController import MainProgramViewController
-from AppUI.UIComponents import CardSearchPreviewViewController, ImageDeploymentListViewController
+from AppUI.UIComponents import (CardSearchPreviewViewController,
+                                ImageDeploymentListViewController)
 from AppUI.Window import Window
 
 from .AppDependencyProviding import *
@@ -80,9 +79,7 @@ class MainAssembly:
         # https://forum.qt.io/topic/142136/how-to-change-the-application-name-pyqt5/4
         # self.app.setApplicationDisplayName(self.configuration_manager.configuration.app_display_name)
         
-        main_window = Window(self._app_dependencies.configuration_manager,
-                            self._app_dependencies.observation_tower, 
-                            self._app_dependencies.asset_provider)
+        main_window = Window(self._app_dependencies)
         
         card_search_data_source = CardSearchDataSource(self._app_dependencies, 
                                                        self._app_dependencies.api_client_provider)
@@ -92,7 +89,8 @@ class MainAssembly:
                                                         self._app_dependencies.observation_tower)
         
         card_search_view = CardSearchPreviewViewController(self._app_dependencies, 
-                                                           card_search_data_source, self._app_dependencies.recent_published_data_source)
+                                                           card_search_data_source, 
+                                                           self._app_dependencies.recent_published_data_source)
         
         deployment_view = ImageDeploymentListViewController(self._app_dependencies, 
                                                             image_resource_deployer, 
@@ -108,8 +106,7 @@ class MainAssembly:
         image_resource_deployer.load_production_resources()
         
         self.menu_action_coordinator = MenuActionCoordinator(main_window,
-                                                            main_program,
-                                                            self._app_dependencies.configuration_manager, 
+                                                            main_program, 
                                                             self._app_dependencies)
         
         self.shortcut_action_coordinator = ShortcutActionCoordinator(main_program, 

@@ -31,6 +31,7 @@ class SearchTableView(QWidget, TransmissionReceiverProtocol):
         self._result_list: Optional[List[TradingCard]] = None
 
         layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
         
         

@@ -27,28 +27,29 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
         card_search_data_source.delegate = self
         self._recent_published_data_source = recent_published_data_source
 
-        lay = QVBoxLayout()
-        lay.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(lay)
+        containing_layout = QVBoxLayout()
+        containing_layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(containing_layout)
 
         # https://stackoverflow.com/a/19011496
         staging_view = ImagePreviewViewController(app_dependency_provider)
         staging_view.setMinimumHeight(300)
         staging_view.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
         self.staging_view = staging_view
-        lay.addWidget(staging_view)
+        containing_layout.addWidget(staging_view)
 
         self.tabs = QTabWidget()
-        lay.addWidget(self.tabs)
+        containing_layout.addWidget(self.tabs)
         
         layout = QVBoxLayout()
         layout_widget = QWidget()
         layout_widget.setLayout(layout)
-        layout.setContentsMargins(0, 0, 0, 0)
+        # layout.setContentsMargins(0, 0, 0, 0)
         self.tab1 = layout_widget
         self.tabs.addTab(self.tab1, "Search")
 
         buttons_layout = QHBoxLayout()
+        buttons_layout.setContentsMargins(0, 0, 0, 0)
         buttons_widget = QWidget()
         buttons_widget.setLayout(buttons_layout)
         layout.addWidget(buttons_widget)
@@ -66,7 +67,7 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
         retry_button.setEnabled(False)
         retry_button.clicked.connect(self.tapped_retry_button)
         self.retry_button = retry_button
-        buttons_layout.addWidget(retry_button)
+        # buttons_layout.addWidget(retry_button)
         
         
         search_table_view = SearchTableView(app_dependency_provider)
@@ -93,7 +94,8 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
         history_widget = QWidget()
         history_widget.setLayout(history_layout)
         history_layout.addWidget(self._history_list)
-        self.tabs.addTab(history_widget, "History")
+        
+        self.tabs.addTab(history_widget, "Publish History")
         
         self._current_resource = None
         self._observation_tower.subscribe_multi(self, [LocalResourceFetchEvent, 

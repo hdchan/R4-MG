@@ -94,7 +94,7 @@ class MainProgramViewController(QWidget,
     # TODO consolidate this
     def generate_new_file(self, file_name: str):
         try:
-            self._image_resource_deployer.generate_new_file(file_name, Image.open(self._asset_provider.image.swu_logo_black_path))
+            self._image_resource_deployer.generate_new_file(file_name, Image.open(self._asset_provider.image.swu_card_back))
         except Exception as error:
             msgBox = QMessageBox()
             msgBox.setIcon(QMessageBox.Icon.Critical)

@@ -1,12 +1,13 @@
 import datetime
 from typing import Optional
+
+
 class TransmissionProtocol:
     def __init__(self):
         self._predecessor: Optional['TransmissionProtocol']
-        now = datetime.datetime.now()
-        self.date_time = now
-        timestamp = now.timestamp()
-        self.timestamp = timestamp
+        self.date_time = datetime.datetime.now()
+        # timestamp = now.timestamp()
+        # self.timestamp = timestamp
         
     @property
     def predecessor(self) -> Optional['TransmissionProtocol']:
@@ -15,7 +16,7 @@ class TransmissionProtocol:
     @predecessor.setter
     def predecessor(self, value: 'TransmissionProtocol'):
         self._predecessor = value
-        
+    
     @property
     def seconds_since_predecessor(self):
         if self.predecessor is not None:
