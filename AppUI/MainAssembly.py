@@ -84,13 +84,14 @@ class MainAssembly:
         card_search_data_source = CardSearchDataSource(self._app_dependencies, 
                                                        self._app_dependencies.api_client_provider)
         
+        recent_published_data_source = RecentPublishedDataSource(self._app_dependencies)
         
         image_resource_deployer = ImageResourceDeployer(self._app_dependencies.configuration_manager,
                                                         self._app_dependencies.observation_tower)
         
         card_search_view = CardSearchPreviewViewController(self._app_dependencies, 
                                                            card_search_data_source, 
-                                                           self._app_dependencies.recent_published_data_source)
+                                                           recent_published_data_source)
         
         deployment_view = ImageDeploymentListViewController(self._app_dependencies, 
                                                             image_resource_deployer, 

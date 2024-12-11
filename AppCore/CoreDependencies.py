@@ -16,7 +16,6 @@ class CoreDependencies(CoreDependencyProviding):
             self._configuration_manager = ConfigurationManager(self._observation_tower)
             self._platform_service_provider = PlatformServiceProvider(self._configuration_manager, 
                                                                       self._observation_tower)
-            self._recent_published_data_source = RecentPublishedDataSource(self._observation_tower)
             
             self._image_resource_processor_provider = None
             self._api_client_provider = None
@@ -33,10 +32,6 @@ class CoreDependencies(CoreDependencyProviding):
     @property
     def platform_service_provider(self) -> PlatformServiceProvider:
         return self._platform_service_provider
-
-    @property
-    def recent_published_data_source(self) -> RecentPublishedDataSource:
-        return self._recent_published_data_source
 
     # @property
     # def image_resource_processor_provider(self) -> ImageResourceProcessorProviding:

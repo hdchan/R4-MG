@@ -5,23 +5,26 @@ from PyQt5.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QLineEdit,
                              QListWidget, QPushButton, QVBoxLayout, QWidget)
 
 from AppCore.Config import Configuration
-from AppCore.Observation.Events import LocalResourceFetchEvent
-from AppCore.Data.CardSearchDataSource import CardSearchDataSource
-from AppCore.Models import SearchConfiguration, TradingCard, LocalCardResource
+from AppCore.Data.CardSearchDataSource import *
+from AppCore.Models import LocalCardResource, SearchConfiguration, TradingCard
 from AppCore.Observation import *
-from AppCore.Observation.Events import ConfigurationUpdatedEvent, SearchEvent
+from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
+                                        LocalResourceFetchEvent, SearchEvent)
 from AppUI.AppDependencyProviding import AppDependencyProviding
 
 from ...Clients.SWUDB import CardType, SWUDBAPISearchConfiguration
 from ...Observation.Events import KeyboardEvent
+from ..Base.ImagePreviewViewController import ImagePreviewViewController
 from .LoadingSpinner import LoadingSpinner
 
 
-class SearchTableViewController(QWidget, TransmissionReceiverProtocol):
+class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearchDataSourceDelegate):
     def __init__(self, 
                  app_dependency_provider: AppDependencyProviding, 
-                 card_search_data_source: CardSearchDataSource):
+                 card_search_data_source: CardSearchDataSource, 
+                 image_preview_view: ImagePreviewViewController):
         super().__init__()
+        self._image_preview_view = image_preview_view
         self._card_search_data_source = card_search_data_source 
         card_search_data_source.delegate = self
         self._card_image_source_provider = app_dependency_provider.image_source_provider
@@ -42,7 +45,6 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol):
         buttons_widget.setLayout(buttons_layout)
         layout.addWidget(buttons_widget)
 
-
         flip_button = QPushButton()
         flip_button.setText("Flip (Ctrl+F)")
         flip_button.setEnabled(False)
@@ -56,7 +58,6 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol):
         retry_button.clicked.connect(self.tapped_retry_button)
         self.retry_button = retry_button
         # buttons_layout.addWidget(retry_button)
-        
         
         query_layout = QHBoxLayout()
         query_layout.setContentsMargins(0, 0, 0, 0)
@@ -123,6 +124,11 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol):
         
         self._is_config_updating = False
 
+    def set_active(self):
+        local_resource = self._card_search_data_source.selected_local_resource
+        if local_resource is not None:
+            self._image_preview_view.set_image(local_resource)
+
     def ds_completed_search_with_result(self, 
                                         ds: CardSearchDataSource, 
                                         result_list: List[TradingCard], 
@@ -133,7 +139,7 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol):
                                                          ds: CardSearchDataSource, 
                                                          local_resource: LocalCardResource, 
                                                          is_flippable: bool):
-        # self.set_image(local_resource)
+        self.set_active()
         self._sync_buttons(is_flippable)
 
     def get_selection(self):
