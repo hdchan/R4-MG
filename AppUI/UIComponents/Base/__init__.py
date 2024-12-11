@@ -1,3 +1,4 @@
 from .ImagePreviewViewController import *
-from .SearchTableView import *
+from .SearchTableViewController import *
 from .AddImageCTAViewController import *
+from .PublishHistoryTableViewController import *

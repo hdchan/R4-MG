@@ -5,8 +5,9 @@ from PyQt5.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QLineEdit,
                              QListWidget, QPushButton, QVBoxLayout, QWidget)
 
 from AppCore.Config import Configuration
+from AppCore.Observation.Events import LocalResourceFetchEvent
 from AppCore.Data.CardSearchDataSource import CardSearchDataSource
-from AppCore.Models import SearchConfiguration, TradingCard
+from AppCore.Models import SearchConfiguration, TradingCard, LocalCardResource
 from AppCore.Observation import *
 from AppCore.Observation.Events import ConfigurationUpdatedEvent, SearchEvent
 from AppUI.AppDependencyProviding import AppDependencyProviding
@@ -16,12 +17,14 @@ from ...Observation.Events import KeyboardEvent
 from .LoadingSpinner import LoadingSpinner
 
 
-class SearchTableView(QWidget, TransmissionReceiverProtocol):
+class SearchTableViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
                  app_dependency_provider: AppDependencyProviding, 
                  card_search_data_source: CardSearchDataSource):
         super().__init__()
         self._card_search_data_source = card_search_data_source 
+        card_search_data_source.delegate = self
+        self._card_image_source_provider = app_dependency_provider.image_source_provider
         
         self._shift_pressed = False
         self._ctrl_pressed = False
@@ -29,8 +32,30 @@ class SearchTableView(QWidget, TransmissionReceiverProtocol):
         self._result_list: Optional[List[TradingCard]] = None
 
         layout = QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
+        # layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
+        
+        
+        buttons_layout = QHBoxLayout()
+        buttons_layout.setContentsMargins(0, 0, 0, 0)
+        buttons_widget = QWidget()
+        buttons_widget.setLayout(buttons_layout)
+        layout.addWidget(buttons_widget)
+
+
+        flip_button = QPushButton()
+        flip_button.setText("Flip (Ctrl+F)")
+        flip_button.setEnabled(False)
+        flip_button.clicked.connect(self.tapped_flip_button)
+        self.flip_button = flip_button
+        buttons_layout.addWidget(flip_button)
+        
+        retry_button = QPushButton()
+        retry_button.setText("Redownload")
+        retry_button.setEnabled(False)
+        retry_button.clicked.connect(self.tapped_retry_button)
+        self.retry_button = retry_button
+        # buttons_layout.addWidget(retry_button)
         
         
         query_layout = QHBoxLayout()
@@ -74,15 +99,42 @@ class SearchTableView(QWidget, TransmissionReceiverProtocol):
         layout.addWidget(search_button)
         
         
+        search_source_label = QLabel()
+        search_source_label.setOpenExternalLinks(True)
+        layout.addWidget(search_source_label)
+        self.search_source_label = search_source_label
+
+        image_source_label = QLabel()
+        image_source_label.setOpenExternalLinks(True)
+        layout.addWidget(image_source_label)
+        self.image_source_label = image_source_label
+
+        self._load_source_labels()
+        
+        
         self._loading_spinner = LoadingSpinner(self)
         
         self._set_card_type_filter(None)
         
-        app_dependency_provider.observation_tower.subscribe_multi(self, [SearchEvent, 
-                                                 KeyboardEvent, 
-                                                 ConfigurationUpdatedEvent]) 
+        app_dependency_provider.observation_tower.subscribe_multi(self, [SearchEvent,
+                                                                         KeyboardEvent,
+                                                                         ConfigurationUpdatedEvent, 
+                                                                         LocalResourceFetchEvent]) 
         
         self._is_config_updating = False
+
+    def ds_completed_search_with_result(self, 
+                                        ds: CardSearchDataSource, 
+                                        result_list: List[TradingCard], 
+                                        error: Optional[Exception]):
+        self.update_list(result_list)
+
+    def ds_did_retrieve_card_resource_for_card_selection(self, 
+                                                         ds: CardSearchDataSource, 
+                                                         local_resource: LocalCardResource, 
+                                                         is_flippable: bool):
+        # self.set_image(local_resource)
+        self._sync_buttons(is_flippable)
 
     def get_selection(self):
         if self._is_config_updating:
@@ -139,6 +191,22 @@ class SearchTableView(QWidget, TransmissionReceiverProtocol):
         
         self._card_search_data_source.search(search_configuration)
 
+    def tapped_flip_button(self):
+        self._card_search_data_source.flip_current_previewed_card()
+        
+    def tapped_retry_button(self):
+        self._card_search_data_source.redownload_currently_selected_card_resource()
+        
+    def _sync_buttons(self, is_flippable: bool):
+        self.flip_button.setEnabled(is_flippable)
+        self._sync_retry_button()
+    
+    def _sync_retry_button(self):
+        local_resource = self._card_search_data_source.data_source.selected_local_resource
+        if local_resource is not None:
+            self.retry_button.setEnabled(local_resource.remote_image_url is not None and not local_resource.is_loading)
+        else:
+            self.retry_button.setEnabled(False)
 
     def update_list(self, list: List[TradingCard]):
         # https://stackoverflow.com/questions/25187444/pyqt-qlistwidget-custom-items
@@ -174,6 +242,16 @@ class SearchTableView(QWidget, TransmissionReceiverProtocol):
         else:
             self._loading_spinner.start()
 
+    def _load_source_labels(self):
+        search_source_url = self._card_search_data_source.site_source_url
+        if search_source_url is not None:
+            self.search_source_label.setText(f'Search source: <a href="{search_source_url}">{self._card_search_data_source.source_display_name}</a>')
+        else:
+            self.search_source_label.setText(f'Search source: {self._card_search_data_source.source_display_name}')
+            
+        image_source_display_name = self._card_image_source_provider.card_image_source.site_source_identifier
+        image_source_url = self._card_image_source_provider.card_image_source.site_source_url
+        self.image_source_label.setText(f'Image source: <a href="{image_source_url}">{image_source_display_name}</a>')
     
     def _sync_search_button_text(self):
         if self._ctrl_pressed and self._shift_pressed:
@@ -198,7 +276,7 @@ class SearchTableView(QWidget, TransmissionReceiverProtocol):
                 self._set_search_components_enabled(True)
                 if self.result_list.count() > 0:
                     self.set_item_active(0)
-        elif type(event) == KeyboardEvent:
+        if type(event) == KeyboardEvent:
             if event.action == KeyboardEvent.Action.PRESSED:
                 if event.event.key() == Qt.Key.Key_Shift:
                     self._shift_pressed = True
@@ -213,7 +291,12 @@ class SearchTableView(QWidget, TransmissionReceiverProtocol):
                     self._ctrl_pressed = False
             self._sync_search_button_text()
 
-        elif type(event) == ConfigurationUpdatedEvent:
+        if type(event) == ConfigurationUpdatedEvent:
             self._is_config_updating = True
             self._load_list()
             self._is_config_updating = False
+            
+            self._load_source_labels()
+            
+        if type(event) == LocalResourceFetchEvent:
+            self._sync_retry_button()

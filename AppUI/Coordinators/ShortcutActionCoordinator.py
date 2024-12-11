@@ -23,7 +23,7 @@ class ShortcutActionCoordinator:
         self.focus_search.activated.connect(card_search_view.set_search_focus)
 
         self.flip_shortcut = QShortcut(QKeySequence(Qt.Modifier.CTRL + Qt.Key.Key_F), parent)
-        self.flip_shortcut.activated.connect(card_search_view.tapped_flip_button)
+        # self.flip_shortcut.activated.connect(card_search_view.tapped_flip_button) TODO: fix
 
         key_pad = [
             Qt.Key.Key_1,
