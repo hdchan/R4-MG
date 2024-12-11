@@ -70,8 +70,7 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
         # buttons_layout.addWidget(retry_button)
         
         
-        search_table_view = SearchTableView(app_dependency_provider)
-        search_table_view.delegate = self
+        search_table_view = SearchTableView(app_dependency_provider, card_search_data_source)
         self.search_table_view = search_table_view
         layout.addWidget(search_table_view, 2)
         
@@ -97,16 +96,9 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
         
         self.tabs.addTab(history_widget, "Publish History")
         
-        self._current_resource = None
         self._observation_tower.subscribe_multi(self, [LocalResourceFetchEvent, 
                                                        ConfigurationUpdatedEvent, 
                                                        PublishStagedResourcesEvent])
-
-    def tv_did_select(self, sv: SearchTableView, index: int):
-        self._card_search_data_source.select_card_resource_for_card_selection(index)
-
-    def tv_did_tap_search(self, sv: SearchTableView, search_configuration: SearchConfiguration) -> None:
-        self._card_search_data_source.search(search_configuration)
         
     def ds_completed_search_with_result(self, 
                                         ds: CardSearchDataSource, 
@@ -118,7 +110,8 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
                                                          ds: CardSearchDataSource, 
                                                          local_resource: LocalCardResource, 
                                                          is_flippable: bool):
-        self.set_image(is_flippable, local_resource)
+        self.set_image(local_resource)
+        self._sync_buttons(is_flippable)
 
     def search(self):
         self.search_table_view.search()
@@ -135,17 +128,14 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
     def set_item_active(self, index: int):
         self.search_table_view.set_item_active(index)
 
-    def set_image(self, is_flippable: bool, local_resource: LocalCardResource):
-        self._current_resource = local_resource
+    def set_image(self, local_resource: LocalCardResource):
         self.staging_view.set_image(local_resource)
-        self.flip_button.setEnabled(is_flippable)
-        self._sync_retry_button()
+    
     
     def update_history_list(self):
         self._history_list.clear()
         for r in reversed(self._recent_published_data_source.published_resources_history):
-            self._history_list.addItem(r.display_name)
-        
+            self._history_list.addItem(f'{r[1].strftime("%m/%d/%Y, %H:%M:%S")} - {r[0].display_name}')
 
     def update_list(self, result_list: List[TradingCard]):
         self.search_table_view.update_list(result_list)
@@ -156,9 +146,15 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
     def tapped_retry_button(self):
         self._card_search_data_source.redownload_currently_selected_card_resource()
     
+    
+    def _sync_buttons(self, is_flippable: bool):
+        self.flip_button.setEnabled(is_flippable)
+        self._sync_retry_button()
+    
     def _sync_retry_button(self):
-        if self._current_resource is not None:
-            self.retry_button.setEnabled(self._current_resource.remote_image_url is not None and not self._current_resource.is_loading)
+        local_resource = self._card_search_data_source.data_source.selected_local_resource
+        if local_resource is not None:
+            self.retry_button.setEnabled(local_resource.remote_image_url is not None and not local_resource.is_loading)
         else:
             self.retry_button.setEnabled(False)
         
@@ -170,7 +166,6 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
         else:
             self.search_source_label.setText(f'Search source: {self._card_search_data_source.source_display_name}')
             
-
         image_source_display_name = self._card_image_source_provider.card_image_source.site_source_identifier
         image_source_url = self._card_image_source_provider.card_image_source.site_source_url
         self.image_source_label.setText(f'Image source: <a href="{image_source_url}">{image_source_display_name}</a>')

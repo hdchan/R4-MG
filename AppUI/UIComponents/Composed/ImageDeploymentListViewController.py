@@ -156,7 +156,7 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
         self.publish_to_production()
             
     def publish_to_production(self):
-        if self.local_resource_data_source.selected_local_resource is not None:
+        if self._image_resource_deployer.can_publish_staged_resources:
             try:
                 self._image_resource_deployer.publish_staged_resources()
                 self._image_resource_deployer.load_production_resources()

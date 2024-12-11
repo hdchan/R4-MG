@@ -5,25 +5,23 @@ from PyQt5.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QLineEdit,
                              QListWidget, QPushButton, QVBoxLayout, QWidget)
 
 from AppCore.Config import Configuration
+from AppCore.Data.CardSearchDataSource import CardSearchDataSource
 from AppCore.Models import SearchConfiguration, TradingCard
 from AppCore.Observation import *
 from AppCore.Observation.Events import ConfigurationUpdatedEvent, SearchEvent
+from AppUI.AppDependencyProviding import AppDependencyProviding
 
 from ...Clients.SWUDB import CardType, SWUDBAPISearchConfiguration
 from ...Observation.Events import KeyboardEvent
 from .LoadingSpinner import LoadingSpinner
-from AppUI.AppDependencyProviding import AppDependencyProviding
 
-class SearchTableViewDelegate:
-    def tv_did_select(self, sv: ..., index: int) -> None:
-        pass
-
-    def tv_did_tap_search(self, sv: ..., search_configuration: SearchConfiguration) -> None:
-        pass
 
 class SearchTableView(QWidget, TransmissionReceiverProtocol):
-    def __init__(self, app_dependency_provider: AppDependencyProviding):
+    def __init__(self, 
+                 app_dependency_provider: AppDependencyProviding, 
+                 card_search_data_source: CardSearchDataSource):
         super().__init__()
+        self._card_search_data_source = card_search_data_source 
         
         self._shift_pressed = False
         self._ctrl_pressed = False
@@ -77,8 +75,6 @@ class SearchTableView(QWidget, TransmissionReceiverProtocol):
         
         
         self._loading_spinner = LoadingSpinner(self)
-
-        self.delegate: Optional[SearchTableViewDelegate] = None
         
         self._set_card_type_filter(None)
         
@@ -93,8 +89,8 @@ class SearchTableView(QWidget, TransmissionReceiverProtocol):
             # don't trigger update when changing configuration
             return
         selected_indexs = self.result_list.selectedIndexes()
-        if len(selected_indexs) > 0 and self.delegate is not None:
-            self.delegate.tv_did_select(self, selected_indexs[0].row())
+        if len(selected_indexs) > 0:
+            self._card_search_data_source.select_card_resource_for_card_selection(selected_indexs[0].row())
 
     def set_search_focus(self):
         self.card_name_search_bar.setFocus()
@@ -141,8 +137,7 @@ class SearchTableView(QWidget, TransmissionReceiverProtocol):
         if config_modifier is not None:
             search_configuration = config_modifier(search_configuration)
         
-        if self.delegate is not None:
-            self.delegate.tv_did_tap_search(self, search_configuration)
+        self._card_search_data_source.search(search_configuration)
 
 
     def update_list(self, list: List[TradingCard]):
