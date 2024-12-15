@@ -1,5 +1,6 @@
 from AppCore.Models import LocalCardResource
 
+
 class ImageResourceProcessorProtocol:
     def async_store_local_resource(self, local_resource: LocalCardResource, retry: bool = False) -> None:
         raise Exception

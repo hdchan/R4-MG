@@ -1,7 +1,7 @@
 from PyQt5.QtCore import QPoint, Qt, QUrl
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtMultimedia import QSoundEffect
-from PyQt5.QtWidgets import QAction, QLabel, QMenu, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QAction, QLabel, QMenu, QVBoxLayout, QWidget, QTextEdit
 
 from ...AppDependencyProviding import AppDependencyProviding
 
@@ -35,6 +35,13 @@ class AboutViewController(QWidget):
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         label.setText(f'{configuration.app_display_name}\nv.{configuration.app_ui_version}')
         v_layout.addWidget(label)
+
+        with open(app_dependencies_provider.asset_provider.text.change_log_path, 'r') as file:
+            data = file.read()
+        markdown = QTextEdit()
+        markdown.setMarkdown(data)
+        markdown.setReadOnly(True)
+        v_layout.addWidget(markdown)
         
     def _showContextMenu(self, pos: QPoint):
         menu = QMenu(self)

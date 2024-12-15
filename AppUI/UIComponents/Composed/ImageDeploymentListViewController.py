@@ -93,8 +93,11 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
             if index <= 9:
                 item.stage_button.setText(f'Stage (Ctrl+{index + 1})')
                 self.app_dependency_provider.shortcut_action_coordinator.bind_stage(item.tapped_staging_button, index, item)
+                item.unstage_button.setText(f'Unstage (Alt+{index + 1})')
+                self.app_dependency_provider.shortcut_action_coordinator.bind_unstage(item.tapped_unstaging_button, index, item)
             else:
                 item.stage_button.setText(f'Stage')
+                item.unstage_button.setText(f'Unstage')
             
             pal = item.palette()
             pal.setColor(item.backgroundRole(), Qt.GlobalColor.lightGray)

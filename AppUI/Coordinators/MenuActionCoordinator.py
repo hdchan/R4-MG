@@ -19,7 +19,7 @@ class MenuActionCoordinator(QMenuBar):
     @property
     def _configuration(self) -> Configuration:
         return self._configuration_manager.configuration
-    
+
     @property
     def _platform_service(self) -> PlatformServiceProtocol:
         return self._platform_service_provider.platform_service
@@ -73,6 +73,13 @@ class MenuActionCoordinator(QMenuBar):
         self._view_menu.addAction(self._hide_image_preview)
 
 
+        self._hide_deployment_cell_controls = QAction('Hide deployment cell controls')
+        self._hide_deployment_cell_controls.triggered.connect(self.did_toggle_hide_deployment_cell_controls)
+        self._hide_deployment_cell_controls.setCheckable(True)
+        self._hide_deployment_cell_controls.setChecked(self._configuration.hide_deployment_cell_controls)
+        self._view_menu.addAction(self._hide_deployment_cell_controls)
+
+
         self._card_title_detail = QMenu('Card title detail')
         self._view_menu.addMenu(self._card_title_detail)
 
@@ -92,6 +99,10 @@ class MenuActionCoordinator(QMenuBar):
         self._card_title_detail.addAction(self._card_title_detail_detailed)
 
         self._sync_card_title_detail_checkmarks()
+
+        self._reset_window_size = QAction('Reset window size')
+        self._reset_window_size.triggered.connect(self.did_toggle_reset_window_size)
+        self._view_menu.addAction(self._reset_window_size)
 
         
         # MARK: - About
@@ -151,28 +162,52 @@ class MenuActionCoordinator(QMenuBar):
 
     # MARK: - actions
     def did_toggle_show_resource_details(self, is_on: bool):
-        self._configuration_manager.toggle_show_resource_details(is_on).save()
+        new_config = self._configuration_manager.mutable_configuration()
+        new_config.set_show_resource_details(is_on)
+        self._configuration_manager.save_configuration(new_config)
 
     def did_toggle_hide_image_preview(self, is_on: bool):
-        self._configuration_manager.toggle_hide_image_preview(is_on).save()
+        new_config = self._configuration_manager.mutable_configuration()
+        new_config.set_hide_image_preview(is_on)
+        self._configuration_manager.save_configuration(new_config)
+
+    def did_toggle_hide_deployment_cell_controls(self, is_on: bool):
+        new_config = self._configuration_manager.mutable_configuration()
+        new_config.set_hide_deployment_cell_controls(is_on)
+        self._configuration_manager.save_configuration(new_config)
 
     def did_toggle_mock_data_mode(self, is_on: bool):
-        self._configuration_manager.toggle_mock_data_mode(is_on).save()
-        
+        new_config = self._configuration_manager.mutable_configuration()
+        new_config.set_is_mock_data(is_on)
+        self._configuration_manager.save_configuration(new_config)
+
     def did_toggle_delay_network_mode(self, is_on: bool):
-        self._configuration_manager.toggle_delay_network_mode(is_on).save()
+        new_config = self._configuration_manager.mutable_configuration()
+        new_config.set_is_delay_network_mode(is_on)
+        self._configuration_manager.save_configuration(new_config)
     
     def did_toggle_card_title_detail_short(self, is_on: bool):
-        self._configuration_manager.set_card_title_detail(Configuration.Settings.CardTitleDetail.SHORT).save()
+        new_config = self._configuration_manager.mutable_configuration()
+        new_config.set_card_title_detail(Configuration.Settings.CardTitleDetail.SHORT)
+        self._configuration_manager.save_configuration(new_config)
         self._sync_card_title_detail_checkmarks()
 
     def did_toggle_card_title_detail_normal(self, is_on: bool):
-        self._configuration_manager.set_card_title_detail(Configuration.Settings.CardTitleDetail.NORMAL).save()
+        new_config = self._configuration_manager.mutable_configuration()
+        new_config.set_card_title_detail(Configuration.Settings.CardTitleDetail.NORMAL)
+        self._configuration_manager.save_configuration(new_config)
         self._sync_card_title_detail_checkmarks()
 
     def did_toggle_card_title_detail_detailed(self, is_on: bool):
-        self._configuration_manager.set_card_title_detail(Configuration.Settings.CardTitleDetail.DETAILED).save()
+        new_config = self._configuration_manager.mutable_configuration()
+        new_config.set_card_title_detail(Configuration.Settings.CardTitleDetail.DETAILED)
+        self._configuration_manager.save_configuration(new_config)
         self._sync_card_title_detail_checkmarks()
+
+    def did_toggle_reset_window_size(self):
+        new_config = self._configuration_manager.mutable_configuration()
+        new_config.reset_window_size()
+        self._configuration_manager.save_configuration(new_config)
 
     def _sync_card_title_detail_checkmarks(self):
         preference = self._configuration.card_title_detail
@@ -184,7 +219,7 @@ class MenuActionCoordinator(QMenuBar):
         self._platform_service.open_file(self._configuration.config_directory)
 
     def did_open_production_dir(self):
-        self._platform_service.open_file(self._configuration.production_file_path)
+        self._platform_service.open_file(self._configuration.production_dir_path)
 
     def did_open_temp_dir(self):
         self._platform_service.open_file(self._configuration.temp_dir_path)

@@ -6,6 +6,13 @@ from typing import List, Optional
 # basedir = os.path.dirname(__file__)
 appdir = os.path.dirname(os.path.abspath(__file__))
 class AssetProvider:
+    class Text:
+        @property
+        def change_log_path(self) -> str:
+            return self._text_path('CHANGELOG.md')
+
+        def _text_path(self, file_name: str) -> str:
+            return os.path.join(appdir, f'Text/{file_name}')
     class Image:
         @property
         def logo_path(self) -> str:
@@ -92,6 +99,7 @@ class AssetProvider:
             return os.path.join(appdir, f'Data/{file_name}')
         
     def __init__(self):
+        self.text = self.Text()
         self.image = self.Image()
         self.audio = self.Audio()
         self.data = self.Data()

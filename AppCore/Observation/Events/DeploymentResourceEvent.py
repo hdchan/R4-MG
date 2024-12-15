@@ -3,7 +3,7 @@ from ...Models import DeploymentCardResource
 from enum import Enum
 
 class DeploymentResourceEvent(TransmissionProtocol):
-    class EventType(Enum):
+    class EventType(int, Enum):
         STAGED = 0
         CLEARED = 1
         

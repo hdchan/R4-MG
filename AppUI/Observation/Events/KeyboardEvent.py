@@ -7,7 +7,7 @@ from AppCore.Observation.TransmissionProtocol import TransmissionProtocol
 
 class KeyboardEvent(TransmissionProtocol):
     
-    class Action(Enum):
+    class Action(int, Enum):
         PRESSED = 1
         RELEASED = 2
     

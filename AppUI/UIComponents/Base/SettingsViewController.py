@@ -1,16 +1,17 @@
-from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QRadioButton,
-                             QVBoxLayout, QWidget, QPushButton, QGroupBox)
+from PyQt5.QtWidgets import (QGroupBox, QHBoxLayout, QLabel, QPushButton,
+                             QRadioButton, QVBoxLayout, QWidget)
 
 from AppCore.Config import Configuration
+
 from ...AppDependencyProviding import AppDependencyProviding
+
 
 class SettingsViewController(QWidget):
     def __init__(self, 
                  app_dependencies_provider: AppDependencyProviding):
         super().__init__()
         self.configuration_manager = app_dependencies_provider.configuration_manager
-        self.configuration_manager.discard()
-        configuration = app_dependencies_provider.configuration_manager.configuration
+        self.mutable_configuration = self.configuration_manager.mutable_configuration()
         self.setWindowTitle("Settings")
 
         vertical_layout = QVBoxLayout()
@@ -36,13 +37,13 @@ class SettingsViewController(QWidget):
         search_swudb_api_radio = QRadioButton()
         search_swudb_api_radio.setText("https://www.swu-db.com/")
         search_swudb_api_radio.toggled.connect(self.search_swudbapi_toggled)
-        search_swudb_api_radio.setChecked(configuration.search_source == Configuration.Settings.SearchSource.SWUDBAPI)
+        search_swudb_api_radio.setChecked(self.mutable_configuration.search_source == Configuration.Settings.SearchSource.SWUDBAPI)
         search_source_options_layout.addWidget(search_swudb_api_radio)
         
         search_local_radio = QRadioButton()
         search_local_radio.setText("Local")
         search_local_radio.toggled.connect(self.search_local_toggled)
-        search_local_radio.setChecked(configuration.search_source == Configuration.Settings.SearchSource.LOCAL)
+        search_local_radio.setChecked(self.mutable_configuration.search_source == Configuration.Settings.SearchSource.LOCAL)
         search_source_options_layout.addWidget(search_local_radio)
 
         # Image Source
@@ -64,13 +65,13 @@ class SettingsViewController(QWidget):
         image_swudb_api_radio = QRadioButton()
         image_swudb_api_radio.setText("https://www.swu-db.com/")
         image_swudb_api_radio.toggled.connect(self.image_swudbapi_toggled)
-        image_swudb_api_radio.setChecked(configuration.image_source == Configuration.Settings.ImageSource.SWUDBAPI)
+        image_swudb_api_radio.setChecked(self.mutable_configuration.image_source == Configuration.Settings.ImageSource.SWUDBAPI)
         image_source_options_layout.addWidget(image_swudb_api_radio)
         
         image_swudb_radio = QRadioButton()
         image_swudb_radio.setText("https://www.swudb.com/")
         image_swudb_radio.toggled.connect(self.image_swudb_toggled)
-        image_swudb_radio.setChecked(configuration.image_source == Configuration.Settings.ImageSource.SWUDB)
+        image_swudb_radio.setChecked(self.mutable_configuration.image_source == Configuration.Settings.ImageSource.SWUDB)
         image_source_options_layout.addWidget(image_swudb_radio)
         
         
@@ -93,25 +94,22 @@ class SettingsViewController(QWidget):
         
         
     def search_swudbapi_toggled(self):
-        self.configuration_manager.set_search_source(Configuration.Settings.SearchSource.SWUDBAPI)
+        self.mutable_configuration.set_search_source(Configuration.Settings.SearchSource.SWUDBAPI)
         
     def search_local_toggled(self):
-        self.configuration_manager.set_search_source(Configuration.Settings.SearchSource.LOCAL)
+        self.mutable_configuration.set_search_source(Configuration.Settings.SearchSource.LOCAL)
 
     
     def image_swudbapi_toggled(self):
-        self.configuration_manager.set_image_source(Configuration.Settings.ImageSource.SWUDBAPI)
+        self.mutable_configuration.set_image_source(Configuration.Settings.ImageSource.SWUDBAPI)
         
     def image_swudb_toggled(self):
-        self.configuration_manager.set_image_source(Configuration.Settings.ImageSource.SWUDB)
+        self.mutable_configuration.set_image_source(Configuration.Settings.ImageSource.SWUDB)
 
 
-    
- 
-            
     def save_and_close(self):
         self.save_settings()
         self.close()
     
     def save_settings(self):
-        self.configuration_manager.save()
+        self.configuration_manager.save_configuration(self.mutable_configuration)

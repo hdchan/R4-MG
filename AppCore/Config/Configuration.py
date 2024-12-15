@@ -1,127 +1,124 @@
-from typing import Any, Dict, Optional, Tuple
-from PyQt5.QtCore import QStandardPaths
 from enum import Enum
+from typing import Any, Dict, Optional, Tuple, List
 
+from PyQt5.QtCore import QStandardPaths
+
+"""
+1. Add Key
+2. Add to default value
+3. Create getter
+4. Create setter
+"""
 class Configuration:
     
     APP_NAME = 'R4-MG'
     APP_VERSION = '0.11.0'
+    SETTINGS_VERSION = '1.0'
     
     class Toggles:
         class Keys:
             DEVELOPER_MODE = 'developer_mode'
-            
-        def __init__(self):
-            self.developer_mode = False
-        
-        def loadJSON(self, toggles: Optional[Dict[str, Any]]):
-            if toggles is None:
-                return
-            self.developer_mode = toggles.get(self.Keys.DEVELOPER_MODE, False)
-            
-        def toJSON(self) -> Dict[str, Any]:
-            return {
-                self.Keys.DEVELOPER_MODE: self.developer_mode
-            }
-            
+
     class Settings:
-        
-        
         class Keys:
             SEARCH_SOURCE = 'search_source'
             IMAGE_SOURCE = 'image_source'
 
+            IMAGE_CACHE_LIFE_IN_DAYS = 'image_cache_life_in_days'
+            SEARCH_HISTORY_CACHE_LIFE_IN_DAYS = 'search_history_cache_life_in_days'
+            PUBLISH_HISTORY_CACHE_LIFE_IN_DAYS = 'publish_history_cache_life_in_days'
+
             HIDE_IMAGE_PREVIEW = 'hide_image_preview'
             SHOW_RESOURCE_DETAILS = 'show_resource_details'
+            HIDE_DEPLOYMENT_CELL_CONTROLS = 'hide_deployment_cell_controls'
+
             CARD_TITLE_DETAIL = 'card_title_preference'
-            IS_R4_ACTION_SOUND_EFFECT_ON = 'is_r4_action_sound_effect_on'
+
             WINDOW_HEIGHT = 'w_height'
             WINDOW_WIDTH = 'w_width'
-            WINDOW_X = 'w_x'
-            WINDOW_Y = 'w_y'
 
             IS_MOCK_DATA = 'is_mock_data'
             IS_DELAY_NETWORK_MODE = 'is_delay_network_mode'
-            IS_POPOUT_PRODUCTION_IMAGES_MODE = 'is_popout_production_images_mode'
         
-        class CardTitleDetail(Enum):
+        class ImageCacheLifeInDays(int, Enum):
+            NEVER = -1
+            ALWAYS = 0
+            DEFAULT = NEVER
+
+        class SearchHistoryCacheLifeInDays(int, Enum):
+            MIN = 0
+            DEFAULT = 14
+        
+        class PublishHistoryCacheLifeInDays(int, Enum):
+            MIN = 0
+            DEFAULT = 14
+
+        class CardTitleDetail(int, Enum):
             NORMAL = 0
             SHORT = 1
             DETAILED = 2
             DEFAULT = NORMAL
 
-        class SearchSource(Enum):
+        class SearchSource(int, Enum):
             SWUDBAPI = 0
             LOCAL = 1
             DEFAULT = SWUDBAPI
 
-        class ImageSource(Enum):
+        class ImageSource(int, Enum):
             SWUDBAPI = 0 # https://www.swu-db.com/api
             SWUDB = 1 # https://swudb.com/
             DEFAULT = SWUDBAPI
-        
-        def __init__(self):
-            self.search_source = self.SearchSource.DEFAULT
-            self.image_source = self.ImageSource.DEFAULT
+            
+    class Keys:
+        TOGGLES = 'toggles'
+        SETTINGS = 'settings'
+    
+    @classmethod
+    def default(cls):
+        obj = cls.__new__(cls)
+        underlying_json: Dict[str, Any] = {
+            Configuration.Keys.TOGGLES: {
+                Configuration.Toggles.Keys.DEVELOPER_MODE: False
+            },
+            Configuration.Keys.SETTINGS: {
+                Configuration.Settings.Keys.SEARCH_SOURCE: Configuration.Settings.SearchSource.DEFAULT.value,
+                Configuration.Settings.Keys.IMAGE_SOURCE: Configuration.Settings.ImageSource.DEFAULT.value,
 
-            self.hide_image_preview = False
-            self.show_resource_details = False
-            self.cart_title_detail = self.CardTitleDetail.DEFAULT
-            self.is_r4_action_sound_effect_on = False
-            
-            self.window_size = (None, None)
-            self.window_position = (None, None)
+                Configuration.Settings.Keys.IMAGE_CACHE_LIFE_IN_DAYS: Configuration.Settings.ImageCacheLifeInDays.DEFAULT.value,
+                Configuration.Settings.Keys.SEARCH_HISTORY_CACHE_LIFE_IN_DAYS: Configuration.Settings.SearchHistoryCacheLifeInDays.DEFAULT.value,
+                Configuration.Settings.Keys.PUBLISH_HISTORY_CACHE_LIFE_IN_DAYS: Configuration.Settings.PublishHistoryCacheLifeInDays.DEFAULT.value,
 
-            self.is_popout_production_images_mode = False
-            self.is_mock_data = False
-            self.is_delay_network_mode = False
-            
-        def loadJSON(self, settings: Optional[Dict[str, Any]], developer_mode: bool):
-            if settings is None:
-                return
-            self.search_source = self.SearchSource(settings.get(self.Keys.SEARCH_SOURCE, self.SearchSource.DEFAULT))
-            self.image_source = self.ImageSource(settings.get(self.Keys.IMAGE_SOURCE, self.ImageSource.DEFAULT))
-
-            self.hide_image_preview = settings.get(self.Keys.HIDE_IMAGE_PREVIEW, False)
-            self.show_resource_details = settings.get(self.Keys.SHOW_RESOURCE_DETAILS, False)
-            self.cart_title_detail = self.CardTitleDetail(settings.get(self.Keys.CARD_TITLE_DETAIL, self.CardTitleDetail.DEFAULT))
-            self.is_r4_action_sound_effect_on = settings.get(self.Keys.IS_R4_ACTION_SOUND_EFFECT_ON, False)
-            
-            self.window_size = (settings.get(self.Keys.WINDOW_WIDTH, None), settings.get(self.Keys.WINDOW_HEIGHT, None))
-            self.window_position = (settings.get(self.Keys.WINDOW_X, None), settings.get(self.Keys.WINDOW_Y, None))
-
-            self.is_mock_data = settings.get(self.Keys.IS_MOCK_DATA, False)
-            self.is_delay_network_mode = settings.get(self.Keys.IS_DELAY_NETWORK_MODE, False)
-            self.is_popout_production_images_mode = settings.get(self.Keys.IS_POPOUT_PRODUCTION_IMAGES_MODE, False)
-            
-            
-            
-        def toJSON(self, developer_mode: bool) -> Dict[str, Any]:
-            return {
-                self.Keys.SEARCH_SOURCE: self.search_source.value,
-                self.Keys.IMAGE_SOURCE: self.image_source.value,
-
-                self.Keys.HIDE_IMAGE_PREVIEW: self.hide_image_preview,
-                self.Keys.SHOW_RESOURCE_DETAILS: self.show_resource_details,
-                self.Keys.CARD_TITLE_DETAIL: self.cart_title_detail.value,
-                self.Keys.IS_R4_ACTION_SOUND_EFFECT_ON: self.is_r4_action_sound_effect_on,
+                Configuration.Settings.Keys.HIDE_IMAGE_PREVIEW: False,
+                Configuration.Settings.Keys.SHOW_RESOURCE_DETAILS: False,
+                Configuration.Settings.Keys.HIDE_DEPLOYMENT_CELL_CONTROLS: False,
+                Configuration.Settings.Keys.CARD_TITLE_DETAIL: Configuration.Settings.CardTitleDetail.DEFAULT.value,
                 
-                self.Keys.WINDOW_WIDTH: self.window_size[0],
-                self.Keys.WINDOW_HEIGHT: self.window_size[1],
-                self.Keys.WINDOW_X: self.window_position[0],
-                self.Keys.WINDOW_Y: self.window_position[1],
+                Configuration.Settings.Keys.WINDOW_HEIGHT: None,
+                Configuration.Settings.Keys.WINDOW_WIDTH: None,
                 
-                self.Keys.IS_MOCK_DATA: self.is_mock_data,
-                self.Keys.IS_DELAY_NETWORK_MODE: self.is_delay_network_mode,
-                self.Keys.IS_POPOUT_PRODUCTION_IMAGES_MODE: self.is_popout_production_images_mode,
+                Configuration.Settings.Keys.IS_MOCK_DATA: False,
+                Configuration.Settings.Keys.IS_DELAY_NETWORK_MODE: False,
             }
-
-    def __init__(self):
+        }
+        super(Configuration, obj).__init__()
+        obj._app_name = Configuration.APP_NAME
+        obj._app_ui_version = Configuration.APP_VERSION
+        obj._underlying_json = underlying_json
+        obj.__default_config_json = underlying_json
+        return obj
+    
+    def __init__(self, underlying_json: Dict[str, Any]):
         self._app_name = self.APP_NAME
         self._app_ui_version = self.APP_VERSION
+        self._settings_version = self.SETTINGS_VERSION
+        self._underlying_json = underlying_json
+        self.__default_config_json: Dict[str, Any] = Configuration.default()._underlying_json
 
-        self._toggles = Configuration.Toggles()
-        self._settings = Configuration.Settings()
+        assert(self._underlying_json is not None)
+        assert(self.__default_config_json is not None)
+     
+    def to_data(self) -> Dict[str, Any]:
+        return self._underlying_json
 
     @property
     def app_display_name(self):
@@ -139,37 +136,85 @@ class Configuration:
         return self._app_ui_version
     
     @property
-    def hide_image_preview(self) -> bool:
-        return self._settings.hide_image_preview
+    def _settings(self) -> Dict[str, Any]:
+        return self._get_with_default(self.Keys.SETTINGS)
+
+    @property
+    def _toggles(self) -> Dict[str, Any]:
+        return self._get_with_default(self.Keys.TOGGLES)
     
+
+    # MARK: - User settings
+    @property
+    def hide_image_preview(self) -> bool:
+        return self._get_with_default_settings(self.Settings.Keys.HIDE_IMAGE_PREVIEW)
+    
+    @property
+    def hide_deployment_cell_controls(self) -> bool:
+        return self._get_with_default_settings(self.Settings.Keys.HIDE_DEPLOYMENT_CELL_CONTROLS)
+
     @property 
     def search_source(self) -> Settings.SearchSource:
-        return self._settings.search_source
+        return self.Settings.SearchSource(self._get_with_default_settings(self.Settings.Keys.SEARCH_SOURCE))
 
     @property 
     def image_source(self) -> Settings.ImageSource:
-        return self._settings.image_source
+        return self.Settings.ImageSource(self._get_with_default_settings(self.Settings.Keys.IMAGE_SOURCE))
     
     @property
     def card_title_detail(self) -> Settings.CardTitleDetail:
-        return self._settings.cart_title_detail
+        return self.Settings.CardTitleDetail(self._get_with_default_settings(self.Settings.Keys.CARD_TITLE_DETAIL))
     
     @property 
     def show_resource_details(self) -> bool:
-        return self._settings.show_resource_details
+        return self._get_with_default_settings(self.Settings.Keys.SHOW_RESOURCE_DETAILS)
     
     @property
-    def is_r4_action_sound_effect_on(self) -> bool:
-        return self._settings.is_r4_action_sound_effect_on
+    def window_size(self) -> Optional[Tuple[int, int]]:
+        if (self._get_with_default_settings(self.Settings.Keys.WINDOW_HEIGHT) is not None and 
+            self._get_with_default_settings(self.Settings.Keys.WINDOW_WIDTH) is not None):
+            return (self._get_with_default_settings(self.Settings.Keys.WINDOW_HEIGHT), self._get_with_default_settings(self.Settings.Keys.WINDOW_WIDTH))
+        return None
     
     @property
-    def window_size(self) -> Tuple[Optional[int], Optional[int]]:
-        return self._settings.window_size
+    def image_cache_life_in_days(self) -> int:
+        return self._get_with_default_settings(self.Settings.Keys.IMAGE_CACHE_LIFE_IN_DAYS)
     
     @property
-    def picture_dir_path(self) -> str:
+    def search_history_cache_life_in_days(self) -> int:
+        return self._get_with_default_settings(self.Settings.Keys.SEARCH_HISTORY_CACHE_LIFE_IN_DAYS)
+    
+    @property
+    def publish_history_cache_life_in_days(self) -> int:
+        return self._get_with_default_settings(self.Settings.Keys.PUBLISH_HISTORY_CACHE_LIFE_IN_DAYS)
+
+
+    # MARK: - Developer settings
+    @property
+    def is_developer_mode(self) -> bool:
+        return self._get_with_default_toggles(self.Toggles.Keys.DEVELOPER_MODE)
+
+    @property
+    def is_mock_data(self) -> bool:
+        return self.is_developer_mode and self._get_with_default_settings(self.Settings.Keys.IS_MOCK_DATA)
+        
+    @property
+    def is_delay_network_mode(self) -> bool:
+        return self.is_developer_mode and self._get_with_default_settings(self.Settings.Keys.IS_DELAY_NETWORK_MODE)
+        
+    @property
+    def network_delay_duration(self) -> int:
+        if self.is_delay_network_mode:
+            return 5
+        else:
+            return 0
+        
+    # MARK: - file paths
+    @property
+    def _picture_dir_path(self) -> str:
         # always points to picture dir
-        return QStandardPaths.writableLocation(QStandardPaths.StandardLocation.PicturesLocation)
+        # append app name
+        return f'{QStandardPaths.writableLocation(QStandardPaths.StandardLocation.PicturesLocation)}/{self.app_path_name}'
     
     @property
     def _config_dir_path(self) -> str:
@@ -181,6 +226,14 @@ class Configuration:
         return QStandardPaths.writableLocation(QStandardPaths.StandardLocation.TempLocation)
 
     @property
+    def publish_history_path(self) -> str:
+        return f'{self._picture_dir_path}/publish_history.json'
+    
+    @property
+    def search_history_path(self) -> str:
+        return f'{self._picture_dir_path}/search_history.json'
+
+    @property
     def config_directory(self) -> str:
         return f'{self._config_dir_path}'
     
@@ -189,62 +242,87 @@ class Configuration:
         return self._temp_dir_path
     
     @property
-    def production_file_path(self) -> str:
-        return f'{self.picture_dir_path}/{self.app_path_name}/production/'
+    def production_dir_path(self) -> str:
+        return f'{self._picture_dir_path}/production/'
     
     @property
-    def production_preview_file_path(self) -> str:
-        return f'{self.production_file_path}preview/'
+    def production_preview_dir_path(self) -> str:
+        return f'{self.production_dir_path}preview/'
     
     @property
-    def cache_file_path(self) -> str:
-        return f'{self.picture_dir_path}/{self.app_path_name}/cache/' 
+    def cache_dir_path(self) -> str:
+        return f'{self._picture_dir_path}/cache/' 
     
     @property
-    def cache_preview_file_path(self) -> str:
-        return f'{self.cache_file_path}preview/'
+    def cache_preview_dir_path(self) -> str:
+        return f'{self.cache_dir_path}preview/'
+    
+    # MARK: - Helpers
+    '''
+    Convenience method to set default value based on path and return.
+    Will recursively set default value if path does not exist.
+    '''
+    def _get_with_default(self, key: str, path: List[str] = []) -> Any:
+        under: Dict[str, Any] = self._underlying_json
+        default: Dict[str, Any] = self.__default_config_json
+        traversed: List[str] = []
+        for p in path:
+            if p not in under:
+                self._get_with_default(p, traversed)
+            under = under[p]
+            default = default[p]
+            traversed.append(p)
+        if key not in under:
+            under[key] = default[key]
+        return under[key]
+    
+    def _get_with_default_settings(self, key: str) -> Any:
+        return self._get_with_default(key, [self.Keys.SETTINGS])
+    
+    def _get_with_default_toggles(self, key: str) -> Any:
+        return self._get_with_default(key, [self.Keys.TOGGLES])
+    
+class MutableConfiguration(Configuration):
+    
+    # MARK - User settings
+    def set_hide_image_preview(self, value: bool):
+        self._settings[self.Settings.Keys.HIDE_IMAGE_PREVIEW] = value
 
+    def set_hide_deployment_cell_controls(self, value: bool):
+        self._settings[self.Settings.Keys.HIDE_DEPLOYMENT_CELL_CONTROLS] = value
+        
+    def set_search_source(self, source: Configuration.Settings.SearchSource):
+        self._settings[self.Settings.Keys.SEARCH_SOURCE] = source.value
+
+    def set_image_source(self, source: Configuration.Settings.ImageSource):
+        self._settings[self.Settings.Keys.IMAGE_SOURCE] = source.value
+
+    def set_show_resource_details(self, value: bool):
+        self._settings[self.Settings.Keys.SHOW_RESOURCE_DETAILS] = value
+
+    def set_card_title_detail(self, detail: Configuration.Settings.CardTitleDetail):
+        self._settings[self.Settings.Keys.CARD_TITLE_DETAIL] = detail.value
+        
+    def set_window_size(self, size: Tuple[int, int]):
+        self._settings[self.Settings.Keys.WINDOW_HEIGHT] = size[0]
+        self._settings[self.Settings.Keys.WINDOW_WIDTH] = size[1]
+
+    def reset_window_size(self):
+        self._settings[self.Settings.Keys.WINDOW_HEIGHT] = None
+        self._settings[self.Settings.Keys.WINDOW_WIDTH] = None
+
+    def set_image_cache_life_in_days(self, value: int):
+        self._settings[self.Settings.Keys.IMAGE_CACHE_LIFE_IN_DAYS] = value
+
+    def set_search_history_cache_life_in_days(self, value: int):
+        self._settings[self.Settings.Keys.SEARCH_HISTORY_CACHE_LIFE_IN_DAYS] = value
+
+    def set_publish_history_cache_life_in_days(self, value: int):
+        self._settings[self.Settings.Keys.PUBLISH_HISTORY_CACHE_LIFE_IN_DAYS] = value
+        
     # MARK: - Developer settings
-
-    @property
-    def is_developer_mode(self) -> bool:
-        return self._toggles.developer_mode
-
-    @property
-    def is_mock_data(self) -> bool:
-        return self.is_developer_mode and self._settings.is_mock_data
+    def set_is_mock_data(self, value: bool):
+        self._settings[self.Settings.Keys.IS_MOCK_DATA] = value
         
-    @property
-    def is_delay_network_mode(self) -> bool:
-        return self.is_developer_mode and self._settings.is_delay_network_mode
-        
-    @property
-    def network_delay_duration(self) -> int:
-        if self.is_delay_network_mode:
-            return 5
-        else:
-            return 0
-        
-    @property
-    def is_popout_production_images_mode(self) -> bool:
-        return self._settings.is_popout_production_images_mode
-    
-    @is_popout_production_images_mode.setter
-    def is_popout_production_images_mode(self, value: bool):
-        self._settings.is_popout_production_images_mode = value
-        
-
-    class Keys:
-        TOGGLES = 'toggles'
-        SETTINGS = 'settings'
-
-    def loadJSON(self, json: Dict[str, Any]):
-        self._toggles.loadJSON(json.get(self.Keys.TOGGLES, {}))
-        self._settings.loadJSON(json.get(self.Keys.SETTINGS, {}), self._toggles.developer_mode)
-        
-    def toJSON(self) -> Dict[str, Any]:
-        return {
-            self.Keys.TOGGLES: self._toggles.toJSON(),
-            self.Keys.SETTINGS: self._settings.toJSON(self._toggles.developer_mode)
-        }
-        
+    def set_is_delay_network_mode(self, value: bool):
+        self._settings[self.Settings.Keys.IS_DELAY_NETWORK_MODE] = value

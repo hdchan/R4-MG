@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Dict
 
-class CardType(Enum):
+class CardType(str, Enum):
     UNSPECIFIED = 'Unspecified'
     BASE = 'Base'
     EVENT = 'Event'
@@ -23,3 +23,6 @@ class CardType(Enum):
     @property
     def abbreviation(self) -> str:
         return self._letter_mapping()[self]
+    
+    def to_data(self) -> str:
+        return self.value

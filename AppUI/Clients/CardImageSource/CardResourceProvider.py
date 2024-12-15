@@ -1,10 +1,8 @@
 from typing import Optional
-
-from ..Config import ConfigurationManager
-from ..Models.LocalCardResource import LocalCardResource
-from ..Models.TradingCard import TradingCard
-from .CardImageSourceProtocol import (CardImageSourceProtocol,
-                                      CardImageSourceProviding)
+from ....AppCore.Config import ConfigurationManager
+from ....AppCore.Models.LocalCardResource import LocalCardResource
+from ....AppCore.Models.TradingCard import TradingCard
+from .CardImageSourceProtocol import CardImageSourceProtocol, CardImageSourceProviding
 
 PNG_EXTENSION = '.png'
 

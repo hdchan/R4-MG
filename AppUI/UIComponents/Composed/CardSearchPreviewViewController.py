@@ -1,15 +1,16 @@
 from PyQt5.QtWidgets import QSizePolicy, QTabWidget, QVBoxLayout, QWidget
 
-from AppCore.Data.CardSearchDataSource import CardSearchDataSource, LocalResourceDataSourceProtocol
+from AppCore.Data.CardSearchDataSource import CardSearchDataSource
 from AppCore.Data.RecentSearchDataSource import RecentSearchDataSource
 from AppCore.Data.RecentPublishedDataSource import RecentPublishedDataSource
 from AppCore.Image.ImageResourceProcessorProtocol import *
 from AppCore.Observation import *
+from AppCore.Observation.Events import SearchEvent, ConfigurationUpdatedEvent
 from AppUI.AppDependencyProviding import AppDependencyProviding
 
 from ..Base import (ImagePreviewViewController,
                     PublishHistoryTableViewController,
-                    SearchTableViewController)
+                    SearchTableViewController, SearchHistoryTableViewController)
 
 
 class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
@@ -24,6 +25,7 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
         self._card_search_data_source = card_search_data_source
         self._recent_published_data_source = recent_published_data_source
         self._recent_search_data_source = recent_search_data_source
+        self._shortcut_action_coordinator = app_dependency_provider.shortcut_action_coordinator
 
         containing_layout = QVBoxLayout()
         containing_layout.setContentsMargins(0, 0, 0, 0)
@@ -43,16 +45,39 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
                                                             image_preview_view)
         self._tab_widget.addTab(self._search_table_view, "Search")
         
-        self._history_list = PublishHistoryTableViewController(app_dependency_provider, 
+        self._publish_history_list = PublishHistoryTableViewController(app_dependency_provider, 
                                                                recent_published_data_source, 
                                                                image_preview_view)
-        self._tab_widget.addTab(self._history_list, "Publish History")
+        self._tab_widget.addTab(self._publish_history_list, "Publish History")
 
-        # TODO: - search history
+        self._search_history_list = SearchHistoryTableViewController(app_dependency_provider,
+                                                                     recent_search_data_source, 
+                                                                     card_search_data_source)
+        self._tab_widget.addTab(self._search_history_list, "Search History")
+        
+        self._observation_tower.subscribe_multi(self, [SearchEvent, ConfigurationUpdatedEvent])
+
+        # self._shortcut_action_coordinator.bind_focus_search(self._switch_back_to_search, self)
 
     def on_tab_changed(self, index: int):
         if index == 0:
             self._search_table_view.set_active()
         elif index == 1:
-            self._history_list.set_active()
-  
+            self._publish_history_list.set_active()
+        elif index == 2:
+            self._search_history_list.set_active()
+    
+    # def _switch_back_to_search(self):
+    #     if self._tab_widget.currentIndex() != 0:
+    #         self._tab_widget.setCurrentIndex(0)
+    #         self._search_table_view.set_search_focus()
+
+    def handle_observation_tower_event(self, event: TransmissionProtocol):
+        if type(event) == SearchEvent:
+            if event.event_type == SearchEvent.EventType.STARTED:
+                self._tab_widget.setCurrentIndex(0)
+        if type(event) == ConfigurationUpdatedEvent:
+            if self._tab_widget.currentIndex() == 0:
+                self._search_table_view.get_selection()
+
+    

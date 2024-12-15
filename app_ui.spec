@@ -6,6 +6,8 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[
+        ('AppUI\\Assets\\TExt\\CHANGELOG.md', 'AppUI\\Assets\\Text'),
+
         ('AppUI\\Assets\\Data\\shd.json', 'AppUI\\Assets\\Data'),
         ('AppUI\\Assets\\Data\\sor.json', 'AppUI\\Assets\\Data'),
         ('AppUI\\Assets\\Data\\twi.json', 'AppUI\\Assets\\Data'),

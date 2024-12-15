@@ -1,7 +1,7 @@
-from pathlib import Path
-from typing import Optional, Tuple
 import os
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, Optional, Tuple
 
 from PIL import Image
 
@@ -27,7 +27,14 @@ class LocalCardResource:
         self.display_name_detailed = display_name_detailed
         self.remote_image_url = remote_image_url
         self.file_extension = file_extension
-        self._size: Optional[Size] = None
+
+        assert(self.image_dir is not None)
+        assert(self.image_preview_dir is not None)
+        assert(self.file_name is not None)
+        assert(self.display_name is not None)
+        assert(self.display_name_short is not None)
+        assert(self.display_name_detailed is not None)
+        assert(self.file_extension is not None)
 
     def __eq__(self, other):  # type: ignore
         if not isinstance(other, LocalCardResource):
@@ -35,7 +42,43 @@ class LocalCardResource:
             return NotImplemented
 
         return (self.image_path == other.image_path)
+    
+    class Keys:
+        IMAGE_DIR = 'image_dir'
+        IMAGE_PREVIEW_DIR = 'image_preview_dir'
+        FILE_NAME = 'file_name'
+        DISPLAY_NAME = 'display_name'
+        DISPLAY_NAME_SHORT = 'display_name_short'
+        DISPLAY_NAME_DETAILED = 'display_name_detailed'
+        REMOTE_IMAGE_URL = 'remote_image_url'
+        FILE_EXTENSION = 'file_extension'
 
+    def to_data(self) -> Dict[str, Any]:
+        return {
+            self.Keys.IMAGE_DIR: self.image_dir,
+            self.Keys.IMAGE_PREVIEW_DIR: self.image_preview_dir,
+            self.Keys.FILE_NAME: self.file_name,
+            self.Keys.DISPLAY_NAME: self.display_name,
+            self.Keys.DISPLAY_NAME_SHORT: self.display_name_short,
+            self.Keys.DISPLAY_NAME_DETAILED: self.display_name_detailed,
+            self.Keys.REMOTE_IMAGE_URL: self.remote_image_url,
+            self.Keys.FILE_EXTENSION: self.file_extension,
+        }
+    
+    @classmethod
+    def from_json(cls, json: Dict[str, Any]):
+        obj = cls.__new__(cls)
+        super(LocalCardResource, obj).__init__()
+        obj.image_dir = json[LocalCardResource.Keys.IMAGE_DIR]
+        obj.image_preview_dir = json[LocalCardResource.Keys.IMAGE_PREVIEW_DIR]
+        obj.file_name = json[LocalCardResource.Keys.FILE_NAME]
+        obj.display_name = json[LocalCardResource.Keys.DISPLAY_NAME]
+        obj.display_name_short = json[LocalCardResource.Keys.DISPLAY_NAME_SHORT]
+        obj.display_name_detailed = json[LocalCardResource.Keys.DISPLAY_NAME_DETAILED]
+        obj.remote_image_url = json[LocalCardResource.Keys.REMOTE_IMAGE_URL]
+        obj.file_extension = json[LocalCardResource.Keys.FILE_EXTENSION]
+        return obj
+    
     '''
     is_ready = True, is_loading = True
     processing existing file? (loading)
@@ -85,9 +128,7 @@ class LocalCardResource:
 
     @property
     def size(self):
-        # if self._size is None and self.is_ready:
-        self._size = Image.open(self.image_path).size
-        return self._size
+        return Image.open(self.image_path).size
             
     
     @property
