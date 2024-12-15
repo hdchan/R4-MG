@@ -1,10 +1,13 @@
 import os
 import platform
+import shutil
 import subprocess
+
 from ..Config import ConfigurationManager
 from ..Observation import ObservationTower
 from ..Observation.Events import *
-import shutil
+
+
 class PlatformServiceProtocol:
 
     def __init__(self, 
@@ -24,7 +27,7 @@ class PlatformServiceProtocol:
         pass
     
     def clear_cache(self):
-        shutil.rmtree(self._configuration.cache_file_path)
+        shutil.rmtree(self._configuration.cache_dir_path)
         self._observation_tower.notify(CacheClearedEvent())
 
 

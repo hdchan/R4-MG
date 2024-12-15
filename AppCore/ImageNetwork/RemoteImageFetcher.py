@@ -5,7 +5,6 @@ from PIL import Image
 
 from .ImageFetcherProtocol import *
 from .ImageFetcherRequestProtocol import *
-import io
 
 class RemoteImageFetcher(ImageFetcherProtocol):
     def fetch(self, image_url: str) ->Image.Image:

@@ -7,3 +7,4 @@ from .PublishStagedResourcesEvent import *
 from .LocalResourceSelectedEvent import *
 from .ProductionResourcesLoadedEvent import *
 from .DeploymentResourceEvent import *
+from .ApplicationEvent import *

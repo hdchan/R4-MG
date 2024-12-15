@@ -6,7 +6,7 @@ from ..TransmissionProtocol import TransmissionProtocol
 
 
 class PublishStagedResourcesEvent(TransmissionProtocol):
-    class EventType(Enum):
+    class EventType(int, Enum):
         STARTED = 0
         FINISHED = 1
         FAILED = 2

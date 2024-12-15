@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Dict
 
-class CardAspect(Enum):
+class CardAspect(str, Enum):
     VIGILANCE = 'Vigilance'
     COMMAND = 'Command'
     AGGRESSION = 'Aggression'

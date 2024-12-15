@@ -1,7 +1,7 @@
 # R4-MG
 Image asset loader for streaming the SWU TCG.
 
-See [change log](./CHANGELOG.md) for feature updates.
+See [change log](./AppUI/Assets/Text/CHANGELOG.md) for feature updates.
 
 ## Installation
 1. Download the [latest release build](https://github.com/hdchan/R4-MG/releases)
@@ -37,7 +37,7 @@ We can source image files on our stream from the `production` folder, and they'l
 - [ ] Drag and drop staging images
 - [ ] Advanced filtered search
 - [x] Recently published cards
-- [ ] Recent searches
+- [x] Recent searches
 
 ## Attributions
 

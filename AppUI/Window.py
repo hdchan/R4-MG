@@ -1,9 +1,8 @@
 
-import os
 from typing import Optional
 
 from PyQt5.QtGui import QCloseEvent, QKeyEvent, QResizeEvent
-from PyQt5.QtWidgets import QDesktopWidget, QMainWindow, QMenuBar, QMenu
+from PyQt5.QtWidgets import QDesktopWidget, QMainWindow, QApplication
 
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         TransmissionProtocol)
@@ -12,8 +11,8 @@ from AppCore.Observation.TransmissionReceiverProtocol import \
 
 from .AppDependencyProviding import AppDependencyProviding
 from .Observation.Events import KeyboardEvent
+from PyQt5.QtCore import QTimer
 
-basedir = os.path.dirname(__file__)
 class Window(QMainWindow, TransmissionReceiverProtocol):
     def __init__(self,
                  app_dependencies: AppDependencyProviding):
@@ -22,35 +21,47 @@ class Window(QMainWindow, TransmissionReceiverProtocol):
         self.configuration_manager = app_dependencies.configuration_manager
         self.asset_provider = app_dependencies.asset_provider
         self.observation_tower = app_dependencies.observation_tower
-        
-        width, height = 400+900, 900
-        if (self.configuration_manager.configuration.window_size[0] is not None and
-            self.configuration_manager.configuration.window_size[1] is not None):
-            
-            width = self.configuration_manager.configuration.window_size[0]
-            height = self.configuration_manager.configuration.window_size[1]
-        
-        self.setGeometry(0, 0, width, height)
-        qtRectangle = self.frameGeometry()
-        centerPoint = QDesktopWidget().availableGeometry().center()
-        qtRectangle.moveCenter(centerPoint)
-        self.move(qtRectangle.topLeft())
 
         self._load_window()
-
+        self._load_window_size()
+        
         app_dependencies.menu_action_coordinator.setParent(self)
         app_dependencies.menu_action_coordinator.setNativeMenuBar(False) # can only be called after set parent
         self.setMenuBar(app_dependencies.menu_action_coordinator)
         
         self.observation_tower.subscribe(self, ConfigurationUpdatedEvent)
 
+        self._save_async_timer = QTimer()
+        self._save_async_timer.setSingleShot(True)
+        self._save_async_timer.timeout.connect(self.save)
+        self.debounce_time = 500
+        
+        self._window_size = None
+
     def _load_window(self):
         self.setWindowTitle(self.configuration_manager.configuration.app_display_name)
         # https://www.pythonguis.com/tutorials/packaging-pyqt5-pyside2-applications-windows-pyinstaller/#setting-an-application-icon
         # self.setWindowIcon(QIcon(self.asset_provider.image.logo_path))
 
+    def _load_window_size(self):
+        width, height = 400+900, 900
+        if self.configuration_manager.configuration.window_size is not None:
+            width = self.configuration_manager.configuration.window_size[0]
+            height = self.configuration_manager.configuration.window_size[1]
+        self.setGeometry(0, 0, width, height)
+
+        qtRectangle = self.frameGeometry()
+        centerPoint = QDesktopWidget().availableGeometry().center()
+        qtRectangle.moveCenter(centerPoint)
+        self.move(qtRectangle.topLeft())
+
     def handle_observation_tower_event(self, event: TransmissionProtocol):
-        self._load_window()
+        if type(event) == ConfigurationUpdatedEvent:
+            self._load_window()
+
+            if event.configuration.window_size is None:
+                self._load_window_size()
+        
         
     def keyPressEvent(self, a0: Optional[QKeyEvent]):
         if a0 is not None:
@@ -62,11 +73,19 @@ class Window(QMainWindow, TransmissionReceiverProtocol):
 
     def closeEvent(self, a0: Optional[QCloseEvent]):
         print('closing')
-        # TOOD: save and close all windows
-    
+        # https://stackoverflow.com/a/70081754
+        for window in QApplication.topLevelWidgets():
+            window.close()
+
+    def save(self):
+        if self._window_size is not None:
+            new_config = self.configuration_manager.mutable_configuration()
+            new_config.set_window_size((self._window_size[0], self._window_size[1]))
+            self.configuration_manager.save_configuration(new_config)
+
     def resizeEvent(self, a0: Optional[QResizeEvent]):
         # must use event value here to get size
         if a0 is not None:
-            size = a0.size()
-            self.configuration_manager.set_window_size((size.width(), size.height())).save_async()
+            self._window_size = (a0.size().width(), a0.size().height())
+            self._save_async_timer.start(self.debounce_time)
             super(Window, self).resizeEvent(a0)

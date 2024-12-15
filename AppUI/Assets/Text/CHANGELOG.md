@@ -5,7 +5,12 @@
 - Adds window dimension configuration
 - Add new card back
 - Add creation date metadata
-- Add recent history table view
+- Add recent search history
+- Add recent publish history
+- Add reset window size
+- Close all windows when main window closed 
+- Add markdown to about page
+- Add duration string format
 
 #### Engineering updates
 - Adds abstract image processor
@@ -26,9 +31,16 @@
 - Fix proper datasource from preview
 - Limit post processing from production file
 - Add LocalResourceDataSourceProviding protocol to image preview
+- Temp move async save to window
+- Refactoring configuration manager
+- Adding hook for application termination and saving
+- Refactor configuration to recursively create key values if not exist
+- Add configuration to hide deployment controls
+- Add custom encoder
+- Refactor configuration implementation
 
 ### 0.10.1
-#### Feature updates
+#### Hotfix
 - Fix broken delegate to regenerate production image from link
 
 ### 0.10.0
@@ -53,15 +65,15 @@
 - Arc refactors
 
 ### 0.9.3
-#### Feature updates
+#### Hotfix
 - Fix production button state bug when redownloading asset
 
 ### 0.9.2
-#### Feature updates
+#### Hotfix
 - Fix crash when re-downloading multiple times
 
 ### 0.9.1
-#### Feature updates
+#### Hotfix
 - Fix update preview when changing image source
 
 ### 0.9.0
@@ -117,7 +129,7 @@
 - Creates asset provider.
 
 ### 0.4.1
-#### Engineering updates
+#### Hotfix
 - Fixes configuration path.
 
 ### 0.4.0

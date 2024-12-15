@@ -5,7 +5,7 @@ from ..TransmissionProtocol import TransmissionProtocol
 
 
 class LocalResourceFetchEvent(TransmissionProtocol):
-    class EventType(Enum):
+    class EventType(int, Enum):
         STARTED = 1
         FINISHED = 2
         FAILED = 3

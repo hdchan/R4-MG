@@ -4,7 +4,7 @@ from ...Models import SearchConfiguration
 from ..TransmissionProtocol import TransmissionProtocol
 
 class SearchEvent(TransmissionProtocol):
-    class EventType(Enum):
+    class EventType(int, Enum):
         STARTED = 1
         FINISHED = 2
 

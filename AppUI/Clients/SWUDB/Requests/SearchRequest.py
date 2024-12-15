@@ -32,9 +32,9 @@ class SearchRequest(NetworkRequestProtocol[List[TradingCard]]):
             if self.search_configuration.card_type is not CardType.UNSPECIFIED:
                 params.append(f'type:{self.search_configuration.card_type.value}')
                 
-            card_aspect_query_str = self.card_aspect_query_string(self.search_configuration.card_aspects)
-            if card_aspect_query_str is not None:
-                params.append(f'a:{card_aspect_query_str}')
+            # card_aspect_query_str = self.card_aspect_query_string(self.search_configuration.card_aspects)
+            # if card_aspect_query_str is not None:
+            #     params.append(f'a:{card_aspect_query_str}')
             
             if len(params) == 0:
                 return None

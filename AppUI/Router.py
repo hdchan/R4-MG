@@ -64,7 +64,6 @@ class Router:
         button = dlg.exec()
 
         if button == QMessageBox.StandardButton.Yes:
-            # self._image_resource_deployer.unstage_all_resources() # do we want to do this?
             self._platform_service_provider.platform_service.clear_cache()
 
     def open_settings_page(self):

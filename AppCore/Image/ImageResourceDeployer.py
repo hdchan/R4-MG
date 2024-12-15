@@ -52,13 +52,13 @@ class ImageResourceDeployer:
         self._generate_directories_if_needed()
         local_resources: List[LocalCardResource] = []
         deployment_resources: List[DeploymentCardResource] = []
-        filelist = os.listdir(self._configuration.production_file_path)
+        filelist = os.listdir(self._configuration.production_dir_path)
         filelist.sort()
         for production_file_name_with_ext in filelist[:]:
             path = Path(production_file_name_with_ext)
             if path.suffix == PNG_EXTENSION:
-                resource = LocalCardResource(image_dir=self._configuration.production_file_path, 
-                                             image_preview_dir=self._configuration.production_preview_file_path, 
+                resource = LocalCardResource(image_dir=self._configuration.production_dir_path, 
+                                             image_preview_dir=self._configuration.production_preview_dir_path, 
                                              file_name=path.stem,
                                              display_name=path.stem + path.suffix,
                                              display_name_short=path.stem + path.suffix,
@@ -125,13 +125,13 @@ class ImageResourceDeployer:
             for r in self._deployment_resources:
                 if r.staged_resource is not None:
                     # time.sleep(3)
-                    production_file_path = f'{self._configuration.production_file_path}{r.production_resource.file_name_with_ext}'
-                    production_preview_file_path = f'{self._configuration.production_preview_file_path}{r.production_resource.file_name_with_ext}'
-                    shutil.copy(r.staged_resource.image_path, production_file_path)
+                    production_dir_path = f'{self._configuration.production_dir_path}{r.production_resource.file_name_with_ext}'
+                    production_preview_dir_path = f'{self._configuration.production_preview_dir_path}{r.production_resource.file_name_with_ext}'
+                    shutil.copy(r.staged_resource.image_path, production_dir_path)
                     try:
-                        shutil.copy(r.staged_resource.image_preview_path, production_preview_file_path) # raises exception can ignore
+                        shutil.copy(r.staged_resource.image_preview_path, production_preview_dir_path) # raises exception can ignore
                     except:
-                        Path(production_preview_file_path).unlink() # remove previous preview file
+                        Path(production_preview_dir_path).unlink() # remove previous preview file
                         # gets regenerated from reload
                         # do nothing because preview file is not critical, or maybe can regenerate file
             self.unstage_all_resources()
@@ -146,8 +146,8 @@ class ImageResourceDeployer:
             raise Exception("Failed to publish. Please redownload resources and retry.")
         
     def generate_new_file(self, file_name: str, image: Optional[Image.Image] = None):
-        local_resource = LocalCardResource(image_dir=self._configuration.production_file_path, 
-                                           image_preview_dir=self._configuration.production_preview_file_path, 
+        local_resource = LocalCardResource(image_dir=self._configuration.production_dir_path, 
+                                           image_preview_dir=self._configuration.production_preview_dir_path, 
                                            file_name=file_name,
                                            display_name=file_name + PNG_EXTENSION,
                                            display_name_short=file_name + PNG_EXTENSION,
@@ -171,7 +171,7 @@ class ImageResourceDeployer:
 
 
     def _generate_directories_if_needed(self):
-        Path(self._configuration.production_preview_file_path).mkdir(parents=True, exist_ok=True)
+        Path(self._configuration.production_preview_dir_path).mkdir(parents=True, exist_ok=True)
 
 class WorkerSignals(QObject):
     finished = pyqtSignal(object)

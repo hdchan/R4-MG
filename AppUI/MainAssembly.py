@@ -11,7 +11,7 @@ from AppCore.Network import *
 from AppUI.Coordinators import MenuActionCoordinator, ShortcutActionCoordinator
 from AppUI.MainProgramViewController import MainProgramViewController
 from AppUI.UIComponents import (CardSearchPreviewViewController,
-                                ImageDeploymentListViewController, ImagePreviewViewController)
+                                ImageDeploymentListViewController, ImagePreviewLocalResourceDataSourceDecorator)
 from AppUI.Window import Window
 
 from .AppDependencyProviding import *
@@ -128,7 +128,7 @@ class MainAssembly(ComponentProviding):
         
         recent_search_data_source = RecentSearchDataSource(self._app_dependencies)
 
-        image_preview_view = ImagePreviewViewController(self._app_dependencies)
+        image_preview_view = ImagePreviewLocalResourceDataSourceDecorator(self._app_dependencies)
         
         card_search_view = CardSearchPreviewViewController(self._app_dependencies, 
                                                            card_search_data_source, 

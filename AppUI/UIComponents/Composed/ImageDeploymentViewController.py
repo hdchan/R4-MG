@@ -5,7 +5,8 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QSizePolicy,
 from AppCore.Data.LocalResourceDataSourceProtocol import *
 from AppCore.Image.ImageResourceProcessorProtocol import *
 from AppCore.Models import DeploymentCardResource, LocalCardResource
-from AppCore.Observation.Events import (DeploymentResourceEvent,
+from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
+                                        DeploymentResourceEvent,
                                         TransmissionProtocol)
 from AppUI.AppDependencyProviding import AppDependencyProviding
 from AppUI.UIComponents.Base.ImagePreviewViewController import *
@@ -20,6 +21,7 @@ class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
         self._deployment_resource = deployment_resource
         self._local_resource_data_source_provider = local_resource_data_source_provider
         self._image_resource_deployer = app_dependency_provider.image_resource_deployer
+        self._configuration_manager = app_dependency_provider.configuration_manager
         
         vertical_layout = QVBoxLayout()
         
@@ -59,11 +61,12 @@ class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
         self.unstage_button = unstage_button
         first_column_layout.addWidget(unstage_button)
 
-        first_column_widget = QWidget()
-        first_column_widget.setMaximumHeight(150)
-        first_column_widget.setLayout(first_column_layout)
+        self._first_column_widget = QWidget()
+        self._first_column_widget.setMaximumHeight(150)
+        self._first_column_widget.setLayout(first_column_layout)
         # first_column_widget.setFixedWidth(200)
-        layout.addWidget(first_column_widget)
+        layout.addWidget(self._first_column_widget)
+        self._sync_configuration_state()
 
         staging_image_view = ImagePreviewViewController(app_dependency_provider)
         layout.addWidget(staging_image_view, 4)
@@ -79,7 +82,8 @@ class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
         app_dependency_provider.observation_tower.subscribe_multi(self, [DeploymentResourceEvent, 
                                                                          PublishStagedResourcesEvent, 
                                                                          PublishStatusUpdatedEvent, 
-                                                                         LocalResourceSelectedEvent])
+                                                                         LocalResourceSelectedEvent, 
+                                                                         ConfigurationUpdatedEvent])
     
         self._sync_state()
     
@@ -114,6 +118,9 @@ class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
                 self.clear_staging_image()
             self.set_production_image(latest_deployment_resource.production_resource)
 
+    def _sync_configuration_state(self):
+        self._first_column_widget.setHidden(self._configuration_manager.configuration.hide_deployment_cell_controls)
+
     def tapped_staging_button(self):
         selected_resource = self._local_resource_data_source.selected_local_resource
         if selected_resource is not None:
@@ -142,4 +149,6 @@ class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
             type(event) == PublishStatusUpdatedEvent or 
             type(event) == LocalResourceSelectedEvent):
             self._sync_state()
+        if type(event) == ConfigurationUpdatedEvent:
+            self._sync_configuration_state()
         

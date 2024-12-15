@@ -1,5 +1,7 @@
-from ..Models.TradingCard import TradingCard
 from typing import Optional
+
+from ..Models.TradingCard import TradingCard
+
 
 class CardImageSourceProtocol:
     

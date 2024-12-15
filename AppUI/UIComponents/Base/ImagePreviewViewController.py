@@ -3,8 +3,7 @@ from typing import Optional
 
 from PyQt5.QtCore import QPoint, Qt
 from PyQt5.QtGui import QClipboard, QGuiApplication, QPixmap
-from PyQt5.QtWidgets import QAction, QLabel, QMenu, QVBoxLayout, QWidget, QSizePolicy
-from AppCore.Data.CardSearchDataSource import LocalResourceDataSourceProviding, LocalResourceDataSourceProtocol
+from PyQt5.QtWidgets import QAction, QLabel, QMenu, QVBoxLayout, QWidget
 from AppCore.Config import Configuration
 from AppCore.Image.ImageResourceProcessorProtocol import *
 from AppCore.Models import LocalCardResource
@@ -18,13 +17,13 @@ from .LoadingSpinner import LoadingSpinner
 from AppUI.AppDependencyProviding import AppDependencyProviding
 from PIL import Image
 
-class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol, LocalResourceDataSourceProviding, LocalResourceDataSourceProtocol):
+class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
                  app_dependency_provider: AppDependencyProviding, 
                  can_post_process: bool = True):
         super().__init__()
         self._can_post_process = can_post_process
-        self.observation_tower = app_dependency_provider.observation_tower
+        self._observation_tower = app_dependency_provider.observation_tower
         self._configuration_manager = app_dependency_provider.configuration_manager
         self._asset_provider = app_dependency_provider.asset_provider
         self._image_resource_processor_provider = app_dependency_provider.image_resource_processor_provider
@@ -44,7 +43,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol, LocalRes
         self._image_view = label
         self._image_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self._image_view.linkActivated.connect(self._handle_link_activated) # should only connect once
-        self._image_view.customContextMenuRequested.connect(self._showContextMenu)
+        self._image_view.customContextMenuRequested.connect(self._show_context_menu)
         self._image_view.setMinimumSize(256, 100)
         self.loading_spinner = LoadingSpinner(self._image_view)
         
@@ -108,16 +107,9 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol, LocalRes
     def _image_resource_processor(self):
         return self._image_resource_processor_provider.image_resource_processor
 
-    # MARK: - LocalResourceDataSourceProviding, LocalResourceDataSourceProtocol
-    @property
-    def data_source(self) -> LocalResourceDataSourceProtocol:
-        return self
     
-    @property
-    def selected_local_resource(self) -> Optional[LocalCardResource]:
-        return self._local_resource
     
-    def _showContextMenu(self, pos: QPoint):
+    def _show_context_menu(self, pos: QPoint):
         def _notify_delegate_regenerate_preview():
             if self._local_resource is not None:
                 self._image_resource_processor.regenerate_resource_preview(self._local_resource)

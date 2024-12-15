@@ -90,6 +90,7 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
         
         result_list = QListWidget()
         result_list.itemSelectionChanged.connect(self.get_selection)
+        result_list.itemClicked.connect(self.get_selection)
         self.result_list = result_list
         layout.addWidget(result_list, 1)
         
@@ -130,13 +131,7 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
         app_dependency_provider.shortcut_action_coordinator.bind_search_base(self.search_base, self)
 
         self._is_config_updating = False
-
-    def set_active(self):
-        local_resource = self._card_search_data_source.selected_local_resource
-        if local_resource is not None:
-            self._image_preview_view.set_image(local_resource)
-            self._observation_tower.notify(LocalResourceSelectedEvent(local_resource)) # rework?
-
+        
     def ds_completed_search_with_result(self, 
                                         ds: CardSearchDataSource, 
                                         result_list: List[TradingCard], 
@@ -147,8 +142,11 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
                                                          ds: CardSearchDataSource, 
                                                          local_resource: LocalCardResource, 
                                                          is_flippable: bool):
-        self.set_active()
+        self._image_preview_view.set_image(local_resource)
         self._sync_buttons(is_flippable)
+
+    def set_active(self):
+        self.get_selection()
 
     def get_selection(self):
         if self._is_config_updating:
@@ -161,6 +159,7 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
     def set_search_focus(self):
         self.card_name_search_bar.setFocus()
         self.card_name_search_bar.selectAll()
+
 
     def set_item_active(self, index: int):
         self.result_list.setCurrentRow(index)

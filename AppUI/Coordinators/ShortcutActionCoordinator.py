@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, List
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeySequence
@@ -24,8 +24,9 @@ class ShortcutActionCoordinator:
     def bind_search_base(self, fn: Callable[[], None], parent: QWidget):
         QShortcut(QKeySequence(Qt.Modifier.SHIFT + Qt.Key.Key_Return), parent).activated.connect(fn)
 
-    def bind_stage(self, fn: Callable[[], None], index: int, parent: QWidget):
-        key_pad = [
+    @property
+    def _key_pad(self) -> List[Qt.Key]:
+        return [
             Qt.Key.Key_1,
             Qt.Key.Key_2,
             Qt.Key.Key_3,
@@ -37,5 +38,11 @@ class ShortcutActionCoordinator:
             Qt.Key.Key_9,
             Qt.Key.Key_0,
         ]
-        if 0 <= index < len(key_pad):
-            QShortcut(QKeySequence(Qt.Modifier.CTRL + key_pad[index]), parent).activated.connect(fn)
+
+    def bind_stage(self, fn: Callable[[], None], index: int, parent: QWidget):
+        if 0 <= index < len(self._key_pad):
+            QShortcut(QKeySequence(Qt.Modifier.CTRL + self._key_pad[index]), parent).activated.connect(fn)
+            
+    def bind_unstage(self, fn: Callable[[], None], index: int, parent: QWidget):
+        if 0 <= index < len(self._key_pad):
+            QShortcut(QKeySequence(Qt.Modifier.ALT + self._key_pad[index]), parent).activated.connect(fn)
