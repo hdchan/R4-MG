@@ -2,16 +2,18 @@ from typing import List
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QPushButton, QScrollArea, QSizePolicy,
-                             QVBoxLayout, QWidget)
+                             QVBoxLayout, QWidget, QLabel)
 
 from AppCore.Data.LocalResourceDataSourceProtocol import *
 from AppCore.Image.ImageResourceProcessorProtocol import *
+from AppCore.Config import Configuration
 from AppCore.Observation import *
 from AppCore.Observation.Events import (LocalResourceFetchEvent,
                                         LocalResourceSelectedEvent,
                                         ProductionResourcesLoadedEvent,
                                         PublishStagedResourcesEvent,
-                                        PublishStatusUpdatedEvent)
+                                        PublishStatusUpdatedEvent, 
+                                        ConfigurationUpdatedEvent)
 from AppUI.AppDependencyProviding import AppDependencyProviding
 
 from ..Base import AddImageCTAViewController
@@ -64,6 +66,11 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
         production_button.clicked.connect(self.tapped_production_button)
         self.production_button = production_button
         outer_container_layout.addWidget(production_button)
+        
+        self.resize_prod_image_label = QLabel()
+        self.resize_prod_image_label.setAlignment(Qt.AlignmentFlag.AlignRight)
+        outer_container_layout.addWidget(self.resize_prod_image_label)
+        self._sync_resize_label_text()
 
         self.list_items: List[ImageDeploymentViewController] = []
         
@@ -73,12 +80,15 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
                                                       LocalResourceFetchEvent, 
                                                       PublishStagedResourcesEvent, 
                                                       LocalResourceSelectedEvent, 
-                                                      ProductionResourcesLoadedEvent])
+                                                      ProductionResourcesLoadedEvent, 
+                                                      ConfigurationUpdatedEvent])
         
         app_dependency_provider.shortcut_action_coordinator.bind_publish(self.tapped_production_button, self)
         app_dependency_provider.menu_action_coordinator.bind_refresh_production_images(self._image_resource_deployer.load_production_resources)
     
-
+    @property
+    def _configuration(self) -> Configuration:
+        return self.app_dependency_provider.configuration_manager.configuration
     
     @property
     def _local_resource_data_source(self) -> LocalResourceDataSourceProtocol:
@@ -136,6 +146,19 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
             self.production_button.setStyleSheet("background-color : #41ad49; color: white;")
         else:
             self.production_button.setStyleSheet("")
+        
+    def _sync_resize_label_text(self):
+        self.resize_prod_image_label.setHidden(not self._configuration.resize_prod_images)
+        value = "-"
+        if self._configuration.resize_prod_images:
+            size = self._configuration.resize_prod_images_max_size
+            value = f"Enabled to {size}px (min 256px)"
+        else:
+            value = "Disabled"
+        self.resize_prod_image_label.setText(f"Resize prod images: {value}")
+    
+    def _sync_configuration_related_components(self):
+        self._sync_resize_label_text()
 
     def handle_observation_tower_event(self, event: TransmissionProtocol):
         if (type(event) == PublishStatusUpdatedEvent or 
@@ -147,3 +170,6 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
         if type(event) == ProductionResourcesLoadedEvent:
             self.clear_list()
             self.load_production_resources()
+            
+        if type(event) == ConfigurationUpdatedEvent:
+            self._sync_configuration_related_components()

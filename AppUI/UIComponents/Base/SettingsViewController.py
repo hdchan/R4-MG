@@ -1,5 +1,8 @@
-from PyQt5.QtWidgets import (QGroupBox, QHBoxLayout, QLabel, QPushButton,
-                             QRadioButton, QVBoxLayout, QWidget)
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIntValidator
+from PyQt5.QtWidgets import (QCheckBox, QGroupBox, QHBoxLayout, QLabel,
+                             QLineEdit, QPushButton, QRadioButton, QVBoxLayout,
+                             QWidget)
 
 from AppCore.Config import Configuration
 
@@ -74,7 +77,48 @@ class SettingsViewController(QWidget):
         image_swudb_radio.setChecked(self.mutable_configuration.image_source == Configuration.Settings.ImageSource.SWUDB)
         image_source_options_layout.addWidget(image_swudb_radio)
         
+        # Production Image Resizing
+        resize_prod_image_row_layout = QHBoxLayout()
+        resize_prod_image_row_widget = QGroupBox()
+        resize_prod_image_row_widget.setLayout(resize_prod_image_row_layout)
+        vertical_layout.addWidget(resize_prod_image_row_widget)
         
+        resize_prod_image_options_layout = QVBoxLayout()
+        resize_prod_image_options_widget = QWidget()
+        resize_prod_image_options_widget.setLayout(resize_prod_image_options_layout)
+        resize_prod_image_row_layout.addWidget(resize_prod_image_options_widget)
+        
+        
+        enable_resize_prod_image_row_layout = QHBoxLayout()
+        enable_resize_prod_image_row_widget = QWidget()
+        enable_resize_prod_image_row_widget.setLayout(enable_resize_prod_image_row_layout)
+        resize_prod_image_options_layout.addWidget(enable_resize_prod_image_row_widget)
+        
+        enable_resize_prod_image_label = QLabel()
+        enable_resize_prod_image_label.setText("Enable resize production image")
+        enable_resize_prod_image_row_layout.addWidget(enable_resize_prod_image_label)
+        
+        enable_resize_prod_image_row_checkbox = QCheckBox()
+        enable_resize_prod_image_row_checkbox.setChecked(self.mutable_configuration.resize_prod_images)
+        enable_resize_prod_image_row_checkbox.stateChanged.connect(self.enable_resize_prod_image)
+        enable_resize_prod_image_row_layout.addWidget(enable_resize_prod_image_row_checkbox)
+        
+        
+        max_resize_prod_image_size_row_layout = QHBoxLayout()
+        max_resize_prod_image_size_row_widget = QWidget()
+        max_resize_prod_image_size_row_widget.setLayout(max_resize_prod_image_size_row_layout)
+        resize_prod_image_options_layout.addWidget(max_resize_prod_image_size_row_widget)
+        
+        max_resize_prod_image_size_label = QLabel()
+        max_resize_prod_image_size_label.setText("Max resize length (will maintain aspect ratio)")
+        max_resize_prod_image_size_row_layout.addWidget(max_resize_prod_image_size_label)
+        
+        max_resize_prod_image_size_input = QLineEdit()
+        max_resize_prod_image_size_input.setPlaceholderText("greater than or equal to 256")
+        max_resize_prod_image_size_input.setValidator(QIntValidator(256, 2000, max_resize_prod_image_size_input))
+        max_resize_prod_image_size_input.setText(str(self.mutable_configuration.resize_prod_images_max_size))
+        max_resize_prod_image_size_input.textChanged.connect(self.max_resize_prod_image_size_updated)
+        max_resize_prod_image_size_row_layout.addWidget(max_resize_prod_image_size_input)
         
         # Bottom buttons
         buttons_layout = QHBoxLayout()
@@ -105,6 +149,19 @@ class SettingsViewController(QWidget):
         
     def image_swudb_toggled(self):
         self.mutable_configuration.set_image_source(Configuration.Settings.ImageSource.SWUDB)
+
+    def enable_resize_prod_image(self, state: Qt.CheckState):
+        if state == Qt.CheckState.Checked:
+            self.mutable_configuration.set_resize_prod_images(True)
+        else:
+            self.mutable_configuration.set_resize_prod_images(False)
+            
+    def max_resize_prod_image_size_updated(self, text: str):
+        # TODO: guard against invalid value
+        try:
+            self.mutable_configuration.set_resize_prod_images_max_size(int(text))
+        except:
+            pass
 
 
     def save_and_close(self):

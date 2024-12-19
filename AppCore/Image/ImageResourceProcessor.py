@@ -49,7 +49,7 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol):
         if self._lock_resource_and_notify(local_resource):
             worker = StoreImageWorker(local_resource, 
                                     self.image_fetcher_provider, 
-                                    self._downscale_image, 
+                                    self.generate_preview_image, 
                                     self._add_corners)
             worker.signals.finished.connect(self._unlock_resource_and_notify)
             self.pool.start(worker)
@@ -63,7 +63,7 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol):
     def regenerate_resource_preview(self, local_resource: LocalCardResource):
         if self._lock_resource_and_notify(local_resource):
             # should lock UI incase another job is added
-            worker = RegenerateImageWorker(local_resource, self._downscale_image)
+            worker = RegenerateImageWorker(local_resource, self.generate_preview_image)
             worker.signals.finished.connect(self._unlock_resource_and_notify)
             self.pool.start(worker)
 
@@ -91,11 +91,17 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol):
         else:
             self.observation_tower.notify(LocalResourceFetchEvent(LocalResourceFetchEvent.EventType.FINISHED, local_resource))
 
-    def _downscale_image(self, original_img: Image.Image) -> Image.Image:
-        size = THUMBNAIL_SIZE, THUMBNAIL_SIZE
+    def generate_preview_image(self, original_img: Image.Image) -> Image.Image:
+        return self.down_scale_image(original_img, THUMBNAIL_SIZE)
+    
+    def down_scale_image(self, original_img: Image.Image, max_size: float) -> Image.Image:
         # TODO: recover from truncated image
         preview_img = original_img.copy().convert('RGBA')
-        preview_img.thumbnail(size, Image.Resampling.BICUBIC)
+        # prevent lower than thumbnail size
+        downscaled_size = max_size
+        if downscaled_size < THUMBNAIL_SIZE:
+            downscaled_size = THUMBNAIL_SIZE
+        preview_img.thumbnail((downscaled_size, downscaled_size), Image.Resampling.BICUBIC)
         return preview_img
     
     def _add_corners(self, im: Image.Image, rad: int) -> Image.Image:
