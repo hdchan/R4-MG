@@ -1,5 +1,11 @@
 ## Changelog
 
+### 0.12.0
+#### Feature updates
+- Adds configuration for max rescale size
+#### Engineering updates
+- Adds new loading spinner prototype
+
 ### 0.11.0
 #### Feature updates
 - Adds window dimension configuration

@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Dict, Optional, Tuple, List
+from typing import Any, Dict, List, Optional, Tuple
 
 from PyQt5.QtCore import QStandardPaths
 
@@ -12,7 +12,7 @@ from PyQt5.QtCore import QStandardPaths
 class Configuration:
     
     APP_NAME = 'R4-MG'
-    APP_VERSION = '0.11.0'
+    APP_VERSION = '0.12.0'
     SETTINGS_VERSION = '1.0'
     
     class Toggles:
@@ -36,6 +36,9 @@ class Configuration:
 
             WINDOW_HEIGHT = 'w_height'
             WINDOW_WIDTH = 'w_width'
+            
+            RESIZE_PROD_IMAGES = 'resize_prod_images'
+            RESIZE_PROD_IMAGES_MAX_SIZE = 'resize_prod_images_max_size'
 
             IS_MOCK_DATA = 'is_mock_data'
             IS_DELAY_NETWORK_MODE = 'is_delay_network_mode'
@@ -96,8 +99,13 @@ class Configuration:
                 Configuration.Settings.Keys.WINDOW_HEIGHT: None,
                 Configuration.Settings.Keys.WINDOW_WIDTH: None,
                 
+                Configuration.Settings.Keys.RESIZE_PROD_IMAGES: False,
+                Configuration.Settings.Keys.RESIZE_PROD_IMAGES_MAX_SIZE: 256,
+                
                 Configuration.Settings.Keys.IS_MOCK_DATA: False,
-                Configuration.Settings.Keys.IS_DELAY_NETWORK_MODE: False,
+                Configuration.Settings.Keys.IS_DELAY_NETWORK_MODE: False
+                
+                
             }
         }
         super(Configuration, obj).__init__()
@@ -112,8 +120,11 @@ class Configuration:
         self._app_ui_version = self.APP_VERSION
         self._settings_version = self.SETTINGS_VERSION
         self._underlying_json = underlying_json
-        self.__default_config_json: Dict[str, Any] = Configuration.default()._underlying_json
 
+        default_config = Configuration.default()
+        self.__default_config_json: Dict[str, Any] = default_config._underlying_json
+
+        assert(default_config.is_developer_mode is False)
         assert(self._underlying_json is not None)
         assert(self.__default_config_json is not None)
      
@@ -175,6 +186,15 @@ class Configuration:
             self._get_with_default_settings(self.Settings.Keys.WINDOW_WIDTH) is not None):
             return (self._get_with_default_settings(self.Settings.Keys.WINDOW_HEIGHT), self._get_with_default_settings(self.Settings.Keys.WINDOW_WIDTH))
         return None
+    
+    @property
+    def resize_prod_images(self) -> bool:
+        return self._get_with_default_settings(self.Settings.Keys.RESIZE_PROD_IMAGES)
+    
+    @property
+    def resize_prod_images_max_size(self) -> int:
+        return self._get_with_default_settings(self.Settings.Keys.RESIZE_PROD_IMAGES_MAX_SIZE)
+    
     
     @property
     def image_cache_life_in_days(self) -> int:
@@ -310,6 +330,15 @@ class MutableConfiguration(Configuration):
     def reset_window_size(self):
         self._settings[self.Settings.Keys.WINDOW_HEIGHT] = None
         self._settings[self.Settings.Keys.WINDOW_WIDTH] = None
+        
+    def set_resize_prod_images(self, value: bool):
+        self._settings[self.Settings.Keys.RESIZE_PROD_IMAGES] = value
+        
+    def set_resize_prod_images_max_size(self, value: int):
+        actual_value = value
+        if value < 256:
+            actual_value = 256
+        self._settings[self.Settings.Keys.RESIZE_PROD_IMAGES_MAX_SIZE] = actual_value
 
     def set_image_cache_life_in_days(self, value: int):
         self._settings[self.Settings.Keys.IMAGE_CACHE_LIFE_IN_DAYS] = value

@@ -20,8 +20,7 @@ class CoreDependencies(CoreDependencyProviding):
             self._configuration_manager = ConfigurationManager(self._observation_tower)
             self._platform_service_provider = PlatformServiceProvider(self._configuration_manager, 
                                                                       self._observation_tower)
-            self._image_resource_deployer = ImageResourceDeployer(self._configuration_manager,
-                                                            self._observation_tower)
+            
             self._string_formatter = StringFormatter()
             self._image_resource_processor_provider = None
             self._api_client_provider = None

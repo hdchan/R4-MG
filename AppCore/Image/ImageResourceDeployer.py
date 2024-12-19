@@ -16,17 +16,19 @@ from AppCore.Observation.Events import (DeploymentResourceEvent,
                                         PublishStatusUpdatedEvent)
 
 from ..ImageNetwork.ImageFetcherProvider import *
+from .ImageResourceProcessorProtocol import *
 
 PNG_EXTENSION = '.png'
-THUMBNAIL_SIZE = 256
 
     
 class ImageResourceDeployer:
     def __init__(self,
                  configuration_manager: ConfigurationManager, 
-                 observation_tower: ObservationTower):
+                 observation_tower: ObservationTower, 
+                 image_resource_processor_provider: ImageResourceProcessorProviding):
         self._observation_tower = observation_tower
         self._configuration_manager = configuration_manager
+        self._image_resource_processor_provider = image_resource_processor_provider
         self._deployment_resources: List[DeploymentCardResource] = []
         self._can_publish_state = len(self._deployment_resources) != 0
         self.pool = QThreadPool()
@@ -39,11 +41,9 @@ class ImageResourceDeployer:
     def _configuration(self) -> Configuration:
         return self._configuration_manager.configuration
     
-    def _downscale_image(self, original_img: Image.Image) -> Image.Image:
-            size = THUMBNAIL_SIZE, THUMBNAIL_SIZE
-            preview_img = original_img.copy().convert('RGBA')
-            preview_img.thumbnail(size, Image.Resampling.BICUBIC)
-            return preview_img
+    @property
+    def _image_resource_processor(self) -> ImageResourceProcessorProtocol:
+        return self._image_resource_processor_provider.image_resource_processor
     
     def load_production_resources(self):
         """
@@ -72,7 +72,7 @@ class ImageResourceDeployer:
                 if not Path(resource.image_preview_path).is_file():
                     # regnerate preview file
                     large_img = Image.open(resource.image_path)
-                    preview_img = self._downscale_image(large_img)
+                    preview_img = self._image_resource_processor.generate_preview_image(large_img)
                     preview_img.save(resource.image_preview_path)
 
         self.production_resources = local_resources
@@ -127,7 +127,13 @@ class ImageResourceDeployer:
                     # time.sleep(3)
                     production_dir_path = f'{self._configuration.production_dir_path}{r.production_resource.file_name_with_ext}'
                     production_preview_dir_path = f'{self._configuration.production_preview_dir_path}{r.production_resource.file_name_with_ext}'
-                    shutil.copy(r.staged_resource.image_path, production_dir_path)
+                    # Resize if needed
+                    if self._configuration.resize_prod_images:
+                        cached_image = Image.open(r.staged_resource.image_path)
+                        downscaled_image = self._image_resource_processor.down_scale_image(cached_image, self._configuration.resize_prod_images_max_size)
+                        downscaled_image.save(production_dir_path)
+                    else:
+                        shutil.copy(r.staged_resource.image_path, production_dir_path)
                     try:
                         shutil.copy(r.staged_resource.image_preview_path, production_preview_dir_path) # raises exception can ignore
                     except:
@@ -161,7 +167,7 @@ class ImageResourceDeployer:
         img = image or Image.new("RGB", (1, 1))
         img.save(local_resource.image_path, "PNG")
         
-        preview_img = self._downscale_image(img)
+        preview_img = self._image_resource_processor.generate_preview_image(img)
         preview_img.save(local_resource.image_preview_path, "PNG")
 
     def _notify_publish_status_changed_if_needed(self):
