@@ -15,6 +15,8 @@ from AppCore.Observation.ObservationTower import *
 class ConfigurationManager(TransmissionReceiverProtocol):
     def __init__(self, observation_tower: ObservationTower):
         self._configuration = MutableConfiguration.default()
+        # ensure that the app path points to our designated application name
+        assert(Path(self._configuration.config_directory).parts[-1] == Configuration.APP_NAME)
         self.observation_tower = observation_tower
 
         self._create_directory_if_needed()

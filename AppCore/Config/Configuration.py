@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Dict, Optional, Tuple, List
+from typing import Any, Dict, List, Optional, Tuple
 
 from PyQt5.QtCore import QStandardPaths
 
@@ -112,8 +112,11 @@ class Configuration:
         self._app_ui_version = self.APP_VERSION
         self._settings_version = self.SETTINGS_VERSION
         self._underlying_json = underlying_json
-        self.__default_config_json: Dict[str, Any] = Configuration.default()._underlying_json
 
+        default_config = Configuration.default()
+        self.__default_config_json: Dict[str, Any] = default_config._underlying_json
+
+        assert(default_config.is_developer_mode is False)
         assert(self._underlying_json is not None)
         assert(self.__default_config_json is not None)
      
