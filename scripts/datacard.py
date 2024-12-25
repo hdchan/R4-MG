@@ -9,7 +9,7 @@ class MyWidget(QWidget):
 
         self._angle = 0
         self.rotatione_animation = QPropertyAnimation(self, b"angle")
-        self.rotatione_animation.setDuration(500)  # Animation duration in milliseconds
+        self.rotatione_animation.setDuration(5000)  # Animation duration in milliseconds
         self.rotatione_animation.setStartValue(0)
         self.rotatione_animation.setEndValue(360)
         self.rotatione_animation.setLoopCount(-1)  # Loop indefinitely
@@ -31,22 +31,26 @@ class MyWidget(QWidget):
         circle_painter = QPainter(self)
         circle_painter.setRenderHint(QPainter.Antialiasing)
 
-        o_w = circle_painter.device().width()
-        o_h = circle_painter.device().height()
-        w = o_w * 0.8
-        h = o_h * 0.8
-        min_d = min(w, h)
+        window_w = circle_painter.device().width()
+        window_h = circle_painter.device().height()
+        disc_w = window_w * 0.8
+        disc_h = window_h * 0.8
+        min_d = min(disc_w, disc_h)
         t = min_d * 0.005
+        
         pen = QPen(QColor('#000'), t, cap=Qt.FlatCap)
         circle_painter.setPen(pen)
         
-        multipliers = [.99, .90, .70, .50, .30]
-
-        gradient = QLinearGradient(0, 0, w, h)
+        disc_orig_x, disc_orig_y = (window_w - disc_w)/2, (window_h - disc_h)/2
+        
+        gradient = QLinearGradient(disc_orig_x, disc_orig_y, disc_w, disc_h)
         gradient.setColorAt(0.00, QColor('#AE8625'))
         gradient.setColorAt(0.4, QColor('#F7EF8A'))
         gradient.setColorAt(0.8, QColor('#D2AC47'))
         gradient.setColorAt(0.9, QColor('#EDC967'))
+        
+        # gradient.setColorAt(0.25, QColor('red'))
+        # gradient.setColorAt(0.75, QColor('green'))
         
         # gradient.setColorAt(0.1, QColor('#DFBD69'))
         # gradient.setColorAt(self._shine, QColor('#F7EF8A'))
@@ -59,46 +63,44 @@ class MyWidget(QWidget):
         # gradient.setColorAt(0.95, QColor('B88A44'))
         circle_painter.setBrush(QBrush(gradient))
 
-        t_center_x, t_center_y = (o_w-w)/2, (o_h-h)/2
-
         def get_size(m):
             return min_d * m - t * 2
         
-        def local_to_global_midpoint(size):
-            return ((w-size)/2, (h-size)/2)
-
-        for m in multipliers:
-            size = get_size(m)
-            x, y = local_to_global_midpoint(size)
-            circle_painter.drawEllipse(x + t_center_x, y + t_center_y, size, size)
-
-        line_painter = QPainter(self)
-        line_painter.setPen(pen)
-        line_painter.setRenderHint(QPainter.Antialiasing)
+        def local_origin(size):
+            return ((disc_w - size)/2, (disc_h - size) / 2)
         
+        def arc_line_pos(size):
+            return (disc_w / 2) + (size / 2 * math.cos(theta)), (disc_h / 2) + (size / 2 * math.sin(theta))
+
+        disc_multipliers = [.99, .90, .70, .50, .30]
+        for m in disc_multipliers:
+            circle_size = get_size(m)
+            circle_origin_x, circle_origin_y = local_origin(circle_size)
+            circle_painter.drawEllipse(circle_origin_x + disc_orig_x, circle_origin_y + disc_orig_y, circle_size, circle_size)
+
+        arc_painter = QPainter(self)
+        arc_painter.setPen(pen)
+        arc_painter.setRenderHint(QPainter.Antialiasing)
         for i in range(0, 60):
             if i > 35 and i < 55:
                 continue
             # upper
             theta = -i * math.pi/30 + (self._angle * math.pi / 180)
             if i == 35 or i == 55:
-                size = get_size(0.9)
+                arc_line_top_pos = get_size(0.9)
             else:
-                size = get_size(0.86)
-            new_x, new_y = (w/2) + (size / 2 * math.cos(theta)), (h/2) + (size / 2 * math.sin(theta)) 
+                arc_line_top_pos = get_size(0.86)
+            x_1, y_1 = arc_line_pos(arc_line_top_pos)
             
             # lower
-            size2 = get_size(0.8)
-            new_x_2, new_y_2 = (w/2) + (size2 / 2 * math.cos(theta)), (h/2) + (size2 / 2 * math.sin(theta)) 
+            arc_line_bot_pos = get_size(0.8)
+            x_0, y_0 = arc_line_pos(arc_line_bot_pos)
             
-            line_painter.drawLine(new_x_2 + t_center_x, new_y_2 + t_center_y, new_x + t_center_x, new_y + t_center_y)
+            arc_painter.drawLine(x_0 + disc_orig_x, y_0 + disc_orig_y, x_1 + disc_orig_x, y_1 + disc_orig_y)
         
-        arc_painter = QPainter(self)
-        arc_painter.setPen(pen)
-        arc_painter.setRenderHint(QPainter.Antialiasing)
-        size = get_size(0.8)
-        x, y = local_to_global_midpoint(size)
-        arc_painter.drawArc(x + t_center_x, y + t_center_y, size, size, (-30 - self._angle) * 16 - t * 1, (240) * 16 + (t * 2))
+        arc_size = get_size(0.8)
+        arc_origin_x, arc_origin_y = local_origin(arc_size)
+        arc_painter.drawArc(arc_origin_x + disc_orig_x, arc_origin_y + disc_orig_y, arc_size, arc_size, (-30 - self._angle) * 16 - t * 1, (240) * 16 + (t * 2))
 
 
     @pyqtProperty(int)
