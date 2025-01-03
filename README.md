@@ -33,8 +33,6 @@ We can source image files on our stream from the `production` folder, and they'l
 ## Planned functionality
 - [ ] Player group macro
 - [ ] Macro for last played card
-- [ ] Image recognition
-- [ ] Drag and drop staging images
 - [ ] Advanced filtered search
 - [x] Recently published cards
 - [x] Recent searches
