@@ -1,9 +1,10 @@
 from PyQt5.QtWidgets import (QGroupBox, QHBoxLayout, QLabel, QPushButton,
-                             QRadioButton, QVBoxLayout, QWidget)
+                             QRadioButton, QVBoxLayout, QWidget, QCheckBox)
 
 from AppCore.Config import Configuration
 
 from ...AppDependencyProviding import AppDependencyProviding
+from PyQt5.QtCore import Qt
 
 
 class SettingsViewController(QWidget):
@@ -74,6 +75,18 @@ class SettingsViewController(QWidget):
         image_swudb_radio.setChecked(self.mutable_configuration.image_source == Configuration.Settings.ImageSource.SWUDB)
         image_source_options_layout.addWidget(image_swudb_radio)
         
+        # Production Image Resizing
+        resize_prod_image_row_layout = QHBoxLayout()
+        resize_prod_image_row_widget = QGroupBox()
+        resize_prod_image_row_widget.setLayout(resize_prod_image_row_layout)
+        vertical_layout.addWidget(resize_prod_image_row_widget)
+        
+        enable_resize_prod_image_label = QLabel()
+        enable_resize_prod_image_label.setText("Enable resize production image")
+        resize_prod_image_row_layout.addWidget(enable_resize_prod_image_label)
+        enable_resize_prod_image_row_checkbox = QCheckBox()
+        enable_resize_prod_image_row_checkbox.stateChanged.connect(self.enable_resize_prod_image)
+        resize_prod_image_row_layout.addWidget(enable_resize_prod_image_row_checkbox)
         
         
         # Bottom buttons
@@ -105,6 +118,12 @@ class SettingsViewController(QWidget):
         
     def image_swudb_toggled(self):
         self.mutable_configuration.set_image_source(Configuration.Settings.ImageSource.SWUDB)
+
+    def enable_resize_prod_image(self, state: Qt.CheckState):
+        if state == Qt.CheckState.Checked:
+            self.mutable_configuration.set_resize_prod_images(True)
+        else:
+            self.mutable_configuration.set_resize_prod_images(False)
 
 
     def save_and_close(self):

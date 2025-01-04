@@ -220,7 +220,8 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
         self._clear_image_info()
 
         if self._local_resource.is_loading:
-            self.loading_spinner.start()
+            if self.loading_spinner._is_spinning is False:
+                self.loading_spinner.start()
             # TODO: handle case where spinner is not closed?
         
         elif self._local_resource.is_ready:

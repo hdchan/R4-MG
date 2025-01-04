@@ -36,6 +36,8 @@ class Configuration:
 
             WINDOW_HEIGHT = 'w_height'
             WINDOW_WIDTH = 'w_width'
+            
+            RESIZE_PROD_IMAGES = 'resize_prod_images'
 
             IS_MOCK_DATA = 'is_mock_data'
             IS_DELAY_NETWORK_MODE = 'is_delay_network_mode'
@@ -96,8 +98,12 @@ class Configuration:
                 Configuration.Settings.Keys.WINDOW_HEIGHT: None,
                 Configuration.Settings.Keys.WINDOW_WIDTH: None,
                 
+                Configuration.Settings.Keys.RESIZE_PROD_IMAGES: False,
+                
                 Configuration.Settings.Keys.IS_MOCK_DATA: False,
-                Configuration.Settings.Keys.IS_DELAY_NETWORK_MODE: False,
+                Configuration.Settings.Keys.IS_DELAY_NETWORK_MODE: False
+                
+                
             }
         }
         super(Configuration, obj).__init__()
@@ -178,6 +184,11 @@ class Configuration:
             self._get_with_default_settings(self.Settings.Keys.WINDOW_WIDTH) is not None):
             return (self._get_with_default_settings(self.Settings.Keys.WINDOW_HEIGHT), self._get_with_default_settings(self.Settings.Keys.WINDOW_WIDTH))
         return None
+    
+    @property
+    def resize_prod_images(self) -> bool:
+        return self._get_with_default_settings(self.Settings.Keys.RESIZE_PROD_IMAGES)
+    
     
     @property
     def image_cache_life_in_days(self) -> int:
@@ -313,6 +324,9 @@ class MutableConfiguration(Configuration):
     def reset_window_size(self):
         self._settings[self.Settings.Keys.WINDOW_HEIGHT] = None
         self._settings[self.Settings.Keys.WINDOW_WIDTH] = None
+        
+    def set_resize_prod_images(self, value: bool):
+        self._settings[self.Settings.Keys.RESIZE_PROD_IMAGES] = value
 
     def set_image_cache_life_in_days(self, value: int):
         self._settings[self.Settings.Keys.IMAGE_CACHE_LIFE_IN_DAYS] = value

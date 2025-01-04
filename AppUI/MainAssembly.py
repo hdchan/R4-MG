@@ -31,7 +31,11 @@ class MainAssembly(ComponentProviding):
         def __init__(self, component_provider: ComponentProviding):
             super().__init__()
             self._asset_provider = AssetProvider()
+            
             self._image_resource_processor_provider = self._assemble_image_resource_processor_provider()
+            self._image_resource_deployer = ImageResourceDeployer(self._configuration_manager,
+                                                                  self._observation_tower, 
+                                                                  self._image_resource_processor_provider)
             self._api_client_provider = self._assemble_api_client_provider()
             self._image_source_provider = self._assemble_image_source_provider()
             self._shortcut_action_coordinator = ShortcutActionCoordinator()
