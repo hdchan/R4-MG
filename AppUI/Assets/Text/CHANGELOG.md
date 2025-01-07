@@ -1,5 +1,9 @@
 ## Changelog
 
+### 0.13.1
+#### Hotfix
+- Update shortcut list
+
 ### 0.13.0
 #### Feature updates
 - Updating rounded corners

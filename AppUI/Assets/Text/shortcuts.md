@@ -4,7 +4,7 @@
 - `CTRL+F` - Flip currently previewed card
 - `ENTER` - Search
 - `SHIFT+ENTER` - Search bases
-- `ALT+ENTER` - Search leaders
+- `CTRL+ENTER` - Search leaders
 
 ### Deployment List
 
