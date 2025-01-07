@@ -3,13 +3,23 @@ from urllib import request
 
 from PIL import Image
 
+from ..Config import ConfigurationManager
 from .ImageFetcherProtocol import *
 from .ImageFetcherRequestProtocol import *
 
+
 class RemoteImageFetcher(ImageFetcherProtocol):
-    def fetch(self, image_url: str) ->Image.Image:
+    def __init__(self, configuration_manager: ConfigurationManager):
+        self.configuration_manager = configuration_manager
+        
+    def fetch(self, local_resource: LocalCardResource) ->Image.Image:
         try:
-            return self._retryable_fetch(image_url)
+            image_url = local_resource.remote_image_url
+            if image_url is not None:
+                return self._retryable_fetch(image_url)
+            else:
+                raise Exception("No remote image url")
+            
         except Exception as error:
             raise Exception(error)
         

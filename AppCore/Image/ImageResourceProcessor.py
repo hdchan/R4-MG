@@ -13,7 +13,7 @@ from .ImageResourceProcessorProtocol import ImageResourceProcessorProtocol
 
 PNG_EXTENSION = '.png'
 THUMBNAIL_SIZE = 256
-ROUNDED_CORNERS = 25
+ROUNDED_CORNERS = 30
 NORMAL_CARD_HEIGHT = 468
 NORMAL_CARD_WIDTH = 652
 ROUNDED_CORDERS_MULTIPLIER_RELATIVE_TO_HEIGHT = ROUNDED_CORNERS / NORMAL_CARD_HEIGHT
@@ -39,18 +39,21 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol):
                 Path(local_resource.image_path).unlink()
             if os.path.exists(local_resource.image_preview_path):
                 Path(local_resource.image_preview_path).unlink()
-        if local_resource.is_ready:
+        if local_resource.is_ready or local_resource.is_local_only:
             return
+        
+        assert(not local_resource.is_ready)
+        assert(not local_resource.is_local_only)
         
         Path(local_resource.image_dir).mkdir(parents=True, exist_ok=True)
         Path(local_resource.image_preview_dir).mkdir(parents=True, exist_ok=True)
         # create temp file for loading state
         # prevent multiple jobs from running on the same resource
         if self._lock_resource_and_notify(local_resource):
-            worker = StoreImageWorker(local_resource, 
-                                    self.image_fetcher_provider, 
-                                    self.generate_preview_image, 
-                                    self._add_corners)
+            worker = StoreImageWorker(local_resource,
+                                      self.image_fetcher_provider, 
+                                      self.generate_preview_image, 
+                                      self._add_corners)
             worker.signals.finished.connect(self._unlock_resource_and_notify)
             self.pool.start(worker)
 
@@ -138,7 +141,7 @@ class StoreImageWorker(QRunnable):
     def run(self):
         if self.local_resource.remote_image_url is not None:
             try:
-                img = self.image_fetcher_provider.image_fetcher.fetch(self.local_resource.remote_image_url)
+                img = self.image_fetcher_provider.image_fetcher.fetch(self.local_resource)
                 img_height = min(img.height, img.width)
                 rad = int(img_height * ROUNDED_CORDERS_MULTIPLIER_RELATIVE_TO_HEIGHT)
                 large_img = self.add_corners_fn(img.convert('RGB'), rad)

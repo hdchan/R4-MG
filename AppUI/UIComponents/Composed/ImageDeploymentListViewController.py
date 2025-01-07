@@ -10,7 +10,7 @@ from AppCore.Config import Configuration
 from AppCore.Observation import *
 from AppCore.Observation.Events import (LocalResourceFetchEvent,
                                         LocalResourceSelectedEvent,
-                                        ProductionResourcesLoadedEvent,
+                                        ProductionResourcesLoadEvent,
                                         PublishStagedResourcesEvent,
                                         PublishStatusUpdatedEvent, 
                                         ConfigurationUpdatedEvent)
@@ -80,7 +80,7 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
                                                       LocalResourceFetchEvent, 
                                                       PublishStagedResourcesEvent, 
                                                       LocalResourceSelectedEvent, 
-                                                      ProductionResourcesLoadedEvent, 
+                                                      ProductionResourcesLoadEvent, 
                                                       ConfigurationUpdatedEvent])
         
         app_dependency_provider.shortcut_action_coordinator.bind_publish(self.tapped_production_button, self)
@@ -95,10 +95,11 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
         return self._local_resource_data_source_provider.data_source
 
     def load_production_resources(self):
+        # TODO: custom ordering
         card_resources = self._image_resource_deployer.deployment_resources
-        for index, local_resource in enumerate(card_resources):
+        for index, deployment_resource in enumerate(card_resources):
             item = ImageDeploymentViewController(self.app_dependency_provider, 
-                                                 local_resource,
+                                                 deployment_resource,
                                                  self._local_resource_data_source_provider)
             if index <= 9:
                 item.stage_button.setText(f'Stage (Ctrl+{index + 1})')
@@ -160,6 +161,7 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
     def _sync_configuration_related_components(self):
         self._sync_resize_label_text()
 
+
     def handle_observation_tower_event(self, event: TransmissionProtocol):
         if (type(event) == PublishStatusUpdatedEvent or 
             type(event) == LocalResourceFetchEvent or 
@@ -167,9 +169,19 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
             can_publish_staged_resources = self._image_resource_deployer.can_publish_staged_resources
             self.set_production_button_enabled(can_publish_staged_resources)
 
-        if type(event) == ProductionResourcesLoadedEvent:
-            self.clear_list()
-            self.load_production_resources()
+        if type(event) == ProductionResourcesLoadEvent:
+            if event.event_type == ProductionResourcesLoadEvent.EventType.STARTED:
+                self.loading_spinner.start()
+            elif event.event_type == ProductionResourcesLoadEvent.EventType.FINISHED:
+                self.clear_list()
+                self.load_production_resources()
+                self.loading_spinner.stop()
             
         if type(event) == ConfigurationUpdatedEvent:
             self._sync_configuration_related_components()
+            
+            if (event.configuration.deployment_list_sort_is_desc_order != event.old_configuration.deployment_list_sort_is_desc_order or 
+                event.configuration.deployment_list_sort_criteria != event.old_configuration.deployment_list_sort_criteria):
+                self._image_resource_deployer.load_production_resources()
+            
+            

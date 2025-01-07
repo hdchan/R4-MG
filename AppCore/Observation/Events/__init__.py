@@ -5,6 +5,6 @@ from .PublishStatusUpdatedEvent import *
 from .CacheClearedEvent import *
 from .PublishStagedResourcesEvent import *
 from .LocalResourceSelectedEvent import *
-from .ProductionResourcesLoadedEvent import *
+from .ProductionResourcesLoadEvent import *
 from .DeploymentResourceEvent import *
 from .ApplicationEvent import *

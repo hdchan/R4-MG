@@ -1,12 +1,11 @@
 from PIL import Image
-from ..Config import ConfigurationManager
+
+from ..Models import LocalCardResource
 from .ImageFetcherRequestProtocol import *
 
+
 class ImageFetcherProtocol:
-    def __init__(self, configuration_manager: ConfigurationManager):
-        self.configuration_manager = configuration_manager
-        
-    def fetch(self, image_url: str) ->Image.Image:
+    def fetch(self, local_resource: LocalCardResource) -> Image.Image:
         raise Exception()
     
 class ImageFetcherProviding:

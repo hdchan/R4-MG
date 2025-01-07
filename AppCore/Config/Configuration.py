@@ -12,7 +12,7 @@ from PyQt5.QtCore import QStandardPaths
 class Configuration:
     
     APP_NAME = 'R4-MG'
-    APP_VERSION = '0.12.0'
+    APP_VERSION = '0.13.0'
     SETTINGS_VERSION = '1.0'
     
     class Toggles:
@@ -39,6 +39,9 @@ class Configuration:
             
             RESIZE_PROD_IMAGES = 'resize_prod_images'
             RESIZE_PROD_IMAGES_MAX_SIZE = 'resize_prod_images_max_size'
+            
+            DEPLOYMENT_LIST_SORT_CRITERIA = 'deployment_list_sort_criteria'
+            DEPLOYMENT_LIST_IS_DESCENDING_ORDER = 'deployment_list_is_descending_order'
 
             IS_MOCK_DATA = 'is_mock_data'
             IS_DELAY_NETWORK_MODE = 'is_delay_network_mode'
@@ -70,7 +73,14 @@ class Configuration:
         class ImageSource(int, Enum):
             SWUDBAPI = 0 # https://www.swu-db.com/api
             SWUDB = 1 # https://swudb.com/
+            CUSTOM_LOCAL = 99
             DEFAULT = SWUDBAPI
+            
+        class DeploymentListSortCriteria(int, Enum):
+            FILE_NAME = 0
+            CREATED_DATE = 1
+            CUSTOM = 99
+            DEFAULT = FILE_NAME
             
     class Keys:
         TOGGLES = 'toggles'
@@ -102,10 +112,11 @@ class Configuration:
                 Configuration.Settings.Keys.RESIZE_PROD_IMAGES: False,
                 Configuration.Settings.Keys.RESIZE_PROD_IMAGES_MAX_SIZE: 256,
                 
+                Configuration.Settings.Keys.DEPLOYMENT_LIST_SORT_CRITERIA: Configuration.Settings.DeploymentListSortCriteria.DEFAULT.value,
+                Configuration.Settings.Keys.DEPLOYMENT_LIST_IS_DESCENDING_ORDER: False, 
+                
                 Configuration.Settings.Keys.IS_MOCK_DATA: False,
                 Configuration.Settings.Keys.IS_DELAY_NETWORK_MODE: False
-                
-                
             }
         }
         super(Configuration, obj).__init__()
@@ -136,7 +147,7 @@ class Configuration:
         if self.is_developer_mode:
             return f"{self._app_name} [DEVELOPER MODE] - v.{self.app_ui_version}"
         else:
-            return self._app_name
+            return f"{self._app_name} - v.{self.app_ui_version}"
     
     @property
     def app_path_name(self):
@@ -195,6 +206,13 @@ class Configuration:
     def resize_prod_images_max_size(self) -> int:
         return self._get_with_default_settings(self.Settings.Keys.RESIZE_PROD_IMAGES_MAX_SIZE)
     
+    @property
+    def deployment_list_sort_criteria(self) -> Settings.DeploymentListSortCriteria:
+        return self.Settings.DeploymentListSortCriteria(self._get_with_default_settings(self.Settings.Keys.DEPLOYMENT_LIST_SORT_CRITERIA))
+
+    @property
+    def deployment_list_sort_is_desc_order(self) -> bool:
+        return self._get_with_default_settings(self.Settings.Keys.DEPLOYMENT_LIST_IS_DESCENDING_ORDER)
     
     @property
     def image_cache_life_in_days(self) -> int:
@@ -338,7 +356,14 @@ class MutableConfiguration(Configuration):
         actual_value = value
         if value < 256:
             actual_value = 256
+        # TODO: throw exception if outside bounds?
         self._settings[self.Settings.Keys.RESIZE_PROD_IMAGES_MAX_SIZE] = actual_value
+        
+    def set_deployment_list_sort_criteria(self, criteria: Configuration.Settings.DeploymentListSortCriteria):
+        self._settings[self.Settings.Keys.DEPLOYMENT_LIST_SORT_CRITERIA] = criteria.value
+        
+    def set_deployment_list_sort_order(self, is_desc_order :bool):
+        self._settings[self.Settings.Keys.DEPLOYMENT_LIST_IS_DESCENDING_ORDER] = is_desc_order
 
     def set_image_cache_life_in_days(self, value: int):
         self._settings[self.Settings.Keys.IMAGE_CACHE_LIFE_IN_DAYS] = value

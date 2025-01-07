@@ -19,7 +19,9 @@ class ObservationTower:
         self.subscribers[event.__class__] = list(filtered_subscribers)
         if event.__class__ in self.subscribers:
             for s in self.subscribers[event.__class__]:
-                 s().handle_observation_tower_event(event) # type: ignore
+                obj = s()
+                if obj is not None: # its possible for objs to get deallocated after filtering
+                    obj.handle_observation_tower_event(event) # type: ignore
 
     def subscribe(self, subscriber: TransmissionReceiverProtocol, eventType: Type[TransmissionProtocol]):
         if eventType not in self.subscribers:

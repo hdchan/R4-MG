@@ -261,10 +261,8 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
             self.search_source_label.setText(f'Search source: <a href="{search_source_url}">{self._card_search_data_source.source_display_name}</a>')
         else:
             self.search_source_label.setText(f'Search source: {self._card_search_data_source.source_display_name}')
-            
-        image_source_display_name = self._card_image_source_provider.card_image_source.site_source_identifier
-        image_source_url = self._card_image_source_provider.card_image_source.site_source_url
-        self.image_source_label.setText(f'Image source: <a href="{image_source_url}">{image_source_display_name}</a>')
+
+        self.image_source_label.setText(f'Image source: {self._card_image_source_provider.card_image_source.source_label_display}')
     
     def _sync_search_button_text(self):
         if self._ctrl_pressed and self._shift_pressed:

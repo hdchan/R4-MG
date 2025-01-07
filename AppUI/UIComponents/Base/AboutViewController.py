@@ -33,7 +33,7 @@ class AboutViewController(QWidget):
         
         label = QLabel()
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        label.setText(f'{configuration.app_display_name}\nv.{configuration.app_ui_version}')
+        label.setText(f'{configuration.app_display_name}')
         v_layout.addWidget(label)
 
         with open(app_dependencies_provider.asset_provider.text.change_log_path, 'r') as file:

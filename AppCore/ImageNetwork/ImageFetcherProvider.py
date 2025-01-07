@@ -1,12 +1,12 @@
+from ..Config import ConfigurationManager
 from ..Config.Configuration import *
-
 from .ImageFetcherProtocol import *
 
 
 class ImageFetcherProvider(ImageFetcherProviding):
     def __init__(self, 
                  configuration_manager: ConfigurationManager, 
-                 real_client: ImageFetcherProtocol, 
+                 real_client: ImageFetcherProtocol,
                  mock_client: ImageFetcherProtocol):
         self.configuration_manager = configuration_manager
         self.real_client = real_client
