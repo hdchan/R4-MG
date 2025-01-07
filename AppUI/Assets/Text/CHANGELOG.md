@@ -5,6 +5,7 @@
 - Updating rounded corners
 - Update refresh to maintain staging resource state when refreshing
 - Add deployment list sort
+- Add shortcuts list
 
 ### 0.12.0
 #### Feature updates
