@@ -1,5 +1,11 @@
 ## Changelog
 
+### 0.13.0
+#### Feature updates
+- Updating rounded corners
+- Update refresh to maintain staging resource state when refreshing
+- Add deployment list sort
+
 ### 0.12.0
 #### Feature updates
 - Adds configuration for max rescale size

@@ -11,7 +11,7 @@ from PyQt5.QtCore import QObject, QRunnable, QThreadPool, pyqtSignal
 from AppCore.Models import DeploymentCardResource, LocalCardResource
 from AppCore.Observation import *
 from AppCore.Observation.Events import (DeploymentResourceEvent,
-                                        ProductionResourcesLoadedEvent,
+                                        ProductionResourcesLoadEvent,
                                         PublishStagedResourcesEvent,
                                         PublishStatusUpdatedEvent)
 
@@ -49,11 +49,14 @@ class ImageResourceDeployer:
         """
         Will load images from production folder
         """
+        
+        start_load_event = ProductionResourcesLoadEvent(ProductionResourcesLoadEvent.EventType.STARTED)
+        self._observation_tower.notify(start_load_event)
+        
         self._generate_directories_if_needed()
-        local_resources: List[LocalCardResource] = []
         deployment_resources: List[DeploymentCardResource] = []
         filelist = os.listdir(self._configuration.production_dir_path)
-        filelist.sort()
+        
         for production_file_name_with_ext in filelist[:]:
             path = Path(production_file_name_with_ext)
             if path.suffix == PNG_EXTENSION:
@@ -64,7 +67,6 @@ class ImageResourceDeployer:
                                              display_name_short=path.stem + path.suffix,
                                              display_name_detailed=path.stem + path.suffix,
                                              file_extension=path.suffix)
-                local_resources.append(resource)
                 
                 staged_resource = DeploymentCardResource(resource)
                 deployment_resources.append(staged_resource)
@@ -75,10 +77,23 @@ class ImageResourceDeployer:
                     preview_img = self._image_resource_processor.generate_preview_image(large_img)
                     preview_img.save(resource.image_preview_path)
 
-        self.production_resources = local_resources
-        self._deployment_resources = deployment_resources
+        # Maintains any existing staged resources when loading, removes any deleted prod files, and appends new prod files
+        latest_prod_resources = list(map(lambda x: x.production_resource, deployment_resources))
+        maintain_existing = list(filter(lambda x: x.production_resource in latest_prod_resources, self._deployment_resources))
+        mapped_existing_prod_resources = list(map(lambda x: x.production_resource, maintain_existing))
+        new_additions = list(filter(lambda x: x.production_resource not in mapped_existing_prod_resources, deployment_resources))
         
-        self._observation_tower.notify(ProductionResourcesLoadedEvent())
+        
+        self._deployment_resources = maintain_existing + new_additions
+        
+        if self._configuration.deployment_list_sort_criteria == Configuration.Settings.DeploymentListSortCriteria.FILE_NAME:
+            self._deployment_resources.sort(key=lambda x: x.production_resource.file_name, reverse=self._configuration.deployment_list_sort_is_desc_order)
+        elif self._configuration.deployment_list_sort_criteria == Configuration.Settings.DeploymentListSortCriteria.CREATED_DATE:
+            self._deployment_resources.sort(key=lambda x: x.production_resource.created_date, reverse=self._configuration.deployment_list_sort_is_desc_order)
+        
+        finish_load_event = ProductionResourcesLoadEvent(ProductionResourcesLoadEvent.EventType.FINISHED)
+        finish_load_event.predecessor = start_load_event
+        self._observation_tower.notify(finish_load_event)
 
     def latest_deployment_resource(self, deployment_resource: DeploymentCardResource) -> Optional[DeploymentCardResource]:
         for r in self._deployment_resources:
@@ -128,7 +143,8 @@ class ImageResourceDeployer:
                     production_dir_path = f'{self._configuration.production_dir_path}{r.production_resource.file_name_with_ext}'
                     production_preview_dir_path = f'{self._configuration.production_preview_dir_path}{r.production_resource.file_name_with_ext}'
                     # Resize if needed
-                    if self._configuration.resize_prod_images:
+                    if self._configuration.resize_prod_images and not r.staged_resource.is_local_only:
+                        assert(not r.staged_resource.is_local_only) # Don't resize local only resources, assume that these are custom assets
                         cached_image = Image.open(r.staged_resource.image_path)
                         downscaled_image = self._image_resource_processor.down_scale_image(cached_image, self._configuration.resize_prod_images_max_size)
                         downscaled_image.save(production_dir_path)

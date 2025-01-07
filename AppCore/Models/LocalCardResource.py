@@ -105,6 +105,10 @@ class LocalCardResource:
     @property 
     def is_loading(self) -> bool:
         return Path(self.image_temp_path).is_file() # temp file might be present as an artifact
+    
+    @property
+    def is_local_only(self) -> bool:
+        return self.remote_image_url is None
 
     @property
     def file_name_with_ext(self) -> str:

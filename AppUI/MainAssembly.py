@@ -22,7 +22,7 @@ from .Coordinators import MenuActionCoordinator, ShortcutActionCoordinator
 from .Router import Router
 from .UIComponents.Base.AboutViewController import AboutViewController
 from .UIComponents.Base.SettingsViewController import SettingsViewController
-
+from .UIComponents.Base.ShortcutsViewController import ShortcutsViewController
 
 # TODO: graphing algorithm to sort dependencies?
 
@@ -76,10 +76,10 @@ class MainAssembly(ComponentProviding):
             return self._image_source_provider
         
         def _assemble_api_client_provider(self) -> APIClientProviding:
-            return SWUDBAPIClientProvider(self._configuration_manager, 
-                                         SWUDBAPIRemoteClient(RemoteNetworker(self._configuration_manager)), 
-                                         SWUDBAPILocalClient(LocalNetworker(self._configuration_manager),
-                                                             self.asset_provider))
+            return SWUDBAPIClientProvider(self._configuration_manager,
+                                          SWUDBAPIRemoteClient(RemoteNetworker(self._configuration_manager)), 
+                                          SWUDBAPILocalClient(LocalNetworker(self._configuration_manager),
+                                                              self.asset_provider))
     
         def _assemble_image_resource_processor_provider(self) -> ImageResourceProcessorProviding:
             image_fetcher_provider = self._assemble_image_fetcher_provider()
@@ -93,8 +93,9 @@ class MainAssembly(ComponentProviding):
         
         def _assemble_image_source_provider(self) -> CardImageSourceProviding:
             return CardImageSourceProvider(self._configuration_manager,
-                                           SWUDBAPIImageSource(),
-                                           SWUDBImageSource())
+                                           SWUDBAPIImageSource(self._configuration_manager),
+                                           SWUDBImageSource(self._configuration_manager), 
+                                           CustomLocalImageSource())
 
     def __init__(self):
         self.app = QApplication([])
@@ -110,12 +111,12 @@ class MainAssembly(ComponentProviding):
         # https://forum.qt.io/topic/142136/how-to-change-the-application-name-pyqt5/4
         # self.app.setApplicationDisplayName(self.configuration_manager.configuration.app_display_name)
         
-        main_window = Window(self._app_dependencies)
+        self.main_window = Window(self._app_dependencies)
         
         main_widget = self._assemble_main_widget()
         
-        main_window.setCentralWidget(main_widget)
-        main_window.show()
+        self.main_window.setCentralWidget(main_widget)
+        self.main_window.show()
         self.app.exec()
     
     
@@ -157,3 +158,7 @@ class MainAssembly(ComponentProviding):
     @property
     def settings_view(self) -> QWidget:
         return SettingsViewController(self._app_dependencies)
+    
+    @property
+    def shortcuts_view(self) -> QWidget:
+        return ShortcutsViewController(self._app_dependencies)

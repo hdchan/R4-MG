@@ -17,6 +17,7 @@ from .LoadingSpinner import LoadingSpinner
 from AppUI.AppDependencyProviding import AppDependencyProviding
 from PIL import Image
 
+MAX_PREVIEW_SIZE = 256
 class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
                  app_dependency_provider: AppDependencyProviding, 
@@ -44,7 +45,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
         self._image_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self._image_view.linkActivated.connect(self._handle_link_activated) # should only connect once
         self._image_view.customContextMenuRequested.connect(self._show_context_menu)
-        self._image_view.setMinimumSize(256, 100)
+        self._image_view.setMinimumSize(MAX_PREVIEW_SIZE, 100)
         self.loading_spinner = LoadingSpinner(self._image_view)
         
         # self._image_view.mousePressEvent = self._tapped_image # causes memory leak in child
@@ -200,10 +201,8 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
     
     def _sync_image_view_state(self):
         self._toggle_resource_details_visibility()
-        # self._image_view.setWordWrap(True)
         if self._local_resource is None:
             # empty state
-            # self._image_view.setText('Image Placeholder')
             self.loading_spinner.stop()
             if self._configuration_manager.configuration.hide_image_preview: # show text only
                 self._image_view.setText('[Placeholder]')
@@ -211,7 +210,6 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
                 image = QPixmap()
                 success = image.load(self._asset_provider.image.swu_logo_black_path)
                 if success:
-                    # self._image_view.setWordWrap(False)
                     self._image_view.setPixmap(image)
                 else:
                     self._image_view.setText('[Placeholder]')
@@ -234,8 +232,11 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
                 image = QPixmap()
                 success = image.load(self._local_resource.image_preview_path)
                 if success:
-                    # self._image_view.setWordWrap(False)
-                    self._image_view.setPixmap(image)
+                    image_width = image.size().width()
+                    image_height = image.size().height()
+                    multiplier = MAX_PREVIEW_SIZE / max(image_width, image_height)
+                    scaled_image = image.scaled(int(image_width * multiplier), int(image_height * multiplier), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+                    self._image_view.setPixmap(scaled_image)
                 else:
                     # existing resource, but no preview
                     self._image_view.setText(f'⚠️ No preview for {self._local_resource.display_name}. <a href="{self.LinkKey.REGENERATE_PREVIEW}">Regenerate</a>')

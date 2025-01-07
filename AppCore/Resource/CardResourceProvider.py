@@ -39,42 +39,31 @@ class CardResourceProvider:
                 return self.front_local_resource
             else:
                 return self.back_local_resource
-    @property
-    def _site_source_path(self) -> str:
-        return self._card_image_source.site_source_identifier
-    
-    @property
-    def _image_path(self) -> str:
-        return f'{self._configuration_manager.configuration.cache_dir_path}{self._site_source_path}/'
-    
-    @property
-    def _image_preview_path(self) -> str:
-        return f'{self._configuration_manager.configuration.cache_preview_dir_path}{self._site_source_path}/'
     
     @property
     def front_local_resource(self) -> LocalCardResource:
-        return LocalCardResource(image_dir=self._image_path, 
-                                image_preview_dir=self._image_preview_path, 
-                                file_name=self._unique_identifier_front,
-                                display_name=self._trading_card.friendly_display_name,
-                                display_name_short=self._trading_card.friendly_display_name_short,
-                                display_name_detailed=self._trading_card.friendly_display_name_detailed,
-                                file_extension=PNG_EXTENSION, 
-                                remote_image_url=self._card_image_source.front_art_url(self._trading_card))
+        return LocalCardResource(image_dir=self._card_image_source.image_path,
+                                 image_preview_dir=self._card_image_source.image_preview_dir, 
+                                 file_name=self._unique_identifier_front,
+                                 display_name=self._trading_card.friendly_display_name,
+                                 display_name_short=self._trading_card.friendly_display_name_short,
+                                 display_name_detailed=self._trading_card.friendly_display_name_detailed,
+                                 file_extension=PNG_EXTENSION, 
+                                 remote_image_url=self._card_image_source.front_art_url(self._trading_card))
     
     @property
     def back_local_resource(self) -> Optional[LocalCardResource]:
         back_art_url = self._card_image_source.back_art_url(self._trading_card)
         if back_art_url is None:
             return None
-        return LocalCardResource(image_dir=self._image_path, 
-                                image_preview_dir=self._image_preview_path, 
-                                file_name=self._unique_identifier_back,
-                                display_name=self._trading_card.friendly_display_name + ' (back)',
-                                display_name_short=self._trading_card.friendly_display_name_short + ' (back)',
-                                display_name_detailed=self._trading_card.friendly_display_name_detailed + ' (back)',
-                                file_extension=PNG_EXTENSION, 
-                                remote_image_url=back_art_url)
+        return LocalCardResource(image_dir=self._card_image_source.image_path,
+                                 image_preview_dir=self._card_image_source.image_preview_dir, 
+                                 file_name=self._unique_identifier_back,
+                                 display_name=self._trading_card.friendly_display_name + ' (back)',
+                                 display_name_short=self._trading_card.friendly_display_name_short + ' (back)',
+                                 display_name_detailed=self._trading_card.friendly_display_name_detailed + ' (back)',
+                                 file_extension=PNG_EXTENSION, 
+                                 remote_image_url=back_art_url)
     
     @property
     def _unique_identifier_front(self) -> str:

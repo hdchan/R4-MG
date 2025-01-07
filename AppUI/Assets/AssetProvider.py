@@ -10,6 +10,10 @@ class AssetProvider:
         @property
         def change_log_path(self) -> str:
             return self._text_path('CHANGELOG.md')
+        
+        @property
+        def shortcuts_path(self) -> str:
+            return self._text_path('shortcuts.md')
 
         def _text_path(self, file_name: str) -> str:
             return os.path.join(appdir, f'Text/{file_name}')

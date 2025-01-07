@@ -1,4 +1,5 @@
 
+import webbrowser
 from typing import Optional
 
 from PIL import Image
@@ -30,9 +31,12 @@ class Router:
         menu_action_coordinator.bind_open_about_page(self.open_about_page)
         menu_action_coordinator.bind_unstage_all_staging_resources(self.confirm_unstage_all_resources)
         menu_action_coordinator.bind_clear_cache_dir(self.confirm_clear_cache)
+        menu_action_coordinator.bind_open_update_page(self.open_update_page)
+        menu_action_coordinator.bind_open_shortcuts_page(self.open_shortcuts_page)
         
         self._settings_page: Optional[QWidget] = None
         self._about_page: Optional[QWidget] = None
+        self._shortcuts_page: Optional[QWidget] = None
 
     def prompt_generate_new_file(self):
         file_name, ok = QInputDialog.getText(None, 'Create new image file', 'Enter file name:')
@@ -88,6 +92,18 @@ class Router:
             self._about_page.show()
         if not self._about_page.isHidden():
             self._about_page.activateWindow()
+            
+    def open_shortcuts_page(self):
+        def remove_ref():
+            self._shortcuts_page = None
+        if self._shortcuts_page is None or self._shortcuts_page.isHidden():
+            self._shortcuts_page = self._component_provider.shortcuts_view
+            self._shortcuts_page.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+            # https://stackoverflow.com/a/65357051
+            self._shortcuts_page.destroyed.connect(remove_ref)
+            self._shortcuts_page.show()
+        if not self._shortcuts_page.isHidden():
+            self._shortcuts_page.activateWindow()
     
     def show_error(self, error: Exception):
         msgBox = QMessageBox()
@@ -96,3 +112,6 @@ class Router:
         msgBox.setWindowTitle("Error")
         msgBox.setStandardButtons(QMessageBox.StandardButton.Ok)
         msgBox.exec()
+        
+    def open_update_page(self):
+        webbrowser.open("https://github.com/hdchan/R4-MG/releases/latest")

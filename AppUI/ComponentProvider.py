@@ -8,3 +8,7 @@ class ComponentProviding:
     @property
     def settings_view(self) -> QWidget:
         return NotImplemented
+    
+    @property
+    def shortcuts_view(self) -> QWidget:
+        return NotImplemented

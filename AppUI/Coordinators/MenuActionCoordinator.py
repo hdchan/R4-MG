@@ -1,10 +1,10 @@
-import webbrowser
 from typing import Callable
 
 from PyQt5.QtWidgets import QAction, QMenu, QMenuBar
 
 from AppCore.Config.ConfigurationManager import *
 from AppCore.Service import PlatformServiceProtocol, PlatformServiceProvider
+
 
 class MenuActionCoordinator(QMenuBar):
     def __init__(self, 
@@ -25,7 +25,7 @@ class MenuActionCoordinator(QMenuBar):
         return self._platform_service_provider.platform_service
 
     def build_menu_bar(self):
-        # MARK: - File
+        # MARK: - # File
         self._file_menu = QMenu("&File")
         self.addMenu(self._file_menu)
 
@@ -40,7 +40,12 @@ class MenuActionCoordinator(QMenuBar):
         self._open_production_dir.triggered.connect(self.did_open_production_dir)
         self._file_menu.addAction(self._open_production_dir)
         
-        # Actions
+        self._settings_menu = QAction("Settings")
+        self._file_menu.addAction(self._settings_menu)
+        
+        
+        
+        # MARK: - # Actions
         self._action_menu = QMenu("&Action")
         self.addMenu(self._action_menu)
 
@@ -51,11 +56,9 @@ class MenuActionCoordinator(QMenuBar):
         self._action_menu.addAction(self._clear_cache_dir)
 
         
-        # MARK: - Settings
-        self._settings_menu = QAction("Settings")
-        self._file_menu.addAction(self._settings_menu)
         
-        # MARK: - View
+        
+        # MARK: - # View
         self._view_menu = QMenu("&View")
         self.addMenu(self._view_menu)
         
@@ -80,6 +83,8 @@ class MenuActionCoordinator(QMenuBar):
         self._view_menu.addAction(self._hide_deployment_cell_controls)
 
 
+
+        # MARK: - ## Card details
         self._card_title_detail = QMenu('Card title detail')
         self._view_menu.addMenu(self._card_title_detail)
 
@@ -100,6 +105,46 @@ class MenuActionCoordinator(QMenuBar):
 
         self._sync_card_title_detail_checkmarks()
 
+
+
+        # MARK: - ## Deployment list sort order
+        self._sort_deployment_list_menu = QMenu('Sort deployment list')
+        self._view_menu.addMenu(self._sort_deployment_list_menu)
+        
+        # MARK: - ### Criteria
+        self._sort_deployment_list_criteria = QMenu('Criteria')
+        self._sort_deployment_list_menu.addMenu(self._sort_deployment_list_criteria)
+        
+        self._sort_deployment_list_criteria_file_name = QAction('File name')
+        self._sort_deployment_list_criteria_file_name.triggered.connect(self.did_toggle_sort_deployment_list_criteria_file_name)
+        self._sort_deployment_list_criteria_file_name.setCheckable(True)
+        self._sort_deployment_list_criteria.addAction(self._sort_deployment_list_criteria_file_name)
+        
+        self._sort_deployment_list_criteria_created_date = QAction('Created date')
+        self._sort_deployment_list_criteria_created_date.triggered.connect(self.did_toggle_sort_deployment_list_criteria_created_date)
+        self._sort_deployment_list_criteria_created_date.setCheckable(True)
+        self._sort_deployment_list_criteria.addAction(self._sort_deployment_list_criteria_created_date)
+        
+        self._sync_sort_deployment_list_criteria()
+        
+        # MARK: - ### Order
+        self._sort_deployment_list_order = QMenu('Order')
+        self._sort_deployment_list_menu.addMenu(self._sort_deployment_list_order)
+    
+        self._sort_deployment_list_order_asc = QAction('Ascending')
+        self._sort_deployment_list_order_asc.triggered.connect(self.did_toggle_sort_deployment_list_order_asc)
+        self._sort_deployment_list_order_asc.setCheckable(True)
+        self._sort_deployment_list_order.addAction(self._sort_deployment_list_order_asc)
+        
+        self._sort_deployment_list_order_desc = QAction('Descending')
+        self._sort_deployment_list_order_desc.triggered.connect(self.did_toggle_sort_deployment_list_order_desc)
+        self._sort_deployment_list_order_desc.setCheckable(True)
+        self._sort_deployment_list_order.addAction(self._sort_deployment_list_order_desc)
+        
+        self._sync_sort_deployment_list_order()
+    
+    
+        # MARK: - ## Window size
         self._reset_window_size = QAction('Reset window size')
         self._reset_window_size.triggered.connect(self.did_toggle_reset_window_size)
         self._view_menu.addAction(self._reset_window_size)
@@ -108,9 +153,12 @@ class MenuActionCoordinator(QMenuBar):
         # MARK: - About
         self._help_menu = QMenu("&Help")
         self.addMenu(self._help_menu)
+        
+        self._shortcuts_list_action = QAction('Shortcuts')
+        self._help_menu.addAction(self._shortcuts_list_action)
+
 
         self._check_update = QAction('Check for updates')
-        self._check_update.triggered.connect(self.open_update_page)
         self._help_menu.addAction(self._check_update)
 
         self._about_action = QAction("About")
@@ -159,6 +207,12 @@ class MenuActionCoordinator(QMenuBar):
 
     def bind_open_about_page(self, fn: Callable[[], None]):
         self._about_action.triggered.connect(fn)
+        
+    def bind_open_update_page(self, fn: Callable[[], None]):\
+        self._check_update.triggered.connect(fn)
+        
+    def bind_open_shortcuts_page(self, fn: Callable[[], None]):
+        self._shortcuts_list_action.triggered.connect(fn)
 
     # MARK: - actions
     def did_toggle_show_resource_details(self, is_on: bool):
@@ -203,17 +257,53 @@ class MenuActionCoordinator(QMenuBar):
         new_config.set_card_title_detail(Configuration.Settings.CardTitleDetail.DETAILED)
         self._configuration_manager.save_configuration(new_config)
         self._sync_card_title_detail_checkmarks()
-
-    def did_toggle_reset_window_size(self):
-        new_config = self._configuration_manager.mutable_configuration()
-        new_config.reset_window_size()
-        self._configuration_manager.save_configuration(new_config)
-
+        
     def _sync_card_title_detail_checkmarks(self):
         preference = self._configuration.card_title_detail
         self._card_title_detail_short.setChecked(preference == Configuration.Settings.CardTitleDetail.SHORT)
         self._card_title_detail_normal.setChecked(preference == Configuration.Settings.CardTitleDetail.NORMAL)
         self._card_title_detail_detailed.setChecked(preference == Configuration.Settings.CardTitleDetail.DETAILED)
+        
+
+    def did_toggle_sort_deployment_list_criteria_file_name(self):
+        new_config = self._configuration_manager.mutable_configuration()
+        new_config.set_deployment_list_sort_criteria(Configuration.Settings.DeploymentListSortCriteria.FILE_NAME)
+        self._configuration_manager.save_configuration(new_config)
+        self._sync_sort_deployment_list_criteria()
+        
+    def did_toggle_sort_deployment_list_criteria_created_date(self):
+        new_config = self._configuration_manager.mutable_configuration()
+        new_config.set_deployment_list_sort_criteria(Configuration.Settings.DeploymentListSortCriteria.CREATED_DATE)
+        self._configuration_manager.save_configuration(new_config)
+        self._sync_sort_deployment_list_criteria()
+
+    def _sync_sort_deployment_list_criteria(self):
+        preference = self._configuration.deployment_list_sort_criteria
+        self._sort_deployment_list_criteria_file_name.setChecked(preference == Configuration.Settings.DeploymentListSortCriteria.FILE_NAME)
+        self._sort_deployment_list_criteria_created_date.setChecked(preference == Configuration.Settings.DeploymentListSortCriteria.CREATED_DATE)
+
+    def did_toggle_sort_deployment_list_order_asc(self, is_on: bool):
+        new_config = self._configuration_manager.mutable_configuration()
+        new_config.set_deployment_list_sort_order(False)
+        self._configuration_manager.save_configuration(new_config)
+        self._sync_sort_deployment_list_order()
+        
+    def did_toggle_sort_deployment_list_order_desc(self, is_on: bool):
+        new_config = self._configuration_manager.mutable_configuration()
+        new_config.set_deployment_list_sort_order(True)
+        self._configuration_manager.save_configuration(new_config)
+        self._sync_sort_deployment_list_order()
+        
+    def _sync_sort_deployment_list_order(self):
+        is_desc_order = self._configuration.deployment_list_sort_is_desc_order
+        self._sort_deployment_list_order_asc.setChecked(not is_desc_order)
+        self._sort_deployment_list_order_desc.setChecked(is_desc_order)
+        
+
+    def did_toggle_reset_window_size(self):
+        new_config = self._configuration_manager.mutable_configuration()
+        new_config.reset_window_size()
+        self._configuration_manager.save_configuration(new_config)
     
     def did_open_configuration_dir(self):
         self._platform_service.open_file(self._configuration.config_directory)
@@ -224,5 +314,5 @@ class MenuActionCoordinator(QMenuBar):
     def did_open_temp_dir(self):
         self._platform_service.open_file(self._configuration.temp_dir_path)
         
-    def open_update_page(self):
-        webbrowser.open("https://github.com/hdchan/R4-MG/releases")
+    
+        
