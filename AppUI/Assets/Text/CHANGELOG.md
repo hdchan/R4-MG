@@ -1,5 +1,12 @@
 ## Changelog
 
+### 0.14.0
+#### Feature updates
+- Adds search source from FFG
+- Removes swudb.com image source
+#### Engineering updates
+-
+
 ### 0.13.1
 #### Hotfix
 - Update shortcut list

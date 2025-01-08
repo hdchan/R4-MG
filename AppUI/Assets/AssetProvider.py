@@ -99,6 +99,10 @@ class AssetProvider:
         def twi_set_path(self):
             return self._data_path('twi.json')
         
+        @property
+        def starwarsunlimited_com_filter_path(self):
+            return self._data_path('starwarsunlimited_com_filters.json')
+        
         def _data_path(self, file_name: str) -> str:
             return os.path.join(appdir, f'Data/{file_name}')
         

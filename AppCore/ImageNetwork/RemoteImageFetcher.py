@@ -43,7 +43,9 @@ class RemoteImageFetcher(ImageFetcherProtocol):
                 #         if not chunk:
                 #             break
                 #         buf.write(chunk)
-                buf = request.urlopen(image_url)
+                headers = {'User-Agent': ''} # python user agent being blocked
+                req = request.Request(image_url, headers=headers)
+                buf = request.urlopen(req)
                 img = Image.open(buf) # type: ignore
                 return img
             except Exception as error:

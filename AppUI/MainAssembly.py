@@ -11,12 +11,13 @@ from AppCore.Network import *
 from AppUI.Coordinators import MenuActionCoordinator, ShortcutActionCoordinator
 from AppUI.MainProgramViewController import MainProgramViewController
 from AppUI.UIComponents import (CardSearchPreviewViewController,
-                                ImageDeploymentListViewController, ImagePreviewLocalResourceDataSourceDecorator)
+                                ImageDeploymentListViewController,
+                                ImagePreviewLocalResourceDataSourceDecorator)
 from AppUI.Window import Window
 
 from .AppDependencyProviding import *
 from .Assets import AssetProvider
-from .Clients import *
+from .Clients.ClientProvider import ClientProvider
 from .ComponentProvider import ComponentProviding
 from .Coordinators import MenuActionCoordinator, ShortcutActionCoordinator
 from .Router import Router
@@ -36,8 +37,9 @@ class MainAssembly(ComponentProviding):
             self._image_resource_deployer = ImageResourceDeployer(self._configuration_manager,
                                                                   self._observation_tower, 
                                                                   self._image_resource_processor_provider)
-            self._api_client_provider = self._assemble_api_client_provider()
-            self._image_source_provider = self._assemble_image_source_provider()
+            client_provider = self._assemble_client_provider()
+            self._api_client_provider = client_provider
+            self._image_source_provider = client_provider
             self._shortcut_action_coordinator = ShortcutActionCoordinator()
             self._menu_action_coordinator = MenuActionCoordinator(self._configuration_manager, 
                                                                   self._platform_service_provider)
@@ -75,11 +77,13 @@ class MainAssembly(ComponentProviding):
         def image_source_provider(self) -> CardImageSourceProviding:
             return self._image_source_provider
         
-        def _assemble_api_client_provider(self) -> APIClientProviding:
-            return SWUDBAPIClientProvider(self._configuration_manager,
-                                          SWUDBAPIRemoteClient(RemoteNetworker(self._configuration_manager)), 
-                                          SWUDBAPILocalClient(LocalNetworker(self._configuration_manager),
-                                                              self.asset_provider))
+        def _assemble_client_provider(self) -> ClientProvider:
+            return ClientProvider(ClientProvider.Dependencies(
+                self._configuration_manager,
+                self._asset_provider,
+                RemoteNetworker(self._configuration_manager),
+                LocalNetworker(self._configuration_manager)
+                ))
     
         def _assemble_image_resource_processor_provider(self) -> ImageResourceProcessorProviding:
             image_fetcher_provider = self._assemble_image_fetcher_provider()
@@ -90,12 +94,6 @@ class MainAssembly(ComponentProviding):
             return ImageFetcherProvider(self._configuration_manager, 
                                         RemoteImageFetcher(self._configuration_manager),
                                         MockImageFetcher(self._configuration_manager))
-        
-        def _assemble_image_source_provider(self) -> CardImageSourceProviding:
-            return CardImageSourceProvider(self._configuration_manager,
-                                           SWUDBAPIImageSource(self._configuration_manager),
-                                           SWUDBImageSource(self._configuration_manager), 
-                                           CustomLocalImageSource())
 
     def __init__(self):
         self.app = QApplication([])

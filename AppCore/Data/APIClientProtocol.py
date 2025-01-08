@@ -6,8 +6,6 @@ from ..Network import NetworkerProtocol
 APIClientSearchCallback = Callable[[Tuple[Optional[List[TradingCard]], Optional[Exception]]], None]
 
 class APIClientProtocol:
-    def __init__(self, networker: NetworkerProtocol):
-        self.netorker = networker
 
     @property
     def source_display_name(self) -> str:

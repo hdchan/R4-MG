@@ -49,11 +49,11 @@ class CardResourceProvider:
                                  display_name_short=self._trading_card.friendly_display_name_short,
                                  display_name_detailed=self._trading_card.friendly_display_name_detailed,
                                  file_extension=PNG_EXTENSION, 
-                                 remote_image_url=self._card_image_source.front_art_url(self._trading_card))
+                                 remote_image_url=self._trading_card.front_art_url)
     
     @property
     def back_local_resource(self) -> Optional[LocalCardResource]:
-        back_art_url = self._card_image_source.back_art_url(self._trading_card)
+        back_art_url = self._trading_card.back_art_url
         if back_art_url is None:
             return None
         return LocalCardResource(image_dir=self._card_image_source.image_path,

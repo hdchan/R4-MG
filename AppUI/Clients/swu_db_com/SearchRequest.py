@@ -5,17 +5,16 @@ from urllib.request import Request
 from AppCore.Models import TradingCard
 from AppCore.Network import NetworkRequestProtocol
 
-from ..CardAspect import CardAspect
-from ..CardType import CardType
-from ..SWUDBAPISearchConfiguration import SWUDBAPISearchConfiguration
-from ..SWUTradingCard import SWUTradingCard
-
+from AppCore.Models.CardAspect import CardAspect
+from AppCore.Models.CardType import CardType
+from ..SWUCardSearchConfiguration import SWUCardSearchConfiguration
+from .SWUTradingCard import SWUTradingCard
 
 # https://api.swu-db.com/cards/search?q=type:leader%20name:luke
 class SearchRequest(NetworkRequestProtocol[List[TradingCard]]):
         SWUDB_API_ENDPOINT = 'https://api.swu-db.com/cards/search'
         
-        def __init__(self, search_configuration: SWUDBAPISearchConfiguration):
+        def __init__(self, search_configuration: SWUCardSearchConfiguration):
             self.search_configuration = search_configuration
         
         def __eq__(self, other):  # type: ignore

@@ -30,7 +30,6 @@ class MenuActionCoordinator(QMenuBar):
         self.addMenu(self._file_menu)
 
         self._new_file_menu = QAction('New image file')
-        self._new_file_menu.triggered.connect(self.did_toggle_card_title_detail_detailed)
         self._file_menu.addAction(self._new_file_menu)
 
         self._refresh_production_images = QAction('Refresh production images')
@@ -313,6 +312,3 @@ class MenuActionCoordinator(QMenuBar):
 
     def did_open_temp_dir(self):
         self._platform_service.open_file(self._configuration.temp_dir_path)
-        
-    
-        

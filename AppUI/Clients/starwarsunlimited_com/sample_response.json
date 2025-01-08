@@ -1,0 +1,1207 @@
+{
+    "data": [
+        {
+            "id": 19531,
+            "attributes": {
+                "cardNumber": 12,
+                "title": "Luke Skywalker",
+                "subtitle": "Hero of Yavin",
+                "cardCount": 257,
+                "artist": "Renaud Scheidt",
+                "artFrontHorizontal": true,
+                "artBackHorizontal": null,
+                "hasFoil": true,
+                "cost": 6,
+                "hp": 6,
+                "power": 5,
+                "text": "Action [Exhaust]: If you attacked with a Fighter unit this phase, deal 1 damage to a unit.",
+                "textStyled": "<p><strong>Action [</strong><img src=\"https://ffg-prod-uploads.s3.amazonaws.com/icon_exhaust_0c450d09d4.png\" alt=\"icon_exhaust.png\"><strong>]:</strong> If you attacked with a <i><strong>Fighter</strong></i> unit this phase, deal 1 damage to a unit.</p>",
+                "deployBox": "",
+                "deployBoxStyled": "",
+                "epicAction": "Epic Action: If you control 6 or more resources, choose one:\nDeploy this leader.\nDeploy this leader as an upgrade on a friendly Vehicle unit without a Pilot on it.",
+                "epicActionStyled": "<p><strong>Epic Action:</strong> If you control 6 or more resources, choose one:</p><ul><li>Deploy this leader.</li><li>Deploy this leader as an upgrade on a friendly <i><strong>Vehicle</strong></i> unit without a <i><strong>Pilot</strong></i> on it.</li></ul>",
+                "linkHtml": "<a href=\"/cards?cid=0766281795\" class=\"card-tooltip\" data-card=\"0766281795\">Luke Skywalker</a>",
+                "cardId": null,
+                "createdAt": "2024-11-27T04:40:40.645Z",
+                "updatedAt": "2025-02-04T16:42:20.493Z",
+                "publishedAt": "2025-02-04T16:41:22.605Z",
+                "locale": "en",
+                "hyperspace": false,
+                "unique": true,
+                "showcase": false,
+                "cardUid": "0766281795",
+                "rules": null,
+                "rulesStyled": "",
+                "serialCode": "04010012",
+                "upgradeHp": 5,
+                "upgradePower": 4,
+                "artFront": {
+                    "data": {
+                        "id": 22966,
+                        "attributes": {
+                            "name": "04010012EN_Luke_Skywalker_Leader.png",
+                            "alternativeText": null,
+                            "caption": null,
+                            "width": 419,
+                            "height": 300,
+                            "formats": {
+                                "card": {
+                                    "ext": ".png",
+                                    "url": "https://cdn.starwarsunlimited.com//card_04010012_EN_Luke_Skywalker_Leader_2b85b5b1af.png",
+                                    "hash": "card_04010012_EN_Luke_Skywalker_Leader_2b85b5b1af",
+                                    "mime": "image/png",
+                                    "name": "card_04010012EN_Luke_Skywalker_Leader.png",
+                                    "path": null,
+                                    "size": 213.16,
+                                    "width": 400,
+                                    "height": 286
+                                },
+                                "xsmall": {
+                                    "ext": ".png",
+                                    "url": "https://cdn.starwarsunlimited.com//xsmall_04010012_EN_Luke_Skywalker_Leader_2b85b5b1af.png",
+                                    "hash": "xsmall_04010012_EN_Luke_Skywalker_Leader_2b85b5b1af",
+                                    "mime": "image/png",
+                                    "name": "xsmall_04010012EN_Luke_Skywalker_Leader.png",
+                                    "path": null,
+                                    "size": 129.35,
+                                    "width": 300,
+                                    "height": 215
+                                },
+                                "xxsmall": {
+                                    "ext": ".png",
+                                    "url": "https://cdn.starwarsunlimited.com//xxsmall_04010012_EN_Luke_Skywalker_Leader_2b85b5b1af.png",
+                                    "hash": "xxsmall_04010012_EN_Luke_Skywalker_Leader_2b85b5b1af",
+                                    "mime": "image/png",
+                                    "name": "xxsmall_04010012EN_Luke_Skywalker_Leader.png",
+                                    "path": null,
+                                    "size": 63.08,
+                                    "width": 200,
+                                    "height": 143
+                                },
+                                "xxxsmall": {
+                                    "ext": ".png",
+                                    "url": "https://cdn.starwarsunlimited.com//xxxsmall_04010012_EN_Luke_Skywalker_Leader_2b85b5b1af.png",
+                                    "hash": "xxxsmall_04010012_EN_Luke_Skywalker_Leader_2b85b5b1af",
+                                    "mime": "image/png",
+                                    "name": "xxxsmall_04010012EN_Luke_Skywalker_Leader.png",
+                                    "path": null,
+                                    "size": 37.85,
+                                    "width": 150,
+                                    "height": 107
+                                },
+                                "thumbnail": {
+                                    "ext": ".png",
+                                    "url": "https://cdn.starwarsunlimited.com//thumbnail_04010012_EN_Luke_Skywalker_Leader_2b85b5b1af.png",
+                                    "hash": "thumbnail_04010012_EN_Luke_Skywalker_Leader_2b85b5b1af",
+                                    "mime": "image/png",
+                                    "name": "thumbnail_04010012EN_Luke_Skywalker_Leader.png",
+                                    "path": null,
+                                    "size": 93.82,
+                                    "width": 250,
+                                    "height": 179
+                                }
+                            },
+                            "hash": "04010012_EN_Luke_Skywalker_Leader_2b85b5b1af",
+                            "ext": ".png",
+                            "mime": "image/png",
+                            "size": 55.68,
+                            "url": "https://cdn.starwarsunlimited.com//04010012_EN_Luke_Skywalker_Leader_2b85b5b1af.png",
+                            "previewUrl": null,
+                            "provider": "aws-s3",
+                            "provider_metadata": null,
+                            "createdAt": "2024-11-26T19:45:07.816Z",
+                            "updatedAt": "2024-11-26T19:45:07.816Z"
+                        }
+                    }
+                },
+                "artBack": {
+                    "data": {
+                        "id": 25263,
+                        "attributes": {
+                            "name": "04010012EN_Luke_Skywalker_Leader_Unit.png",
+                            "alternativeText": null,
+                            "caption": null,
+                            "width": 300,
+                            "height": 419,
+                            "formats": {
+                                "card": {
+                                    "ext": ".png",
+                                    "url": "https://cdn.starwarsunlimited.com//card_04010012_EN_Luke_Skywalker_Leader_Unit_11e54776e9.png",
+                                    "hash": "card_04010012_EN_Luke_Skywalker_Leader_Unit_11e54776e9",
+                                    "mime": "image/png",
+                                    "name": "card_04010012EN_Luke_Skywalker_Leader_Unit.png",
+                                    "path": null,
+                                    "size": 194.04,
+                                    "width": 286,
+                                    "height": 400
+                                },
+                                "xsmall": {
+                                    "ext": ".png",
+                                    "url": "https://cdn.starwarsunlimited.com//xsmall_04010012_EN_Luke_Skywalker_Leader_Unit_11e54776e9.png",
+                                    "hash": "xsmall_04010012_EN_Luke_Skywalker_Leader_Unit_11e54776e9",
+                                    "mime": "image/png",
+                                    "name": "xsmall_04010012EN_Luke_Skywalker_Leader_Unit.png",
+                                    "path": null,
+                                    "size": 119.23,
+                                    "width": 215,
+                                    "height": 300
+                                },
+                                "xxsmall": {
+                                    "ext": ".png",
+                                    "url": "https://cdn.starwarsunlimited.com//xxsmall_04010012_EN_Luke_Skywalker_Leader_Unit_11e54776e9.png",
+                                    "hash": "xxsmall_04010012_EN_Luke_Skywalker_Leader_Unit_11e54776e9",
+                                    "mime": "image/png",
+                                    "name": "xxsmall_04010012EN_Luke_Skywalker_Leader_Unit.png",
+                                    "path": null,
+                                    "size": 60.56,
+                                    "width": 143,
+                                    "height": 200
+                                },
+                                "xxxsmall": {
+                                    "ext": ".png",
+                                    "url": "https://cdn.starwarsunlimited.com//xxxsmall_04010012_EN_Luke_Skywalker_Leader_Unit_11e54776e9.png",
+                                    "hash": "xxxsmall_04010012_EN_Luke_Skywalker_Leader_Unit_11e54776e9",
+                                    "mime": "image/png",
+                                    "name": "xxxsmall_04010012EN_Luke_Skywalker_Leader_Unit.png",
+                                    "path": null,
+                                    "size": 36.65,
+                                    "width": 107,
+                                    "height": 150
+                                },
+                                "thumbnail": {
+                                    "ext": ".png",
+                                    "url": "https://cdn.starwarsunlimited.com//thumbnail_04010012_EN_Luke_Skywalker_Leader_Unit_11e54776e9.png",
+                                    "hash": "thumbnail_04010012_EN_Luke_Skywalker_Leader_Unit_11e54776e9",
+                                    "mime": "image/png",
+                                    "name": "thumbnail_04010012EN_Luke_Skywalker_Leader_Unit.png",
+                                    "path": null,
+                                    "size": 88.31,
+                                    "width": 179,
+                                    "height": 250
+                                }
+                            },
+                            "hash": "04010012_EN_Luke_Skywalker_Leader_Unit_11e54776e9",
+                            "ext": ".png",
+                            "mime": "image/png",
+                            "size": 48.91,
+                            "url": "https://cdn.starwarsunlimited.com//04010012_EN_Luke_Skywalker_Leader_Unit_11e54776e9.png",
+                            "previewUrl": null,
+                            "provider": "aws-s3",
+                            "provider_metadata": null,
+                            "createdAt": "2024-11-26T20:27:24.938Z",
+                            "updatedAt": "2024-11-26T20:27:24.938Z"
+                        }
+                    }
+                },
+                "artThumbnail": {
+                    "data": {
+                        "id": 22093,
+                        "attributes": {
+                            "name": "04010012EN_Luke_Skywalker_Leader_Unit_Thumbnail.png",
+                            "alternativeText": null,
+                            "caption": null,
+                            "width": 300,
+                            "height": 100,
+                            "formats": {
+                                "xxsmall": {
+                                    "ext": ".png",
+                                    "url": "https://cdn.starwarsunlimited.com//xxsmall_04010012_EN_Luke_Skywalker_Leader_Unit_Thumbnail_1231dbac39.png",
+                                    "hash": "xxsmall_04010012_EN_Luke_Skywalker_Leader_Unit_Thumbnail_1231dbac39",
+                                    "mime": "image/png",
+                                    "name": "xxsmall_04010012EN_Luke_Skywalker_Leader_Unit_Thumbnail.png",
+                                    "path": null,
+                                    "size": 33.05,
+                                    "width": 200,
+                                    "height": 67
+                                },
+                                "xxxsmall": {
+                                    "ext": ".png",
+                                    "url": "https://cdn.starwarsunlimited.com//xxxsmall_04010012_EN_Luke_Skywalker_Leader_Unit_Thumbnail_1231dbac39.png",
+                                    "hash": "xxxsmall_04010012_EN_Luke_Skywalker_Leader_Unit_Thumbnail_1231dbac39",
+                                    "mime": "image/png",
+                                    "name": "xxxsmall_04010012EN_Luke_Skywalker_Leader_Unit_Thumbnail.png",
+                                    "path": null,
+                                    "size": 19.3,
+                                    "width": 150,
+                                    "height": 50
+                                },
+                                "thumbnail": {
+                                    "ext": ".png",
+                                    "url": "https://cdn.starwarsunlimited.com//thumbnail_04010012_EN_Luke_Skywalker_Leader_Unit_Thumbnail_1231dbac39.png",
+                                    "hash": "thumbnail_04010012_EN_Luke_Skywalker_Leader_Unit_Thumbnail_1231dbac39",
+                                    "mime": "image/png",
+                                    "name": "thumbnail_04010012EN_Luke_Skywalker_Leader_Unit_Thumbnail.png",
+                                    "path": null,
+                                    "size": 49.67,
+                                    "width": 250,
+                                    "height": 83
+                                }
+                            },
+                            "hash": "04010012_EN_Luke_Skywalker_Leader_Unit_Thumbnail_1231dbac39",
+                            "ext": ".png",
+                            "mime": "image/png",
+                            "size": 21.49,
+                            "url": "https://cdn.starwarsunlimited.com//04010012_EN_Luke_Skywalker_Leader_Unit_Thumbnail_1231dbac39.png",
+                            "previewUrl": null,
+                            "provider": "aws-s3",
+                            "provider_metadata": null,
+                            "createdAt": "2024-11-26T19:25:49.496Z",
+                            "updatedAt": "2024-11-26T19:25:49.496Z"
+                        }
+                    }
+                },
+                "localizations": {
+                    "data": [
+                        {
+                            "id": 19535,
+                            "attributes": {
+                                "title": "Luke Skywalker",
+                                "subtitle": "Eroe Di Yavin",
+                                "cardNumber": 12,
+                                "cardCount": 257,
+                                "artist": "Renaud Scheidt",
+                                "artFrontHorizontal": true,
+                                "artBackHorizontal": null,
+                                "hasFoil": true,
+                                "cost": 6,
+                                "hp": 6,
+                                "power": 5,
+                                "text": "Azione [Esaurire]: Se hai attaccato con unità CACCIA in questa fase, infliggi 1 danno a un'unità.",
+                                "textStyled": "<p><strong>Azione [</strong><img src=\"https://ffg-prod-uploads.s3.amazonaws.com/icon_exhaust_0c450d09d4.png\" alt=\"icon_exhaust.png\"><strong>]:</strong> Se hai attaccato con unità <i><strong>CACCIA</strong></i> in questa fase, infliggi 1 danno a un'unità.</p>",
+                                "deployBox": "",
+                                "deployBoxStyled": "",
+                                "epicAction": "Azione Epica: Se controlli \n6 o più risorse, scegli 1 effetto:\nSchiera questo leader.\nSchiera questo leader come miglioria su un'unità Veicolo amica priva di carte Pilota.",
+                                "epicActionStyled": "<p><strong>Azione Epica:</strong> Se controlli 6 o più risorse, scegli 1 effetto:</p><ul><li>Schiera questo leader.</li><li>Schiera questo leader come miglioria su un'unità <i><strong>Veicolo</strong></i> amica priva di carte <i><strong>Pilota</strong></i>.</li></ul>",
+                                "linkHtml": "<a href=\"/cards?cid=0766281795\" class=\"card-tooltip\" data-card=\"0766281795\">Luke Skywalker</a>",
+                                "cardId": "19531",
+                                "createdAt": "2024-11-27T04:40:42.043Z",
+                                "updatedAt": "2025-02-04T16:42:19.958Z",
+                                "publishedAt": "2025-02-04T16:42:12.493Z",
+                                "locale": "it",
+                                "hyperspace": false,
+                                "unique": true,
+                                "showcase": false,
+                                "cardUid": "0766281795",
+                                "rules": null,
+                                "rulesStyled": "",
+                                "serialCode": "04010012",
+                                "upgradeHp": 5,
+                                "upgradePower": 4
+                            }
+                        },
+                        {
+                            "id": 19534,
+                            "attributes": {
+                                "title": "Luke Skywalker",
+                                "subtitle": "Héros De Yavin",
+                                "cardNumber": 12,
+                                "cardCount": 257,
+                                "artist": "Renaud Scheidt",
+                                "artFrontHorizontal": true,
+                                "artBackHorizontal": null,
+                                "hasFoil": true,
+                                "cost": 6,
+                                "hp": 6,
+                                "power": 5,
+                                "text": "Action [Inclinez] : si vous avez attaqué avec une unité CHASSEUR à cette phase, infligez 1 dégât à une unité.",
+                                "textStyled": "<p><strong>Action [</strong><img src=\"https://ffg-prod-uploads.s3.amazonaws.com/icon_exhaust_0c450d09d4.png\" alt=\"icon_exhaust.png\"><strong>] :</strong> si vous avez attaqué avec une unité <i><strong>CHASSEUR</strong></i> à cette phase, infligez 1 dégât à une unité.</p>",
+                                "deployBox": "",
+                                "deployBoxStyled": "",
+                                "epicAction": "Action Épique : si vous contrôlez au moins 6 ressources, choisissez l'un :\nDéployez ce leader.\nDéployez ce leader en tant qu'amélioration sur une unité VÉHICULE amie sans PILOTE dessus.",
+                                "epicActionStyled": "<p><strong>Action Épique :</strong> si vous contrôlez au moins 6 ressources, choisissez l'un :</p><ul><li>Déployez ce leader.</li><li>Déployez ce leader en tant qu'amélioration sur une unité <i><strong>VÉHICULE</strong></i> amie sans <i><strong>PILOTE</strong></i> dessus.</li></ul>",
+                                "linkHtml": "<a href=\"/cards?cid=0766281795\" class=\"card-tooltip\" data-card=\"0766281795\">Luke Skywalker</a>",
+                                "cardId": "19531",
+                                "createdAt": "2024-11-27T04:40:41.650Z",
+                                "updatedAt": "2025-02-04T16:42:20.507Z",
+                                "publishedAt": "2025-02-04T16:41:50.712Z",
+                                "locale": "fr",
+                                "hyperspace": false,
+                                "unique": true,
+                                "showcase": false,
+                                "cardUid": "0766281795",
+                                "rules": null,
+                                "rulesStyled": null,
+                                "serialCode": "04010012",
+                                "upgradeHp": 5,
+                                "upgradePower": 4
+                            }
+                        },
+                        {
+                            "id": 19533,
+                            "attributes": {
+                                "title": "Luke Skywalker",
+                                "subtitle": "Héroe de Yavin",
+                                "cardNumber": 12,
+                                "cardCount": 257,
+                                "artist": "Renaud Scheidt",
+                                "artFrontHorizontal": true,
+                                "artBackHorizontal": null,
+                                "hasFoil": true,
+                                "cost": 6,
+                                "hp": 6,
+                                "power": 5,
+                                "text": "Acción [Agota]: Si has atacado con una unidad Caza en esta fase, inflige 1 de daño a una unidad.",
+                                "textStyled": "<p><strong>Acción [</strong><img src=\"https://ffg-prod-uploads.s3.amazonaws.com/icon_exhaust_0c450d09d4.png\" alt=\"icon_exhaust.png\"><strong>]:</strong> Si has atacado con una unidad <i><strong>Caza</strong></i> en esta fase, inflige 1 de daño a una unidad.</p>",
+                                "deployBox": "",
+                                "deployBoxStyled": "",
+                                "epicAction": "Acción épica: Si controlas al menos 6 recursos, elige una opción:\nDespliega este líder.\nDespliega este líder como mejora sobre una unidad Vehículo aliada \nque no tenga un Piloto.",
+                                "epicActionStyled": "<p><strong>Acción épica:</strong> Si controlas al menos 6 recursos, elige una opción:</p><ul><li>Despliega este líder.</li><li>Despliega este líder como mejora sobre una unidad <i><strong>Vehículo</strong></i> aliada que no tenga un <i><strong>Piloto</strong></i>.</li></ul>",
+                                "linkHtml": "<a href=\"/cards?cid=0766281795\" class=\"card-tooltip\" data-card=\"0766281795\">Luke Skywalker</a>",
+                                "cardId": "19531",
+                                "createdAt": "2024-11-27T04:40:41.302Z",
+                                "updatedAt": "2025-02-04T16:42:20.521Z",
+                                "publishedAt": "2025-02-04T16:42:01.730Z",
+                                "locale": "es",
+                                "hyperspace": false,
+                                "unique": true,
+                                "showcase": false,
+                                "cardUid": "0766281795",
+                                "rules": null,
+                                "rulesStyled": null,
+                                "serialCode": "04010012",
+                                "upgradeHp": 5,
+                                "upgradePower": 4
+                            }
+                        },
+                        {
+                            "id": 19532,
+                            "attributes": {
+                                "title": "Luke Skywalker",
+                                "subtitle": "Held von Yavin",
+                                "cardNumber": 12,
+                                "cardCount": 257,
+                                "artist": "Renaud Scheidt",
+                                "artFrontHorizontal": true,
+                                "artBackHorizontal": null,
+                                "hasFoil": true,
+                                "cost": 6,
+                                "hp": 6,
+                                "power": 5,
+                                "text": "Aktion [Erschöpfe]: Falls du in\ndieser Phase mit einer Jäger?-Einheit angegriffen hast, füge einer Einheit 1 Schaden zu.",
+                                "textStyled": "<p><strong>Aktion [</strong><img src=\"https://ffg-prod-uploads.s3.amazonaws.com/icon_exhaust_0c450d09d4.png\" alt=\"icon_exhaust.png\"><strong>]:</strong> Falls du in dieser Phase mit einer <i><strong>Jäger?</strong></i>-Einheit angegriffen hast, füge einer Einheit 1 Schaden zu.</p>",
+                                "deployBox": "",
+                                "deployBoxStyled": "",
+                                "epicAction": "Epische Aktion: Falls du 6 oder mehr Ressourcen kontrollierst, wähle 1:\nRufe diesen Anführer.\nRufe diesen Anführer als Upgrade an eine befreundete Fahrzeug-Einheit ohne angehängten Piloten.",
+                                "epicActionStyled": "<p><strong>Epische Aktion:</strong> Falls du 6 oder mehr Ressourcen kontrollierst, wähle 1:</p><ul><li>Rufe diesen Anführer.</li><li>Rufe diesen Anführer als Upgrade an eine befreundete <i><strong>Fahrzeug</strong></i>-Einheit ohne angehängten <i><strong>Piloten</strong></i>.</li></ul>",
+                                "linkHtml": "<a href=\"/cards?cid=0766281795\" class=\"card-tooltip\" data-card=\"0766281795\">Luke Skywalker</a>",
+                                "cardId": "19531",
+                                "createdAt": "2024-11-27T04:40:40.973Z",
+                                "updatedAt": "2025-02-04T16:42:20.536Z",
+                                "publishedAt": "2025-02-04T16:41:32.263Z",
+                                "locale": "de",
+                                "hyperspace": false,
+                                "unique": true,
+                                "showcase": false,
+                                "cardUid": "0766281795",
+                                "rules": null,
+                                "rulesStyled": "",
+                                "serialCode": "04010012",
+                                "upgradeHp": 5,
+                                "upgradePower": 4
+                            }
+                        }
+                    ]
+                },
+                "aspects": {
+                    "data": [
+                        {
+                            "id": 12,
+                            "attributes": {
+                                "name": "Aggression",
+                                "description": "<p>Attack with maximum efficiency and dish out lots of damage. This aspect is a great fit for players who prefer fast-paced, fiery playstyles that break through opponents’ defenses and hurl themselves toward victory at any cost.&nbsp;</p>",
+                                "color": "#d30808",
+                                "createdAt": "2023-08-10T21:09:50.121Z",
+                                "updatedAt": "2024-07-15T21:39:33.401Z",
+                                "publishedAt": "2023-11-15T20:00:56.708Z",
+                                "locale": "en",
+                                "englishName": "Aggression",
+                                "sortValue": 10
+                            }
+                        },
+                        {
+                            "id": 22,
+                            "attributes": {
+                                "name": "Heroism",
+                                "description": "<p>Fight for peace and justice with cards that feature the protagonists of the <i>Star Wars</i> series. This aspect is great for players who want their cards to support and protect each other while pressing the attack. This aspect is often paired with another aspect on a card.&nbsp;</p>",
+                                "color": "#ffffff",
+                                "createdAt": "2023-08-10T21:15:42.385Z",
+                                "updatedAt": "2024-07-15T21:41:00.219Z",
+                                "publishedAt": "2023-11-15T20:01:41.925Z",
+                                "locale": "en",
+                                "englishName": "Heroism",
+                                "sortValue": 25
+                            }
+                        }
+                    ]
+                },
+                "aspectDuplicates": {
+                    "data": []
+                },
+                "type": {
+                    "data": {
+                        "id": 4,
+                        "attributes": {
+                            "name": "Leader",
+                            "description": "",
+                            "value": "Leader",
+                            "createdAt": "2023-08-14T21:36:36.932Z",
+                            "updatedAt": "2024-03-05T17:11:46.417Z",
+                            "publishedAt": "2023-11-15T17:30:41.305Z",
+                            "locale": "en",
+                            "sortValue": 1
+                        }
+                    }
+                },
+                "type2": {
+                    "data": {
+                        "id": 6,
+                        "attributes": {
+                            "name": "Leader Unit",
+                            "description": "",
+                            "value": "Leader Unit",
+                            "createdAt": "2023-08-14T21:41:58.575Z",
+                            "updatedAt": "2024-03-05T17:12:16.062Z",
+                            "publishedAt": "2023-11-15T17:30:47.748Z",
+                            "locale": "en",
+                            "sortValue": 1
+                        }
+                    }
+                },
+                "traits": {
+                    "data": [
+                        {
+                            "id": 32,
+                            "attributes": {
+                                "name": "Force",
+                                "description": "",
+                                "createdAt": "2023-08-15T14:41:02.071Z",
+                                "updatedAt": "2023-11-15T23:57:27.173Z",
+                                "publishedAt": "2023-11-15T23:57:27.169Z",
+                                "locale": "en"
+                            }
+                        },
+                        {
+                            "id": 37,
+                            "attributes": {
+                                "name": "Rebel",
+                                "description": "",
+                                "createdAt": "2023-08-15T14:41:27.374Z",
+                                "updatedAt": "2023-11-16T00:00:24.048Z",
+                                "publishedAt": "2023-11-16T00:00:24.044Z",
+                                "locale": "en"
+                            }
+                        },
+                        {
+                            "id": 278,
+                            "attributes": {
+                                "name": "Pilot",
+                                "description": "",
+                                "createdAt": "2024-11-19T20:43:41.945Z",
+                                "updatedAt": "2024-12-04T16:09:15.805Z",
+                                "publishedAt": "2024-12-04T16:09:15.800Z",
+                                "locale": "en"
+                            }
+                        }
+                    ]
+                },
+                "arenas": {
+                    "data": [
+                        {
+                            "id": 2,
+                            "attributes": {
+                                "name": "Ground",
+                                "description": null,
+                                "createdAt": "2023-08-15T14:32:07.804Z",
+                                "updatedAt": "2023-08-18T21:37:34.527Z",
+                                "publishedAt": "2023-08-18T21:37:34.522Z",
+                                "locale": "en"
+                            }
+                        }
+                    ]
+                },
+                "keywords": {
+                    "data": []
+                },
+                "rarity": {
+                    "data": {
+                        "id": 2,
+                        "attributes": {
+                            "name": "Common",
+                            "character": "C",
+                            "color": "#964d02",
+                            "createdAt": "2023-08-08T20:26:30.378Z",
+                            "updatedAt": "2024-04-25T14:06:46.441Z",
+                            "publishedAt": "2023-11-15T20:15:14.512Z",
+                            "locale": "en",
+                            "englishName": "Common",
+                            "sortValue": 2
+                        }
+                    }
+                },
+                "expansion": {
+                    "data": {
+                        "id": 23,
+                        "attributes": {
+                            "name": "Jump to Lightspeed",
+                            "description": "",
+                            "code": "JTL",
+                            "createdAt": "2024-11-19T20:22:30.978Z",
+                            "updatedAt": "2024-12-04T15:54:05.681Z",
+                            "publishedAt": "2024-12-04T15:53:40.404Z",
+                            "locale": "en",
+                            "sortValue": 4
+                        }
+                    }
+                },
+                "variantTypes": {
+                    "data": [
+                        {
+                            "id": 46,
+                            "attributes": {
+                                "name": "Standard",
+                                "description": null,
+                                "createdAt": "2024-07-15T14:37:37.643Z",
+                                "updatedAt": "2024-07-15T19:55:03.314Z",
+                                "publishedAt": "2024-07-15T19:54:44.645Z",
+                                "locale": "en",
+                                "variantId": "01",
+                                "foil": false,
+                                "sortValue": 10,
+                                "icon": {
+                                    "data": {
+                                        "id": 8701,
+                                        "attributes": {
+                                            "name": "icon_standard.png",
+                                            "alternativeText": null,
+                                            "caption": null,
+                                            "width": 144,
+                                            "height": 144,
+                                            "formats": null,
+                                            "hash": "icon_standard_7dbd7cd8e6",
+                                            "ext": ".png",
+                                            "mime": "image/png",
+                                            "size": 0.39,
+                                            "url": "https://cdn.starwarsunlimited.com//icon_standard_7dbd7cd8e6.png",
+                                            "previewUrl": null,
+                                            "provider": "aws-s3",
+                                            "provider_metadata": null,
+                                            "createdAt": "2024-07-15T14:40:17.066Z",
+                                            "updatedAt": "2024-07-15T14:40:17.066Z"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                },
+                "variantOf": {
+                    "data": null
+                },
+                "reprintOf": {
+                    "data": null
+                },
+                "validationId": "0766281795"
+            }
+        },
+        {
+            "id": 5,
+            "attributes": {
+                "cardNumber": 5,
+                "title": "Luke Skywalker",
+                "subtitle": "Faithful Friend",
+                "cardCount": 252,
+                "artist": "Borja Pindado",
+                "artFrontHorizontal": true,
+                "artBackHorizontal": null,
+                "hasFoil": false,
+                "cost": 6,
+                "hp": 7,
+                "power": 4,
+                "text": "Action [1 resource, exhaust]: Give a Shield token to a [Heroism] unit you played this phase. ",
+                "textStyled": "<p><strong>Action [</strong><img src=\"https://ffg-prod-uploads.s3.amazonaws.com/icon_cost_1_6878a6fe98.png\" alt=\"icon_cost_1.png\"><strong>, </strong><img src=\"https://ffg-prod-uploads.s3.amazonaws.com/icon_exhaust_0c450d09d4.png\" alt=\"icon_exhaust.png\"><strong>]:</strong> Give a Shield token to a <img src=\"https://ffg-prod-uploads.s3.amazonaws.com/icon_heroism_895bfc1dc1.png\" alt=\"icon_heroism.png\"> unit you played this phase.&nbsp;</p>",
+                "deployBox": "On Attack: You may give another unit a Shield token. ",
+                "deployBoxStyled": "<p><strong>On Attack:</strong> You may give another unit a Shield token.&nbsp;</p>",
+                "epicAction": "Epic Action: If you control 6 or more resources, deploy this leader. (Flip him, ready him, and move him to the ground arena.)",
+                "epicActionStyled": "<p><strong>Epic Action:</strong> If you control 6 or more resources, deploy this leader. <i>(Flip him, ready him, and move him to the ground arena.)</i></p>",
+                "linkHtml": "<a href=\"/cards?cid=2579145458\" class=\"card-tooltip\" data-card=\"2579145458\">Luke Skywalker</a>",
+                "cardId": "2579145458",
+                "createdAt": "2023-04-28T15:42:53.903Z",
+                "updatedAt": "2024-07-15T17:47:00.124Z",
+                "publishedAt": "2023-04-28T17:09:29.077Z",
+                "locale": "en",
+                "hyperspace": false,
+                "unique": true,
+                "showcase": false,
+                "cardUid": "2579145458",
+                "rules": null,
+                "rulesStyled": null,
+                "serialCode": "0101005",
+                "upgradeHp": null,
+                "upgradePower": null,
+                "artFront": {
+                    "data": {
+                        "id": 776,
+                        "attributes": {
+                            "name": "SWH01_005_Luke_Skywalker_Leader.png",
+                            "alternativeText": "Set 1 Card 005 Luke Skywalker Leader",
+                            "caption": null,
+                            "width": 418,
+                            "height": 300,
+                            "formats": {
+                                "card": {
+                                    "ext": ".png",
+                                    "url": "https://cdn.starwarsunlimited.com/card_SWH_01_005_Luke_Skywalker_Leader_ce133fc923.png",
+                                    "hash": "card_SWH_01_005_Luke_Skywalker_Leader_ce133fc923",
+                                    "mime": "image/png",
+                                    "name": "card_SWH01_005_LukeSkywalker_Leader.png",
+                                    "path": null,
+                                    "size": 230.78,
+                                    "width": 400,
+                                    "height": 287
+                                },
+                                "xsmall": {
+                                    "ext": ".png",
+                                    "url": "https://cdn.starwarsunlimited.com/xsmall_SWH_01_005_Luke_Skywalker_Leader_ce133fc923.png",
+                                    "hash": "xsmall_SWH_01_005_Luke_Skywalker_Leader_ce133fc923",
+                                    "mime": "image/png",
+                                    "name": "xsmall_SWH01_005_LukeSkywalker_Leader.png",
+                                    "path": null,
+                                    "size": 137.58,
+                                    "width": 300,
+                                    "height": 215
+                                },
+                                "xxsmall": {
+                                    "ext": ".png",
+                                    "url": "https://cdn.starwarsunlimited.com/xxsmall_SWH_01_005_Luke_Skywalker_Leader_ce133fc923.png",
+                                    "hash": "xxsmall_SWH_01_005_Luke_Skywalker_Leader_ce133fc923",
+                                    "mime": "image/png",
+                                    "name": "xxsmall_SWH01_005_LukeSkywalker_Leader.png",
+                                    "path": null,
+                                    "size": 65.37,
+                                    "width": 200,
+                                    "height": 144
+                                },
+                                "xxxsmall": {
+                                    "ext": ".png",
+                                    "url": "https://cdn.starwarsunlimited.com/xxxsmall_SWH_01_005_Luke_Skywalker_Leader_ce133fc923.png",
+                                    "hash": "xxxsmall_SWH_01_005_Luke_Skywalker_Leader_ce133fc923",
+                                    "mime": "image/png",
+                                    "name": "xxxsmall_SWH01_005_LukeSkywalker_Leader.png",
+                                    "path": null,
+                                    "size": 38.7,
+                                    "width": 150,
+                                    "height": 108
+                                },
+                                "thumbnail": {
+                                    "ext": ".png",
+                                    "url": "https://cdn.starwarsunlimited.com/thumbnail_SWH_01_005_Luke_Skywalker_Leader_ce133fc923.png",
+                                    "hash": "thumbnail_SWH_01_005_Luke_Skywalker_Leader_ce133fc923",
+                                    "mime": "image/png",
+                                    "name": "thumbnail_SWH01_005_LukeSkywalker_Leader.png",
+                                    "path": null,
+                                    "size": 98.63,
+                                    "width": 250,
+                                    "height": 179
+                                }
+                            },
+                            "hash": "SWH_01_005_Luke_Skywalker_Leader_ce133fc923",
+                            "ext": ".png",
+                            "mime": "image/png",
+                            "size": 63.35,
+                            "url": "https://cdn.starwarsunlimited.com/SWH_01_005_Luke_Skywalker_Leader_ce133fc923.png",
+                            "previewUrl": null,
+                            "provider": "aws-s3",
+                            "provider_metadata": null,
+                            "createdAt": "2023-11-13T22:34:24.928Z",
+                            "updatedAt": "2023-11-13T23:03:59.580Z"
+                        }
+                    }
+                },
+                "artBack": {
+                    "data": {
+                        "id": 542,
+                        "attributes": {
+                            "name": "SWH01_005_Luke_Skywalker_Leader_Unit.png",
+                            "alternativeText": "Set 1 Card 005 Luke Skywalker Leader Unit",
+                            "caption": null,
+                            "width": 300,
+                            "height": 418,
+                            "formats": {
+                                "card": {
+                                    "ext": ".png",
+                                    "url": "https://cdn.starwarsunlimited.com/card_SWH_01_005_Luke_Skywalker_Leader_Unit_0dcb77795c.png",
+                                    "hash": "card_SWH_01_005_Luke_Skywalker_Leader_Unit_0dcb77795c",
+                                    "mime": "image/png",
+                                    "name": "card_SWH01_005_LukeSkywalker_Leader_Unit.png",
+                                    "path": null,
+                                    "size": 231.43,
+                                    "width": 287,
+                                    "height": 400
+                                },
+                                "xsmall": {
+                                    "ext": ".png",
+                                    "url": "https://cdn.starwarsunlimited.com/xsmall_SWH_01_005_Luke_Skywalker_Leader_Unit_0dcb77795c.png",
+                                    "hash": "xsmall_SWH_01_005_Luke_Skywalker_Leader_Unit_0dcb77795c",
+                                    "mime": "image/png",
+                                    "name": "xsmall_SWH01_005_LukeSkywalker_Leader_Unit.png",
+                                    "path": null,
+                                    "size": 138.84,
+                                    "width": 215,
+                                    "height": 300
+                                },
+                                "xxsmall": {
+                                    "ext": ".png",
+                                    "url": "https://cdn.starwarsunlimited.com/xxsmall_SWH_01_005_Luke_Skywalker_Leader_Unit_0dcb77795c.png",
+                                    "hash": "xxsmall_SWH_01_005_Luke_Skywalker_Leader_Unit_0dcb77795c",
+                                    "mime": "image/png",
+                                    "name": "xxsmall_SWH01_005_LukeSkywalker_Leader_Unit.png",
+                                    "path": null,
+                                    "size": 66.24,
+                                    "width": 144,
+                                    "height": 200
+                                },
+                                "xxxsmall": {
+                                    "ext": ".png",
+                                    "url": "https://cdn.starwarsunlimited.com/xxxsmall_SWH_01_005_Luke_Skywalker_Leader_Unit_0dcb77795c.png",
+                                    "hash": "xxxsmall_SWH_01_005_Luke_Skywalker_Leader_Unit_0dcb77795c",
+                                    "mime": "image/png",
+                                    "name": "xxxsmall_SWH01_005_LukeSkywalker_Leader_Unit.png",
+                                    "path": null,
+                                    "size": 38.72,
+                                    "width": 108,
+                                    "height": 150
+                                },
+                                "thumbnail": {
+                                    "ext": ".png",
+                                    "url": "https://cdn.starwarsunlimited.com/thumbnail_SWH_01_005_Luke_Skywalker_Leader_Unit_0dcb77795c.png",
+                                    "hash": "thumbnail_SWH_01_005_Luke_Skywalker_Leader_Unit_0dcb77795c",
+                                    "mime": "image/png",
+                                    "name": "thumbnail_SWH01_005_LukeSkywalker_Leader_Unit.png",
+                                    "path": null,
+                                    "size": 99.56,
+                                    "width": 179,
+                                    "height": 250
+                                }
+                            },
+                            "hash": "SWH_01_005_Luke_Skywalker_Leader_Unit_0dcb77795c",
+                            "ext": ".png",
+                            "mime": "image/png",
+                            "size": 61.03,
+                            "url": "https://cdn.starwarsunlimited.com/SWH_01_005_Luke_Skywalker_Leader_Unit_0dcb77795c.png",
+                            "previewUrl": null,
+                            "provider": "aws-s3",
+                            "provider_metadata": null,
+                            "createdAt": "2023-11-13T22:06:01.230Z",
+                            "updatedAt": "2023-11-13T23:04:11.396Z"
+                        }
+                    }
+                },
+                "artThumbnail": {
+                    "data": {
+                        "id": 246,
+                        "attributes": {
+                            "name": "SWH01_005_Luke_Skywalker_Thumbnail.png",
+                            "alternativeText": "Set 1 Card 005 Luke Skywalker Thumbnail",
+                            "caption": null,
+                            "width": 300,
+                            "height": 100,
+                            "formats": {
+                                "xxsmall": {
+                                    "ext": ".png",
+                                    "url": "https://cdn.starwarsunlimited.com/xxsmall_SWH_01_005_Luke_Skywalker_Thumbnail_e92b37229f.png",
+                                    "hash": "xxsmall_SWH_01_005_Luke_Skywalker_Thumbnail_e92b37229f",
+                                    "mime": "image/png",
+                                    "name": "xxsmall_SWH01_005_Luke Skywalker_Thumbnail.png",
+                                    "path": null,
+                                    "size": 30.19,
+                                    "width": 200,
+                                    "height": 67
+                                },
+                                "xxxsmall": {
+                                    "ext": ".png",
+                                    "url": "https://cdn.starwarsunlimited.com/xxxsmall_SWH_01_005_Luke_Skywalker_Thumbnail_e92b37229f.png",
+                                    "hash": "xxxsmall_SWH_01_005_Luke_Skywalker_Thumbnail_e92b37229f",
+                                    "mime": "image/png",
+                                    "name": "xxxsmall_SWH01_005_Luke Skywalker_Thumbnail.png",
+                                    "path": null,
+                                    "size": 17.97,
+                                    "width": 150,
+                                    "height": 50
+                                },
+                                "thumbnail": {
+                                    "ext": ".png",
+                                    "url": "https://cdn.starwarsunlimited.com/thumbnail_SWH_01_005_Luke_Skywalker_Thumbnail_e92b37229f.png",
+                                    "hash": "thumbnail_SWH_01_005_Luke_Skywalker_Thumbnail_e92b37229f",
+                                    "mime": "image/png",
+                                    "name": "thumbnail_SWH01_005_Luke Skywalker_Thumbnail.png",
+                                    "path": null,
+                                    "size": 44.5,
+                                    "width": 250,
+                                    "height": 83
+                                }
+                            },
+                            "hash": "SWH_01_005_Luke_Skywalker_Thumbnail_e92b37229f",
+                            "ext": ".png",
+                            "mime": "image/png",
+                            "size": 15.71,
+                            "url": "https://cdn.starwarsunlimited.com/SWH_01_005_Luke_Skywalker_Thumbnail_e92b37229f.png",
+                            "previewUrl": null,
+                            "provider": "aws-s3",
+                            "provider_metadata": null,
+                            "createdAt": "2023-11-10T17:16:13.619Z",
+                            "updatedAt": "2023-11-29T16:50:38.627Z"
+                        }
+                    }
+                },
+                "localizations": {
+                    "data": [
+                        {
+                            "id": 10,
+                            "attributes": {
+                                "title": "Luke Skywalker",
+                                "subtitle": "Amigo Leal",
+                                "cardNumber": 5,
+                                "cardCount": 252,
+                                "artist": "Borja Pindado",
+                                "artFrontHorizontal": true,
+                                "artBackHorizontal": null,
+                                "hasFoil": false,
+                                "cost": 6,
+                                "hp": 7,
+                                "power": 4,
+                                "text": "Acción [1 recurso, Agota]: Dale una ficha de Escudo a una unidad  [Heroísmo] que hayas jugado en esta fase.",
+                                "textStyled": "<p><strong>Acción [</strong><img src=\"https://ffg-prod-uploads.s3.amazonaws.com/icon_cost_1_6878a6fe98.png\" alt=\"icon_cost_1.png\"><strong>, </strong><img src=\"https://ffg-prod-uploads.s3.amazonaws.com/icon_exhaust_0c450d09d4.png\" alt=\"icon_exhaust.png\"><strong>]:</strong> Dale una ficha de Escudo a una unidad <img src=\"https://ffg-prod-uploads.s3.amazonaws.com/icon_heroism_895bfc1dc1.png\" alt=\"icon_heroism.png\"> que hayas jugado en esta fase.</p>",
+                                "deployBox": "Al atacar: Puedes darle una ficha de Escudo a otra unidad.",
+                                "deployBoxStyled": "<p><strong>Al atacar: </strong>Puedes darle una ficha de Escudo a otra unidad.</p>",
+                                "epicAction": "Acción épica: Si controlas al menos 6 recursos, despliega este líder. (Dale la vuelta a su carta, prepáralo y trasládalo al campo de batalla terrestre.)",
+                                "epicActionStyled": "<p><strong>Acción épica: </strong>Si controlas al menos 6 recursos, despliega este líder. <i>(Dale la vuelta a su carta, prepáralo y trasládalo al campo de batalla terrestre.)</i></p>",
+                                "linkHtml": "<a href=\"/cards?cid=2579145458\" class=\"card-tooltip\" data-card=\"2579145458\">Luke Skywalker</a>",
+                                "cardId": "5",
+                                "createdAt": "2023-05-11T20:05:35.931Z",
+                                "updatedAt": "2024-07-15T17:47:00.404Z",
+                                "publishedAt": "2023-05-11T20:05:37.457Z",
+                                "locale": "es",
+                                "hyperspace": false,
+                                "unique": true,
+                                "showcase": false,
+                                "cardUid": "2579145458",
+                                "rules": null,
+                                "rulesStyled": null,
+                                "serialCode": "0101005",
+                                "upgradeHp": null,
+                                "upgradePower": null
+                            }
+                        },
+                        {
+                            "id": 9,
+                            "attributes": {
+                                "title": "Luke Skywalker",
+                                "subtitle": "Ami Fidèle",
+                                "cardNumber": 5,
+                                "cardCount": 252,
+                                "artist": "Borja Pindado",
+                                "artFrontHorizontal": true,
+                                "artBackHorizontal": null,
+                                "hasFoil": false,
+                                "cost": 6,
+                                "hp": 7,
+                                "power": 4,
+                                "text": "Action [1 ressource, Inclinez] : donnez un jeton Bouclier à une unité [Héroïsme] que vous avez jouée à cette phase.",
+                                "textStyled": "<p><strong>Action [</strong><img src=\"https://ffg-prod-uploads.s3.amazonaws.com/icon_cost_1_6878a6fe98.png\" alt=\"icon_cost_1.png\"><strong>, </strong><img src=\"https://ffg-prod-uploads.s3.amazonaws.com/icon_exhaust_0c450d09d4.png\" alt=\"icon_exhaust.png\"><strong>] :</strong> donnez un jeton Bouclier à une unité <img src=\"https://ffg-prod-uploads.s3.amazonaws.com/icon_heroism_895bfc1dc1.png\" alt=\"icon_heroism.png\"> que vous avez jouée à cette phase.</p>",
+                                "deployBox": "En attaque : vous pouvez donner un jeton Bouclier à une autre unité.",
+                                "deployBoxStyled": "<p><strong>En attaque :</strong> vous pouvez donner un jeton Bouclier à une autre unité.</p>",
+                                "epicAction": "Action Épique : si vous contrôlez au moins 6 ressources, déployez ce leader. (Retournez-le, redressez-le et déplacez-le dans l’arène terrestre.)",
+                                "epicActionStyled": "<p><strong>Action Épique : </strong>si vous contrôlez au moins 6 ressources, déployez ce leader. <i>(Retournez-le, redressez-le et déplacez-le dans l’arène terrestre.)</i></p>",
+                                "linkHtml": "<a href=\"/cards?cid=2579145458\" class=\"card-tooltip\" data-card=\"2579145458\">Luke Skywalker</a>",
+                                "cardId": "5",
+                                "createdAt": "2023-05-11T20:05:26.331Z",
+                                "updatedAt": "2024-10-24T04:05:20.828Z",
+                                "publishedAt": "2023-05-11T20:05:27.731Z",
+                                "locale": "fr",
+                                "hyperspace": false,
+                                "unique": true,
+                                "showcase": false,
+                                "cardUid": "2579145458",
+                                "rules": null,
+                                "rulesStyled": null,
+                                "serialCode": "0101005",
+                                "upgradeHp": null,
+                                "upgradePower": null
+                            }
+                        },
+                        {
+                            "id": 8,
+                            "attributes": {
+                                "title": "Luke Skywalker",
+                                "subtitle": "Getreuer Freund",
+                                "cardNumber": 5,
+                                "cardCount": 252,
+                                "artist": "Borja Pindado",
+                                "artFrontHorizontal": true,
+                                "artBackHorizontal": null,
+                                "hasFoil": false,
+                                "cost": 6,
+                                "hp": 7,
+                                "power": 4,
+                                "text": "Aktion [1 ressource, Erschöpfe]: Gib einer [Heldentum]-Einheit, die du in dieser Phase gespielt hast, 1 Schild-Marker.",
+                                "textStyled": "<p><strong>Aktion [</strong><img src=\"https://ffg-prod-uploads.s3.amazonaws.com/icon_cost_1_6878a6fe98.png\" alt=\"icon_cost_1.png\"><strong>, </strong><img src=\"https://ffg-prod-uploads.s3.amazonaws.com/icon_exhaust_0c450d09d4.png\" alt=\"icon_exhaust.png\"><strong>]:</strong> Gib einer <img src=\"https://ffg-prod-uploads.s3.amazonaws.com/icon_heroism_895bfc1dc1.png\" alt=\"icon_heroism.png\">-Einheit, die du in dieser Phase gespielt hast, 1 Schild-Marker.</p>",
+                                "deployBox": "Beim Angriff: Du darfst einer anderen Einheit 1 Schild-Marker geben.",
+                                "deployBoxStyled": "<p><strong>Beim Angriff: </strong>Du darfst einer anderen Einheit 1 Schild-Marker geben.</p>",
+                                "epicAction": "Epische Aktion: Falls du 6 oder mehr Ressourcen kontrollierst, rufe diesen Anführer. (Drehe ihn um, mache ihn spielbereit und verschiebe ihn in das Boden-Kampfgebiet.)",
+                                "epicActionStyled": "<p><strong>Epische Aktion: </strong>Falls du 6 oder mehr Ressourcen kontrollierst, rufe diesen Anführer. <i>(Drehe ihn um, mache ihn spielbereit und verschiebe ihn in das Boden-Kampfgebiet.)</i></p>",
+                                "linkHtml": "<a href=\"/cards?cid=2579145458\" class=\"card-tooltip\" data-card=\"2579145458\">Luke Skywalker</a>",
+                                "cardId": "5",
+                                "createdAt": "2023-05-11T20:05:16.934Z",
+                                "updatedAt": "2024-07-15T17:47:00.980Z",
+                                "publishedAt": "2023-05-11T20:05:18.881Z",
+                                "locale": "de",
+                                "hyperspace": false,
+                                "unique": true,
+                                "showcase": false,
+                                "cardUid": "2579145458",
+                                "rules": null,
+                                "rulesStyled": null,
+                                "serialCode": "0101005",
+                                "upgradeHp": null,
+                                "upgradePower": null
+                            }
+                        },
+                        {
+                            "id": 7,
+                            "attributes": {
+                                "title": "Luke Skywalker",
+                                "subtitle": "Amico Fidato",
+                                "cardNumber": 5,
+                                "cardCount": 252,
+                                "artist": "Borja Pindado",
+                                "artFrontHorizontal": true,
+                                "artBackHorizontal": null,
+                                "hasFoil": false,
+                                "cost": 6,
+                                "hp": 7,
+                                "power": 4,
+                                "text": "Azione [1 risorsa, Esaurire]: Dai 1 segnalino Scudo a un'unità [Eroismo] che hai giocato in questa fase.",
+                                "textStyled": "<p><strong>Azione [</strong><img src=\"https://ffg-prod-uploads.s3.amazonaws.com/icon_cost_1_6878a6fe98.png\" alt=\"icon_cost_1.png\"><strong>, </strong><img src=\"https://ffg-prod-uploads.s3.amazonaws.com/icon_exhaust_0c450d09d4.png\" alt=\"icon_exhaust.png\"><strong>]:</strong> Dai 1 segnalino Scudo a un’unità <img src=\"https://ffg-prod-uploads.s3.amazonaws.com/icon_heroism_895bfc1dc1.png\" alt=\"icon_heroism.png\"> che hai giocato in questa fase.</p>",
+                                "deployBox": "Quando Attacca: Puoi dare 1 segnalino Scudo a un’altra unità.",
+                                "deployBoxStyled": "<p><strong>Quando Attacca: </strong>Puoi dare 1 segnalino Scudo a un’altra unità.</p>",
+                                "epicAction": "Azione Epica: Se controlli 6 o più risorse, schiera questo leader (giralo, approntalo e spostalo nell’arena terrestre).",
+                                "epicActionStyled": "<p><strong>Azione Epica:</strong> Se controlli 6 o più risorse, schiera questo leader<i> (giralo, approntalo e spostalo nell’arena terrestre).</i></p>",
+                                "linkHtml": "<a href=\"/cards?cid=2579145458\" class=\"card-tooltip\" data-card=\"2579145458\">Luke Skywalker</a>",
+                                "cardId": "5",
+                                "createdAt": "2023-05-11T20:03:05.435Z",
+                                "updatedAt": "2024-10-24T04:10:15.840Z",
+                                "publishedAt": "2023-05-11T20:03:14.509Z",
+                                "locale": "it",
+                                "hyperspace": false,
+                                "unique": true,
+                                "showcase": false,
+                                "cardUid": "2579145458",
+                                "rules": null,
+                                "rulesStyled": null,
+                                "serialCode": "0101005",
+                                "upgradeHp": null,
+                                "upgradePower": null
+                            }
+                        }
+                    ]
+                },
+                "aspects": {
+                    "data": [
+                        {
+                            "id": 2,
+                            "attributes": {
+                                "name": "Vigilance",
+                                "description": "<p>Play defensively with the ability to heal damage, remove dangerous units from play, and protect your base from enemy attacks. This aspect is perfect for players who like patient playstyles that can endure even the deadliest assaults. &nbsp;</p>",
+                                "color": "#4073d4",
+                                "createdAt": "2023-08-10T20:25:02.072Z",
+                                "updatedAt": "2024-07-15T21:32:23.641Z",
+                                "publishedAt": "2023-11-15T20:01:54.747Z",
+                                "locale": "en",
+                                "englishName": "Vigilance",
+                                "sortValue": 1
+                            }
+                        },
+                        {
+                            "id": 22,
+                            "attributes": {
+                                "name": "Heroism",
+                                "description": "<p>Fight for peace and justice with cards that feature the protagonists of the <i>Star Wars</i> series. This aspect is great for players who want their cards to support and protect each other while pressing the attack. This aspect is often paired with another aspect on a card.&nbsp;</p>",
+                                "color": "#ffffff",
+                                "createdAt": "2023-08-10T21:15:42.385Z",
+                                "updatedAt": "2024-07-15T21:41:00.219Z",
+                                "publishedAt": "2023-11-15T20:01:41.925Z",
+                                "locale": "en",
+                                "englishName": "Heroism",
+                                "sortValue": 25
+                            }
+                        }
+                    ]
+                },
+                "aspectDuplicates": {
+                    "data": []
+                },
+                "type": {
+                    "data": {
+                        "id": 4,
+                        "attributes": {
+                            "name": "Leader",
+                            "description": "",
+                            "value": "Leader",
+                            "createdAt": "2023-08-14T21:36:36.932Z",
+                            "updatedAt": "2024-03-05T17:11:46.417Z",
+                            "publishedAt": "2023-11-15T17:30:41.305Z",
+                            "locale": "en",
+                            "sortValue": 1
+                        }
+                    }
+                },
+                "type2": {
+                    "data": {
+                        "id": 6,
+                        "attributes": {
+                            "name": "Leader Unit",
+                            "description": "",
+                            "value": "Leader Unit",
+                            "createdAt": "2023-08-14T21:41:58.575Z",
+                            "updatedAt": "2024-03-05T17:12:16.062Z",
+                            "publishedAt": "2023-11-15T17:30:47.748Z",
+                            "locale": "en",
+                            "sortValue": 1
+                        }
+                    }
+                },
+                "traits": {
+                    "data": [
+                        {
+                            "id": 32,
+                            "attributes": {
+                                "name": "Force",
+                                "description": "",
+                                "createdAt": "2023-08-15T14:41:02.071Z",
+                                "updatedAt": "2023-11-15T23:57:27.173Z",
+                                "publishedAt": "2023-11-15T23:57:27.169Z",
+                                "locale": "en"
+                            }
+                        },
+                        {
+                            "id": 37,
+                            "attributes": {
+                                "name": "Rebel",
+                                "description": "",
+                                "createdAt": "2023-08-15T14:41:27.374Z",
+                                "updatedAt": "2023-11-16T00:00:24.048Z",
+                                "publishedAt": "2023-11-16T00:00:24.044Z",
+                                "locale": "en"
+                            }
+                        }
+                    ]
+                },
+                "arenas": {
+                    "data": [
+                        {
+                            "id": 2,
+                            "attributes": {
+                                "name": "Ground",
+                                "description": null,
+                                "createdAt": "2023-08-15T14:32:07.804Z",
+                                "updatedAt": "2023-08-18T21:37:34.527Z",
+                                "publishedAt": "2023-08-18T21:37:34.522Z",
+                                "locale": "en"
+                            }
+                        }
+                    ]
+                },
+                "keywords": {
+                    "data": []
+                },
+                "rarity": {
+                    "data": {
+                        "id": 22,
+                        "attributes": {
+                            "name": "Special",
+                            "character": "S",
+                            "color": "#000000",
+                            "createdAt": "2023-08-14T21:33:28.942Z",
+                            "updatedAt": "2024-04-25T14:06:08.982Z",
+                            "publishedAt": "2023-11-15T20:15:43.619Z",
+                            "locale": "en",
+                            "englishName": "Special",
+                            "sortValue": 1
+                        }
+                    }
+                },
+                "expansion": {
+                    "data": {
+                        "id": 2,
+                        "attributes": {
+                            "name": "Spark of Rebellion",
+                            "description": "",
+                            "code": "SOR",
+                            "createdAt": "2023-08-10T21:57:21.167Z",
+                            "updatedAt": "2024-04-25T14:07:26.914Z",
+                            "publishedAt": "2023-11-28T17:20:54.956Z",
+                            "locale": "en",
+                            "sortValue": 1
+                        }
+                    }
+                },
+                "variantTypes": {
+                    "data": [
+                        {
+                            "id": 46,
+                            "attributes": {
+                                "name": "Standard",
+                                "description": null,
+                                "createdAt": "2024-07-15T14:37:37.643Z",
+                                "updatedAt": "2024-07-15T19:55:03.314Z",
+                                "publishedAt": "2024-07-15T19:54:44.645Z",
+                                "locale": "en",
+                                "variantId": "01",
+                                "foil": false,
+                                "sortValue": 10,
+                                "icon": {
+                                    "data": {
+                                        "id": 8701,
+                                        "attributes": {
+                                            "name": "icon_standard.png",
+                                            "alternativeText": null,
+                                            "caption": null,
+                                            "width": 144,
+                                            "height": 144,
+                                            "formats": null,
+                                            "hash": "icon_standard_7dbd7cd8e6",
+                                            "ext": ".png",
+                                            "mime": "image/png",
+                                            "size": 0.39,
+                                            "url": "https://cdn.starwarsunlimited.com//icon_standard_7dbd7cd8e6.png",
+                                            "previewUrl": null,
+                                            "provider": "aws-s3",
+                                            "provider_metadata": null,
+                                            "createdAt": "2024-07-15T14:40:17.066Z",
+                                            "updatedAt": "2024-07-15T14:40:17.066Z"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                },
+                "variantOf": {
+                    "data": null
+                },
+                "reprintOf": {
+                    "data": null
+                },
+                "validationId": "2579145458"
+            }
+        }
+    ],
+    "meta": {
+        "pagination": {
+            "page": 1,
+            "pageSize": 40,
+            "pageCount": 1,
+            "total": 2
+        }
+    }
+}

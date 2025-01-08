@@ -1,13 +1,18 @@
 from AppCore.Data.APIClientProtocol import (APIClientProtocol,
-                                            APIClientSearchCallback)
+                                            APIClientSearchCallback,
+                                            NetworkerProtocol)
 from AppCore.Models import SearchConfiguration
 
-from .Requests import SearchRequest, SWUDBAPISearchConfiguration
+from ..SWUCardSearchConfiguration import SWUCardSearchConfiguration
+from .SearchRequest import SearchRequest
 
 
 # https://stackoverflow.com/a/33453124
 # suggests using move to thread
 class SWUDBAPIRemoteClient(APIClientProtocol):
+
+    def __init__(self, networker: NetworkerProtocol):
+        self._networker = networker
 
     @property
     def source_display_name(self) -> str:
@@ -18,7 +23,5 @@ class SWUDBAPIRemoteClient(APIClientProtocol):
         return "https://www.swu-db.com/"
 
     def search(self, search_configuration: SearchConfiguration, callback: APIClientSearchCallback):
-        swu_search_config = SWUDBAPISearchConfiguration.from_search_configuration(search_configuration)
-        self.netorker.load(SearchRequest(swu_search_config), callback)
-        
-      
+        swu_search_config = SWUCardSearchConfiguration.from_search_configuration(search_configuration)
+        self._networker.load(SearchRequest(swu_search_config), callback)

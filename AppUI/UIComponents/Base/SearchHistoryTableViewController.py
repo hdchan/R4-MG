@@ -4,7 +4,7 @@ from AppCore.Data.RecentSearchDataSource import RecentSearchDataSource
 from AppCore.Observation import *
 from AppCore.Observation.Events import SearchEvent
 from AppUI.AppDependencyProviding import AppDependencyProviding
-from AppUI.Clients.SWUDB import SWUDBAPISearchConfiguration
+from AppUI.Clients import SWUCardSearchConfiguration
 from AppCore.Data.CardSearchDataSource import CardSearchDataSource
 
 class SearchHistoryTableViewController(QWidget, TransmissionReceiverProtocol):
@@ -43,7 +43,7 @@ class SearchHistoryTableViewController(QWidget, TransmissionReceiverProtocol):
     def _update_recent_search_list(self):
         self._recent_search_list.clear()
         for r in self._recent_search_data_source.search_list_history:
-            swu_search_config = SWUDBAPISearchConfiguration.from_search_configuration(r[0])
+            swu_search_config = SWUCardSearchConfiguration.from_search_configuration(r[0])
             item = QListWidgetItem(f'{self._string_formatter.format_date(r[1])} - Name: "{swu_search_config.card_name}", Type: {swu_search_config.card_type.value}')
             item.setToolTip(f'{r[1].strftime("%m/%d/%Y, %I:%M %p")}')
             self._recent_search_list.addItem(item)

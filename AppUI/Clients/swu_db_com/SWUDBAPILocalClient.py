@@ -8,8 +8,8 @@ from AppCore.Models import SearchConfiguration, TradingCard
 from AppCore.Network import LocalNetworker
 
 from ...Assets import AssetProvider
-from .CardType import CardType
-from .Requests.SearchRequest import SWUDBAPISearchConfiguration
+from AppCore.Models.CardType import CardType
+from ..SWUCardSearchConfiguration import SWUCardSearchConfiguration
 from .SWUTradingCard import SWUTradingCard
 
 CardListData = List[Dict[str, Any]]
@@ -34,7 +34,7 @@ class SWUDBAPILocalClient(APIClientProtocol):
         self.mock_networker.load_mock(completed_search)
     
     def _perform_search(self, search_configuration: SearchConfiguration, callback: APIClientSearchCallback):
-        swu_search_config = SWUDBAPISearchConfiguration.from_search_configuration(search_configuration)
+        swu_search_config = SWUCardSearchConfiguration.from_search_configuration(search_configuration)
         def filter_the_result(card: TradingCard):
             return (swu_search_config.card_name.lower() in card.name.lower() and 
                     (swu_search_config.card_type.value.lower() == card.type.lower() or swu_search_config.card_type == CardType.UNSPECIFIED))
