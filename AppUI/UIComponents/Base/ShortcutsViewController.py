@@ -1,7 +1,4 @@
-from typing import Optional
-
-from PyQt5.QtWidgets import (QAction, QLabel, QMenu, QTextEdit, QVBoxLayout,
-                             QWidget)
+from PyQt5.QtWidgets import QTextEdit, QVBoxLayout, QWidget
 
 from ...AppDependencyProviding import AppDependencyProviding
 

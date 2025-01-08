@@ -1,7 +1,8 @@
 from typing import Any, Dict
 
 from AppCore.Models.TradingCard import TradingCard
-from .CardAspect import CardAspect
+from AppCore.Models.CardAspect import CardAspect
+from typing import Optional
 
 class SWUTradingCard(TradingCard):
     @classmethod
@@ -16,7 +17,6 @@ class SWUTradingCard(TradingCard):
             set=json['Set'],
             type=json['Type'],
             number=json['Number'],
-            double_sided=json['DoubleSided'],
             json=json,
             metadata=metadata
         )
@@ -37,3 +37,11 @@ class SWUTradingCard(TradingCard):
             display_name += f' {emojis}'
         
         return display_name
+    
+    @property
+    def front_art_url(self) -> Optional[str]:
+        return self.json['FrontArt']
+    
+    @property
+    def back_art_url(self) -> Optional[str]:
+        return self.json.get('BackArt', None)

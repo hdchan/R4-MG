@@ -11,13 +11,13 @@ from AppCore.Observation import *
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         LocalResourceFetchEvent, SearchEvent)
 from AppUI.AppDependencyProviding import AppDependencyProviding
-
-from ...Clients.SWUDB import CardType, SWUDBAPISearchConfiguration
+from AppCore.Models import CardType 
+from AppUI.Clients import SWUCardSearchConfiguration
 from ...Observation.Events import KeyboardEvent
 from ..Base.ImagePreviewViewController import ImagePreviewViewController
 from .LoadingSpinner import LoadingSpinner
 
-
+# TODO: add pagination
 class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearchDataSourceDelegate):
     def __init__(self, 
                  app_dependency_provider: AppDependencyProviding, 
@@ -109,7 +109,7 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
 
         image_source_label = QLabel()
         image_source_label.setOpenExternalLinks(True)
-        layout.addWidget(image_source_label)
+        # layout.addWidget(image_source_label)
         self.image_source_label = image_source_label
 
         self._load_source_labels()
@@ -179,13 +179,13 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
         self._search()
 
     def search_leader(self):
-        def modifier(config: SWUDBAPISearchConfiguration) -> SearchConfiguration:
+        def modifier(config: SWUCardSearchConfiguration) -> SearchConfiguration:
             config.card_type = CardType.LEADER
             return config
         self._search(modifier)
         
     def search_base(self):
-        def modifier(config: SWUDBAPISearchConfiguration) -> SearchConfiguration:
+        def modifier(config: SWUCardSearchConfiguration) -> SearchConfiguration:
             config.card_type = CardType.BASE
             return config
         self._search(modifier)
@@ -195,7 +195,7 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
         stripped_text = self.card_name_search_bar.text().strip()
         self.card_name_search_bar.setText(stripped_text)
         
-        search_configuration = SWUDBAPISearchConfiguration()
+        search_configuration = SWUCardSearchConfiguration()
         search_configuration.card_name = stripped_text
         search_configuration.card_type = self._card_type_list[self.card_type_selection.currentIndex()]
                 
@@ -280,7 +280,7 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
                 self._set_search_components_enabled(False)
                 self.card_name_search_bar.setText(event.search_configuration.card_name)
                 # TODO: may need more specific check
-                swu_search_config = SWUDBAPISearchConfiguration.from_search_configuration(event.search_configuration)
+                swu_search_config = SWUCardSearchConfiguration.from_search_configuration(event.search_configuration)
                 self._set_card_type_filter(swu_search_config.card_type)
 
             elif event.event_type == SearchEvent.EventType.FINISHED:

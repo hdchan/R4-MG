@@ -12,7 +12,7 @@ from PyQt5.QtCore import QStandardPaths
 class Configuration:
     
     APP_NAME = 'R4-MG'
-    APP_VERSION = '0.13.1'
+    APP_VERSION = '0.14.0'
     SETTINGS_VERSION = '1.0'
     
     class Toggles:
@@ -68,7 +68,8 @@ class Configuration:
         class SearchSource(int, Enum):
             SWUDBAPI = 0
             LOCAL = 1
-            DEFAULT = SWUDBAPI
+            STARWARSUNLIMITED_FFG = 2
+            DEFAULT = STARWARSUNLIMITED_FFG
 
         class ImageSource(int, Enum):
             SWUDBAPI = 0 # https://www.swu-db.com/api

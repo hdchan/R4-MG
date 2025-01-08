@@ -76,6 +76,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
         image_info_layout.addWidget(self._created_date_label)
 
         self._image_url_label = QLabel()
+        # self._image_url_label.setMaximumWidth(100)
         self._image_url_label.setWordWrap(True)
         self._image_url_label.setOpenExternalLinks(True)
         self._image_url_label.setAlignment(Qt.AlignmentFlag.AlignCenter)

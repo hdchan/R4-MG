@@ -1,0 +1,1253 @@
+{
+    "pageProps": {
+        "_nextI18Next": {
+            "initialI18nStore": {
+                "en": {
+                    "common": {
+                        "next": "Next",
+                        "previous": "Previous",
+                        "search": "Search",
+                        "reset": "Reset",
+                        "cancel": "Cancel",
+                        "categories": "Categories",
+                        "tags": "Tags",
+                        "sort": "Sort",
+                        "sort_by_start_date": "Sort By Start Date",
+                        "newest": "Newest",
+                        "oldest": "Oldest",
+                        "share_post": "Share This Post",
+                        "news_back": "Back To News",
+                        "news_view": "View News",
+                        "news_none": "No Articles Found",
+                        "news_related": "Related News",
+                        "news_related_none": "No Related Articles",
+                        "news_related_view": "View More Articles",
+                        "copied_to_clipboard": "Copied To Clipboard",
+                        "external_link_title": "You are navigating away from the site!",
+                        "external_link_description": "This following link will open in a new tab",
+                        "external_leave": "Leave Site",
+                        "error_title": "Page Not Found",
+                        "error_description": "It looks like that page isn't available.",
+                        "error_back": "Go Back",
+                        "error_home": "Return Home",
+                        "error_generic": "An error occurred",
+                        "footer_edit_tracking": "Edit Tracking Preferences",
+                        "footer_opt_out": "Do Not Sell Or Share My Personal Information",
+                        "footer_terms": "Terms Of Use",
+                        "footer_legal": "Legal Information",
+                        "notice_at_collection": "Notice At Collection",
+                        "all": "All",
+                        "filters": "Filters",
+                        "more_filters": "More Filters",
+                        "card_type": "Type",
+                        "card_aspect": "Aspect",
+                        "card_keyword": "Keyword",
+                        "card_format": "Format",
+                        "card_hp": "HP",
+                        "card_power": "Power",
+                        "card_cost": "Cost",
+                        "card_arena": "Arena",
+                        "card_trait": "Trait",
+                        "card_expansion": "Set",
+                        "card_rarity": "Rarity",
+                        "card_list": "Card List",
+                        "build_a_deck": "Build A Deck",
+                        "clear_filters": "Clear Filters",
+                        "card_artist": "Artist",
+                        "card_number": "Card Number",
+                        "card_number_abbr": "Card No.",
+                        "leader_card_text": "Leader Card Text",
+                        "leader_unit_card_text": "Leader Unit Card Text",
+                        "title": "Title",
+                        "add_to_collection": "Add To Collection",
+                        "leaders_and_bases": "Leaders & Bases",
+                        "units_events_and_upgrades": "Units, Events & Upgrades",
+                        "release_date": "Release Date",
+                        "products_none": "No Products Found",
+                        "original_card": "Original Card",
+                        "store_locator": "Store Locator",
+                        "buy_now": "Buy Now",
+                        "cards_none": "No Cards Found",
+                        "epic_action": "Epic Action",
+                        "deploy_box": "Deploy Box",
+                        "sign_in": "Sign In",
+                        "sign_out": "Sign Out",
+                        "sign_up": "Sign Up",
+                        "player_portal": "Player Portal",
+                        "overview": "Overview",
+                        "account_settings": "Account Settings",
+                        "squadrons": "Squadrons",
+                        "my_events": "My Events",
+                        "my_collection": "My Collection",
+                        "featured_decks": "Featured Decks",
+                        "welcome_back": "Welcome Back",
+                        "user_avatar": "User Avatar",
+                        "required": "Required",
+                        "location": "Location",
+                        "locations": "Locations",
+                        "location_details": "Location Details",
+                        "select_location": "Select Location",
+                        "select_event_type": "Select Event Type",
+                        "event_format": "Event Format",
+                        "select_event_format": "Select Event Format",
+                        "price": "Price",
+                        "price_example": "Ex: $35.00",
+                        "url": "URL",
+                        "event_at_location": "Event At Location",
+                        "event_at_alternative_location": "Event At An Alternative Location",
+                        "address": "Address",
+                        "event_dates": "Event Dates",
+                        "event_date_error": "Event dates cannot be duplicates or overlap",
+                        "event_upload_error": "Failed to create event",
+                        "event_upload_success": "Event Created",
+                        "create_event": "Create Event",
+                        "start": "Start",
+                        "end": "End",
+                        "time": "Time",
+                        "start_required": "Start Date Required",
+                        "end_required": "End Date Required",
+                        "end_before_start_error": "End date must be after start date",
+                        "add": "Add",
+                        "events": "Events",
+                        "event_type": "Event Type",
+                        "upcoming_events": "Upcoming Events",
+                        "no_upcoming_events": "No Events Scheduled",
+                        "related_events": "Related Events",
+                        "event_details": "Event Details",
+                        "back_to_search_results": "Back To Search Results",
+                        "events_near": "Events Near",
+                        "distance": "Distance",
+                        "date_range": "Date Range",
+                        "decks": "Decks",
+                        "deck": "Deck",
+                        "create_deck": "Build A New Deck",
+                        "import_deck": "Import Deck",
+                        "save_to_collection": "Save To Collection",
+                        "add_to_deck": "Add To Deck",
+                        "add_to_sideboard": "Add To Sideboard",
+                        "sideboard": "Sideboard",
+                        "all_cards": "All Cards",
+                        "leader": "Leader",
+                        "leaders": "Leaders",
+                        "base": "Base",
+                        "bases": "Bases",
+                        "resource": "Resource",
+                        "resources": "Resources",
+                        "no_leader_selected": "No Leader Selected",
+                        "no_base_selected": "No Base Selected",
+                        "no_cards_selected": "No Cards Selected",
+                        "variant": "Variant",
+                        "variants": "Variants",
+                        "view_details": "View Details",
+                        "untitled_deck": "Untitled Deck",
+                        "deck_updated": "Deck Updated",
+                        "deck_created": "Deck Created",
+                        "deck_save_error": "Error Saving Deck",
+                        "confirm_unsaved_changes": "You have unsaved changes. Are you sure you want to leave?",
+                        "select_deck_image": "Select a deck cover image",
+                        "card_collection": "Card Collection",
+                        "import_deck_warning": "Warning: This will override any unsaved changes.",
+                        "import": "Import",
+                        "copy_code": "Copy Code",
+                        "reset_deck": "Reset Deck",
+                        "reset_deck_description": "Resetting the deck will remove all deck data.",
+                        "new_deck": "New Deck",
+                        "card_in_collection": "Card is in your collection",
+                        "card_add_to_collection": "Add Card To Your Collection",
+                        "card_remove_from_collection": "Remove card from your collection",
+                        "new_deck_description": "Creating a new deck will revert any unsaved changes",
+                        "save_deck": "Save Deck",
+                        "edit": "Edit",
+                        "delete": "Delete",
+                        "delete_deck": "Delete Deck",
+                        "delete_deck_description": "Are you sure you want to delete this deck?",
+                        "loading": "Loading",
+                        "load_more": "Load More",
+                        "open_menu": "Open Menu",
+                        "legal": "Legal",
+                        "banned_cards": "Banned Cards",
+                        "banned_cards_none": "No Banned Cards",
+                        "banned_sets": "Banned Sets",
+                        "banned_sets_none": "No Banned Sets",
+                        "banned_set_cards": "Banned Set Cards",
+                        "format_validation": "Format Validation",
+                        "valid": "Valid",
+                        "invalid": "Invalid",
+                        "view": "View",
+                        "allowed_cards": "Allowed Cards",
+                        "deck_limit_error": "Deck Limit Exceeded",
+                        "deck_imported": "Deck Imported",
+                        "deck_import_error": "Error Importing Deck",
+                        "cannot_add_card": "Cannot Add Card",
+                        "change_deck_image": "Change Deck Image",
+                        "hyperspace": "Hyperspace",
+                        "showcase": "Showcase",
+                        "unique": "Unique",
+                        "profile": "Profile",
+                        "unauthenticated_deck_save": "Sign up/in to save a deck",
+                        "auth_expired": "Session expired, must sign in again to continue",
+                        "deck_code_copied": "Deck Code Copied",
+                        "card_added_to_collection": "Card Added To Collection",
+                        "card_added_to_collection_error": "Error Adding Card To Collection",
+                        "card_removed_to_collection": "Card Removed From Collection",
+                        "card_removed_to_collection_error": "Error Removing Card From Collection",
+                        "event_multi_day": "Multi Day",
+                        "card_sort_number_asc": "Card Number (Low-High)",
+                        "card_sort_number_desc": "Card Number (High-Low)",
+                        "card_sort_alpha_asc": "Card Name (A-Z)",
+                        "card_sort_alpha_desc": "Card Name (Z-A)",
+                        "organizer_role_required": "Must be signed in and an organizer",
+                        "example": "Example",
+                        "miles": "mi",
+                        "kilometers": "km",
+                        "any": "Any",
+                        "search_type": "Search Type",
+                        "use_my_location": "Use My Location",
+                        "zipcode": "Zipcode",
+                        "geolocation_error": "Error Fetching Geolocation",
+                        "clear_date_range": "Clear Date Range",
+                        "add_date": "Add Date",
+                        "additional_information": "Additional Information",
+                        "card_aspect_opt_plural": "Aspect(s)",
+                        "card_keyword_opt_plural": "Keyword(s)",
+                        "card_trait_opt_plural": "Trait(s)",
+                        "card_type_opt_plural": "Type(s)",
+                        "stores": "Stores",
+                        "im_looking_to": "I'm looking to",
+                        "purchase_product": "Purchase a product",
+                        "find_event": "Find an event",
+                        "disabled": "Disabled",
+                        "results": "Results",
+                        "current_location": "Current Location",
+                        "using_current_location": "Using Current Location",
+                        "auto_complete_error": "Sorry, you typed a wrong address",
+                        "status": "Status",
+                        "cost": "Cost",
+                        "approved": "Approved",
+                        "pending": "Pending",
+                        "denied": "Denied",
+                        "under_maintenance": "This Page Is Undergoing Maintenance",
+                        "alt_featured_image": "Featured Image",
+                        "alt_card_image": "Card Image",
+                        "alt_card_thumbnail": "Card Thumbnail",
+                        "alt_card_art_front": "Front Of Card Art",
+                        "alt_card_art_back": "Back Of Card Art",
+                        "alt_product_image": "Product Image",
+                        "alt_gallery_image": "Gallery Image",
+                        "alt_background_texture": "Background Texture",
+                        "alt_hyperspace_icon": "Hyperspace Icon",
+                        "alt_showcase_icon": "Showcase Icon",
+                        "alt_card_variant_icon": "Card Variant Icon",
+                        "alt_deck_image": "Deck Image",
+                        "alt_icon": "Icon",
+                        "alt_swu_logo": "Star Wars: Unlimited logo",
+                        "sr_footer": "Footer",
+                        "alt_foil_icon": "Foil Icon",
+                        "view_all": "View All",
+                        "event_edit_disclaimer": "Contact the <0>Organized Play</0> team if you need to make changes to your event or have questions about your event status.",
+                        "coming_soon": "Coming Soon",
+                        "tec_app_name": "Tournament & Event Center",
+                        "close": "Close",
+                        "method": "Method",
+                        "and": "And",
+                        "or": "Or",
+                        "exclude": "Exclude",
+                        "under_maintenance_feature": "This Feature Is Undergoing Maintenance",
+                        "event_link": "Event link",
+                        "event_at_alternative_location_disclaimer": "To ensure the safety of <0>Star Wars</0>: Unlimited players, all requests to host events at a location other than this venue's main address must be approved. Fantasy Flight Games will review requests and respond within 1-3 business days. Decisions will be posted to the organizer's Profile page.",
+                        "copy_link": "Copy link",
+                        "card_collection_updated": "Card collection updated",
+                        "card_collection_update_error": "Error updating card collection",
+                        "unsaved_collection_changes": "Unsaved changes to card collection",
+                        "no_variant_name": "N/A",
+                        "no_set_name": "No Set",
+                        "no_set_code": "N/A",
+                        "printing": "Printing",
+                        "in_collection": "{{num}} in collection",
+                        "reset_changes": "Reset collection updates",
+                        "update_collection": "Update collection",
+                        "card_information": "Card information",
+                        "rules_clarification": "Additional rulings",
+                        "exceeds_collection": "Exceeds number in collection",
+                        "sr_select_tab_label": "Select a tab",
+                        "add_to_deck_tab": "Add to deck",
+                        "add_to_collection_tab": "Add to collection",
+                        "cant_add_more_to_deck": "Can't add more to deck",
+                        "unsaved_collection_changes_confirm": "You have unsaved changes. Are you sure you want to leave?",
+                        "my_cards": "My Cards",
+                        "my_decks": "My Decks",
+                        "front": "Front",
+                        "back": "Back",
+                        "printing_details_error": "Error fetching printing details",
+                        "manage_printings": "Manage printings",
+                        "card_one": "Card",
+                        "card_other": "Cards",
+                        "front_side_card_text": "Front side card text",
+                        "reverse_side_card_text": "Reverse side card text",
+                        "deck_delete_error": "Error deleting deck",
+                        "no_collection_found": "No collection cards found",
+                        "refresh_collection": "Refresh collection",
+                        "collection_card_updated": "{{title}}: Collection updated",
+                        "in_deck": "{{num}} in deck",
+                        "privacy_policy": "Privacy Policy",
+                        "cookie_policy": "Cookie Policy",
+                        "description": "Description",
+                        "date": "Date",
+                        "event_date": "Event Date",
+                        "event_name": "Event Name",
+                        "venue": "Venue",
+                        "organizer": "Organizer",
+                        "view_event": "View event",
+                        "view_event_on_melee": "View event on Melee.gg",
+                        "about_event": "About event",
+                        "event_at_alternative_venue": "Event At An Alternative Venue",
+                        "host": "Host",
+                        "event_view_disclaimer": "Disclaimer: All event details are created and managed by the event organizer. Fantasy Flight Games does not guarantee the accuracy of this information. Please contact the organizer directly with any questions or concerns.",
+                        "no_aspect": "No Aspect",
+                        "per_page": "{{num}} per page",
+                        "go_to_page": "Go to page",
+                        "card_upgrade_power": "Upgrade Power",
+                        "card_upgrade_hp": "Upgrade HP",
+                        "download_decklist": "Download Decklist",
+                        "import_deck_description": "Copy the deck code from another deck on StarWarsUnlimited.com."
+                    }
+                }
+            },
+            "initialLocale": "en",
+            "ns": [
+                "common"
+            ],
+            "userConfig": {
+                "i18n": {
+                    "defaultLocale": "en",
+                    "locales": [
+                        "en",
+                        "de",
+                        "fr",
+                        "es",
+                        "it"
+                    ]
+                },
+                "fallbackLng": {
+                    "default": [
+                        "en"
+                    ]
+                },
+                "reloadOnPrerender": true,
+                "default": {
+                    "i18n": {
+                        "defaultLocale": "en",
+                        "locales": [
+                            "en",
+                            "de",
+                            "fr",
+                            "es",
+                            "it"
+                        ]
+                    },
+                    "fallbackLng": {
+                        "default": [
+                            "en"
+                        ]
+                    },
+                    "reloadOnPrerender": true
+                }
+            }
+        },
+        "filters": {
+            "cost": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                14,
+                15
+            ],
+            "power": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12
+            ],
+            "hp": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                24,
+                25,
+                26,
+                27,
+                30,
+                33,
+                34,
+                35
+            ],
+            "upgradePower": [
+                -2,
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "upgradeHp": [
+                -2,
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "cardTypes": [
+                {
+                    "id": 7,
+                    "name": "Base",
+                    "description": "",
+                    "value": "Base",
+                    "sortValue": 2
+                },
+                {
+                    "id": 8,
+                    "name": "Event",
+                    "description": "",
+                    "value": "Event",
+                    "sortValue": 3
+                },
+                {
+                    "id": 4,
+                    "name": "Leader",
+                    "description": "",
+                    "value": "Leader",
+                    "sortValue": 1
+                },
+                {
+                    "id": 6,
+                    "name": "Leader Unit",
+                    "description": "",
+                    "value": "Leader Unit",
+                    "sortValue": 1
+                },
+                {
+                    "id": 40,
+                    "name": "Token Unit",
+                    "description": "",
+                    "value": "Token",
+                    "sortValue": 4
+                },
+                {
+                    "id": 11,
+                    "name": "Token Upgrade",
+                    "description": "",
+                    "value": "Token",
+                    "sortValue": 4
+                },
+                {
+                    "id": 9,
+                    "name": "Unit",
+                    "description": "",
+                    "value": "Unit",
+                    "sortValue": 3
+                },
+                {
+                    "id": 10,
+                    "name": "Upgrade",
+                    "description": "",
+                    "value": "Upgrade",
+                    "sortValue": 3
+                }
+            ],
+            "aspects": [
+                {
+                    "name": "No Aspect",
+                    "id": 999
+                },
+                {
+                    "id": 12,
+                    "name": "Aggression",
+                    "description": "<p>Attack with maximum efficiency and dish out lots of damage. This aspect is a great fit for players who prefer fast-paced, fiery playstyles that break through opponents’ defenses and hurl themselves toward victory at any cost.&nbsp;</p>",
+                    "color": "#d30808",
+                    "englishName": "Aggression",
+                    "sortValue": 10,
+                    "icon": {
+                        "id": 813,
+                        "name": "icon_aggression.png",
+                        "alternativeText": "Aggression Icon",
+                        "caption": null,
+                        "width": 150,
+                        "height": 150,
+                        "formats": null,
+                        "hash": "icon_aggression_24cc746635",
+                        "ext": ".png",
+                        "mime": "image/png",
+                        "size": 2.41,
+                        "url": "https://cdn.starwarsunlimited.com/icon_aggression_24cc746635.png",
+                        "previewUrl": null,
+                        "provider": "aws-s3",
+                        "provider_metadata": null,
+                        "folderPath": "/19",
+                        "createdAt": "2023-11-17T18:08:21.625Z",
+                        "updatedAt": "2023-11-17T18:09:35.594Z"
+                    }
+                },
+                {
+                    "id": 7,
+                    "name": "Command",
+                    "description": "<p>Accelerate your resources and call upon lots of units or strengthen the units you already have in play. This is the aspect of choice for players who want to overwhelm their opponents with a massive board presence. &nbsp;</p>",
+                    "color": "#0b992d",
+                    "englishName": "Command",
+                    "sortValue": 5,
+                    "icon": {
+                        "id": 815,
+                        "name": "icon_command.png",
+                        "alternativeText": "Command Icon",
+                        "caption": null,
+                        "width": 150,
+                        "height": 150,
+                        "formats": null,
+                        "hash": "icon_command_df837f32c6",
+                        "ext": ".png",
+                        "mime": "image/png",
+                        "size": 1.95,
+                        "url": "https://cdn.starwarsunlimited.com/icon_command_df837f32c6.png",
+                        "previewUrl": null,
+                        "provider": "aws-s3",
+                        "provider_metadata": null,
+                        "folderPath": "/19",
+                        "createdAt": "2023-11-17T18:08:21.651Z",
+                        "updatedAt": "2023-11-17T18:09:54.567Z"
+                    }
+                },
+                {
+                    "id": 17,
+                    "name": "Cunning",
+                    "description": "<p>Adapt to any situation on the fly with powerful, immediate effects and lots of tools for disrupting your opponent’s plans. This aspect is a perfect fit for players who prefer to respond quickly to threats and have an answer for anything their opponent could throw their way.&nbsp;</p>",
+                    "color": "#eb9f1c",
+                    "englishName": "Cunning",
+                    "sortValue": 15,
+                    "icon": {
+                        "id": 811,
+                        "name": "icon_cunning.png",
+                        "alternativeText": "Cunning Icon",
+                        "caption": null,
+                        "width": 150,
+                        "height": 150,
+                        "formats": null,
+                        "hash": "icon_cunning_931f93ee4c",
+                        "ext": ".png",
+                        "mime": "image/png",
+                        "size": 2.15,
+                        "url": "https://cdn.starwarsunlimited.com/icon_cunning_931f93ee4c.png",
+                        "previewUrl": null,
+                        "provider": "aws-s3",
+                        "provider_metadata": null,
+                        "folderPath": "/19",
+                        "createdAt": "2023-11-17T18:08:21.315Z",
+                        "updatedAt": "2023-11-17T18:10:17.020Z"
+                    }
+                },
+                {
+                    "id": 22,
+                    "name": "Heroism",
+                    "description": "<p>Fight for peace and justice with cards that feature the protagonists of the <i>Star Wars</i> series. This aspect is great for players who want their cards to support and protect each other while pressing the attack. This aspect is often paired with another aspect on a card.&nbsp;</p>",
+                    "color": "#ffffff",
+                    "englishName": "Heroism",
+                    "sortValue": 25,
+                    "icon": {
+                        "id": 812,
+                        "name": "icon_heroism.png",
+                        "alternativeText": "Heroism Icon",
+                        "caption": null,
+                        "width": 150,
+                        "height": 150,
+                        "formats": null,
+                        "hash": "icon_heroism_99d152cb2d",
+                        "ext": ".png",
+                        "mime": "image/png",
+                        "size": 2.21,
+                        "url": "https://cdn.starwarsunlimited.com/icon_heroism_99d152cb2d.png",
+                        "previewUrl": null,
+                        "provider": "aws-s3",
+                        "provider_metadata": null,
+                        "folderPath": "/19",
+                        "createdAt": "2023-11-17T18:08:21.536Z",
+                        "updatedAt": "2023-11-22T15:36:03.230Z"
+                    }
+                },
+                {
+                    "id": 2,
+                    "name": "Vigilance",
+                    "description": "<p>Play defensively with the ability to heal damage, remove dangerous units from play, and protect your base from enemy attacks. This aspect is perfect for players who like patient playstyles that can endure even the deadliest assaults. &nbsp;</p>",
+                    "color": "#4073d4",
+                    "englishName": "Vigilance",
+                    "sortValue": 1,
+                    "icon": {
+                        "id": 816,
+                        "name": "icon_vigilance.png",
+                        "alternativeText": "Vigilance Icon",
+                        "caption": null,
+                        "width": 150,
+                        "height": 150,
+                        "formats": null,
+                        "hash": "icon_vigilance_aebda7026f",
+                        "ext": ".png",
+                        "mime": "image/png",
+                        "size": 2.57,
+                        "url": "https://cdn.starwarsunlimited.com/icon_vigilance_aebda7026f.png",
+                        "previewUrl": null,
+                        "provider": "aws-s3",
+                        "provider_metadata": null,
+                        "folderPath": "/19",
+                        "createdAt": "2023-11-17T18:08:21.678Z",
+                        "updatedAt": "2023-11-21T22:17:10.269Z"
+                    }
+                },
+                {
+                    "id": 27,
+                    "name": "Villainy",
+                    "description": "<p>Battle for ultimate power with cards that feature the antagonists of the <i>Star Wars</i> series. This aspect is perfect for players who want to command huge armies or wield powerful destructive effects. Similar to Heroism, this aspect is often paired with another aspect on a card.&nbsp;</p>",
+                    "color": "#000000",
+                    "englishName": "Villainy",
+                    "sortValue": 20,
+                    "icon": {
+                        "id": 814,
+                        "name": "icon_villainy.png",
+                        "alternativeText": "Villainy Icon",
+                        "caption": null,
+                        "width": 150,
+                        "height": 150,
+                        "formats": null,
+                        "hash": "icon_villainy_eb77e7874b",
+                        "ext": ".png",
+                        "mime": "image/png",
+                        "size": 2.07,
+                        "url": "https://cdn.starwarsunlimited.com/icon_villainy_eb77e7874b.png",
+                        "previewUrl": null,
+                        "provider": "aws-s3",
+                        "provider_metadata": null,
+                        "folderPath": "/19",
+                        "createdAt": "2023-11-17T18:08:21.648Z",
+                        "updatedAt": "2023-11-17T18:13:12.988Z"
+                    }
+                }
+            ],
+            "traits": [
+                {
+                    "id": 127,
+                    "name": "Armor",
+                    "description": ""
+                },
+                {
+                    "id": 248,
+                    "name": "Bounty",
+                    "description": ""
+                },
+                {
+                    "id": 167,
+                    "name": "Bounty Hunter",
+                    "description": ""
+                },
+                {
+                    "id": 107,
+                    "name": "Capital Ship",
+                    "description": ""
+                },
+                {
+                    "id": 219,
+                    "name": "Clone",
+                    "description": ""
+                },
+                {
+                    "id": 173,
+                    "name": "Condition",
+                    "description": ""
+                },
+                {
+                    "id": 162,
+                    "name": "Creature",
+                    "description": ""
+                },
+                {
+                    "id": 243,
+                    "name": "Disaster",
+                    "description": ""
+                },
+                {
+                    "id": 47,
+                    "name": "Droid",
+                    "description": ""
+                },
+                {
+                    "id": 57,
+                    "name": "Fighter",
+                    "description": ""
+                },
+                {
+                    "id": 253,
+                    "name": "First Order",
+                    "description": ""
+                },
+                {
+                    "id": 32,
+                    "name": "Force",
+                    "description": ""
+                },
+                {
+                    "id": 87,
+                    "name": "Fringe",
+                    "description": ""
+                },
+                {
+                    "id": 122,
+                    "name": "Gambit",
+                    "description": ""
+                },
+                {
+                    "id": 220,
+                    "name": "Hutt",
+                    "description": ""
+                },
+                {
+                    "id": 7,
+                    "name": "Imperial",
+                    "description": ""
+                },
+                {
+                    "id": 82,
+                    "name": "Innate",
+                    "description": ""
+                },
+                {
+                    "id": 147,
+                    "name": "Inquisitor",
+                    "description": ""
+                },
+                {
+                    "id": 67,
+                    "name": "Item",
+                    "description": ""
+                },
+                {
+                    "id": 221,
+                    "name": "Jawa",
+                    "description": ""
+                },
+                {
+                    "id": 62,
+                    "name": "Jedi",
+                    "description": ""
+                },
+                {
+                    "id": 238,
+                    "name": "Law",
+                    "description": ""
+                },
+                {
+                    "id": 132,
+                    "name": "Learned",
+                    "description": ""
+                },
+                {
+                    "id": 77,
+                    "name": "Lightsaber",
+                    "description": ""
+                },
+                {
+                    "id": 152,
+                    "name": "Mandalorian",
+                    "description": ""
+                },
+                {
+                    "id": 175,
+                    "name": "Modification",
+                    "description": ""
+                },
+                {
+                    "id": 258,
+                    "name": "Naboo",
+                    "description": ""
+                },
+                {
+                    "id": 180,
+                    "name": "New Republic",
+                    "description": ""
+                },
+                {
+                    "id": 268,
+                    "name": "Night",
+                    "description": ""
+                },
+                {
+                    "id": 12,
+                    "name": "Official",
+                    "description": ""
+                },
+                {
+                    "id": 278,
+                    "name": "Pilot",
+                    "description": ""
+                },
+                {
+                    "id": 142,
+                    "name": "Plan",
+                    "description": ""
+                },
+                {
+                    "id": 37,
+                    "name": "Rebel",
+                    "description": ""
+                },
+                {
+                    "id": 176,
+                    "name": "Republic",
+                    "description": ""
+                },
+                {
+                    "id": 179,
+                    "name": "Resistance",
+                    "description": ""
+                },
+                {
+                    "id": 172,
+                    "name": "Separatist",
+                    "description": ""
+                },
+                {
+                    "id": 42,
+                    "name": "Sith",
+                    "description": ""
+                },
+                {
+                    "id": 157,
+                    "name": "Spectre",
+                    "description": ""
+                },
+                {
+                    "id": 112,
+                    "name": "Speeder",
+                    "description": ""
+                },
+                {
+                    "id": 92,
+                    "name": "Supply",
+                    "description": ""
+                },
+                {
+                    "id": 97,
+                    "name": "Tactic",
+                    "description": ""
+                },
+                {
+                    "id": 218,
+                    "name": "Tank",
+                    "description": ""
+                },
+                {
+                    "id": 174,
+                    "name": "Transport",
+                    "description": ""
+                },
+                {
+                    "id": 117,
+                    "name": "Trick",
+                    "description": ""
+                },
+                {
+                    "id": 17,
+                    "name": "Trooper",
+                    "description": ""
+                },
+                {
+                    "id": 178,
+                    "name": "Twi'lek",
+                    "description": ""
+                },
+                {
+                    "id": 22,
+                    "name": "Underworld",
+                    "description": ""
+                },
+                {
+                    "id": 52,
+                    "name": "Vehicle",
+                    "description": ""
+                },
+                {
+                    "id": 102,
+                    "name": "Walker",
+                    "description": ""
+                },
+                {
+                    "id": 72,
+                    "name": "Weapon",
+                    "description": ""
+                },
+                {
+                    "id": 27,
+                    "name": "Wookiee",
+                    "description": ""
+                }
+            ],
+            "arenas": [
+                {
+                    "id": 2,
+                    "name": "Ground",
+                    "description": null
+                },
+                {
+                    "id": 7,
+                    "name": "Space",
+                    "description": null
+                }
+            ],
+            "keywords": [
+                {
+                    "id": 12,
+                    "name": "Ambush",
+                    "description": ""
+                },
+                {
+                    "id": 42,
+                    "name": "Bounty",
+                    "description": ""
+                },
+                {
+                    "id": 62,
+                    "name": "Coordinate",
+                    "description": ""
+                },
+                {
+                    "id": 52,
+                    "name": "Exploit",
+                    "description": ""
+                },
+                {
+                    "id": 17,
+                    "name": "Grit",
+                    "description": ""
+                },
+                {
+                    "id": 27,
+                    "name": "Overwhelm",
+                    "description": ""
+                },
+                {
+                    "id": 67,
+                    "name": "Piloting",
+                    "description": ""
+                },
+                {
+                    "id": 37,
+                    "name": "Raid",
+                    "description": ""
+                },
+                {
+                    "id": 32,
+                    "name": "Restore",
+                    "description": ""
+                },
+                {
+                    "id": 3,
+                    "name": "Saboteur",
+                    "description": "<p>When this unit attacks, ignore Sentinel and defeat the defender's Shields.</p>"
+                },
+                {
+                    "id": 7,
+                    "name": "Sentinel",
+                    "description": ""
+                },
+                {
+                    "id": 22,
+                    "name": "Shielded",
+                    "description": ""
+                },
+                {
+                    "id": 47,
+                    "name": "Smuggle",
+                    "description": ""
+                }
+            ],
+            "rarities": [
+                {
+                    "id": 2,
+                    "name": "Common",
+                    "character": "C",
+                    "color": "#964d02",
+                    "englishName": "Common",
+                    "sortValue": 2
+                },
+                {
+                    "id": 17,
+                    "name": "Legendary",
+                    "character": "L",
+                    "color": "#00c8f3",
+                    "englishName": "Legendary",
+                    "sortValue": 5
+                },
+                {
+                    "id": 12,
+                    "name": "Rare",
+                    "character": "R",
+                    "color": "#f1c000",
+                    "englishName": "Rare",
+                    "sortValue": 4
+                },
+                {
+                    "id": 22,
+                    "name": "Special",
+                    "character": "S",
+                    "color": "#000000",
+                    "englishName": "Special",
+                    "sortValue": 1
+                },
+                {
+                    "id": 7,
+                    "name": "Uncommon",
+                    "character": "U",
+                    "color": "#d1d1d1",
+                    "englishName": "Uncommon",
+                    "sortValue": 3
+                }
+            ],
+            "expansions": [
+                {
+                    "id": 13,
+                    "name": "2024 Convention Exclusive",
+                    "description": "",
+                    "code": "C24",
+                    "sortValue": 50,
+                    "logo": null
+                },
+                {
+                    "id": 23,
+                    "name": "Jump to Lightspeed",
+                    "description": "",
+                    "code": "JTL",
+                    "sortValue": 4,
+                    "logo": null
+                },
+                {
+                    "id": 8,
+                    "name": "Shadows of the Galaxy",
+                    "description": "",
+                    "code": "SHD",
+                    "sortValue": 2,
+                    "logo": null
+                },
+                {
+                    "id": 2,
+                    "name": "Spark of Rebellion",
+                    "description": "",
+                    "code": "SOR",
+                    "sortValue": 1,
+                    "logo": {
+                        "id": 941,
+                        "name": "Spark-of-Rebellion_Logo_Vert_v2.png",
+                        "alternativeText": null,
+                        "caption": null,
+                        "width": 1493,
+                        "height": 597,
+                        "formats": {
+                            "card": {
+                                "ext": ".png",
+                                "url": "https://cdn.starwarsunlimited.com/card_Spark_of_Rebellion_Logo_Vert_v2_3419ebc4bd.png",
+                                "hash": "card_Spark_of_Rebellion_Logo_Vert_v2_3419ebc4bd",
+                                "mime": "image/png",
+                                "name": "card_Spark-of-Rebellion_Logo_Vert_v2.png",
+                                "path": null,
+                                "size": 35.99,
+                                "width": 400,
+                                "height": 160
+                            },
+                            "large": {
+                                "ext": ".png",
+                                "url": "https://cdn.starwarsunlimited.com/large_Spark_of_Rebellion_Logo_Vert_v2_3419ebc4bd.png",
+                                "hash": "large_Spark_of_Rebellion_Logo_Vert_v2_3419ebc4bd",
+                                "mime": "image/png",
+                                "name": "large_Spark-of-Rebellion_Logo_Vert_v2.png",
+                                "path": null,
+                                "size": 130.33,
+                                "width": 1000,
+                                "height": 400
+                            },
+                            "small": {
+                                "ext": ".png",
+                                "url": "https://cdn.starwarsunlimited.com/small_Spark_of_Rebellion_Logo_Vert_v2_3419ebc4bd.png",
+                                "hash": "small_Spark_of_Rebellion_Logo_Vert_v2_3419ebc4bd",
+                                "mime": "image/png",
+                                "name": "small_Spark-of-Rebellion_Logo_Vert_v2.png",
+                                "path": null,
+                                "size": 49.03,
+                                "width": 500,
+                                "height": 200
+                            },
+                            "medium": {
+                                "ext": ".png",
+                                "url": "https://cdn.starwarsunlimited.com/medium_Spark_of_Rebellion_Logo_Vert_v2_3419ebc4bd.png",
+                                "hash": "medium_Spark_of_Rebellion_Logo_Vert_v2_3419ebc4bd",
+                                "mime": "image/png",
+                                "name": "medium_Spark-of-Rebellion_Logo_Vert_v2.png",
+                                "path": null,
+                                "size": 79.07,
+                                "width": 700,
+                                "height": 280
+                            },
+                            "xsmall": {
+                                "ext": ".png",
+                                "url": "https://cdn.starwarsunlimited.com/xsmall_Spark_of_Rebellion_Logo_Vert_v2_3419ebc4bd.png",
+                                "hash": "xsmall_Spark_of_Rebellion_Logo_Vert_v2_3419ebc4bd",
+                                "mime": "image/png",
+                                "name": "xsmall_Spark-of-Rebellion_Logo_Vert_v2.png",
+                                "path": null,
+                                "size": 25.43,
+                                "width": 300,
+                                "height": 120
+                            },
+                            "xxsmall": {
+                                "ext": ".png",
+                                "url": "https://cdn.starwarsunlimited.com/xxsmall_Spark_of_Rebellion_Logo_Vert_v2_3419ebc4bd.png",
+                                "hash": "xxsmall_Spark_of_Rebellion_Logo_Vert_v2_3419ebc4bd",
+                                "mime": "image/png",
+                                "name": "xxsmall_Spark-of-Rebellion_Logo_Vert_v2.png",
+                                "path": null,
+                                "size": 14.91,
+                                "width": 200,
+                                "height": 80
+                            },
+                            "xxxsmall": {
+                                "ext": ".png",
+                                "url": "https://cdn.starwarsunlimited.com/xxxsmall_Spark_of_Rebellion_Logo_Vert_v2_3419ebc4bd.png",
+                                "hash": "xxxsmall_Spark_of_Rebellion_Logo_Vert_v2_3419ebc4bd",
+                                "mime": "image/png",
+                                "name": "xxxsmall_Spark-of-Rebellion_Logo_Vert_v2.png",
+                                "path": null,
+                                "size": 9.86,
+                                "width": 150,
+                                "height": 60
+                            },
+                            "thumbnail": {
+                                "ext": ".png",
+                                "url": "https://cdn.starwarsunlimited.com/thumbnail_Spark_of_Rebellion_Logo_Vert_v2_3419ebc4bd.png",
+                                "hash": "thumbnail_Spark_of_Rebellion_Logo_Vert_v2_3419ebc4bd",
+                                "mime": "image/png",
+                                "name": "thumbnail_Spark-of-Rebellion_Logo_Vert_v2.png",
+                                "path": null,
+                                "size": 19.76,
+                                "width": 250,
+                                "height": 100
+                            }
+                        },
+                        "hash": "Spark_of_Rebellion_Logo_Vert_v2_3419ebc4bd",
+                        "ext": ".png",
+                        "mime": "image/png",
+                        "size": 60.36,
+                        "url": "https://cdn.starwarsunlimited.com/Spark_of_Rebellion_Logo_Vert_v2_3419ebc4bd.png",
+                        "previewUrl": null,
+                        "provider": "aws-s3",
+                        "provider_metadata": null,
+                        "folderPath": "/",
+                        "createdAt": "2023-11-28T17:20:47.361Z",
+                        "updatedAt": "2023-11-28T17:20:47.361Z"
+                    }
+                },
+                {
+                    "id": 18,
+                    "name": "Twilight of the Republic",
+                    "description": "",
+                    "code": "TWI",
+                    "sortValue": 3,
+                    "logo": null
+                }
+            ],
+            "formats": [
+                {
+                    "id": 1,
+                    "name": "Premier",
+                    "description": null,
+                    "mulitplayer": false,
+                    "bannedCards": [],
+                    "bannedSets": []
+                }
+            ]
+        },
+        "deckRules": {
+            "createdAt": "2025-02-11T14:53:41.409Z",
+            "updatedAt": "2025-02-11T14:53:41.409Z",
+            "limitExceptions": [
+                {
+                    "id": 1,
+                    "limit": 15,
+                    "card": {
+                        "data": {
+                            "id": 20751,
+                            "attributes": {
+                                "title": "Swarming Vulture Droid",
+                                "subtitle": "",
+                                "cardNumber": 256,
+                                "cardCount": 257,
+                                "artist": "Fernando Correa",
+                                "artFrontHorizontal": false,
+                                "artBackHorizontal": null,
+                                "hasFoil": true,
+                                "cost": 2,
+                                "hp": 2,
+                                "power": 2,
+                                "text": "A deck can have up to 15 copies of this card.\nThis unit gets +1/+0 for each other friendly Swarming Vulture Droid.",
+                                "textStyled": "<p>A deck can have up to 15 copies of this card.</p><p>This unit gets <strong>+1</strong>/<strong>+0</strong> for each other friendly Swarming Vulture Droid.</p>",
+                                "deployBox": null,
+                                "deployBoxStyled": "",
+                                "epicAction": "",
+                                "epicActionStyled": "",
+                                "linkHtml": "<a href=\"/cards?cid=2177194044\" class=\"card-tooltip\" data-card=\"2177194044\">Swarming Vulture Droid</a>",
+                                "cardId": null,
+                                "createdAt": "2024-11-27T04:48:28.917Z",
+                                "updatedAt": "2025-02-13T16:42:39.801Z",
+                                "publishedAt": "2025-02-13T16:35:41.897Z",
+                                "locale": "en",
+                                "hyperspace": false,
+                                "unique": false,
+                                "showcase": false,
+                                "cardUid": "2177194044",
+                                "rules": null,
+                                "rulesStyled": "",
+                                "serialCode": "04010256",
+                                "upgradeHp": null,
+                                "upgradePower": null
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "__N_SSG": true
+}

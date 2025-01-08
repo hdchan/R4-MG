@@ -155,7 +155,8 @@ class StoreImageWorker(QRunnable):
             self.signals.finished.emit((self.local_resource, Exception('No image url')))
 
 class RegenerateImageWorker(QRunnable):
-    def __init__(self, local_resource: LocalCardResource, 
+    def __init__(self, 
+                 local_resource: LocalCardResource, 
                  downscale_fn: ImageDownscaleCallback):
         super(RegenerateImageWorker, self).__init__()
         self.local_resource = local_resource
@@ -169,7 +170,9 @@ class RegenerateImageWorker(QRunnable):
         self.signals.finished.emit((self.local_resource, None))
 
 class RotateImageWorker(QRunnable):
-    def __init__(self, local_resource: LocalCardResource, angle: float):
+    def __init__(self, 
+                 local_resource: LocalCardResource, 
+                 angle: float):
         super(RotateImageWorker, self).__init__()
         self.local_resource = local_resource
         self.angle = angle
