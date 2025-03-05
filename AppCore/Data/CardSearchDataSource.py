@@ -35,6 +35,12 @@ class CardSearchDataSource(LocalResourceDataSourceProtocol):
         self._selected_index: Optional[int] = None
         self._selected_resource: Optional[LocalCardResource] = None
         self._trading_card_providers: List[CardResourceProvider] = []
+        
+        self._status: str = "-"
+    
+    @property
+    def status(self) -> str:
+        return self._status
     
     @property
     def source_display_name(self) -> str:
@@ -78,9 +84,11 @@ class CardSearchDataSource(LocalResourceDataSourceProtocol):
                                                 self._configuration_manager,
                                                 self._card_image_source_provider)
                 self._trading_card_providers = list(map(create_trading_card_resource, result_list))
+                self._status = "🟢 OK"
                 if self.delegate is not None:
                     self.delegate.ds_completed_search_with_result(self, result_list, None)
             else:
+                self._status = f"🔴 {error.code}"
                 if self.delegate is not None:
                     self.delegate.ds_completed_search_with_result(self, [], error)
             finished_event = SearchEvent(SearchEvent.EventType.FINISHED,

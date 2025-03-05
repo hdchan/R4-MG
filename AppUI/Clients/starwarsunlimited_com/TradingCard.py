@@ -24,6 +24,11 @@ class StarWarsUnlimitedTradingCard(TradingCard):
     def friendly_display_name_detailed(self) -> str:
         display_name = self.friendly_display_name
         
+        if self.json['attributes']['showcase']:
+            display_name += ' 💜'
+        elif self.json['attributes']['hyperspace']:
+            display_name += ' 💙'
+        
         emojisList: List[str] = []
         for a in self.json['attributes']['aspects']['data']:
             emoji = CardAspect(a['attributes']['name']).emoji

@@ -1,7 +1,7 @@
 import json
 from typing import Any, Dict, List, Optional
 from urllib.request import Request
-
+import urllib.parse
 from AppCore.Models import TradingCard
 from AppCore.Models.CardType import CardType
 from AppCore.Network import NetworkRequestProtocol
@@ -38,16 +38,18 @@ class SearchRequest(NetworkRequestProtocol[List[TradingCard]]):
         
         params += [
             'locale=en',
-            'orderBy[title][id]=asc',
-            'filters[$and][0][variantOf][id][$null]=true',
-            'pagination[page]=1&pagination[pageSize]=50' # TODO: may need to engineer pagination
+            # 'orderBy[title][id]=asc',
+            'sort[0]=title:asc,expansion.sortValue:asc,cardNumber:asc',
+            'pagination[page]=1&pagination[pageSize]=40' # TODO: may need to engineer pagination
         ]
         
         q = '&'.join(params)
         
         url = f'{self.API_ENDPOINT}?{q}'
-        print(url)
-        return Request(url)
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:136.0) Gecko/20100101 Firefox/136.0'}
+        
+        request = Request(url, headers=headers)
+        return request
         # return Request('https://admin.starwarsunlimited.com/api/card-list?locale=en&orderBy[title][id]=asc&filters[$and][0][variantOf][id][$null]=true&filters[$and][1][$or][0][type][id][$in][0]=4&filters[$and][1][$or][1][type2][id][$in][0]=4&filters[$and][2][$or][0][title][$containsi]=luke&pagination[page]=1&pagination[pageSize]=100')
     
     def response(self, json: Dict[str, Any]) -> List[TradingCard]:

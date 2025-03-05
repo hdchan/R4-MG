@@ -50,7 +50,7 @@ class SettingsViewController(QWidget):
         search_source_options_layout.addWidget(search_swudb_api_radio)
         
         search_local_radio = QRadioButton()
-        search_local_radio.setText("Local")
+        search_local_radio.setText("Local Search + www.swu-db.com Images (SOR, SHD, TWI)")
         search_local_radio.toggled.connect(self.search_local_toggled)
         search_local_radio.setChecked(self.mutable_configuration.search_source == Configuration.Settings.SearchSource.LOCAL)
         search_source_options_layout.addWidget(search_local_radio)
