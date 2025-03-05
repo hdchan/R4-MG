@@ -4,8 +4,6 @@
 #### Feature updates
 - Adds search source from FFG
 - Removes swudb.com image source
-#### Engineering updates
--
 
 ### 0.13.1
 #### Hotfix

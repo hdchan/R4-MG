@@ -21,7 +21,7 @@ class SWUDBAPILocalClient(APIClientProtocol):
     
     @property
     def source_display_name(self) -> str:
-        return "Local (SOR, SHD, TWI)"
+        return "Local Search + www.swu-db.com Images (SOR, SHD, TWI)"
     
     @property
     def site_source_url(self) -> Optional[str]:

@@ -46,6 +46,8 @@ class RemoteNetworker(NetworkerProtocol):
                 #             break
                 #         buf.write(chunk)
                 # json_response = json.loads(buf.getvalue())
+                print(request.full_url)
+                print(request.headers)
                 buf = urlopen(request)
                 json_response = json.load(buf)
                 self.result_available.emit((json_response, None))

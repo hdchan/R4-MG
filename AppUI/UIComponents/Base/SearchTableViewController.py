@@ -6,16 +6,19 @@ from PyQt5.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QLineEdit,
 
 from AppCore.Config import Configuration
 from AppCore.Data.CardSearchDataSource import *
-from AppCore.Models import LocalCardResource, SearchConfiguration, TradingCard
+from AppCore.Models import (CardType, LocalCardResource, SearchConfiguration,
+                            TradingCard)
 from AppCore.Observation import *
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         LocalResourceFetchEvent, SearchEvent)
 from AppUI.AppDependencyProviding import AppDependencyProviding
-from AppCore.Models import CardType 
 from AppUI.Clients import SWUCardSearchConfiguration
+
 from ...Observation.Events import KeyboardEvent
 from ..Base.ImagePreviewViewController import ImagePreviewViewController
 from .LoadingSpinner import LoadingSpinner
+
+from urllib.error import HTTPError
 
 # TODO: add pagination
 class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearchDataSourceDelegate):
@@ -136,7 +139,14 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
                                         ds: CardSearchDataSource, 
                                         result_list: List[TradingCard], 
                                         error: Optional[Exception]):
+        status = "🟢 OK"
+        if error is not None:
+            if isinstance(error, HTTPError):
+                status = f"🔴 {error.code}"
+            else:
+                status = str(error)
         self.update_list(result_list)
+        self._load_source_labels(status_string=status)
 
     def ds_did_retrieve_card_resource_for_card_selection(self, 
                                                          ds: CardSearchDataSource, 
@@ -255,14 +265,14 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
         else:
             self._loading_spinner.start()
 
-    def _load_source_labels(self):
+    def _load_source_labels(self, status_string: str = ""):
         search_source_url = self._card_search_data_source.site_source_url
         if search_source_url is not None:
-            self.search_source_label.setText(f'Search source: <a href="{search_source_url}">{self._card_search_data_source.source_display_name}</a>')
+            self.search_source_label.setText(f'Search source: <a href="{search_source_url}">{self._card_search_data_source.source_display_name}</a> {status_string}')
         else:
-            self.search_source_label.setText(f'Search source: {self._card_search_data_source.source_display_name}')
+            self.search_source_label.setText(f'Search source: {self._card_search_data_source.source_display_name} {status_string}')
 
-        self.image_source_label.setText(f'Image source: {self._card_image_source_provider.card_image_source.source_label_display}')
+        # self.image_source_label.setText(f'Image source: {self._card_image_source_provider.card_image_source.source_label_display}')
     
     def _sync_search_button_text(self):
         if self._ctrl_pressed and self._shift_pressed:
