@@ -4,3 +4,4 @@ from .SearchConfiguration import *
 from .DeploymentCardResource import *
 from .CardType import *
 from .CardAspect import *
+from .PaginationConfiguration import PaginationConfiguration

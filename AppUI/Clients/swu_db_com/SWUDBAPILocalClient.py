@@ -3,12 +3,12 @@ import json
 from typing import Any, Dict, List, Optional
 
 from AppCore.Data.APIClientProtocol import (APIClientProtocol,
-                                            APIClientSearchCallback)
+                                            APIClientSearchCallback, APIClientSearchResponse)
 from AppCore.Models import SearchConfiguration, TradingCard
 from AppCore.Network import LocalNetworker
 
 from ...Assets import AssetProvider
-from AppCore.Models.CardType import CardType
+from AppCore.Models import CardType, PaginationConfiguration
 from ..SWUCardSearchConfiguration import SWUCardSearchConfiguration
 from .SWUTradingCard import SWUTradingCard
 
@@ -27,7 +27,9 @@ class SWUDBAPILocalClient(APIClientProtocol):
     def site_source_url(self) -> Optional[str]:
         return None
 
-    def search(self, search_configuration: SearchConfiguration, callback: APIClientSearchCallback):
+    def search(self, search_configuration: SearchConfiguration,
+               pagination_configuration: Optional[PaginationConfiguration],
+               callback: APIClientSearchCallback):
         def completed_search():
             self._perform_search(search_configuration, callback)
         print(f'Mock search. card_name: {search_configuration.card_name}, search_configuration: {search_configuration}')
@@ -42,7 +44,8 @@ class SWUDBAPILocalClient(APIClientProtocol):
             return card.name
         filtered_list = list(filter(filter_the_result, self._response_card_list))
         filtered_list.sort(key=sort_the_result)
-        callback((filtered_list, None))
+        result = APIClientSearchResponse(filtered_list)
+        callback((result, None))
         
     @property
     def _response_card_list(self) -> List[TradingCard]:

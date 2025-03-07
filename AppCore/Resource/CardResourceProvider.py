@@ -19,6 +19,10 @@ class CardResourceProvider:
         self._show_front: bool = True
     
     @property
+    def trading_card(self) -> TradingCard:
+        return self._trading_card
+    
+    @property
     def is_flippable(self) -> bool:
         return self._trading_card.is_flippable
     

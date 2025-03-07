@@ -1,8 +1,8 @@
 from AppCore.Data.APIClientProtocol import (APIClientProtocol,
                                             APIClientSearchCallback,
-                                            NetworkerProtocol)
-from AppCore.Models import SearchConfiguration
-
+                                            )
+from AppCore.Network import NetworkerProtocol
+from AppCore.Models import PaginationConfiguration, SearchConfiguration
 from ...Assets import AssetProvider
 from ..SWUCardSearchConfiguration import SWUCardSearchConfiguration
 from .SearchRequest import SearchRequest
@@ -22,6 +22,9 @@ class SearchClient(APIClientProtocol):
     def site_source_url(self) -> str:
         return "www.starwarsunlimited.com"
 
-    def search(self, search_configuration: SearchConfiguration, callback: APIClientSearchCallback):
+    def search(self, 
+               search_configuration: SearchConfiguration,
+               pagination_configuration: PaginationConfiguration,
+               callback: APIClientSearchCallback):
         swu_search_config = SWUCardSearchConfiguration.from_search_configuration(search_configuration)
-        self._networker.load(SearchRequest(swu_search_config, self._asset_provider), callback)
+        self._networker.load(SearchRequest(swu_search_config, pagination_configuration, self._asset_provider), callback)

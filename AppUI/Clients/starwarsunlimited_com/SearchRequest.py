@@ -1,22 +1,25 @@
 import json
 from typing import Any, Dict, List, Optional
 from urllib.request import Request
-import urllib.parse
-from AppCore.Models import TradingCard
+from AppCore.Models import TradingCard, PaginationConfiguration
 from AppCore.Models.CardType import CardType
 from AppCore.Network import NetworkRequestProtocol
-
+from AppCore.Data import APIClientSearchResponse
 from ...Assets import AssetProvider
 from ..SWUCardSearchConfiguration import SWUCardSearchConfiguration
 from .TradingCard import StarWarsUnlimitedTradingCard
 
 
-class SearchRequest(NetworkRequestProtocol[List[TradingCard]]):
+class SearchRequest(NetworkRequestProtocol[APIClientSearchResponse]):
     API_ENDPOINT = "https://admin.starwarsunlimited.com/api/card-list"
     
-    def __init__(self, search_configuration: SWUCardSearchConfiguration, asset_provider: AssetProvider):
+    def __init__(self, 
+                 search_configuration: SWUCardSearchConfiguration, 
+                 pagination_configuration: PaginationConfiguration, 
+                 asset_provider: AssetProvider):
             self.search_configuration = search_configuration
             self._asset_provider = asset_provider
+            self._pagination_configuration = pagination_configuration
     
     def request(self) -> Optional[Request]:
         params: List[str] = [
@@ -40,7 +43,7 @@ class SearchRequest(NetworkRequestProtocol[List[TradingCard]]):
             'locale=en',
             # 'orderBy[title][id]=asc',
             'sort[0]=title:asc,expansion.sortValue:asc,cardNumber:asc',
-            'pagination[page]=1&pagination[pageSize]=40' # TODO: may need to engineer pagination
+            f'pagination[page]={self._pagination_configuration.page}&pagination[pageSize]={self._pagination_configuration.page_size}' # TODO: may need to engineer pagination
         ]
         
         q = '&'.join(params)
@@ -52,13 +55,16 @@ class SearchRequest(NetworkRequestProtocol[List[TradingCard]]):
         return request
         # return Request('https://admin.starwarsunlimited.com/api/card-list?locale=en&orderBy[title][id]=asc&filters[$and][0][variantOf][id][$null]=true&filters[$and][1][$or][0][type][id][$in][0]=4&filters[$and][1][$or][1][type2][id][$in][0]=4&filters[$and][2][$or][0][title][$containsi]=luke&pagination[page]=1&pagination[pageSize]=100')
     
-    def response(self, json: Dict[str, Any]) -> List[TradingCard]:
+    def response(self, json: Dict[str, Any]) -> APIClientSearchResponse:
         data = json['data']
         result: List[TradingCard] = []
         for card in data:
             trading_card = StarWarsUnlimitedTradingCard.from_swudb_response(card)
             result.append(trading_card)
-        return result
+        pagination_meta = json['meta']['pagination']
+        return APIClientSearchResponse(result,
+                                       page=pagination_meta['page'],
+                                       page_count=pagination_meta['pageCount'])
     
     
     def _map_card_type(self, card_type: CardType) -> Optional[str]:

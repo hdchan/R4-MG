@@ -16,10 +16,13 @@ class SWUCardSearchConfiguration(SearchConfiguration):
         obj.metadata = search_configuration.metadata
         return obj
 
+    class SWUSearchConfigKeys:
+        CARD_TYPE = 'card_type'
+
     @property
     def card_type(self) -> CardType:
-        return CardType(self.metadata['card_type'])
+        return CardType(self.metadata[self.SWUSearchConfigKeys.CARD_TYPE])
     
     @card_type.setter
     def card_type(self, value: CardType):
-        self.metadata['card_type'] = value.value
+        self.metadata[self.SWUSearchConfigKeys.CARD_TYPE] = value.value

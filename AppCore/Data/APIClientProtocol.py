@@ -1,10 +1,18 @@
-from typing import Callable, List, Tuple, Optional
+from typing import Callable, List, Optional, Tuple
 
-from ..Models import TradingCard, SearchConfiguration
-from ..Network import NetworkerProtocol
+from ..Models import PaginationConfiguration, SearchConfiguration, TradingCard
 
-APIClientSearchCallback = Callable[[Tuple[Optional[List[TradingCard]], Optional[Exception]]], None]
+class APIClientSearchResponse:
+    def __init__(self, 
+                 trading_card_list: List[TradingCard],
+                 page: int = 1, 
+                 page_count: int = 1):
+        self.trading_card_list = trading_card_list
+        self.page = page
+        self.page_count = page_count
 
+APIClientSearchResult = Tuple[Optional[APIClientSearchResponse], Optional[Exception]]
+APIClientSearchCallback = Callable[[APIClientSearchResult], None]
 class APIClientProtocol:
 
     @property
@@ -15,7 +23,10 @@ class APIClientProtocol:
     def site_source_url(self) -> Optional[str]:
         return None
         
-    def search(self, search_configuration: SearchConfiguration, callback: APIClientSearchCallback) -> None:
+    def search(self, 
+               search_configuration: SearchConfiguration,
+               pagination_configuration: PaginationConfiguration,
+               callback: APIClientSearchCallback) -> None:
         raise Exception()
     
 class APIClientProviding:
