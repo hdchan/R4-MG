@@ -4,6 +4,9 @@
 #### Feature updates
 - Adds search source from FFG
 - Removes swudb.com image source
+- Updates "Quick Guide"
+#### Engineering updates
+- Adds pagination capabilities for `SearchTableViewController` and respective `CardSearchDataSource`
 
 ### 0.13.1
 #### Hotfix

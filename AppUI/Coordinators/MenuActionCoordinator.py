@@ -153,7 +153,7 @@ class MenuActionCoordinator(QMenuBar):
         self._help_menu = QMenu("&Help")
         self.addMenu(self._help_menu)
         
-        self._shortcuts_list_action = QAction('Shortcuts')
+        self._shortcuts_list_action = QAction('Quick Guide')
         self._help_menu.addAction(self._shortcuts_list_action)
 
 

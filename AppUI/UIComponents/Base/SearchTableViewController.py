@@ -96,6 +96,9 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
         result_list.itemClicked.connect(self.get_selection)
         self.result_list = result_list
         layout.addWidget(result_list, 1)
+        vertical_scroll_bar = result_list.verticalScrollBar()
+        if vertical_scroll_bar is not None:
+            vertical_scroll_bar.valueChanged.connect(self._result_list_scrolled)
         
         
         search_button = QPushButton()
@@ -133,19 +136,21 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
         app_dependency_provider.shortcut_action_coordinator.bind_search_leader(self.search_leader, self)
         app_dependency_provider.shortcut_action_coordinator.bind_search_base(self.search_base, self)
 
-        self._is_config_updating = False
+        # self._is_config_updating = False
         
     def ds_completed_search_with_result(self, 
                                         ds: CardSearchDataSource, 
                                         result_list: List[TradingCard], 
-                                        error: Optional[Exception]):
+                                        error: Optional[Exception], 
+                                        is_initial_load: bool, 
+                                        has_more_pages: bool):
         status = "🟢 OK"
         if error is not None:
             if isinstance(error, HTTPError):
                 status = f"🔴 {error.code}"
             else:
                 status = str(error)
-        self.update_list(result_list)
+        self.update_list(result_list, is_initial_load, has_more_pages)
         self._load_source_labels(status_string=status)
 
     def ds_did_retrieve_card_resource_for_card_selection(self, 
@@ -159,9 +164,9 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
         self.get_selection()
 
     def get_selection(self):
-        if self._is_config_updating:
+        # if self._is_config_updating:
             # don't trigger update when changing configuration
-            return
+            # return
         selected_indexs = self.result_list.selectedIndexes()
         if len(selected_indexs) > 0:
             self._card_search_data_source.select_card_resource_for_card_selection(selected_indexs[0].row())
@@ -231,12 +236,20 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
         else:
             self.retry_button.setEnabled(False)
 
-    def update_list(self, list: List[TradingCard]):
+    def update_list(self, 
+                    list: List[TradingCard], 
+                    is_initial_load: bool, 
+                    has_more_pages: bool):
         # https://stackoverflow.com/questions/25187444/pyqt-qlistwidget-custom-items
         self._result_list = list
-        self._load_list()
+        self._load_list(is_initial_load, has_more_pages)
         
-    def _load_list(self):
+    def _load_list(self, is_initial_load: bool, has_more_pages: bool):
+        vertical_scroll_bar = self.result_list.verticalScrollBar()
+        current_position = 0
+        if vertical_scroll_bar is not None:
+            current_position = vertical_scroll_bar.sliderPosition()
+        
         selected_indexs = self.result_list.selectedIndexes()
         selected_index = 0
         if len(selected_indexs) > 0:
@@ -252,9 +265,18 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
                     display_name = i.friendly_display_name_detailed
                 self.result_list.addItem(display_name)
                 # self.result_list.item(len(self.result_list) - 1).setToolTip("<img src='https://cdn.swu-db.com/images/cards/TWI/269.png' />") 
+            
+            if has_more_pages:
+                self.result_list.addItem('Loading more...')
+            else:
+                self.result_list.addItem('No more results')
             # important that this is the last thing that happens
             self.set_item_active(selected_index)
             self._set_search_components_enabled(True)
+            
+            
+        if not is_initial_load and vertical_scroll_bar is not None:
+            vertical_scroll_bar.setSliderPosition(current_position)
 
     def _set_search_components_enabled(self, is_on: bool):
         self.card_name_search_bar.setEnabled(is_on)
@@ -283,6 +305,13 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
             self.search_button.setText('Search Base (Shift + Enter)')
         else:
             self.search_button.setText("Search (Enter)")
+    
+    def _result_list_scrolled(self, value: int):
+        # print(value)
+        vertical_scroll_bar = self.result_list.verticalScrollBar()
+        if vertical_scroll_bar is not None:
+            if value >= vertical_scroll_bar.maximum() * .8:
+                self._card_search_data_source.load_next_page()
         
     def handle_observation_tower_event(self, event: TransmissionProtocol):
         if type(event) == SearchEvent:
@@ -317,9 +346,9 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
             self._sync_search_button_text()
 
         if type(event) == ConfigurationUpdatedEvent:
-            self._is_config_updating = True
-            self._load_list()
-            self._is_config_updating = False
+            # self._is_config_updating = True
+            # self._load_list()
+            # self._is_config_updating = False
             
             self._load_source_labels()
             

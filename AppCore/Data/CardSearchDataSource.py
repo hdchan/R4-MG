@@ -1,6 +1,6 @@
 import copy
-from typing import List, Optional, Tuple
-
+from typing import List, Optional
+from functools import reduce
 from AppCore.Data.APIClientProtocol import *
 from AppCore.Data.LocalResourceDataSourceProtocol import *
 from AppCore.Image.ImageResourceProcessorProtocol import *
@@ -12,16 +12,25 @@ from AppCore.CoreDependencyProviding import CoreDependencyProviding
 
 
 class CardSearchDataSourceDelegate:
-    def ds_completed_search_with_result(self, ds: ..., result_list: List[TradingCard], error: Optional[Exception]) -> None:
+    def ds_completed_search_with_result(self, 
+                                        ds: ..., 
+                                        result_list: List[TradingCard], 
+                                        error: Optional[Exception], 
+                                        is_initial_load: bool, 
+                                        has_more_pages: bool) -> None:
         pass
 
     def ds_did_retrieve_card_resource_for_card_selection(self, ds: ..., local_resource: LocalCardResource, is_flippable: bool) -> None:
         pass
 
+INITIAL_PAGE = 0
+INITIAL_PAGE_COUNT = 0
+
 class CardSearchDataSource(LocalResourceDataSourceProtocol):
     def __init__(self, 
                  core_dependency_providing: CoreDependencyProviding, 
-                 api_client_provider: APIClientProviding):
+                 api_client_provider: APIClientProviding, 
+                 page_size: int):
         self._observation_tower = core_dependency_providing.observation_tower
         self._api_client_provider = api_client_provider
         self._configuration_manager = core_dependency_providing.configuration_manager
@@ -30,21 +39,22 @@ class CardSearchDataSource(LocalResourceDataSourceProtocol):
 
         self.delegate: Optional[CardSearchDataSourceDelegate] = None
 
+        self._current_page = INITIAL_PAGE
+        self._page_size = page_size
+        self._current_search_configuration: Optional[SearchConfiguration] = None
         # stateful variables
-        self._search_configuration = SearchConfiguration()
         self._selected_index: Optional[int] = None
         self._selected_resource: Optional[LocalCardResource] = None
-        self._trading_card_providers: List[CardResourceProvider] = []
-        
-        self._status: str = "-"
-    
-    @property
-    def status(self) -> str:
-        return self._status
+        self._paginated_trading_card_providers: List[List[CardResourceProvider]] = []
+        self._is_loading = False
     
     @property
     def source_display_name(self) -> str:
         return self._api_client.source_display_name
+    
+    @property
+    def _next_page(self) -> int:
+        return self._current_page + 1
     
     @property
     def site_source_url(self) -> Optional[str]:
@@ -57,6 +67,25 @@ class CardSearchDataSource(LocalResourceDataSourceProtocol):
     @property
     def _image_resource_processor(self) -> ImageResourceProcessorProtocol:
         return self._image_resource_processor_provider.image_resource_processor
+    
+    @property
+    def _trading_card_providers(self) -> List[CardResourceProvider]:
+        if len(self._paginated_trading_card_providers) == 0:
+            return []
+        if len(self._paginated_trading_card_providers) == 1:
+            return self._paginated_trading_card_providers[0]
+        return reduce(lambda x, y: x + y, self._paginated_trading_card_providers)
+    
+    @property
+    def _has_more_pages(self) -> bool:
+        for i in self._paginated_trading_card_providers:
+            if len(i) == 0:
+                return True
+        return False
+    
+    @property
+    def trading_cards(self) -> List[TradingCard]:
+        return list(map(lambda x: x.trading_card, self._trading_card_providers))
 
     @property
     def selected_local_resource(self) -> Optional[LocalCardResource]:
@@ -75,29 +104,101 @@ class CardSearchDataSource(LocalResourceDataSourceProtocol):
                                     copy.deepcopy(search_configuration))
         self._observation_tower.notify(initial_event)
 
-        def completed_with_search_result(result: Tuple[Optional[List[TradingCard]], Optional[Exception]]):
-            result_list, error = result
-            
-            if error is None and result_list is not None:
+        def completed_with_search_result(result: APIClientSearchResult):
+            response, error = result
+            if error is None and response is not None:
+                assert(self._current_page == INITIAL_PAGE)
+                assert(len(self._paginated_trading_card_providers) == 0)
+                
+                for _ in range(response.page_count):
+                    self._paginated_trading_card_providers.append([])
+                
                 def create_trading_card_resource(trading_card: TradingCard):
                     return CardResourceProvider(trading_card, 
                                                 self._configuration_manager,
                                                 self._card_image_source_provider)
-                self._trading_card_providers = list(map(create_trading_card_resource, result_list))
-                self._status = "🟢 OK"
+                card_providers = list(map(create_trading_card_resource, response.trading_card_list))
+                
+                self._paginated_trading_card_providers[response.page - 1] = card_providers
+                self._current_page = response.page
+                self._current_search_configuration = search_configuration
+                
                 if self.delegate is not None:
-                    self.delegate.ds_completed_search_with_result(self, result_list, None)
+                    self.delegate.ds_completed_search_with_result(self, 
+                                                                  self.trading_cards, 
+                                                                  None, 
+                                                                  True, 
+                                                                  self._has_more_pages)
             else:
-                self._status = f"🔴 {error.code}"
                 if self.delegate is not None:
-                    self.delegate.ds_completed_search_with_result(self, [], error)
+                    self.delegate.ds_completed_search_with_result(self, 
+                                                                  [], 
+                                                                  error, 
+                                                                  True, 
+                                                                  self._has_more_pages)
             finished_event = SearchEvent(SearchEvent.EventType.FINISHED,
                                          copy.deepcopy(search_configuration))
             finished_event.predecessor = initial_event
             self._observation_tower.notify(finished_event)
-
-        # TODO: search if needed
-        self._api_client.search(search_configuration, completed_with_search_result)
+            self._is_loading = False
+            
+        self._is_loading = True
+        # reset search state
+        self._current_page = INITIAL_PAGE
+        self._paginated_trading_card_providers = []
+        self._current_search_configuration = None
+        assert(self._current_page == INITIAL_PAGE)
+        assert(len(self._paginated_trading_card_providers) == 0)
+        
+        self._api_client.search(search_configuration, 
+                                PaginationConfiguration(self._next_page, self._page_size), 
+                                completed_with_search_result)
+        
+    def load_next_page(self):
+        if self._is_loading:
+            print('currently performing pagination')
+            return
+        if self._current_search_configuration is None:
+            print('no configuration')
+            return
+        if self._next_page > len(self._paginated_trading_card_providers):
+            print('no more pages to load')
+            return
+        
+        def completed_with_search_result(result: APIClientSearchResult):
+            response, error = result
+            if error is None and response is not None:
+                
+                def create_trading_card_resource(trading_card: TradingCard):
+                    return CardResourceProvider(trading_card, 
+                                                self._configuration_manager,
+                                                self._card_image_source_provider)
+                card_providers = list(map(create_trading_card_resource, response.trading_card_list))
+                
+                self._paginated_trading_card_providers[response.page - 1] = card_providers
+                self._current_page = response.page
+                
+                if self.delegate is not None:
+                    self.delegate.ds_completed_search_with_result(self, 
+                                                                  self.trading_cards, 
+                                                                  None, 
+                                                                  False, 
+                                                                  self._has_more_pages)
+            else:
+                if self.delegate is not None:
+                    self.delegate.ds_completed_search_with_result(self, 
+                                                                  [], 
+                                                                  error, 
+                                                                  False,
+                                                                  self._has_more_pages)
+                    
+            self._is_loading = False
+        
+        self._is_loading = True
+        self._api_client.search(self._current_search_configuration, 
+                                PaginationConfiguration(self._next_page, self._page_size), 
+                                completed_with_search_result)
+        print(f'loading next page: {self._next_page}')
 
     def current_previewed_trading_card_is_flippable(self) -> bool:
         if self._selected_index is not None:

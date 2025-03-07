@@ -125,7 +125,8 @@ class MainAssembly(ComponentProviding):
 
     def _assemble_main_widget(self) -> QWidget:
         card_search_data_source = CardSearchDataSource(self._app_dependencies, 
-                                                       self._app_dependencies.api_client_provider)
+                                                       self._app_dependencies.api_client_provider, 
+                                                       page_size=40)
         
         recent_published_data_source = RecentPublishedDataSource(self._app_dependencies)
         
