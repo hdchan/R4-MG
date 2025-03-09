@@ -1,5 +1,9 @@
 ## Changelog
 
+### 0.14.1
+#### Hotfix
+- Fix edge case crash for no results
+
 ### 0.14.0
 #### Feature updates
 - Adds search source from FFG

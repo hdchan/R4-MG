@@ -110,6 +110,15 @@ class CardSearchDataSource(LocalResourceDataSourceProtocol):
                 assert(self._current_page == INITIAL_PAGE)
                 assert(len(self._paginated_trading_card_providers) == 0)
                 
+                if response.page_count == 0:
+                    if self.delegate is not None:
+                        self.delegate.ds_completed_search_with_result(self,
+                                                                      [],
+                                                                      None,
+                                                                      True,
+                                                                      False)
+                    return
+                
                 for _ in range(response.page_count):
                     self._paginated_trading_card_providers.append([])
                 
@@ -118,6 +127,7 @@ class CardSearchDataSource(LocalResourceDataSourceProtocol):
                                                 self._configuration_manager,
                                                 self._card_image_source_provider)
                 card_providers = list(map(create_trading_card_resource, response.trading_card_list))
+                
                 
                 self._paginated_trading_card_providers[response.page - 1] = card_providers
                 self._current_page = response.page
