@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
+from urllib.parse import urlparse
 
 from PIL import Image
 
@@ -113,13 +114,13 @@ class LocalCardResource:
     @property
     def file_name_with_ext(self) -> str:
         return f'{self.file_name}{self.file_extension}'
-    
+
     @property
-    def image_path(self):
+    def image_path(self) -> str:
         return f'{self.image_dir}{self.file_name_with_ext}'
     
     @property
-    def image_preview_path(self):
+    def image_preview_path(self) -> str:
         return f'{self.image_preview_dir}{self.file_name_with_ext}'
     
     @property
@@ -127,11 +128,11 @@ class LocalCardResource:
         return f'{self.image_preview_dir}temp-{self.file_name}'
     
     @property
-    def image_old_path(self):
+    def image_old_path(self) -> str:
         return f'{self.image_preview_dir}old-{self.file_name}'
 
     @property
-    def size(self):
+    def size(self) -> Tuple[int, int]:
         return Image.open(self.image_path).size
             
     

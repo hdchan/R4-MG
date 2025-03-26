@@ -5,7 +5,9 @@ from ..Models.LocalCardResource import LocalCardResource
 from ..Models.TradingCard import TradingCard
 from .CardImageSourceProtocol import (CardImageSourceProtocol,
                                       CardImageSourceProviding)
-
+from urllib.parse import urlparse
+import os
+from pathlib import Path
 PNG_EXTENSION = '.png'
 
 class CardResourceProvider:
@@ -46,9 +48,10 @@ class CardResourceProvider:
     
     @property
     def front_local_resource(self) -> LocalCardResource:
-        return LocalCardResource(image_dir=self._card_image_source.image_path,
-                                 image_preview_dir=self._card_image_source.image_preview_dir, 
-                                 file_name=self._unique_identifier_front,
+        # TODO: paths here need to make use of where they're origially from
+        return LocalCardResource(image_dir=self._image_path,
+                                 image_preview_dir=self._image_preview_dir, 
+                                 file_name=self._file_name_front,
                                  display_name=self._trading_card.friendly_display_name,
                                  display_name_short=self._trading_card.friendly_display_name_short,
                                  display_name_detailed=self._trading_card.friendly_display_name_detailed,
@@ -58,11 +61,11 @@ class CardResourceProvider:
     @property
     def back_local_resource(self) -> Optional[LocalCardResource]:
         back_art_url = self._trading_card.back_art_url
-        if back_art_url is None:
+        if back_art_url is None or self._file_name_back is None:
             return None
-        return LocalCardResource(image_dir=self._card_image_source.image_path,
-                                 image_preview_dir=self._card_image_source.image_preview_dir, 
-                                 file_name=self._unique_identifier_back,
+        return LocalCardResource(image_dir=self._image_path,
+                                 image_preview_dir=self._image_preview_dir, 
+                                 file_name=self._file_name_back,
                                  display_name=self._trading_card.friendly_display_name + ' (back)',
                                  display_name_short=self._trading_card.friendly_display_name_short + ' (back)',
                                  display_name_detailed=self._trading_card.friendly_display_name_detailed + ' (back)',
@@ -70,9 +73,21 @@ class CardResourceProvider:
                                  remote_image_url=back_art_url)
     
     @property
-    def _unique_identifier_front(self) -> str:
-        return self._trading_card.set + self._trading_card.number
+    def _file_name_front(self) -> str:
+        return Path(f"{self._trading_card.front_art_url}").stem
     
     @property
-    def _unique_identifier_back(self) -> str:
-        return self._trading_card.set + self._trading_card.number + '-back'
+    def _file_name_back(self) -> Optional[str]:
+        if self._trading_card.back_art_url is not None:
+            return Path(f"{self._trading_card.back_art_url}").stem
+        return None
+    
+    @property
+    def _image_path(self) -> str:
+        domain = urlparse(self._trading_card.front_art_url).netloc
+        return f'{self._configuration_manager.configuration.cache_dir_path}{domain}/'
+    
+    @property
+    def _image_preview_dir(self) -> str:
+        domain = urlparse(self._trading_card.front_art_url).netloc
+        return f'{self._configuration_manager.configuration.cache_preview_dir_path}{domain}/'

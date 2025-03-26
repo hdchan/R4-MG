@@ -100,6 +100,10 @@ class AssetProvider:
             return self._data_path('twi.json')
         
         @property
+        def jtl_set_path(self):
+            return self._data_path('jtl.json')
+        
+        @property
         def starwarsunlimited_com_filter_path(self):
             return self._data_path('starwarsunlimited_com_filters.json')
         

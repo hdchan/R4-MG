@@ -3,6 +3,7 @@ from typing import Optional
 from ..Models.TradingCard import TradingCard
 from ..Config import ConfigurationManager
 
+# TODO: deprecate entire class
 class CardImageSourceProtocol:
     @property
     def source_label_display(self) -> str:
