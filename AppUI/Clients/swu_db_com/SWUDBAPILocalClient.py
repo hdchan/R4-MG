@@ -21,7 +21,7 @@ class SWUDBAPILocalClient(APIClientProtocol):
     
     @property
     def source_display_name(self) -> str:
-        return "Local Search + www.swu-db.com Images (SOR, SHD, TWI)"
+        return "Local Search + www.swu-db.com Images (Set 1-4)"
     
     @property
     def site_source_url(self) -> Optional[str]:
@@ -50,11 +50,12 @@ class SWUDBAPILocalClient(APIClientProtocol):
     @property
     def _response_card_list(self) -> List[TradingCard]:
         if self.__response_card_list is None:
-            with open(self.asset_provider.data.sor_set_path, 'r') as file, open(self.asset_provider.data.shd_set_path) as file2, open(self.asset_provider.data.twi_set_path) as file3:
+            with open(self.asset_provider.data.sor_set_path, 'r') as file, open(self.asset_provider.data.shd_set_path) as file2, open(self.asset_provider.data.twi_set_path) as file3, open(self.asset_provider.data.jtl_set_path) as file4:
                 sor_response = json.load(file)['data']
                 shd_response = json.load(file2)['data']
                 twi_response = json.load(file3)['data']
-                response_data = sor_response + shd_response + twi_response
+                jtl_response = json.load(file4)['data']
+                response_data = sor_response + shd_response + twi_response + jtl_response
                 result_list: List[TradingCard] = []
                 for i in response_data:
                     swu_card = SWUTradingCard.from_swudb_response(i)
