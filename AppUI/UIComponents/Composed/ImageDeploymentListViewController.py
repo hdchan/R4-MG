@@ -95,7 +95,6 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
         return self._local_resource_data_source_provider.data_source
 
     def load_production_resources(self):
-        # TODO: custom ordering
         card_resources = self._image_resource_deployer.deployment_resources
         for index, deployment_resource in enumerate(card_resources):
             item = ImageDeploymentViewController(self.app_dependency_provider, 

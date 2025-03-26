@@ -12,6 +12,7 @@ a = Analysis(
         ('AppUI\\Assets\\Data\\shd.json', 'AppUI\\Assets\\Data'),
         ('AppUI\\Assets\\Data\\sor.json', 'AppUI\\Assets\\Data'),
         ('AppUI\\Assets\\Data\\twi.json', 'AppUI\\Assets\\Data'),
+        ('AppUI\\Assets\\Data\\jtl.json', 'AppUI\\Assets\\Data'),
         ('AppUI\\Assets\\Data\\starwarsunlimited_com_filters.json', 'AppUI\\Assets\\Data'),
 
         ('AppUI\\Assets\\Images\\logo.png', 'AppUI\\Assets\\Images'),

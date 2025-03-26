@@ -1,5 +1,11 @@
 ## Changelog
 
+### 0.14.2
+#### Feature updates
+- Adds JTL local response
+#### Hotfix
+- Fix caching identifier conflict
+
 ### 0.14.1
 #### Hotfix
 - Fix edge case crash for no results
