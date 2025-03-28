@@ -9,7 +9,6 @@ from ..Observation.Events import *
 
 
 class PlatformServiceProtocol:
-
     def __init__(self, 
                configuration_manager: ConfigurationManager,
                observation_tower: ObservationTower):

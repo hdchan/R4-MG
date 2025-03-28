@@ -3,21 +3,16 @@ from typing import Optional
 from ..Config import ConfigurationManager
 from ..Models.LocalCardResource import LocalCardResource
 from ..Models.TradingCard import TradingCard
-from .CardImageSourceProtocol import (CardImageSourceProtocol,
-                                      CardImageSourceProviding)
 from urllib.parse import urlparse
-import os
 from pathlib import Path
 PNG_EXTENSION = '.png'
 
 class CardResourceProvider:
     def __init__(self, 
                  trading_card: TradingCard,
-                 configuration_manager: ConfigurationManager,
-                 card_image_source_provider: CardImageSourceProviding):
+                 configuration_manager: ConfigurationManager):
         self._trading_card = trading_card
         self._configuration_manager = configuration_manager
-        self.card_image_source_provider = card_image_source_provider
         self._show_front: bool = True
     
     @property
@@ -27,11 +22,8 @@ class CardResourceProvider:
     @property
     def is_flippable(self) -> bool:
         return self._trading_card.is_flippable
-    
-    @property
-    def _card_image_source(self) -> CardImageSourceProtocol:
-        return self.card_image_source_provider.card_image_source
-    
+   
+
     def flip(self):
         if self.is_flippable:
             self._show_front = not self._show_front

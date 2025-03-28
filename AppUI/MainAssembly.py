@@ -39,11 +39,10 @@ class MainAssembly(ComponentProviding):
                                                                   self._image_resource_processor_provider)
             client_provider = self._assemble_client_provider()
             self._api_client_provider = client_provider
-            self._image_source_provider = client_provider
             self._shortcut_action_coordinator = ShortcutActionCoordinator()
-            self._menu_action_coordinator = MenuActionCoordinator(self._configuration_manager, 
+            self._menu_action_coordinator = MenuActionCoordinator(self.configuration_manager, 
                                                                   self._platform_service_provider)
-            self._router = Router(self._image_resource_deployer, 
+            self._router = Router(self.image_resource_deployer, 
                                  self._asset_provider, 
                                  self._menu_action_coordinator, 
                                  component_provider, 
@@ -73,10 +72,6 @@ class MainAssembly(ComponentProviding):
         def api_client_provider(self) -> APIClientProviding:
             return self._api_client_provider
         
-        @property
-        def image_source_provider(self) -> CardImageSourceProviding:
-            return self._image_source_provider
-        
         def _assemble_client_provider(self) -> ClientProvider:
             return ClientProvider(ClientProvider.Dependencies(
                 self._configuration_manager,
@@ -92,8 +87,8 @@ class MainAssembly(ComponentProviding):
         
         def _assemble_image_fetcher_provider(self) -> ImageFetcherProviding:
             return ImageFetcherProvider(self._configuration_manager, 
-                                        RemoteImageFetcher(self._configuration_manager),
-                                        MockImageFetcher(self._configuration_manager))
+                                        RemoteImageFetcher(self.configuration_manager),
+                                        MockImageFetcher(self.configuration_manager))
 
     def __init__(self):
         self.app = QApplication([])

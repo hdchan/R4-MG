@@ -24,13 +24,12 @@ class CoreDependencies(CoreDependencyProviding):
             self._string_formatter = StringFormatter()
             self._image_resource_processor_provider = None
             self._api_client_provider = None
-            self._image_source_provider = None
 
             atexit.register(self.cleanup)
     
     @property
     def image_resource_deployer(self) -> ImageResourceDeployer:
-         return self._image_resource_deployer
+         return self._image_resource_deployer # referenced in assembly
 
     @property
     def observation_tower(self) -> ObservationTower:

@@ -34,7 +34,6 @@ class CardSearchDataSource(LocalResourceDataSourceProtocol):
         self._observation_tower = core_dependency_providing.observation_tower
         self._api_client_provider = api_client_provider
         self._configuration_manager = core_dependency_providing.configuration_manager
-        self._card_image_source_provider = core_dependency_providing.image_source_provider
         self._image_resource_processor_provider = core_dependency_providing.image_resource_processor_provider
 
         self.delegate: Optional[CardSearchDataSourceDelegate] = None
@@ -124,8 +123,7 @@ class CardSearchDataSource(LocalResourceDataSourceProtocol):
                 
                 def create_trading_card_resource(trading_card: TradingCard):
                     return CardResourceProvider(trading_card, 
-                                                self._configuration_manager,
-                                                self._card_image_source_provider)
+                                                self._configuration_manager)
                 card_providers = list(map(create_trading_card_resource, response.trading_card_list))
                 
                 
@@ -181,8 +179,7 @@ class CardSearchDataSource(LocalResourceDataSourceProtocol):
                 
                 def create_trading_card_resource(trading_card: TradingCard):
                     return CardResourceProvider(trading_card, 
-                                                self._configuration_manager,
-                                                self._card_image_source_provider)
+                                                self._configuration_manager)
                 card_providers = list(map(create_trading_card_resource, response.trading_card_list))
                 
                 self._paginated_trading_card_providers[response.page - 1] = card_providers

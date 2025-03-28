@@ -30,7 +30,6 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
         self._image_preview_view = image_preview_view
         self._card_search_data_source = card_search_data_source 
         card_search_data_source.delegate = self
-        self._card_image_source_provider = app_dependency_provider.image_source_provider
         self._observation_tower = app_dependency_provider.observation_tower
         
         self._shift_pressed = False
@@ -294,8 +293,6 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
         else:
             self.search_source_label.setText(f'Search source: {self._card_search_data_source.source_display_name} {status_string}')
 
-        # self.image_source_label.setText(f'Image source: {self._card_image_source_provider.card_image_source.source_label_display}')
-    
     def _sync_search_button_text(self):
         if self._ctrl_pressed and self._shift_pressed:
             self.search_button.setText("Only Ctrl OR Shift can be held to search")

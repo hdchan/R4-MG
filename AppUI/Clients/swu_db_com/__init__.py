@@ -1,3 +1,2 @@
 from .SWUDBAPIRemoteClient import SWUDBAPIRemoteClient
 from .SWUDBAPILocalClient import SWUDBAPILocalClient
-from .SWUDBAPIImageSource import SWUDBAPIImageSource
