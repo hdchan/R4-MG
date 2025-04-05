@@ -1,13 +1,13 @@
+import re
 from typing import Optional
+from urllib.parse import urlparse
 
 from ..Config import ConfigurationManager
 from ..Models.LocalCardResource import LocalCardResource
 from ..Models.TradingCard import TradingCard
 from .CardImageSourceProtocol import (CardImageSourceProtocol,
                                       CardImageSourceProviding)
-from urllib.parse import urlparse
-import os
-from pathlib import Path
+
 PNG_EXTENSION = '.png'
 
 class CardResourceProvider:
@@ -48,7 +48,6 @@ class CardResourceProvider:
     
     @property
     def front_local_resource(self) -> LocalCardResource:
-        # TODO: paths here need to make use of where they're origially from
         return LocalCardResource(image_dir=self._image_path,
                                  image_preview_dir=self._image_preview_dir, 
                                  file_name=self._file_name_front,
@@ -74,12 +73,12 @@ class CardResourceProvider:
     
     @property
     def _file_name_front(self) -> str:
-        return Path(f"{self._trading_card.front_art_url}").stem
+        return self.replace_non_alphanumeric(self._trading_card.front_art_url, "_")
     
     @property
     def _file_name_back(self) -> Optional[str]:
         if self._trading_card.back_art_url is not None:
-            return Path(f"{self._trading_card.back_art_url}").stem
+            return self.replace_non_alphanumeric(self._trading_card.back_art_url, "_")
         return None
     
     @property
@@ -91,3 +90,16 @@ class CardResourceProvider:
     def _image_preview_dir(self) -> str:
         domain = urlparse(self._trading_card.front_art_url).netloc
         return f'{self._configuration_manager.configuration.cache_preview_dir_path}{domain}/'
+    
+    def replace_non_alphanumeric(self, text: str, replacement: str = '') -> str:
+        """Replaces non-alphanumeric characters in a string with a specified replacement.
+
+        Args:
+            text: The input string.
+            replacement: The string to replace non-alphanumeric characters with.
+            Defaults to an empty string.
+
+        Returns:
+            The modified string with non-alphanumeric characters replaced.
+        """
+        return re.sub(r'[^a-zA-Z0-9]', replacement, text)
