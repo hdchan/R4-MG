@@ -12,7 +12,7 @@ from PyQt5.QtCore import QStandardPaths
 class Configuration:
     
     APP_NAME = 'R4-MG'
-    APP_VERSION = '0.14.2'
+    APP_VERSION = '0.14.3'
     SETTINGS_VERSION = '1.0'
     
     class Toggles:

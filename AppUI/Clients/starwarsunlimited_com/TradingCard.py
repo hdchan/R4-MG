@@ -40,7 +40,7 @@ class StarWarsUnlimitedTradingCard(TradingCard):
         return display_name
     
     @property
-    def front_art_url(self) -> Optional[str]:
+    def front_art_url(self) -> str:
         return self.json['attributes']['artFront']['data']['attributes']['formats']['card']['url']
     
     @property

@@ -1,5 +1,9 @@
 ## Changelog
 
+### 0.14.3
+#### Hotfix
+- Fix caching identifier conflict part 2
+
 ### 0.14.2
 #### Feature updates
 - Adds JTL local response
