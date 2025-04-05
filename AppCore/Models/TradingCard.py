@@ -20,7 +20,7 @@ class TradingCard:
         
     @property
     def is_flippable(self) -> bool:
-        return self.front_art_url is not None and self.back_art_url is not None
+        return self.back_art_url is not None
     
     @property
     def friendly_display_name_short(self) -> str:
@@ -35,7 +35,7 @@ class TradingCard:
         return f'[{self.set+self.number}] {self.name} - {self.type}'
     
     @property
-    def front_art_url(self) -> Optional[str]:
+    def front_art_url(self) -> str:
         return NotImplemented
     
     @property
