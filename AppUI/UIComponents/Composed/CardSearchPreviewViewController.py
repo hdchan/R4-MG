@@ -57,8 +57,6 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
         
         self._observation_tower.subscribe_multi(self, [SearchEvent, ConfigurationUpdatedEvent])
 
-        # self._shortcut_action_coordinator.bind_focus_search(self._switch_back_to_search, self)
-
     def on_tab_changed(self, index: int):
         if index == 0:
             self._search_table_view.set_active()
@@ -66,11 +64,6 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
             self._publish_history_list.set_active()
         elif index == 2:
             self._search_history_list.set_active()
-    
-    # def _switch_back_to_search(self):
-    #     if self._tab_widget.currentIndex() != 0:
-    #         self._tab_widget.setCurrentIndex(0)
-    #         self._search_table_view.set_search_focus()
 
     def handle_observation_tower_event(self, event: TransmissionProtocol):
         if type(event) == SearchEvent:

@@ -5,12 +5,16 @@ from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QShortcut, QWidget
 
 
+# Update `shortcuts.md` when adding new shortcut
 class ShortcutActionCoordinator:
     def bind_flip(self, fn: Callable[[], None], parent: QWidget):
         QShortcut(QKeySequence(Qt.Modifier.CTRL + Qt.Key.Key_F), parent).activated.connect(fn)
 
     def bind_focus_search(self, fn: Callable[[], None], parent: QWidget):
         QShortcut(QKeySequence(Qt.Modifier.CTRL + Qt.Key.Key_L), parent).activated.connect(fn)
+        
+    def bind_reset_search(self, fn: Callable[[], None], parent: QWidget):
+        QShortcut(QKeySequence(Qt.Modifier.CTRL + Qt.Key.Key_K), parent).activated.connect(fn)
 
     def bind_publish(self, fn: Callable[[], None], parent: QWidget):
         QShortcut(QKeySequence(Qt.Modifier.CTRL + Qt.Key.Key_P), parent).activated.connect(fn)
