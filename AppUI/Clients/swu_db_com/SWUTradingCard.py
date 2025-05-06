@@ -25,12 +25,19 @@ class SWUTradingCard(TradingCard):
     @property
     def friendly_display_name_detailed(self) -> str:
         display_name = super().friendly_display_name
-
+        
         if 'VariantType' in self.json:
-            if self.json['VariantType'] == "Hyperspace":
-                display_name += ' 💙'
-            elif self.json['VariantType'] == "Showcase":
-                display_name += ' 💜'
+            variant_type = self.json['VariantType']
+            temp_display_name = ''
+            if "Hyperspace" in variant_type:
+                temp_display_name = '💙'
+            elif "Showcase" in variant_type:
+                temp_display_name = '💜'
+            elif "Prestige" in variant_type:
+                temp_display_name = '🖤'
+            if "Foil" in variant_type:
+                temp_display_name += '⭐'
+            display_name += f' {temp_display_name}'
 
         if 'aspect_description_emoji' in self.metadata:
             emojis = ''.join(self.metadata['aspect_description_emoji'])

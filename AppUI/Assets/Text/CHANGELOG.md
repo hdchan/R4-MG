@@ -3,6 +3,7 @@
 ### 0.15.0
 #### Feature updates
 - Adds reset search functionality and shortcut
+- Adds new variant type emojis
 
 ### 0.14.2
 #### Feature updates

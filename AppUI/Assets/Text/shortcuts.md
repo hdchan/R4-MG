@@ -27,4 +27,6 @@
 
 ### Card Variant
 💙 - Hyperspace\
-💜 - Showcase
+💜 - Showcase\
+🖤 - Prestige\
+⭐ - Foil
