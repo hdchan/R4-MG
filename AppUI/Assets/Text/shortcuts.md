@@ -2,6 +2,7 @@
 *Actions listed below can be performed with keyboard shortcuts.*
 ### Search Panel
 - `CTRL+L` - Focus search bar
+- `CTRL+K` - Reset search
 - `CTRL+F` - Flip currently previewed card
 - `ENTER` - Search
 - `SHIFT+ENTER` - Search bases

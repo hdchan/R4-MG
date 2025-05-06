@@ -1,5 +1,9 @@
 ## Changelog
 
+### 0.15.0
+#### Feature updates
+- Adds reset search functionality and shortcut
+
 ### 0.14.2
 #### Feature updates
 - Adds JTL local response

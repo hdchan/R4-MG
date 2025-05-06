@@ -52,7 +52,7 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
         flip_button = QPushButton()
         flip_button.setText("Flip (Ctrl+F)")
         flip_button.setEnabled(False)
-        flip_button.clicked.connect(self.tapped_flip_button)
+        flip_button.clicked.connect(self._tapped_flip_button)
         self.flip_button = flip_button
         buttons_layout.addWidget(flip_button)
         
@@ -130,11 +130,12 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
                                                                          ConfigurationUpdatedEvent, 
                                                                          LocalResourceFetchEvent]) 
         
-        app_dependency_provider.shortcut_action_coordinator.bind_flip(self.tapped_flip_button, self)
-        app_dependency_provider.shortcut_action_coordinator.bind_focus_search(self.set_search_focus, self)
+        app_dependency_provider.shortcut_action_coordinator.bind_flip(self._tapped_flip_button, self)
+        app_dependency_provider.shortcut_action_coordinator.bind_focus_search(self._set_search_focus, self)
+        app_dependency_provider.shortcut_action_coordinator.bind_reset_search(self._reset_search, self)
         app_dependency_provider.shortcut_action_coordinator.bind_search(self.search, self)
-        app_dependency_provider.shortcut_action_coordinator.bind_search_leader(self.search_leader, self)
-        app_dependency_provider.shortcut_action_coordinator.bind_search_base(self.search_base, self)
+        app_dependency_provider.shortcut_action_coordinator.bind_search_leader(self._search_leader, self)
+        app_dependency_provider.shortcut_action_coordinator.bind_search_base(self._search_base, self)
 
         # self._is_config_updating = False
         
@@ -171,10 +172,14 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
         if len(selected_indexs) > 0:
             self._card_search_data_source.select_card_resource_for_card_selection(selected_indexs[0].row())
 
-    def set_search_focus(self):
+    def _set_search_focus(self):
         self.card_name_search_bar.setFocus()
         self.card_name_search_bar.selectAll()
 
+    def _reset_search(self):
+        self.card_name_search_bar.clear()
+        self.card_name_search_bar.setFocus()
+        self._set_card_type_filter(None)
 
     def set_item_active(self, index: int):
         self.result_list.setCurrentRow(index)
@@ -193,13 +198,13 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
     def search(self):
         self._search()
 
-    def search_leader(self):
+    def _search_leader(self):
         def modifier(config: SWUCardSearchConfiguration) -> SearchConfiguration:
             config.card_type = CardType.LEADER
             return config
         self._search(modifier)
         
-    def search_base(self):
+    def _search_base(self):
         def modifier(config: SWUCardSearchConfiguration) -> SearchConfiguration:
             config.card_type = CardType.BASE
             return config
@@ -219,7 +224,7 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
         
         self._card_search_data_source.search(search_configuration)
 
-    def tapped_flip_button(self):
+    def _tapped_flip_button(self):
         self._card_search_data_source.flip_current_previewed_card()
         
     def tapped_retry_button(self):
