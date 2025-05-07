@@ -1,7 +1,7 @@
 from typing import List
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QPushButton, QScrollArea, QSizePolicy,
+from PyQt5.QtWidgets import (QPushButton, QHBoxLayout, QScrollArea, QSizePolicy,
                              QVBoxLayout, QWidget, QLabel)
 
 from AppCore.Data.LocalResourceDataSourceProtocol import *
@@ -94,12 +94,35 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
     def _local_resource_data_source(self) -> LocalResourceDataSourceProtocol:
         return self._local_resource_data_source_provider.data_source
 
-    def load_production_resources(self):
+    def clear_list(self):
+        for i in reversed(range(self._deployment_cells_layout.count())):
+            layout_item = self._deployment_cells_layout.takeAt(i)
+            if layout_item is not None:
+                widget = layout_item.widget()
+                if widget is not None:
+                    widget.deleteLater()
+        self.list_items = []
+
+    def _reload_production_resources_list(self):
+        self.clear_list()
+        
+        is_deployment_list_horizontal = self._configuration.is_deployment_list_horizontal
+        
+        if is_deployment_list_horizontal:
+            deployment_cells_layout = QHBoxLayout()
+        else:
+            deployment_cells_layout = QVBoxLayout()
+        deployment_cells_layout.setContentsMargins(0, 0, 0, 0)
+        deployment_cells_widget = QWidget()
+        deployment_cells_widget.setLayout(deployment_cells_layout)
+        self._deployment_cells_layout.addWidget(deployment_cells_widget)
+        
         card_resources = self._image_resource_deployer.deployment_resources
         for index, deployment_resource in enumerate(card_resources):
             item = ImageDeploymentViewController(self.app_dependency_provider, 
                                                  deployment_resource,
-                                                 self._local_resource_data_source_provider)
+                                                 self._local_resource_data_source_provider, 
+                                                 not is_deployment_list_horizontal)
             if index <= 9:
                 item.stage_button.setText(f'Stage (Ctrl+{index + 1})')
                 self.app_dependency_provider.shortcut_action_coordinator.bind_stage(item.tapped_staging_button, index, item)
@@ -113,19 +136,9 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
             pal.setColor(item.backgroundRole(), Qt.GlobalColor.lightGray)
             item.setAutoFillBackground(True)
             item.setPalette(pal)
-            self._deployment_cells_layout.addWidget(item)
+            deployment_cells_layout.addWidget(item)
 
             self.list_items.append(item)
-
-    def clear_list(self):
-        for i in reversed(range(self._deployment_cells_layout.count())):
-            layout_item = self._deployment_cells_layout.takeAt(i)
-            if layout_item is not None:
-                widget = layout_item.widget()
-                if widget is not None:
-                    widget.deleteLater()
-        self.list_items = []
-            
 
     def tapped_production_button(self):
         self.publish_to_production()
@@ -134,7 +147,6 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
         if self._image_resource_deployer.can_publish_staged_resources:
             try:
                 self._image_resource_deployer.publish_staged_resources()
-                # self._image_resource_deployer.load_production_resources()
             except Exception as error:
                 # failed to publish
                 # show error messages
@@ -159,6 +171,7 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
     
     def _sync_configuration_related_components(self):
         self._sync_resize_label_text()
+        self._reload_production_resources_list()
 
 
     def handle_observation_tower_event(self, event: TransmissionProtocol):
@@ -172,8 +185,7 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
             if event.event_type == ProductionResourcesLoadEvent.EventType.STARTED:
                 self.loading_spinner.start()
             elif event.event_type == ProductionResourcesLoadEvent.EventType.FINISHED:
-                self.clear_list()
-                self.load_production_resources()
+                self._reload_production_resources_list()
                 self.loading_spinner.stop()
             
         if type(event) == ConfigurationUpdatedEvent:

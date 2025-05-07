@@ -45,7 +45,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
         self._image_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self._image_view.linkActivated.connect(self._handle_link_activated) # should only connect once
         self._image_view.customContextMenuRequested.connect(self._show_context_menu)
-        self._image_view.setMinimumSize(MAX_PREVIEW_SIZE, 100)
+        self._image_view.setMinimumSize(MAX_PREVIEW_SIZE, MAX_PREVIEW_SIZE)
         self.loading_spinner = LoadingSpinner(self._image_view)
         
         # self._image_view.mousePressEvent = self._tapped_image # causes memory leak in child

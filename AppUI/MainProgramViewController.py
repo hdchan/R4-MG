@@ -32,6 +32,8 @@ class MainProgramViewController(QWidget):
         self.deployment_view = deployment_view_controller
         
         splitter.addWidget(deployment_view_controller)
-        splitter.setSizes([400,900])
+        splitter.setSizes([450,900])
+        splitter.setStretchFactor(0, 0) # prevent search pane from stretching
+        splitter.setStretchFactor(1, 1) # allow deployment list to stretch
 
         app_dependency_provider.image_resource_deployer.load_production_resources()

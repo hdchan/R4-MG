@@ -16,7 +16,8 @@ class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
                  app_dependency_provider: AppDependencyProviding,
                  deployment_resource: DeploymentCardResource, 
-                 local_resource_data_source_provider: LocalResourceDataSourceProviding):
+                 local_resource_data_source_provider: LocalResourceDataSourceProviding, 
+                 is_horizontal: bool):
         super().__init__()
         self._deployment_resource = deployment_resource
         self._local_resource_data_source_provider = local_resource_data_source_provider
@@ -36,7 +37,10 @@ class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
         vertical_layout.addWidget(label)
         self.label = label
 
-        layout = QHBoxLayout()
+        if is_horizontal:
+            layout = QHBoxLayout()
+        else:
+            layout = QVBoxLayout()
         layout_widget = QWidget()
         layout_widget.setLayout(layout)
         
