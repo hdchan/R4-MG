@@ -31,6 +31,7 @@ class Configuration:
             HIDE_IMAGE_PREVIEW = 'hide_image_preview'
             SHOW_RESOURCE_DETAILS = 'show_resource_details'
             HIDE_DEPLOYMENT_CELL_CONTROLS = 'hide_deployment_cell_controls'
+            IS_DEPLOYMENT_LIST_HORIZONTAL = 'is_deployment_list_horizontal'
 
             CARD_TITLE_DETAIL = 'card_title_preference'
 
@@ -106,6 +107,7 @@ class Configuration:
                 Configuration.Settings.Keys.SHOW_RESOURCE_DETAILS: False,
                 Configuration.Settings.Keys.HIDE_DEPLOYMENT_CELL_CONTROLS: False,
                 Configuration.Settings.Keys.CARD_TITLE_DETAIL: Configuration.Settings.CardTitleDetail.DEFAULT.value,
+                Configuration.Settings.Keys.IS_DEPLOYMENT_LIST_HORIZONTAL: False,
                 
                 Configuration.Settings.Keys.WINDOW_HEIGHT: None,
                 Configuration.Settings.Keys.WINDOW_WIDTH: None,
@@ -187,6 +189,10 @@ class Configuration:
     @property
     def card_title_detail(self) -> Settings.CardTitleDetail:
         return self.Settings.CardTitleDetail(self._get_with_default_settings(self.Settings.Keys.CARD_TITLE_DETAIL))
+    
+    @property
+    def is_deployment_list_horizontal(self) -> bool:
+        return self._get_with_default_settings(self.Settings.Keys.IS_DEPLOYMENT_LIST_HORIZONTAL)
     
     @property 
     def show_resource_details(self) -> bool:
@@ -341,6 +347,9 @@ class MutableConfiguration(Configuration):
 
     def set_card_title_detail(self, detail: Configuration.Settings.CardTitleDetail):
         self._settings[self.Settings.Keys.CARD_TITLE_DETAIL] = detail.value
+        
+    def set_is_deployment_list_horizontal(self, value: bool):
+        self._settings[self.Settings.Keys.IS_DEPLOYMENT_LIST_HORIZONTAL] = value
         
     def set_window_size(self, size: Tuple[int, int]):
         self._settings[self.Settings.Keys.WINDOW_HEIGHT] = size[0]

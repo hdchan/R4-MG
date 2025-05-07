@@ -4,6 +4,7 @@
 #### Feature updates
 - Adds reset search functionality and shortcut
 - Adds new variant type emojis
+- Adds configuration for horizontal layout
 
 ### 0.14.2
 #### Feature updates

@@ -142,6 +142,12 @@ class MenuActionCoordinator(QMenuBar):
         
         self._sync_sort_deployment_list_order()
     
+        # MARK: - ## Deployment List Orientation 
+        self._is_deployment_list_horizontal = QAction('Horizontal deployment list')
+        self._is_deployment_list_horizontal.triggered.connect(self.did_toggle_is_deployment_list_horizontal)
+        self._is_deployment_list_horizontal.setCheckable(True)
+        self._is_deployment_list_horizontal.setChecked(self._configuration.is_deployment_list_horizontal)
+        self._view_menu.addAction(self._is_deployment_list_horizontal)
     
         # MARK: - ## Window size
         self._reset_window_size = QAction('Reset window size')
@@ -298,6 +304,10 @@ class MenuActionCoordinator(QMenuBar):
         self._sort_deployment_list_order_asc.setChecked(not is_desc_order)
         self._sort_deployment_list_order_desc.setChecked(is_desc_order)
         
+    def did_toggle_is_deployment_list_horizontal(self, is_horizontal: bool):
+        new_config = self._configuration_manager.mutable_configuration()
+        new_config.set_is_deployment_list_horizontal(is_horizontal)
+        self._configuration_manager.save_configuration(new_config)
 
     def did_toggle_reset_window_size(self):
         new_config = self._configuration_manager.mutable_configuration()
