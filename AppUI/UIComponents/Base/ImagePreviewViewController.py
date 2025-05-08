@@ -45,11 +45,10 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
         self._image_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self._image_view.linkActivated.connect(self._handle_link_activated) # should only connect once
         self._image_view.customContextMenuRequested.connect(self._show_context_menu)
-        self._image_view.setMinimumSize(MAX_PREVIEW_SIZE, MAX_PREVIEW_SIZE)
+        # self._image_view.setMinimumSize(50, 50)
         self.loading_spinner = LoadingSpinner(self._image_view)
         
         # self._image_view.mousePressEvent = self._tapped_image # causes memory leak in child
-        
         
         image_info_layout = QVBoxLayout()
         image_info_widget = QWidget()
@@ -109,7 +108,9 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
     def _image_resource_processor(self):
         return self._image_resource_processor_provider.image_resource_processor
 
-    
+    @property
+    def _configuration(self) -> Configuration:
+        return self._configuration_manager.configuration
     
     def _show_context_menu(self, pos: QPoint):
         def _notify_delegate_regenerate_preview():
@@ -202,16 +203,25 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
     
     def _sync_image_view_state(self):
         self._toggle_resource_details_visibility()
+        # self._image_view.setMinimumSize(50, 50)
         if self._local_resource is None:
             # empty state
             self.loading_spinner.stop()
-            if self._configuration_manager.configuration.hide_image_preview: # show text only
+            if self._configuration.hide_image_preview: # show text only
                 self._image_view.setText('[Placeholder]')
             else:
                 image = QPixmap()
                 success = image.load(self._asset_provider.image.swu_logo_black_path)
                 if success:
-                    self._image_view.setPixmap(image)
+                    # TODO: consolidate with image logic below
+                    image_width = image.size().width()
+                    image_height = image.size().height()
+                    multiplier = MAX_PREVIEW_SIZE / max(image_width, image_height)
+                    multiplier *= self._configuration.image_preview_scale * 0.5 # normal should be smaller
+                    final_width, final_height = int(image_width * multiplier), int(image_height * multiplier)
+                    self._image_view.setMinimumSize(final_width, final_height)
+                    scaled_image = image.scaled(final_width, final_height, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+                    self._image_view.setPixmap(scaled_image)
                 else:
                     self._image_view.setText('[Placeholder]')
             return
@@ -219,24 +229,29 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
         self._clear_image_info()
 
         if self._local_resource.is_loading:
-            if self.loading_spinner._is_spinning is False:
+            if self.loading_spinner.is_spinning is False:
                 self.loading_spinner.start()
             # TODO: handle case where spinner is not closed?
         
         elif self._local_resource.is_ready:
             self.loading_spinner.stop()
             self._set_image_info()
-            if self._configuration_manager.configuration.hide_image_preview: # show text only
+            if self._configuration.hide_image_preview: # show text only
                 self._image_view.setText(self._dynamic_display_name(self._local_resource))
                 
             else: # show image
                 image = QPixmap()
                 success = image.load(self._local_resource.image_preview_path)
                 if success:
+                    # TODO: consolidate with image logic above
+                    # TODO: create dimension specific for cache
                     image_width = image.size().width()
                     image_height = image.size().height()
                     multiplier = MAX_PREVIEW_SIZE / max(image_width, image_height)
-                    scaled_image = image.scaled(int(image_width * multiplier), int(image_height * multiplier), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+                    multiplier *= self._configuration.image_preview_scale
+                    final_width, final_height = int(image_width * multiplier), int(image_height * multiplier)
+                    self._image_view.setMinimumSize(final_width, final_height)
+                    scaled_image = image.scaled(final_width, final_height, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
                     self._image_view.setPixmap(scaled_image)
                 else:
                     # existing resource, but no preview
@@ -251,11 +266,11 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
     
         
     def _dynamic_display_name(self, local_resource: LocalCardResource) -> str:
-        if self._configuration_manager.configuration.card_title_detail == Configuration.Settings.CardTitleDetail.NORMAL:
+        if self._configuration.card_title_detail == Configuration.Settings.CardTitleDetail.NORMAL:
             return local_resource.display_name
-        elif self._configuration_manager.configuration.card_title_detail == Configuration.Settings.CardTitleDetail.SHORT:
+        elif self._configuration.card_title_detail == Configuration.Settings.CardTitleDetail.SHORT:
             return local_resource.display_name_short
-        elif self._configuration_manager.configuration.card_title_detail == Configuration.Settings.CardTitleDetail.DETAILED:
+        elif self._configuration.card_title_detail == Configuration.Settings.CardTitleDetail.DETAILED:
             return local_resource.display_name_detailed
         return " - "
     
@@ -271,8 +286,8 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
                 self._sync_image_view_state()
     
     def _toggle_resource_details_visibility(self):
-        self._card_display_name.setHidden(self._configuration_manager.configuration.hide_image_preview)
-        self._image_info_widget.setHidden(not self._configuration_manager.configuration.show_resource_details or self._local_resource is None)
+        self._card_display_name.setHidden(self._configuration.hide_image_preview)
+        self._image_info_widget.setHidden(not self._configuration.show_resource_details or self._local_resource is None)
     
     def _set_image_info(self):
         if self._local_resource is not None and self._local_resource.is_ready:
