@@ -1,5 +1,9 @@
 ## Changelog
 
+### 0.16.0
+#### Feature updates
+- Adds preview image scale option
+
 ### 0.15.0
 #### Feature updates
 - Adds reset search functionality and shortcut

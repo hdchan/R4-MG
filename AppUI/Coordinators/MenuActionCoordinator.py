@@ -73,6 +73,32 @@ class MenuActionCoordinator(QMenuBar):
         self._hide_image_preview.setCheckable(True)
         self._hide_image_preview.setChecked(self._configuration.hide_image_preview)
         self._view_menu.addAction(self._hide_image_preview)
+        
+        # MARK: - ## Image preview scale
+        self._image_preview_scale = QMenu('Image preview scale')
+        self._view_menu.addMenu(self._image_preview_scale)
+
+        self._image_preview_scale_25 = QAction('25%')
+        self._image_preview_scale_25.triggered.connect(self.did_toggle_image_preview_scale_25)
+        self._image_preview_scale_25.setCheckable(True)
+        self._image_preview_scale.addAction(self._image_preview_scale_25)
+
+        self._image_preview_scale_50 = QAction('50%')
+        self._image_preview_scale_50.triggered.connect(self.did_toggle_image_preview_scale_50)
+        self._image_preview_scale_50.setCheckable(True)
+        self._image_preview_scale.addAction(self._image_preview_scale_50)
+        
+        self._image_preview_scale_75 = QAction('75%')
+        self._image_preview_scale_75.triggered.connect(self.did_toggle_image_preview_scale_75)
+        self._image_preview_scale_75.setCheckable(True)
+        self._image_preview_scale.addAction(self._image_preview_scale_75)
+        
+        self._image_preview_scale_100 = QAction('100%')
+        self._image_preview_scale_100.triggered.connect(self.did_toggle_image_preview_scale_100)
+        self._image_preview_scale_100.setCheckable(True)
+        self._image_preview_scale.addAction(self._image_preview_scale_100)
+        
+        self._sync_image_preview_scale_checkmarks()
 
 
         self._hide_deployment_cell_controls = QAction('Hide deployment cell controls')
@@ -225,11 +251,45 @@ class MenuActionCoordinator(QMenuBar):
         new_config.set_show_resource_details(is_on)
         self._configuration_manager.save_configuration(new_config)
 
+    
     def did_toggle_hide_image_preview(self, is_on: bool):
         new_config = self._configuration_manager.mutable_configuration()
         new_config.set_hide_image_preview(is_on)
         self._configuration_manager.save_configuration(new_config)
 
+    # Image preview scale
+    def did_toggle_image_preview_scale_25(self, is_on: bool):
+        new_config = self._configuration_manager.mutable_configuration()
+        new_config.set_image_preview_scale(0.25)
+        self._configuration_manager.save_configuration(new_config)
+        self._sync_image_preview_scale_checkmarks()
+        
+    def did_toggle_image_preview_scale_50(self, is_on: bool):
+        new_config = self._configuration_manager.mutable_configuration()
+        new_config.set_image_preview_scale(0.5)
+        self._configuration_manager.save_configuration(new_config)
+        self._sync_image_preview_scale_checkmarks()
+        
+    def did_toggle_image_preview_scale_75(self, is_on: bool):
+        new_config = self._configuration_manager.mutable_configuration()
+        new_config.set_image_preview_scale(0.75)
+        self._configuration_manager.save_configuration(new_config)
+        self._sync_image_preview_scale_checkmarks()
+        
+    def did_toggle_image_preview_scale_100(self, is_on: bool):
+        new_config = self._configuration_manager.mutable_configuration()
+        new_config.set_image_preview_scale(1.0)
+        self._configuration_manager.save_configuration(new_config)
+        self._sync_image_preview_scale_checkmarks()
+
+    def _sync_image_preview_scale_checkmarks(self):
+        preference = self._configuration.image_preview_scale
+        self._image_preview_scale_25.setChecked(preference == 0.25)
+        self._image_preview_scale_50.setChecked(preference == 0.5)
+        self._image_preview_scale_75.setChecked(preference == 0.75)
+        self._image_preview_scale_100.setChecked(preference == 1.0)
+        
+        
     def did_toggle_hide_deployment_cell_controls(self, is_on: bool):
         new_config = self._configuration_manager.mutable_configuration()
         new_config.set_hide_deployment_cell_controls(is_on)
@@ -244,6 +304,9 @@ class MenuActionCoordinator(QMenuBar):
         new_config = self._configuration_manager.mutable_configuration()
         new_config.set_is_delay_network_mode(is_on)
         self._configuration_manager.save_configuration(new_config)
+    
+    
+    # Card title detail
     
     def did_toggle_card_title_detail_short(self, is_on: bool):
         new_config = self._configuration_manager.mutable_configuration()

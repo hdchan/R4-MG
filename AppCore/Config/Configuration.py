@@ -12,7 +12,7 @@ from PyQt5.QtCore import QStandardPaths
 class Configuration:
     
     APP_NAME = 'R4-MG'
-    APP_VERSION = '0.15.0'
+    APP_VERSION = '0.16.0'
     SETTINGS_VERSION = '1.0'
     
     class Toggles:
@@ -29,6 +29,7 @@ class Configuration:
             PUBLISH_HISTORY_CACHE_LIFE_IN_DAYS = 'publish_history_cache_life_in_days'
 
             HIDE_IMAGE_PREVIEW = 'hide_image_preview'
+            IMAGE_PREVIEW_SCALE = 'image_preview_scale'
             SHOW_RESOURCE_DETAILS = 'show_resource_details'
             HIDE_DEPLOYMENT_CELL_CONTROLS = 'hide_deployment_cell_controls'
             IS_DEPLOYMENT_LIST_HORIZONTAL = 'is_deployment_list_horizontal'
@@ -104,6 +105,7 @@ class Configuration:
                 Configuration.Settings.Keys.PUBLISH_HISTORY_CACHE_LIFE_IN_DAYS: Configuration.Settings.PublishHistoryCacheLifeInDays.DEFAULT.value,
 
                 Configuration.Settings.Keys.HIDE_IMAGE_PREVIEW: False,
+                Configuration.Settings.Keys.IMAGE_PREVIEW_SCALE: 1.0,
                 Configuration.Settings.Keys.SHOW_RESOURCE_DETAILS: False,
                 Configuration.Settings.Keys.HIDE_DEPLOYMENT_CELL_CONTROLS: False,
                 Configuration.Settings.Keys.CARD_TITLE_DETAIL: Configuration.Settings.CardTitleDetail.DEFAULT.value,
@@ -173,6 +175,10 @@ class Configuration:
     @property
     def hide_image_preview(self) -> bool:
         return self._get_with_default_settings(self.Settings.Keys.HIDE_IMAGE_PREVIEW)
+    
+    @property
+    def image_preview_scale(self) -> float:
+        return self._get_with_default_settings(self.Settings.Keys.IMAGE_PREVIEW_SCALE)
     
     @property
     def hide_deployment_cell_controls(self) -> bool:
@@ -335,6 +341,9 @@ class MutableConfiguration(Configuration):
 
     def set_hide_deployment_cell_controls(self, value: bool):
         self._settings[self.Settings.Keys.HIDE_DEPLOYMENT_CELL_CONTROLS] = value
+    
+    def set_image_preview_scale(self, value: float):
+        self._settings[self.Settings.Keys.IMAGE_PREVIEW_SCALE] = value
         
     def set_search_source(self, source: Configuration.Settings.SearchSource):
         self._settings[self.Settings.Keys.SEARCH_SOURCE] = source.value

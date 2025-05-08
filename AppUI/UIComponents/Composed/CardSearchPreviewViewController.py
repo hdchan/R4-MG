@@ -32,7 +32,7 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
         self.setLayout(containing_layout)
 
         # https://stackoverflow.com/a/19011496
-        image_preview_view.setMinimumHeight(360)
+        # image_preview_view.setMinimumHeight(360)
         image_preview_view.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
         containing_layout.addWidget(image_preview_view)
 
