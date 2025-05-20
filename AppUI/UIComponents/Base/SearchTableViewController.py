@@ -113,10 +113,11 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
         layout.addWidget(search_source_label)
         self.search_source_label = search_source_label
 
-        image_source_label = QLabel()
-        image_source_label.setOpenExternalLinks(True)
-        # layout.addWidget(image_source_label)
-        self.image_source_label = image_source_label
+        custom_image_source_button = QPushButton("Toggle", self)
+        custom_image_source_button.setCheckable(True)
+        custom_image_source_button.clicked.connect(self._toggle_custom_image_source_buttion)
+        layout.addWidget(custom_image_source_button)
+        self.custom_image_source_button = custom_image_source_button
 
         self._load_source_labels()
         
@@ -139,6 +140,12 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
 
         # self._is_config_updating = False
         
+        self._sync_ui()
+    
+    @property
+    def _configuration(self) -> Configuration:
+        return self._configuration_manager.configuration
+    
     def ds_completed_search_with_result(self, 
                                         ds: CardSearchDataSource, 
                                         result_list: List[TradingCard], 
@@ -264,9 +271,9 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
             self.result_list.clear()
             for i in self._result_list:
                 display_name = i.friendly_display_name
-                if self._configuration_manager.configuration.card_title_detail == Configuration.Settings.CardTitleDetail.SHORT:
+                if self._configuration.card_title_detail == Configuration.Settings.CardTitleDetail.SHORT:
                     display_name = i.friendly_display_name_short
-                elif self._configuration_manager.configuration.card_title_detail == Configuration.Settings.CardTitleDetail.DETAILED:
+                elif self._configuration.card_title_detail == Configuration.Settings.CardTitleDetail.DETAILED:
                     display_name = i.friendly_display_name_detailed
                 self.result_list.addItem(display_name)
                 # self.result_list.item(len(self.result_list) - 1).setToolTip("<img src='https://cdn.swu-db.com/images/cards/TWI/269.png' />") 
@@ -291,6 +298,19 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
             self._loading_spinner.stop()
         else:
             self._loading_spinner.start()
+            
+    def _toggle_custom_image_source_buttion(self):
+        new_config = self._configuration_manager.mutable_configuration()
+        new_config.set_custom_xor_normal_search_source(not self._configuration.custom_xor_normal_search_source)
+        self._configuration_manager.save_configuration(new_config)
+    
+    def _sync_ui(self):
+        if self._configuration.custom_xor_normal_search_source:
+            self.custom_image_source_button.setText("Custom image source: ON")
+            self.custom_image_source_button.setChecked(True)
+        else:
+            self.custom_image_source_button.setText("Custom image source: OFF")
+            self.custom_image_source_button.setChecked(False)
 
     def _load_source_labels(self, status_string: str = ""):
         search_source_url = self._card_search_data_source.site_source_url
@@ -298,8 +318,6 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
             self.search_source_label.setText(f'Search source: <a href="{search_source_url}">{self._card_search_data_source.source_display_name}</a> {status_string}')
         else:
             self.search_source_label.setText(f'Search source: {self._card_search_data_source.source_display_name} {status_string}')
-
-        # self.image_source_label.setText(f'Image source: {self._card_image_source_provider.card_image_source.source_label_display}')
     
     def _sync_search_button_text(self):
         if self._ctrl_pressed and self._shift_pressed:
@@ -356,6 +374,7 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
             # self._is_config_updating = False
             
             self._load_source_labels()
+            self._sync_ui()
             
         if type(event) == LocalResourceFetchEvent:
             self._sync_retry_button()

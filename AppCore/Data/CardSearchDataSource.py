@@ -78,8 +78,8 @@ class CardSearchDataSource(LocalResourceDataSourceProtocol):
     
     @property
     def _has_more_pages(self) -> bool:
-        for i in self._paginated_trading_card_providers:
-            if len(i) == 0:
+        for (idx, i) in enumerate(self._paginated_trading_card_providers):
+            if len(i) == 0 and idx is not 0:
                 return True
         return False
     

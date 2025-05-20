@@ -4,7 +4,7 @@ from PyQt5.QtCore import QStandardPaths
 class CustomLocalImageSource(LocalCardImageSourceProtocol):
     @property
     def source_label_display(self) -> str:
-        return NotImplemented
+        return "NotImplemented"
     
     @property
     def image_path(self) -> str:

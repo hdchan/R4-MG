@@ -48,14 +48,25 @@ class CardResourceProvider:
     
     @property
     def front_local_resource(self) -> LocalCardResource:
-        return LocalCardResource(image_dir=self._image_path,
-                                 image_preview_dir=self._image_preview_dir, 
-                                 file_name=self._file_name_front,
-                                 display_name=self._trading_card.friendly_display_name,
-                                 display_name_short=self._trading_card.friendly_display_name_short,
-                                 display_name_detailed=self._trading_card.friendly_display_name_detailed,
-                                 file_extension=PNG_EXTENSION, 
-                                 remote_image_url=self._trading_card.front_art_url)
+        # TODO: rework
+        if self._trading_card.local_image_path is not None:
+            return LocalCardResource(image_dir=self._trading_card.local_image_path,
+                                    image_preview_dir=self._trading_card.local_image_path, # need to regenerate preview image?
+                                    file_name=self._trading_card.name,
+                                    display_name=self._trading_card.friendly_display_name,
+                                    display_name_short=self._trading_card.friendly_display_name_short,
+                                    display_name_detailed=self._trading_card.friendly_display_name_detailed,
+                                    file_extension=PNG_EXTENSION, 
+                                    remote_image_url=None)
+        else:
+            return LocalCardResource(image_dir=self._image_path,
+                                    image_preview_dir=self._image_preview_dir, 
+                                    file_name=self._file_name_front,
+                                    display_name=self._trading_card.friendly_display_name,
+                                    display_name_short=self._trading_card.friendly_display_name_short,
+                                    display_name_detailed=self._trading_card.friendly_display_name_detailed,
+                                    file_extension=PNG_EXTENSION, 
+                                    remote_image_url=self._trading_card.front_art_url)
     
     @property
     def back_local_resource(self) -> Optional[LocalCardResource]:
