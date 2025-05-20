@@ -27,7 +27,8 @@ class SWUDBAPILocalClient(APIClientProtocol):
     def site_source_url(self) -> Optional[str]:
         return None
 
-    def search(self, search_configuration: SearchConfiguration,
+    def search(self, 
+               search_configuration: SearchConfiguration,
                pagination_configuration: Optional[PaginationConfiguration],
                callback: APIClientSearchCallback):
         def completed_search():

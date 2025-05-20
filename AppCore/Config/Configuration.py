@@ -12,7 +12,7 @@ from PyQt5.QtCore import QStandardPaths
 class Configuration:
     
     APP_NAME = 'R4-MG'
-    APP_VERSION = '0.16.0'
+    APP_VERSION = '0.17.0-alpha-1'
     SETTINGS_VERSION = '1.0'
     
     class Toggles:
@@ -23,6 +23,7 @@ class Configuration:
         class Keys:
             SEARCH_SOURCE = 'search_source'
             IMAGE_SOURCE = 'image_source'
+            CUSTOM_XOR_NORMAL_SEARCH_SOURCE = 'custom_xor_normal_search_source'
 
             IMAGE_CACHE_LIFE_IN_DAYS = 'image_cache_life_in_days'
             SEARCH_HISTORY_CACHE_LIFE_IN_DAYS = 'search_history_cache_life_in_days'
@@ -99,6 +100,7 @@ class Configuration:
             Configuration.Keys.SETTINGS: {
                 Configuration.Settings.Keys.SEARCH_SOURCE: Configuration.Settings.SearchSource.DEFAULT.value,
                 Configuration.Settings.Keys.IMAGE_SOURCE: Configuration.Settings.ImageSource.DEFAULT.value,
+                Configuration.Settings.Keys.CUSTOM_XOR_NORMAL_SEARCH_SOURCE: False,
 
                 Configuration.Settings.Keys.IMAGE_CACHE_LIFE_IN_DAYS: Configuration.Settings.ImageCacheLifeInDays.DEFAULT.value,
                 Configuration.Settings.Keys.SEARCH_HISTORY_CACHE_LIFE_IN_DAYS: Configuration.Settings.SearchHistoryCacheLifeInDays.DEFAULT.value,
@@ -191,6 +193,10 @@ class Configuration:
     @property 
     def image_source(self) -> Settings.ImageSource:
         return self.Settings.ImageSource(self._get_with_default_settings(self.Settings.Keys.IMAGE_SOURCE))
+    
+    @property 
+    def custom_xor_normal_search_source(self) -> bool:
+        return self._get_with_default_settings(self.Settings.Keys.CUSTOM_XOR_NORMAL_SEARCH_SOURCE)
     
     @property
     def card_title_detail(self) -> Settings.CardTitleDetail:
@@ -347,6 +353,9 @@ class MutableConfiguration(Configuration):
         
     def set_search_source(self, source: Configuration.Settings.SearchSource):
         self._settings[self.Settings.Keys.SEARCH_SOURCE] = source.value
+
+    def set_custom_xor_normal_search_source(self, value: bool):
+        self._settings[self.Settings.Keys.CUSTOM_XOR_NORMAL_SEARCH_SOURCE] = value
 
     def set_image_source(self, source: Configuration.Settings.ImageSource):
         self._settings[self.Settings.Keys.IMAGE_SOURCE] = source.value
