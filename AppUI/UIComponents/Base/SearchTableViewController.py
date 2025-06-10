@@ -1,4 +1,5 @@
 from typing import List, Optional
+from urllib.error import HTTPError
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QLineEdit,
@@ -18,18 +19,17 @@ from ...Observation.Events import KeyboardEvent
 from ..Base.ImagePreviewViewController import ImagePreviewViewController
 from .LoadingSpinner import LoadingSpinner
 
-from urllib.error import HTTPError
 
-# TODO: add pagination
 class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearchDataSourceDelegate):
     def __init__(self, 
-                 app_dependency_provider: AppDependencyProviding, 
-                 card_search_data_source: CardSearchDataSource, 
+                 app_dependency_provider: AppDependencyProviding,
                  image_preview_view: ImagePreviewViewController):
         super().__init__()
         self._image_preview_view = image_preview_view
-        self._card_search_data_source = card_search_data_source 
-        card_search_data_source.delegate = self
+        self._card_search_data_source = CardSearchDataSource(app_dependency_provider, 
+                                                             app_dependency_provider.api_client_provider, 
+                                                             page_size=40) 
+        self._card_search_data_source.delegate = self
         self._card_image_source_provider = app_dependency_provider.image_source_provider
         self._observation_tower = app_dependency_provider.observation_tower
         
@@ -39,9 +39,7 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
         self._result_list: Optional[List[TradingCard]] = None
 
         layout = QVBoxLayout()
-        # layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
-        
         
         buttons_layout = QHBoxLayout()
         buttons_layout.setContentsMargins(0, 0, 0, 0)
@@ -55,13 +53,6 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
         flip_button.clicked.connect(self._tapped_flip_button)
         self.flip_button = flip_button
         buttons_layout.addWidget(flip_button)
-        
-        retry_button = QPushButton()
-        retry_button.setText("Redownload")
-        retry_button.setEnabled(False)
-        retry_button.clicked.connect(self.tapped_retry_button)
-        self.retry_button = retry_button
-        # buttons_layout.addWidget(retry_button)
         
         query_layout = QHBoxLayout()
         query_layout.setContentsMargins(0, 0, 0, 0)
@@ -113,12 +104,6 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
         layout.addWidget(search_source_label)
         self.search_source_label = search_source_label
 
-        custom_image_source_button = QPushButton("Toggle", self)
-        custom_image_source_button.setCheckable(True)
-        custom_image_source_button.clicked.connect(self._toggle_custom_image_source_buttion)
-        layout.addWidget(custom_image_source_button)
-        self.custom_image_source_button = custom_image_source_button
-
         self._load_source_labels()
         
         
@@ -138,17 +123,18 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
         app_dependency_provider.shortcut_action_coordinator.bind_search_leader(self._search_leader, self)
         app_dependency_provider.shortcut_action_coordinator.bind_search_base(self._search_base, self)
 
-        # self._is_config_updating = False
-        
         self._sync_ui()
+    
+    @property
+    def card_search_data_source(self) -> CardSearchDataSource:
+        return self._card_search_data_source
     
     @property
     def _configuration(self) -> Configuration:
         return self._configuration_manager.configuration
     
     def ds_completed_search_with_result(self, 
-                                        ds: CardSearchDataSource, 
-                                        result_list: List[TradingCard], 
+                                        ds: CardSearchDataSource,
                                         error: Optional[Exception], 
                                         is_initial_load: bool, 
                                         has_more_pages: bool):
@@ -158,7 +144,7 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
                 status = f"🔴 {error.code}"
             else:
                 status = str(error)
-        self.update_list(result_list, is_initial_load, has_more_pages)
+        self.update_list(self._card_search_data_source.trading_cards, is_initial_load, has_more_pages)
         self._load_source_labels(status_string=status)
 
     def ds_did_retrieve_card_resource_for_card_selection(self, 
@@ -172,9 +158,6 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
         self.get_selection()
 
     def get_selection(self):
-        # if self._is_config_updating:
-            # don't trigger update when changing configuration
-            # return
         selected_indexs = self.result_list.selectedIndexes()
         if len(selected_indexs) > 0:
             self._card_search_data_source.select_card_resource_for_card_selection(selected_indexs[0].row())
@@ -234,19 +217,8 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
     def _tapped_flip_button(self):
         self._card_search_data_source.flip_current_previewed_card()
         
-    def tapped_retry_button(self):
-        self._card_search_data_source.redownload_currently_selected_card_resource()
-        
     def _sync_buttons(self, is_flippable: bool):
         self.flip_button.setEnabled(is_flippable)
-        self._sync_retry_button()
-    
-    def _sync_retry_button(self):
-        local_resource = self._card_search_data_source.selected_local_resource
-        if local_resource is not None:
-            self.retry_button.setEnabled(local_resource.remote_image_url is not None and not local_resource.is_loading)
-        else:
-            self.retry_button.setEnabled(False)
 
     def update_list(self, 
                     list: List[TradingCard], 
@@ -299,18 +271,8 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
         else:
             self._loading_spinner.start()
             
-    def _toggle_custom_image_source_buttion(self):
-        new_config = self._configuration_manager.mutable_configuration()
-        new_config.set_custom_xor_normal_search_source(not self._configuration.custom_xor_normal_search_source)
-        self._configuration_manager.save_configuration(new_config)
-    
     def _sync_ui(self):
-        if self._configuration.custom_xor_normal_search_source:
-            self.custom_image_source_button.setText("Custom image source: ON")
-            self.custom_image_source_button.setChecked(True)
-        else:
-            self.custom_image_source_button.setText("Custom image source: OFF")
-            self.custom_image_source_button.setChecked(False)
+        pass
 
     def _load_source_labels(self, status_string: str = ""):
         search_source_url = self._card_search_data_source.site_source_url
@@ -369,12 +331,8 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
             self._sync_search_button_text()
 
         if type(event) == ConfigurationUpdatedEvent:
-            # self._is_config_updating = True
-            # self._load_list()
-            # self._is_config_updating = False
-            
             self._load_source_labels()
             self._sync_ui()
             
         if type(event) == LocalResourceFetchEvent:
-            self._sync_retry_button()
+            pass

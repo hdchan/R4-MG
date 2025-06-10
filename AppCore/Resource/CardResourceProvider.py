@@ -26,7 +26,7 @@ class CardResourceProvider:
     
     @property
     def is_flippable(self) -> bool:
-        return self._trading_card.is_flippable
+        return self._trading_card.back_art_url is not None
     
     @property
     def _card_image_source(self) -> CardImageSourceProtocol:
@@ -48,25 +48,14 @@ class CardResourceProvider:
     
     @property
     def front_local_resource(self) -> LocalCardResource:
-        # TODO: rework
-        if self._trading_card.local_image_path is not None:
-            return LocalCardResource(image_dir=self._trading_card.local_image_path,
-                                    image_preview_dir=self._trading_card.local_image_path, # need to regenerate preview image?
-                                    file_name=self._trading_card.name,
-                                    display_name=self._trading_card.friendly_display_name,
-                                    display_name_short=self._trading_card.friendly_display_name_short,
-                                    display_name_detailed=self._trading_card.friendly_display_name_detailed,
-                                    file_extension=PNG_EXTENSION, 
-                                    remote_image_url=None)
-        else:
-            return LocalCardResource(image_dir=self._image_path,
-                                    image_preview_dir=self._image_preview_dir, 
-                                    file_name=self._file_name_front,
-                                    display_name=self._trading_card.friendly_display_name,
-                                    display_name_short=self._trading_card.friendly_display_name_short,
-                                    display_name_detailed=self._trading_card.friendly_display_name_detailed,
-                                    file_extension=PNG_EXTENSION, 
-                                    remote_image_url=self._trading_card.front_art_url)
+        return LocalCardResource(image_dir=self._image_path,
+                                image_preview_dir=self._image_preview_dir, 
+                                file_name=self._file_name_front,
+                                display_name=self._trading_card.friendly_display_name,
+                                display_name_short=self._trading_card.friendly_display_name_short,
+                                display_name_detailed=self._trading_card.friendly_display_name_detailed,
+                                file_extension=PNG_EXTENSION, 
+                                remote_image_url=self._front_art_remote_image_url)
     
     @property
     def back_local_resource(self) -> Optional[LocalCardResource]:
@@ -81,10 +70,23 @@ class CardResourceProvider:
                                  display_name_detailed=self._trading_card.friendly_display_name_detailed + ' (back)',
                                  file_extension=PNG_EXTENSION, 
                                  remote_image_url=back_art_url)
+    @property
+    def _is_remote_resource(self) -> bool:
+        parsed = urlparse(self._trading_card.front_art_url)
+        return parsed.scheme and parsed.netloc
+    
+    @property
+    def _front_art_remote_image_url(self) -> Optional[str]:
+        if self._is_remote_resource:
+            return self._trading_card.front_art_url
+        return None
     
     @property
     def _file_name_front(self) -> str:
-        return self.replace_non_alphanumeric(self._trading_card.front_art_url, "_")
+        if self._is_remote_resource:
+            return self.replace_non_alphanumeric(self._trading_card.front_art_url, "_")
+        return self._trading_card.name
+        
     
     @property
     def _file_name_back(self) -> Optional[str]:
@@ -94,13 +96,17 @@ class CardResourceProvider:
     
     @property
     def _image_path(self) -> str:
-        domain = urlparse(self._trading_card.front_art_url).netloc
-        return f'{self._configuration_manager.configuration.cache_dir_path}{domain}/'
+        if self._is_remote_resource:
+            domain = urlparse(self._trading_card.front_art_url).netloc
+            return f'{self._configuration_manager.configuration.cache_dir_path}{domain}/'
+        return
     
     @property
     def _image_preview_dir(self) -> str:
-        domain = urlparse(self._trading_card.front_art_url).netloc
-        return f'{self._configuration_manager.configuration.cache_preview_dir_path}{domain}/'
+        if self._is_remote_resource:
+            domain = urlparse(self._trading_card.front_art_url).netloc
+            return f'{self._configuration_manager.configuration.cache_preview_dir_path}{domain}/'
+        return
     
     def replace_non_alphanumeric(self, text: str, replacement: str = '') -> str:
         """Replaces non-alphanumeric characters in a string with a specified replacement.

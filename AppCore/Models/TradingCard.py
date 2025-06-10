@@ -17,11 +17,6 @@ class TradingCard:
         self.number: str = number
         self.json = json
         self.metadata = metadata
-        self.local_image_path = None # TODO: rework
-        
-    @property
-    def is_flippable(self) -> bool:
-        return self.back_art_url is not None
     
     @property
     def friendly_display_name_short(self) -> str:

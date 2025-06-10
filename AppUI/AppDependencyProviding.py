@@ -1,4 +1,5 @@
 from AppCore.CoreDependencyProviding import CoreDependencyProviding
+from AppCore.Data import APIClientProviding
 
 from .Assets import AssetProvider
 from .Coordinators import MenuActionCoordinator, ShortcutActionCoordinator
@@ -21,4 +22,8 @@ class AppDependencyProviding(CoreDependencyProviding):
     
     @property
     def menu_action_coordinator(self) -> MenuActionCoordinator:
+        return NotImplemented
+    
+    @property
+    def api_client_provider(self) -> APIClientProviding:
         return NotImplemented
