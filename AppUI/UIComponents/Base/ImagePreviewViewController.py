@@ -133,9 +133,9 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
             if self._local_resource is not None:
                 self._platform_service.open_file(self._local_resource.image_path)
 
-        def open_file_path():
+        def open_file_directory():
             if self._local_resource is not None:
-                self._platform_service.open_file_path_and_select_file(self._local_resource.image_path)
+                self._platform_service.open_file_directory_and_select_file(self._local_resource.image_path)
             
         def open_image_url():
             if self._local_resource is not None and self._local_resource.remote_image_url is not None:
@@ -170,8 +170,8 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
                 reveal_action.triggered.connect(open_file)
                 menu.addAction(reveal_action) # type: ignore
                 
-                reveal_action = QAction(f"Reveal {self._local_resource.file_name_with_ext} in finder", self)
-                reveal_action.triggered.connect(open_file_path)
+                reveal_action = QAction(f"Reveal {self._local_resource.file_name_with_ext} in file explorer", self)
+                reveal_action.triggered.connect(open_file_directory)
                 menu.addAction(reveal_action) # type: ignore
                 
                 if self._local_resource.remote_image_url is not None:

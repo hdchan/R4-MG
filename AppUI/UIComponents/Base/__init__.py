@@ -3,4 +3,5 @@ from .SearchTableViewController import *
 from .AddImageCTAViewController import *
 from .PublishHistoryTableViewController import *
 from .ImagePreviewLocalResourceDataSourceDecorator import *
-from .SearchHistoryTableViewController import *
+from .SearchHistoryTableViewController import SearchHistoryTableViewController
+from .CustomDirectorySearchTableViewController import CustomDirectorySearchTableViewController

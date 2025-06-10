@@ -22,12 +22,14 @@ class Configuration:
     class Settings:
         class Keys:
             SEARCH_SOURCE = 'search_source'
-            IMAGE_SOURCE = 'image_source'
-            CUSTOM_XOR_NORMAL_SEARCH_SOURCE = 'custom_xor_normal_search_source'
+            IMAGE_SOURCE = 'image_source' # TODO: deprecated
+
+            CUSTOM_SEARCH_SOURCE_ENABLED = 'custom_search_source_enabled'
+            CUSTOM_SEARCH_SOURCE_PATH = 'custom_search_source_path'
 
             IMAGE_CACHE_LIFE_IN_DAYS = 'image_cache_life_in_days'
-            SEARCH_HISTORY_CACHE_LIFE_IN_DAYS = 'search_history_cache_life_in_days'
-            PUBLISH_HISTORY_CACHE_LIFE_IN_DAYS = 'publish_history_cache_life_in_days'
+            SEARCH_HISTORY_CACHE_LIFE_IN_DAYS = 'search_history_cache_life_in_days' # TODO: deprecated
+            PUBLISH_HISTORY_CACHE_LIFE_IN_DAYS = 'publish_history_cache_life_in_days' # TODO: deprecated
 
             HIDE_IMAGE_PREVIEW = 'hide_image_preview'
             IMAGE_PREVIEW_SCALE = 'image_preview_scale'
@@ -100,7 +102,9 @@ class Configuration:
             Configuration.Keys.SETTINGS: {
                 Configuration.Settings.Keys.SEARCH_SOURCE: Configuration.Settings.SearchSource.DEFAULT.value,
                 Configuration.Settings.Keys.IMAGE_SOURCE: Configuration.Settings.ImageSource.DEFAULT.value,
-                Configuration.Settings.Keys.CUSTOM_XOR_NORMAL_SEARCH_SOURCE: False,
+                
+                Configuration.Settings.Keys.CUSTOM_SEARCH_SOURCE_ENABLED: False,
+                Configuration.Settings.Keys.CUSTOM_SEARCH_SOURCE_PATH: None,
 
                 Configuration.Settings.Keys.IMAGE_CACHE_LIFE_IN_DAYS: Configuration.Settings.ImageCacheLifeInDays.DEFAULT.value,
                 Configuration.Settings.Keys.SEARCH_HISTORY_CACHE_LIFE_IN_DAYS: Configuration.Settings.SearchHistoryCacheLifeInDays.DEFAULT.value,
@@ -195,8 +199,13 @@ class Configuration:
         return self.Settings.ImageSource(self._get_with_default_settings(self.Settings.Keys.IMAGE_SOURCE))
     
     @property 
-    def custom_xor_normal_search_source(self) -> bool:
-        return self._get_with_default_settings(self.Settings.Keys.CUSTOM_XOR_NORMAL_SEARCH_SOURCE)
+    def custom_search_source_path(self) -> Optional[str]:
+        if self._get_with_default_settings(self.Settings.Keys.CUSTOM_SEARCH_SOURCE_ENABLED):
+            value: Optional[str] = self._get_with_default_settings(self.Settings.Keys.CUSTOM_SEARCH_SOURCE_PATH)
+            if value is not None and not value.isspace():
+                return self._get_with_default_settings(self.Settings.Keys.CUSTOM_SEARCH_SOURCE_PATH)
+        
+        return None
     
     @property
     def card_title_detail(self) -> Settings.CardTitleDetail:
@@ -354,8 +363,8 @@ class MutableConfiguration(Configuration):
     def set_search_source(self, source: Configuration.Settings.SearchSource):
         self._settings[self.Settings.Keys.SEARCH_SOURCE] = source.value
 
-    def set_custom_xor_normal_search_source(self, value: bool):
-        self._settings[self.Settings.Keys.CUSTOM_XOR_NORMAL_SEARCH_SOURCE] = value
+    def set_custom_search_source_path(self, value: Optional[str]):
+        self._settings[self.Settings.Keys.CUSTOM_SEARCH_SOURCE_PATH] = value
 
     def set_image_source(self, source: Configuration.Settings.ImageSource):
         self._settings[self.Settings.Keys.IMAGE_SOURCE] = source.value

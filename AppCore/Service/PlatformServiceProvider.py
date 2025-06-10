@@ -23,7 +23,7 @@ class PlatformServiceProtocol:
     def open_file(self, file_path: str) -> None:
         pass
 
-    def open_file_path_and_select_file(self, file_path: str) -> None:
+    def open_file_directory_and_select_file(self, file_path: str) -> None:
         pass
     
     def clear_cache(self):
@@ -36,14 +36,14 @@ class PlatformServiceProvider:
         def open_file(self, file_path: str) -> None:
             os.system(f"open {file_path}")
 
-        def open_file_path_and_select_file(self, file_path: str) -> None:
+        def open_file_directory_and_select_file(self, file_path: str) -> None:
             subprocess.call(["open", "-R", f"{os.path.abspath(file_path)}"])
 
     class Windows(PlatformServiceProtocol):
         def open_file(self, file_path: str) -> None:
             os.startfile(file_path) # type: ignore
 
-        def open_file_path_and_select_file(self, file_path: str) -> None:
+        def open_file_directory_and_select_file(self, file_path: str) -> None:
             subprocess.Popen(rf'explorer /select,"{os.path.abspath(file_path)}"')
 
     def __init__(self, 

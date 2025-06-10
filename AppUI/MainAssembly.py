@@ -124,10 +124,6 @@ class MainAssembly(ComponentProviding):
         self.app.setFont(custom_font)
 
     def _assemble_main_widget(self) -> QWidget:
-        card_search_data_source = CardSearchDataSource(self._app_dependencies, 
-                                                       self._app_dependencies.api_client_provider, 
-                                                       page_size=40)
-        
         recent_published_data_source = RecentPublishedDataSource(self._app_dependencies)
         
         recent_search_data_source = RecentSearchDataSource(self._app_dependencies)
@@ -135,9 +131,8 @@ class MainAssembly(ComponentProviding):
         image_preview_view = ImagePreviewLocalResourceDataSourceDecorator(self._app_dependencies)
         
         card_search_view = CardSearchPreviewViewController(self._app_dependencies, 
-                                                           card_search_data_source, 
-                                                           recent_published_data_source, 
-                                                           recent_search_data_source, 
+                                                           recent_published_data_source,
+                                                           recent_search_data_source,
                                                            image_preview_view)
         
         deployment_view = ImageDeploymentListViewController(self._app_dependencies,  

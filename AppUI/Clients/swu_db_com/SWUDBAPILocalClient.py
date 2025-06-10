@@ -34,7 +34,7 @@ class SWUDBAPILocalClient(APIClientProtocol):
         def completed_search():
             self._perform_search(search_configuration, callback)
         print(f'Mock search. card_name: {search_configuration.card_name}, search_configuration: {search_configuration}')
-        self.mock_networker.load_mock(completed_search)
+        self.mock_networker.load_mock(completed_search) # TODO: needs to perform retrieval in thread
     
     def _perform_search(self, search_configuration: SearchConfiguration, callback: APIClientSearchCallback):
         swu_search_config = SWUCardSearchConfiguration.from_search_configuration(search_configuration)

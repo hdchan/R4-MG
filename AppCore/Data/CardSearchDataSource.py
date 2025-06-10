@@ -13,8 +13,7 @@ from AppCore.CoreDependencyProviding import CoreDependencyProviding
 
 class CardSearchDataSourceDelegate:
     def ds_completed_search_with_result(self, 
-                                        ds: ..., 
-                                        result_list: List[TradingCard], 
+                                        ds: ...,
                                         error: Optional[Exception], 
                                         is_initial_load: bool, 
                                         has_more_pages: bool) -> None:
@@ -102,7 +101,7 @@ class CardSearchDataSource(LocalResourceDataSourceProtocol):
     def search(self, search_configuration: SearchConfiguration):
         initial_event = SearchEvent(SearchEvent.EventType.STARTED,
                                     copy.deepcopy(search_configuration))
-        self._observation_tower.notify(initial_event)
+        self._observation_tower.notify(initial_event) # TODO: need way to identify which data source is making call
 
         def completed_with_search_result(result: APIClientSearchResult):
             response, error = result
@@ -113,7 +112,6 @@ class CardSearchDataSource(LocalResourceDataSourceProtocol):
                 if response.page_count == 0:
                     if self.delegate is not None:
                         self.delegate.ds_completed_search_with_result(self,
-                                                                      [],
                                                                       None,
                                                                       True,
                                                                       False)
@@ -134,15 +132,13 @@ class CardSearchDataSource(LocalResourceDataSourceProtocol):
                 self._current_search_configuration = search_configuration
                 
                 if self.delegate is not None:
-                    self.delegate.ds_completed_search_with_result(self, 
-                                                                  self.trading_cards, 
+                    self.delegate.ds_completed_search_with_result(self,
                                                                   None, 
                                                                   True, 
                                                                   self._has_more_pages)
             else:
                 if self.delegate is not None:
-                    self.delegate.ds_completed_search_with_result(self, 
-                                                                  [], 
+                    self.delegate.ds_completed_search_with_result(self,
                                                                   error, 
                                                                   True, 
                                                                   self._has_more_pages)
@@ -189,16 +185,14 @@ class CardSearchDataSource(LocalResourceDataSourceProtocol):
                 self._current_page = response.page
                 
                 if self.delegate is not None:
-                    self.delegate.ds_completed_search_with_result(self, 
-                                                                  self.trading_cards, 
+                    self.delegate.ds_completed_search_with_result(self,
                                                                   None, 
                                                                   False, 
                                                                   self._has_more_pages)
             else:
                 if self.delegate is not None:
-                    self.delegate.ds_completed_search_with_result(self, 
-                                                                  [], 
-                                                                  error, 
+                    self.delegate.ds_completed_search_with_result(self,
+                                                                  error,
                                                                   False,
                                                                   self._has_more_pages)
                     

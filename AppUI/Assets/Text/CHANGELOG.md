@@ -1,5 +1,11 @@
 ## Changelog
 
+### 0.17.0
+#### Feature updates
+- Adds custom directory search
+#### Engineering updates
+-
+
 ### 0.16.0
 #### Feature updates
 - Adds preview image scale option

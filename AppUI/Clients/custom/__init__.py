@@ -1,2 +1,0 @@
-from .CustomLocalImageSource import CustomLocalImageSource
-from .CustomLocalSearchSource import CustomLocalSearchSource
