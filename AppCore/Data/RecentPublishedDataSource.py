@@ -23,10 +23,10 @@ class RecentPublishedDataSource(LocalResourceDataSourceProtocol, TransmissionRec
         PUBLISHED_RESOURCE = 'published_resource'
 
     def __init__(self, 
-                 core_dependency_providing: CoreDependencyProviding):
-        self._observation_tower = core_dependency_providing.observation_tower
-        self._image_resource_processor_provider = core_dependency_providing.image_resource_processor_provider
-        self._configuration_provider = core_dependency_providing.configuration_manager
+                 core_dependency_provider: CoreDependencyProviding):
+        self._observation_tower = core_dependency_provider.observation_tower
+        self._image_resource_processor_provider = core_dependency_provider.image_resource_processor_provider
+        self._configuration_provider = core_dependency_provider.configuration_manager
 
         self._published_history: List[Tuple[LocalCardResource, datetime]] = []
         my_file = Path(self._configuration_provider.configuration.publish_history_path)

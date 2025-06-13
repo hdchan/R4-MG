@@ -146,15 +146,14 @@ class CustomDirectorySearchTableViewController(QWidget, TransmissionReceiverProt
         if len(selected_indexs) > 0:
             selected_index = selected_indexs[0].row()
 
-        result_list = self._card_search_data_source.result_list
-        if result_list is not None:
-            self.result_list.clear()
-            for i in result_list:
-                display_name = i.friendly_display_name
-                self.result_list.addItem(display_name)
-            
-            self.set_item_active(selected_index)
-            self._set_search_components_enabled(True)
+        trading_cards = self._card_search_data_source.trading_cards
+        self.result_list.clear()
+        for i in trading_cards:
+            display_name = i.friendly_display_name
+            self.result_list.addItem(display_name)
+        
+        self.set_item_active(selected_index)
+        self._set_search_components_enabled(True)
             
 
     def _set_search_components_enabled(self, is_on: bool):

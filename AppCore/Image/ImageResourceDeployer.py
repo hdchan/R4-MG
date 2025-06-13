@@ -65,8 +65,7 @@ class ImageResourceDeployer:
                                              file_name=path.stem,
                                              display_name=path.stem + path.suffix,
                                              display_name_short=path.stem + path.suffix,
-                                             display_name_detailed=path.stem + path.suffix,
-                                             file_extension=path.suffix)
+                                             display_name_detailed=path.stem + path.suffix)
                 
                 staged_resource = DeploymentCardResource(resource)
                 deployment_resources.append(staged_resource)
@@ -171,10 +170,9 @@ class ImageResourceDeployer:
         local_resource = LocalCardResource(image_dir=self._configuration.production_dir_path, 
                                            image_preview_dir=self._configuration.production_preview_dir_path, 
                                            file_name=file_name,
-                                           display_name=file_name + PNG_EXTENSION,
-                                           display_name_short=file_name + PNG_EXTENSION,
-                                           display_name_detailed=file_name + PNG_EXTENSION,
-                                           file_extension=PNG_EXTENSION)
+                                           display_name=file_name,
+                                           display_name_short=file_name,
+                                           display_name_detailed=file_name)
         
         self._generate_directories_if_needed()
         existing_file = Path(local_resource.image_path)
