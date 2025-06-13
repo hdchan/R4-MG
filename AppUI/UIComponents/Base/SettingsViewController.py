@@ -54,34 +54,6 @@ class SettingsViewController(QWidget):
         search_local_radio.toggled.connect(self.search_local_toggled)
         search_local_radio.setChecked(self.mutable_configuration.search_source == Configuration.Settings.SearchSource.LOCAL)
         search_source_options_layout.addWidget(search_local_radio)
-
-        # Image Source
-        # image_source_row_layout = QHBoxLayout()
-        # image_source_row_widget = QGroupBox()
-        # image_source_row_widget.setLayout(image_source_row_layout)
-        # vertical_layout.addWidget(image_source_row_widget)
-        
-        # image_source_label = QLabel()
-        # image_source_label.setText("Select image source from where images should be downloaded from:")
-        # image_source_row_layout.addWidget(image_source_label)
-        
-
-        # image_source_options_layout = QVBoxLayout()
-        # image_source_options_widget = QWidget()
-        # image_source_options_widget.setLayout(image_source_options_layout)
-        # image_source_row_layout.addWidget(image_source_options_widget)
-        
-        # image_swudb_api_radio = QRadioButton()
-        # image_swudb_api_radio.setText("https://www.swu-db.com/")
-        # image_swudb_api_radio.toggled.connect(self.image_swudbapi_toggled)
-        # image_swudb_api_radio.setChecked(self.mutable_configuration.image_source == Configuration.Settings.ImageSource.SWUDBAPI)
-        # image_source_options_layout.addWidget(image_swudb_api_radio)
-        
-        # image_swudb_radio = QRadioButton()
-        # image_swudb_radio.setText("https://www.swudb.com/")
-        # image_swudb_radio.toggled.connect(self.image_swudb_toggled)
-        # image_swudb_radio.setChecked(self.mutable_configuration.image_source == Configuration.Settings.ImageSource.SWUDB)
-        # image_source_options_layout.addWidget(image_swudb_radio)
         
         # Production Image Resizing
         resize_prod_image_row_layout = QHBoxLayout()
@@ -150,13 +122,6 @@ class SettingsViewController(QWidget):
         
     def search_local_toggled(self):
         self.mutable_configuration.set_search_source(Configuration.Settings.SearchSource.LOCAL)
-
-    
-    def image_swudbapi_toggled(self):
-        self.mutable_configuration.set_image_source(Configuration.Settings.ImageSource.SWUDBAPI)
-        
-    def image_swudb_toggled(self):
-        self.mutable_configuration.set_image_source(Configuration.Settings.ImageSource.SWUDB)
 
     def enable_resize_prod_image(self, state: Qt.CheckState):
         if state == Qt.CheckState.Checked:

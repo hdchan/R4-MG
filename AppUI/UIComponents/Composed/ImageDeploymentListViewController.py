@@ -89,10 +89,6 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
     @property
     def _configuration(self) -> Configuration:
         return self.app_dependency_provider.configuration_manager.configuration
-    
-    @property
-    def _local_resource_data_source(self) -> LocalResourceDataSourceProtocol:
-        return self._local_resource_data_source_provider.data_source
 
     def clear_list(self):
         for i in reversed(range(self._deployment_cells_layout.count())):

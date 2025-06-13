@@ -2,7 +2,7 @@ import json
 from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
-from typing import Any, List, Tuple
+from typing import Any, List, Tuple, Dict
 
 from AppCore.CoreDependencyProviding import CoreDependencyProviding
 from AppCore.Models import SearchConfiguration

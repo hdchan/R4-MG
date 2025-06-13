@@ -1,8 +1,8 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
-from AppCore.Models.TradingCard import TradingCard
 from AppCore.Models.CardAspect import CardAspect
-from typing import Optional
+from AppCore.Models.TradingCard import TradingCard
+
 
 class StarWarsUnlimitedTradingCard(TradingCard):
     @classmethod

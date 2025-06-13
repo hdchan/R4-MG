@@ -55,8 +55,8 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol):
         # prevent multiple jobs from running on the same resource
         if self._lock_resource_and_notify(local_resource):
             worker = StoreImageWorker(local_resource,
-                                      self.image_fetcher_provider, 
-                                      self.generate_preview_image, 
+                                      self.image_fetcher_provider,
+                                      self.generate_preview_image,
                                       self._add_corners)
             worker.signals.finished.connect(self._unlock_resource_and_notify)
             self.pool.start(worker)

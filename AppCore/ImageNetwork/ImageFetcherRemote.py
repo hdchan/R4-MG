@@ -9,7 +9,7 @@ from .ImageFetcherProtocol import *
 from .ImageFetcherRequestProtocol import *
 
 
-class RemoteImageFetcher(ImageFetcherProtocol):
+class ImageFetcherRemote(ImageFetcherProtocol):
     def __init__(self, configuration_manager: ConfigurationManager):
         self.configuration_manager = configuration_manager
         

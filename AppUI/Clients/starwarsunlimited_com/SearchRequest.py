@@ -9,7 +9,7 @@ from AppCore.Network import NetworkRequestProtocol
 from AppUI.Assets import AssetProvider
 
 from ..SWUCardSearchConfiguration import SWUCardSearchConfiguration
-from .TradingCard import StarWarsUnlimitedTradingCard
+from .StarWarsUnlimitedTradingCard import StarWarsUnlimitedTradingCard
 
 
 class SearchRequest(NetworkRequestProtocol[APIClientSearchResponse]):

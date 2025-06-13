@@ -7,8 +7,7 @@ from PyQt5.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QLineEdit,
 
 from AppCore.Config import Configuration
 from AppCore.Data.CardSearchDataSource import *
-from AppCore.Models import (CardType, LocalCardResource, SearchConfiguration,
-                            TradingCard)
+from AppCore.Models import (CardType, LocalCardResource, SearchConfiguration)
 from AppCore.Observation import *
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         LocalResourceFetchEvent, SearchEvent)
@@ -35,7 +34,6 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
         self._shift_pressed = False
         self._ctrl_pressed = False
         self._configuration_manager = app_dependency_provider.configuration_manager
-        self._result_list: Optional[List[TradingCard]] = None
 
         layout = QVBoxLayout()
         self.setLayout(layout)
@@ -135,15 +133,14 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
     def ds_completed_search_with_result(self, 
                                         ds: CardSearchDataSource,
                                         error: Optional[Exception], 
-                                        is_initial_load: bool, 
-                                        has_more_pages: bool):
+                                        is_initial_load: bool):
         status = "🟢 OK"
         if error is not None:
             if isinstance(error, HTTPError):
                 status = f"🔴 {error.code}"
             else:
                 status = str(error)
-        self.update_list(self._card_search_data_source.trading_cards, is_initial_load, has_more_pages)
+        self._load_list(is_initial_load)
         self._load_source_labels(status_string=status)
 
     def ds_did_retrieve_card_resource_for_card_selection(self, 
@@ -219,15 +216,9 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
     def _sync_buttons(self, is_flippable: bool):
         self.flip_button.setEnabled(is_flippable)
 
-    def update_list(self, 
-                    list: List[TradingCard], 
-                    is_initial_load: bool, 
-                    has_more_pages: bool):
-        # https://stackoverflow.com/questions/25187444/pyqt-qlistwidget-custom-items
-        self._result_list = list
-        self._load_list(is_initial_load, has_more_pages)
         
-    def _load_list(self, is_initial_load: bool, has_more_pages: bool):
+    def _load_list(self, is_initial_load: bool):
+        # https://stackoverflow.com/questions/25187444/pyqt-qlistwidget-custom-items
         vertical_scroll_bar = self.result_list.verticalScrollBar()
         current_position = 0
         if vertical_scroll_bar is not None:
@@ -237,25 +228,19 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
         selected_index = 0
         if len(selected_indexs) > 0:
             selected_index = selected_indexs[0].row()
-
-        if self._result_list is not None:
-            self.result_list.clear()
-            for i in self._result_list:
-                display_name = i.friendly_display_name
-                if self._configuration.card_title_detail == Configuration.Settings.CardTitleDetail.SHORT:
-                    display_name = i.friendly_display_name_short
-                elif self._configuration.card_title_detail == Configuration.Settings.CardTitleDetail.DETAILED:
-                    display_name = i.friendly_display_name_detailed
-                self.result_list.addItem(display_name)
-                # self.result_list.item(len(self.result_list) - 1).setToolTip("<img src='https://cdn.swu-db.com/images/cards/TWI/269.png' />") 
             
-            if has_more_pages:
-                self.result_list.addItem('Loading more...')
-            else:
-                self.result_list.addItem('No more results')
-            # important that this is the last thing that happens
-            self.set_item_active(selected_index)
-            self._set_search_components_enabled(True)
+        self.result_list.clear()
+        for i in self._card_search_data_source.trading_card_dispay_names:
+            self.result_list.addItem(i)
+            # self.result_list.item(len(self.result_list) - 1).setToolTip("<img src='https://cdn.swu-db.com/images/cards/TWI/269.png' />") 
+        
+        if self._card_search_data_source.has_more_pages:
+            self.result_list.addItem('Loading more...')
+        else:
+            self.result_list.addItem('No more results')
+        # important that this is the last thing that happens
+        self.set_item_active(selected_index)
+        self._set_search_components_enabled(True)
             
             
         if not is_initial_load and vertical_scroll_bar is not None:
@@ -332,6 +317,7 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
         if type(event) == ConfigurationUpdatedEvent:
             self._load_source_labels()
             self._sync_ui()
+            # TODO: dynamic reload table with display names
             
         if type(event) == LocalResourceFetchEvent:
             pass

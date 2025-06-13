@@ -1,12 +1,10 @@
 import os
 import shutil
-import time
 from copy import deepcopy
 from pathlib import Path
 from typing import List, Optional
 
 from PIL import Image
-from PyQt5.QtCore import QObject, QRunnable, QThreadPool, pyqtSignal
 
 from AppCore.ImageNetwork.ImageFetcherProvider import *
 from AppCore.Models import DeploymentCardResource, LocalCardResource
@@ -31,7 +29,6 @@ class ImageResourceDeployer:
         self._image_resource_processor_provider = image_resource_processor_provider
         self._deployment_resources: List[DeploymentCardResource] = []
         self._can_publish_state = len(self._deployment_resources) != 0
-        self.pool = QThreadPool()
 
     @property
     def deployment_resources(self) -> List[DeploymentCardResource]:
@@ -192,13 +189,3 @@ class ImageResourceDeployer:
 
     def _generate_directories_if_needed(self):
         Path(self._configuration.production_preview_dir_path).mkdir(parents=True, exist_ok=True)
-
-class WorkerSignals(QObject):
-    finished = pyqtSignal(object)
-
-class RegenerateImageWorker(QRunnable):
-    def __init__(self):
-        pass
-
-    def run(self):
-        pass
