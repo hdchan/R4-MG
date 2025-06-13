@@ -1,14 +1,54 @@
+import copy
 import os
 from typing import Callable, List, Optional
 
 from PyQt5.QtCore import QStandardPaths
 
 from AppCore.Config import Configuration
+from AppCore.CoreDependencyProviding import CoreDependencyProviding
 from AppCore.Models import LocalCardResource, SearchConfiguration, TradingCard
 from AppCore.Network import LocalNetworker
-from AppCore.CoreDependencyProviding import CoreDependencyProviding
+from AppCore.Observation.Events import LocalResourceSelectedEvent
+
+from ..Config import ConfigurationManager
+from ..Models.LocalCardResource import LocalCardResource
+from ..Models.TradingCard import TradingCard
 from .CustomTradingCard import CustomTradingCard
 
+
+class CardResourceProvider:
+    def __init__(self, 
+                 trading_card: TradingCard,
+                 configuration_manager: ConfigurationManager):
+        self._trading_card = trading_card
+        self._configuration_manager = configuration_manager
+    
+    @property
+    def trading_card(self) -> TradingCard:
+        return self._trading_card
+    
+    @property
+    def local_resource(self) -> LocalCardResource:
+        return self.front_local_resource
+    
+    @property
+    def front_local_resource(self) -> LocalCardResource:
+        return LocalCardResource(image_dir=self._directory_path,
+                                image_preview_dir=self._preview_dir_path, 
+                                file_name=self._trading_card.name,
+                                display_name=self._trading_card.friendly_display_name,
+                                display_name_short=self._trading_card.friendly_display_name_short,
+                                display_name_detailed=self._trading_card.friendly_display_name_detailed)
+    
+    @property
+    def _directory_path(self) -> str:
+        return f'{QStandardPaths.writableLocation(QStandardPaths.StandardLocation.PicturesLocation)}/R4-MG/custom/'
+    
+    @property
+    def _preview_dir_path(self) -> str:
+        return f'{self._directory_path}preview/'
+
+        
 
 class CustomDirectorySearchDataSourceDelegate:
     def ds_completed_search_with_result(self, 
@@ -27,18 +67,20 @@ class CustomDirectorySearchDataSource:
         self._configuration_manager = core_dependency_provider.configuration_manager
         self._local_networker = LocalNetworker(self._configuration_manager)
         self._platform_service_provider = core_dependency_provider.platform_service_provider
+        self._observation_tower = core_dependency_provider.observation_tower
+        self._image_resource_processor_provider = core_dependency_provider.image_resource_processor_provider
+        
+        self._trading_card_providers: List[CardResourceProvider] = []
         
         self.delegate: Optional[CustomDirectorySearchDataSourceDelegate] = None
-    
-        self._result_list: Optional[List[TradingCard]] = None
         
     @property
     def _configuration(self) -> Configuration:
         return self._configuration_manager.configuration
     
     @property
-    def result_list(self) -> Optional[List[TradingCard]]:
-        return self._result_list
+    def trading_cards(self) -> List[TradingCard]:
+        return list(map(lambda x: x.trading_card, self._trading_card_providers))
     
     @property
     def source_display_name(self) -> str:
@@ -52,19 +94,29 @@ class CustomDirectorySearchDataSource:
     def _directory_path(self) -> str:
         return f'{QStandardPaths.writableLocation(QStandardPaths.StandardLocation.PicturesLocation)}/R4-MG/custom/'
     
-    @property
-    def _preview_dir_path(self) -> str:
-        return f'{self._directory_path}preview/'
-    
     def open_directory_path(self):
         self._platform_service_provider.platform_service.open_file(self._directory_path)
     
     def select_card_resource_for_card_selection(self, index: int):
-        pass
+        if index < len(self._trading_card_providers):
+            self._selected_index = index
+            self._retrieve_card_resource_for_card_selection(index)
+    
+    def _retrieve_card_resource_for_card_selection(self, index: int, retry: bool = False):
+        trading_card_resource_provider = self._trading_card_providers[index]
+        selected_resource = trading_card_resource_provider.local_resource
+        self._selected_resource = selected_resource
+        self._observation_tower.notify(LocalResourceSelectedEvent(selected_resource))
+        self._image_resource_processor_provider.image_resource_processor.async_store_local_resource(selected_resource, retry)
+        if self.delegate is not None:
+            self.delegate.ds_did_retrieve_card_resource_for_card_selection(self, copy.deepcopy(selected_resource))
     
     def search(self, search_configuration: SearchConfiguration):
         def callback(result: List[TradingCard]):
-            self._result_list = result
+            def create_trading_card_resource(trading_card: TradingCard):
+                    return CardResourceProvider(trading_card, 
+                                                self._configuration_manager)
+            self._trading_card_providers = list(map(create_trading_card_resource, result))
             if self.delegate is not None:
                 self.delegate.ds_completed_search_with_result(self, None)
         self._search(search_configuration, callback)

@@ -2,13 +2,14 @@ import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
-from urllib.parse import urlparse
 
 from PIL import Image
 
 Width = int
 Height = int
 Size = Tuple[Width, Height]
+
+PNG_EXTENSION = '.png'
 
 class LocalCardResource:
     def __init__(self, 
@@ -18,7 +19,6 @@ class LocalCardResource:
                  display_name: str,
                  display_name_short: str,
                  display_name_detailed: str,
-                 file_extension: str,
                  remote_image_url: Optional[str] = None):
         self.image_dir = image_dir
         self.image_preview_dir = image_preview_dir
@@ -27,7 +27,7 @@ class LocalCardResource:
         self.display_name_short = display_name_short
         self.display_name_detailed = display_name_detailed
         self.remote_image_url = remote_image_url
-        self.file_extension = file_extension
+        self.file_extension = PNG_EXTENSION
 
         assert(self.image_dir is not None)
         assert(self.image_preview_dir is not None)
@@ -102,6 +102,10 @@ class LocalCardResource:
     @property
     def is_ready(self) -> bool:
         return Path(self.image_path).is_file()
+    
+    @property
+    def is_preview_ready(self) -> bool:
+        return Path(self.image_preview_path).is_file()
     
     @property 
     def is_loading(self) -> bool:

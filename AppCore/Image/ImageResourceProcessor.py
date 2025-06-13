@@ -11,7 +11,7 @@ from ..Observation import ObservationTower
 from ..Observation.Events import LocalResourceFetchEvent
 from .ImageResourceProcessorProtocol import ImageResourceProcessorProtocol
 
-PNG_EXTENSION = '.png'
+
 THUMBNAIL_SIZE = 256
 ROUNDED_CORNERS = 30
 NORMAL_CARD_HEIGHT = 468
@@ -39,7 +39,11 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol):
                 Path(local_resource.image_path).unlink()
             if os.path.exists(local_resource.image_preview_path):
                 Path(local_resource.image_preview_path).unlink()
+        
         if local_resource.is_ready or local_resource.is_local_only:
+            # regenerate preview image if needed
+            if not local_resource.is_preview_ready:
+                self.regenerate_resource_preview(local_resource)
             return
         
         assert(not local_resource.is_ready)
@@ -76,6 +80,7 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol):
         self.mutex.lock()
         self.working_resources.add(local_resource.image_path)
         self.mutex.unlock()
+        Path(local_resource.image_preview_dir).mkdir(parents=True, exist_ok=True) # ensure directory exists
         open(local_resource.image_temp_path, 'a').close() # generate 0kb file before notification
         self.observation_tower.notify(LocalResourceFetchEvent(LocalResourceFetchEvent.EventType.STARTED, local_resource))
         return True
