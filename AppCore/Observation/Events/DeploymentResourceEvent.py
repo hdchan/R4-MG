@@ -1,6 +1,9 @@
-from ..TransmissionProtocol import TransmissionProtocol
-from ...Models import DeploymentCardResource
 from enum import Enum
+
+from AppCore.Models import DeploymentCardResource
+
+from ..TransmissionProtocol import TransmissionProtocol
+
 
 class DeploymentResourceEvent(TransmissionProtocol):
     class EventType(int, Enum):

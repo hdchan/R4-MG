@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QTextEdit, QVBoxLayout, QWidget
 
-from ...AppDependencyProviding import AppDependencyProviding
+from AppUI.AppDependencyProviding import AppDependencyProviding
 
 
 class ShortcutsViewController(QWidget):

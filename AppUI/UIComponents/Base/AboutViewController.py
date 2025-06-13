@@ -3,7 +3,7 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtMultimedia import QSoundEffect
 from PyQt5.QtWidgets import QAction, QLabel, QMenu, QVBoxLayout, QWidget, QTextEdit
 
-from ...AppDependencyProviding import AppDependencyProviding
+from AppUI.AppDependencyProviding import AppDependencyProviding
 
 
 class AboutViewController(QWidget):

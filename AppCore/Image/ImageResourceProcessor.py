@@ -5,12 +5,12 @@ from typing import Callable, Optional, Set, Tuple
 from PIL import Image, ImageDraw
 from PyQt5.QtCore import QMutex, QObject, QRunnable, QThreadPool, pyqtSignal
 
-from ..ImageNetwork.ImageFetcherProvider import ImageFetcherProviding
-from ..Models import LocalCardResource
-from ..Observation import ObservationTower
-from ..Observation.Events import LocalResourceFetchEvent
-from .ImageResourceProcessorProtocol import ImageResourceProcessorProtocol
+from AppCore.ImageNetwork.ImageFetcherProvider import ImageFetcherProviding
+from AppCore.Models import LocalCardResource
+from AppCore.Observation import ObservationTower
+from AppCore.Observation.Events import LocalResourceFetchEvent
 
+from .ImageResourceProcessorProtocol import ImageResourceProcessorProtocol
 
 THUMBNAIL_SIZE = 256
 ROUNDED_CORNERS = 30

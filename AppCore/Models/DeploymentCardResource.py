@@ -1,6 +1,6 @@
 from typing import Optional
 
-from ..Observation.ObservationTower import *
+from AppCore.Observation.ObservationTower import *
 from .LocalCardResource import *
 
 class DeploymentCardResource:

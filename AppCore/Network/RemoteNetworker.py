@@ -6,7 +6,8 @@ from urllib.request import Request, urlopen
 
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 
-from ..Config import ConfigurationManager
+from AppCore.Config import ConfigurationManager
+
 from .NetworkerProtocol import NetworkerProtocol, NetworkerProtocolCallback
 from .NetworkRequestProtocol import NetworkRequestProtocol
 

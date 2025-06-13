@@ -1,6 +1,6 @@
 from typing import Callable, List, Optional, Tuple
 
-from ..Models import PaginationConfiguration, SearchConfiguration, TradingCard
+from AppCore.Models import PaginationConfiguration, SearchConfiguration, TradingCard
 
 class APIClientSearchResponse:
     def __init__(self, 

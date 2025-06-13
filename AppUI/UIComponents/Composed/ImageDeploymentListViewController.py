@@ -1,19 +1,19 @@
 from typing import List
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QPushButton, QHBoxLayout, QScrollArea, QSizePolicy,
-                             QVBoxLayout, QWidget, QLabel)
+from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QScrollArea,
+                             QSizePolicy, QVBoxLayout, QWidget)
 
+from AppCore.Config import Configuration
 from AppCore.Data.LocalResourceDataSourceProtocol import *
 from AppCore.Image.ImageResourceProcessorProtocol import *
-from AppCore.Config import Configuration
 from AppCore.Observation import *
-from AppCore.Observation.Events import (LocalResourceFetchEvent,
+from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
+                                        LocalResourceFetchEvent,
                                         LocalResourceSelectedEvent,
                                         ProductionResourcesLoadEvent,
                                         PublishStagedResourcesEvent,
-                                        PublishStatusUpdatedEvent, 
-                                        ConfigurationUpdatedEvent)
+                                        PublishStatusUpdatedEvent)
 from AppUI.AppDependencyProviding import AppDependencyProviding
 
 from ..Base import AddImageCTAViewController

@@ -1,6 +1,7 @@
 from enum import Enum
 
-from ...Models.LocalCardResource import LocalCardResource
+from AppCore.Models.LocalCardResource import LocalCardResource
+
 from ..TransmissionProtocol import TransmissionProtocol
 
 

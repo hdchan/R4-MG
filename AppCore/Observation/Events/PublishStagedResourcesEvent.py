@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import List
 
-from ...Models.DeploymentCardResource import DeploymentCardResource
+from AppCore.Models.DeploymentCardResource import DeploymentCardResource
 from ..TransmissionProtocol import TransmissionProtocol
 
 

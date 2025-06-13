@@ -3,9 +3,9 @@ import platform
 import shutil
 import subprocess
 
-from ..Config import ConfigurationManager
-from ..Observation import ObservationTower
-from ..Observation.Events import *
+from AppCore.Config import ConfigurationManager
+from AppCore.Observation import ObservationTower
+from AppCore.Observation.Events import *
 
 
 class PlatformServiceProtocol:

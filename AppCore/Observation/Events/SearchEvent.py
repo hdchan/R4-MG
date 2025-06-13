@@ -1,7 +1,9 @@
 from enum import Enum
 
-from ...Models import SearchConfiguration
+from AppCore.Models import SearchConfiguration
+
 from ..TransmissionProtocol import TransmissionProtocol
+
 
 class SearchEvent(TransmissionProtocol):
     class EventType(int, Enum):

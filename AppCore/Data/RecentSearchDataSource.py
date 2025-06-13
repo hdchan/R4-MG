@@ -7,9 +7,9 @@ from typing import Any, List, Tuple
 from AppCore.CoreDependencyProviding import CoreDependencyProviding
 from AppCore.Models import SearchConfiguration
 
-from ..Observation import *
-from ..Observation.Events import SearchEvent
-from ..Service.ModelEncoder import ModelEncoder
+from AppCore.Observation import *
+from AppCore.Observation.Events import SearchEvent
+from AppCore.Service.ModelEncoder import ModelEncoder
 
 
 class RecentSearchDataSource(TransmissionReceiverProtocol):

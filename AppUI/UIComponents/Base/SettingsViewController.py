@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (QCheckBox, QGroupBox, QHBoxLayout, QLabel,
 
 from AppCore.Config import Configuration
 
-from ...AppDependencyProviding import AppDependencyProviding
+from AppUI.AppDependencyProviding import AppDependencyProviding
 
 
 class SettingsViewController(QWidget):

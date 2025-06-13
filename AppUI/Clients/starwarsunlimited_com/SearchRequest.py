@@ -1,11 +1,13 @@
 import json
 from typing import Any, Dict, List, Optional
 from urllib.request import Request
-from AppCore.Models import TradingCard, PaginationConfiguration
+
+from AppCore.Data import APIClientSearchResponse
+from AppCore.Models import PaginationConfiguration, TradingCard
 from AppCore.Models.CardType import CardType
 from AppCore.Network import NetworkRequestProtocol
-from AppCore.Data import APIClientSearchResponse
-from ...Assets import AssetProvider
+from AppUI.Assets import AssetProvider
+
 from ..SWUCardSearchConfiguration import SWUCardSearchConfiguration
 from .TradingCard import StarWarsUnlimitedTradingCard
 
