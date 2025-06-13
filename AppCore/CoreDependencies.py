@@ -5,10 +5,10 @@ from AppCore.Config import ConfigurationManager
 from AppCore.Data.CardSearchDataSource import *
 from AppCore.Data.RecentPublishedDataSource import *
 from AppCore.Image import *
+from AppCore.ImageNetwork import MockImageFetcher, RemoteImageFetcher
 from AppCore.Network import *
 from AppCore.Observation.Events import ApplicationEvent
 from AppCore.Observation.ObservationTower import ObservationTower
-from AppCore.Resource import *
 from AppCore.Service import PlatformServiceProvider, StringFormatter
 
 from .CoreDependencyProviding import CoreDependencyProviding
@@ -22,11 +22,23 @@ class CoreDependencies(CoreDependencyProviding):
                                                                       self._observation_tower)
             
             self._string_formatter = StringFormatter()
-            self._image_resource_processor_provider = None
             self._api_client_provider = None
             self._image_source_provider = None
+    
+            image_fetcher_provider = ImageFetcherProvider(self._configuration_manager,
+                                                          RemoteImageFetcher(self._configuration_manager),
+                                                          MockImageFetcher(self._configuration_manager))
+            self._image_resource_processor_provider = ImageResourceProcessorProvider(ImageResourceProcessor(image_fetcher_provider,
+                                                                                                      self.observation_tower))
+            self._image_resource_deployer = ImageResourceDeployer(self._configuration_manager,
+                                                                  self._observation_tower, 
+                                                                  self._image_resource_processor_provider)
 
             atexit.register(self.cleanup)
+    
+    @property
+    def image_resource_processor_provider(self) -> ImageResourceProcessorProviding:
+        return self._image_resource_processor_provider
     
     @property
     def image_resource_deployer(self) -> ImageResourceDeployer:

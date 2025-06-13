@@ -147,4 +147,4 @@ class LocalCardResource:
             # On systems without birthtime (like Windows), use ctime instead
             return datetime.fromtimestamp(stat.st_ctime)
         except AttributeError:
-            return datetime.fromtimestamp(stat.st_birthtime)
+            return datetime.fromtimestamp(stat.st_birthtime) # type: ignore

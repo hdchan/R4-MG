@@ -2,7 +2,6 @@ from AppCore.Config import ConfigurationManager
 from AppCore.Image import (ImageResourceDeployer,
                            ImageResourceProcessorProviding)
 from AppCore.Observation.ObservationTower import ObservationTower
-from AppCore.Resource import CardImageSourceProviding
 from AppCore.Service import PlatformServiceProvider, StringFormatter
 
 
@@ -21,10 +20,6 @@ class CoreDependencyProviding:
     
     @property
     def image_resource_processor_provider(self) -> ImageResourceProcessorProviding:
-        return NotImplemented
-    
-    @property
-    def image_source_provider(self) -> CardImageSourceProviding:
         return NotImplemented
     
     @property

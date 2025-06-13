@@ -30,7 +30,6 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
                                                              app_dependency_provider.api_client_provider, 
                                                              page_size=40) 
         self._card_search_data_source.delegate = self
-        self._card_image_source_provider = app_dependency_provider.image_source_provider
         self._observation_tower = app_dependency_provider.observation_tower
         
         self._shift_pressed = False
