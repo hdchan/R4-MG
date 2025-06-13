@@ -3,7 +3,8 @@ from urllib import request
 
 from PIL import Image
 
-from ..Config import ConfigurationManager
+from AppCore.Config import ConfigurationManager
+
 from .ImageFetcherProtocol import *
 from .ImageFetcherRequestProtocol import *
 

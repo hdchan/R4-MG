@@ -4,15 +4,14 @@ from typing import Callable, List, Optional
 
 from PyQt5.QtCore import QStandardPaths
 
-from AppCore.Config import Configuration
+from AppCore.Config import Configuration, ConfigurationManager
 from AppCore.CoreDependencyProviding import CoreDependencyProviding
 from AppCore.Models import LocalCardResource, SearchConfiguration, TradingCard
+from AppCore.Models.LocalCardResource import LocalCardResource
+from AppCore.Models.TradingCard import TradingCard
 from AppCore.Network import LocalNetworker
 from AppCore.Observation.Events import LocalResourceSelectedEvent
 
-from ..Config import ConfigurationManager
-from ..Models.LocalCardResource import LocalCardResource
-from ..Models.TradingCard import TradingCard
 from .CustomTradingCard import CustomTradingCard
 
 

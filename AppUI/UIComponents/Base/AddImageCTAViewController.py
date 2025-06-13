@@ -6,7 +6,7 @@ from PyQt5.QtMultimedia import QSoundEffect
 from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QMenu, QPushButton,
                              QVBoxLayout, QWidget)
 
-from ...AppDependencyProviding import AppDependencyProviding
+from AppUI.AppDependencyProviding import AppDependencyProviding
 
 class AddImageCTAViewController(QWidget):
     def __init__(self, 

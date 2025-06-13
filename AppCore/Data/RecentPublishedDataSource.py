@@ -6,10 +6,10 @@ from typing import Any, List, Tuple
 
 from AppCore.CoreDependencyProviding import CoreDependencyProviding
 
-from ..Observation import *
-from ..Observation.Events import (LocalResourceSelectedEvent,
+from AppCore.Observation import *
+from AppCore.Observation.Events import (LocalResourceSelectedEvent,
                                   PublishStagedResourcesEvent)
-from ..Service.ModelEncoder import ModelEncoder
+from AppCore.Service.ModelEncoder import ModelEncoder
 from .LocalResourceDataSourceProtocol import *
 
 

@@ -3,7 +3,7 @@ from AppCore.Data.APIClientProtocol import (APIClientProtocol,
                                             )
 from AppCore.Network import NetworkerProtocol
 from AppCore.Models import PaginationConfiguration, SearchConfiguration
-from ...Assets import AssetProvider
+from AppUI.Assets import AssetProvider
 from ..SWUCardSearchConfiguration import SWUCardSearchConfiguration
 from .SearchRequest import SearchRequest
 

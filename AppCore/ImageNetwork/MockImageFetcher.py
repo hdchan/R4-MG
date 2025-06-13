@@ -1,7 +1,7 @@
 import platform
 import random
 import time
-from ..Config import ConfigurationManager
+from AppCore.Config import ConfigurationManager
 from PIL import Image, ImageDraw, ImageFont
 
 from .ImageFetcherProtocol import *

@@ -8,6 +8,7 @@ from typing import List, Optional
 from PIL import Image
 from PyQt5.QtCore import QObject, QRunnable, QThreadPool, pyqtSignal
 
+from AppCore.ImageNetwork.ImageFetcherProvider import *
 from AppCore.Models import DeploymentCardResource, LocalCardResource
 from AppCore.Observation import *
 from AppCore.Observation.Events import (DeploymentResourceEvent,
@@ -15,7 +16,6 @@ from AppCore.Observation.Events import (DeploymentResourceEvent,
                                         PublishStagedResourcesEvent,
                                         PublishStatusUpdatedEvent)
 
-from ..ImageNetwork.ImageFetcherProvider import *
 from .ImageResourceProcessorProtocol import *
 
 PNG_EXTENSION = '.png'

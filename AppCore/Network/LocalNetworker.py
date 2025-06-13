@@ -4,7 +4,8 @@ from typing import Callable, TypeVar
 
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 
-from ..Config import ConfigurationManager
+from AppCore.Config import ConfigurationManager
+
 from .NetworkerProtocol import (NetworkerProtocol, NetworkerProtocolCallback,
                                 NetworkRequestProtocol)
 

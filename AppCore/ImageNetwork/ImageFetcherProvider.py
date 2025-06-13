@@ -1,5 +1,5 @@
-from ..Config import ConfigurationManager
-from ..Config.Configuration import *
+from AppCore.Config import ConfigurationManager
+from AppCore.Config.Configuration import *
 from .ImageFetcherProtocol import *
 
 

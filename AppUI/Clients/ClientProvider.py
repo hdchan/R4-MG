@@ -1,7 +1,7 @@
 from AppCore.Config.ConfigurationManager import *
 from AppCore.Data.APIClientProtocol import *
 from AppCore.Network import LocalNetworker, RemoteNetworker
-from ..Assets import AssetProvider
+from AppUI.Assets import AssetProvider
 from . import swu_db_com, starwarsunlimited_com
 
 

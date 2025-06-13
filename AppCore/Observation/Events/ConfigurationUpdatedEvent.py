@@ -1,4 +1,4 @@
-from ...Config.Configuration import Configuration
+from AppCore.Config.Configuration import Configuration
 from ..TransmissionProtocol import TransmissionProtocol
 
 

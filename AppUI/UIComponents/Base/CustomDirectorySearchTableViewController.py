@@ -14,7 +14,7 @@ from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         LocalResourceFetchEvent, SearchEvent)
 from AppUI.AppDependencyProviding import AppDependencyProviding
 
-from ...Observation.Events import KeyboardEvent
+from AppUI.Observation.Events import KeyboardEvent
 from ..Base.ImagePreviewViewController import ImagePreviewViewController
 from .LoadingSpinner import LoadingSpinner
 

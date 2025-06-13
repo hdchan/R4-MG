@@ -1,6 +1,6 @@
 from PIL import Image
 
-from ..Models import LocalCardResource
+from AppCore.Models import LocalCardResource
 from .ImageFetcherRequestProtocol import *
 
 

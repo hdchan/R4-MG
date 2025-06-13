@@ -3,12 +3,13 @@ import json
 from typing import Any, Dict, List, Optional
 
 from AppCore.Data.APIClientProtocol import (APIClientProtocol,
-                                            APIClientSearchCallback, APIClientSearchResponse)
-from AppCore.Models import SearchConfiguration, TradingCard
+                                            APIClientSearchCallback,
+                                            APIClientSearchResponse)
+from AppCore.Models import (CardType, PaginationConfiguration,
+                            SearchConfiguration, TradingCard)
 from AppCore.Network import LocalNetworker
+from AppUI.Assets import AssetProvider
 
-from ...Assets import AssetProvider
-from AppCore.Models import CardType, PaginationConfiguration
 from ..SWUCardSearchConfiguration import SWUCardSearchConfiguration
 from .SWUTradingCard import SWUTradingCard
 

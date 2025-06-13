@@ -32,7 +32,12 @@ class MainAssembly(ComponentProviding):
             super().__init__()
             self._asset_provider = AssetProvider()
             
-            client_provider = self._assemble_client_provider()
+            client_provider = ClientProvider(ClientProvider.Dependencies(
+                self._configuration_manager,
+                self._asset_provider,
+                RemoteNetworker(self._configuration_manager),
+                LocalNetworker(self._configuration_manager)
+                ))
             self._api_client_provider = client_provider
             self._image_source_provider = client_provider
             self._shortcut_action_coordinator = ShortcutActionCoordinator()
@@ -63,14 +68,6 @@ class MainAssembly(ComponentProviding):
         @property
         def api_client_provider(self) -> APIClientProviding:
             return self._api_client_provider
-        
-        def _assemble_client_provider(self) -> ClientProvider:
-            return ClientProvider(ClientProvider.Dependencies(
-                self._configuration_manager,
-                self._asset_provider,
-                RemoteNetworker(self._configuration_manager),
-                LocalNetworker(self._configuration_manager)
-                ))
     
 
     def __init__(self):
