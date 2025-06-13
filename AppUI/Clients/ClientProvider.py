@@ -1,6 +1,6 @@
 from AppCore.Config.ConfigurationManager import *
 from AppCore.Data.APIClientProtocol import *
-from AppCore.Network import LocalNetworker, RemoteNetworker
+from AppCore.Network import NetworkerLocal, NetworkerRemote
 from AppUI.Assets import AssetProvider
 from . import swu_db_com, starwarsunlimited_com
 
@@ -11,8 +11,8 @@ class ClientProvider(APIClientProviding):
         def __init__(self, 
                      configuration_manager: ConfigurationManager,
                      asset_provider: AssetProvider, 
-                     remote_networker: RemoteNetworker, 
-                     local_networker: LocalNetworker):
+                     remote_networker: NetworkerRemote, 
+                     local_networker: NetworkerLocal):
             self.configuration_manager = configuration_manager
             self.asset_provider = asset_provider
             self.remote_networker = remote_networker

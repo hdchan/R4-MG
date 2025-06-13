@@ -1,18 +1,18 @@
 from AppCore.Models import SearchConfiguration
 
 from ..Helpers import RandomTestCase
-from ..Mocks import LocalNetworkerProtocol
+from ..Mocks import NetworkerLocalProtocol
 from AppCore.Clients.SWUDB import SWUDBAPIRemoteClient, SearchRequest
 
 class SWUDBAPIRemoteClient_test(RandomTestCase):
     def setUp(self) -> None:
         super().setUp()
-        self.mock_networker = LocalNetworkerProtocol()
-        self.sut = SWUDBAPIRemoteClient(self.mock_networker)
+        self.local_networker = NetworkerLocalProtocol()
+        self.sut = SWUDBAPIRemoteClient(self.local_networker)
         
     def tearDown(self) -> None:
         super().tearDown()
-        self.mock_networker = None
+        self.local_networker = None
         self.sut = None
         
     def test_stuff(self):
@@ -23,6 +23,6 @@ class SWUDBAPIRemoteClient_test(RandomTestCase):
         callable = callback
         self.sut.search(search_config, callable)
         
-        self.assertEqual(len(self.mock_networker.load_invocations), 1)
+        self.assertEqual(len(self.local_networker.load_invocations), 1)
         expected_search_request = SearchRequest(card_name, search_config)
-        self.assertEqual(self.mock_networker.load_invocations[0]['request'], expected_search_request)
+        self.assertEqual(self.local_networker.load_invocations[0]['request'], expected_search_request)

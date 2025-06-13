@@ -1,4 +1,4 @@
-from .RemoteImageFetcher import *
+from .ImageFetcherRemote import *
 from .ImageFetcherProvider import *
 from .ImageFetcherRequestProtocol import *
-from .MockImageFetcher import *
+from .ImageFetcherLocal import *

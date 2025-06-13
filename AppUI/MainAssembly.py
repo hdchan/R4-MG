@@ -35,11 +35,10 @@ class MainAssembly(ComponentProviding):
             client_provider = ClientProvider(ClientProvider.Dependencies(
                 self._configuration_manager,
                 self._asset_provider,
-                RemoteNetworker(self._configuration_manager),
-                LocalNetworker(self._configuration_manager)
+                NetworkerRemote(self._configuration_manager),
+                NetworkerLocal(self._configuration_manager)
                 ))
             self._api_client_provider = client_provider
-            self._image_source_provider = client_provider
             self._shortcut_action_coordinator = ShortcutActionCoordinator()
             self._menu_action_coordinator = MenuActionCoordinator(self._configuration_manager, 
                                                                   self._platform_service_provider)

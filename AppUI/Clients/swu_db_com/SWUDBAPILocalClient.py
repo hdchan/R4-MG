@@ -7,7 +7,7 @@ from AppCore.Data.APIClientProtocol import (APIClientProtocol,
                                             APIClientSearchResponse)
 from AppCore.Models import (CardType, PaginationConfiguration,
                             SearchConfiguration, TradingCard)
-from AppCore.Network import LocalNetworker
+from AppCore.Network import NetworkerLocal
 from AppUI.Assets import AssetProvider
 
 from ..SWUCardSearchConfiguration import SWUCardSearchConfiguration
@@ -15,8 +15,8 @@ from .SWUTradingCard import SWUTradingCard
 
 CardListData = List[Dict[str, Any]]
 class SWUDBAPILocalClient(APIClientProtocol):
-    def __init__(self, mock_networker: LocalNetworker, asset_provider: AssetProvider):
-        self.mock_networker = mock_networker
+    def __init__(self, local_networker: NetworkerLocal, asset_provider: AssetProvider):
+        self.local_networker = local_networker
         self.asset_provider = asset_provider
         self.__response_card_list: Optional[List[TradingCard]] = None
     
@@ -35,7 +35,7 @@ class SWUDBAPILocalClient(APIClientProtocol):
         def completed_search():
             self._perform_search(search_configuration, callback)
         print(f'Mock search. card_name: {search_configuration.card_name}, search_configuration: {search_configuration}')
-        self.mock_networker.load_mock(completed_search) # TODO: needs to perform retrieval in thread
+        self.local_networker.load_mock(completed_search) # TODO: needs to perform retrieval in thread
     
     def _perform_search(self, search_configuration: SearchConfiguration, callback: APIClientSearchCallback):
         swu_search_config = SWUCardSearchConfiguration.from_search_configuration(search_configuration)

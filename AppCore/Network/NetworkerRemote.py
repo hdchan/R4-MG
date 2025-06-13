@@ -13,7 +13,7 @@ from .NetworkRequestProtocol import NetworkRequestProtocol
 
 T = TypeVar("T")
 
-class RemoteNetworker(NetworkerProtocol):
+class NetworkerRemote(NetworkerProtocol):
 
     def __init__(self, 
                  configuration_manager: ConfigurationManager):

@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw, ImageFont
 from .ImageFetcherProtocol import *
 
 
-class MockImageFetcher(ImageFetcherProtocol):
+class ImageFetcherLocal(ImageFetcherProtocol):
     def __init__(self, configuration_manager: ConfigurationManager):
         self.configuration_manager = configuration_manager
         

@@ -5,7 +5,7 @@ from AppCore.Network import (NetworkerProtocol, NetworkerProtocolCallback,
 
 T = TypeVar("T")
 
-class LocalNetworkerProtocol(NetworkerProtocol):
+class NetworkerLocalProtocol(NetworkerProtocol):
     
     def __init__(self):
         self.load_invocations = []

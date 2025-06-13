@@ -22,7 +22,6 @@ class Configuration:
     class Settings:
         class Keys:
             SEARCH_SOURCE = 'search_source'
-            IMAGE_SOURCE = 'image_source' # TODO: deprecated
 
             CUSTOM_SEARCH_SOURCE_ENABLED = 'custom_search_source_enabled'
             CUSTOM_SEARCH_SOURCE_PATH = 'custom_search_source_path'
@@ -75,12 +74,6 @@ class Configuration:
             LOCAL = 1
             STARWARSUNLIMITED_FFG = 2
             DEFAULT = STARWARSUNLIMITED_FFG
-
-        class ImageSource(int, Enum):
-            SWUDBAPI = 0 # https://www.swu-db.com/api
-            SWUDB = 1 # https://swudb.com/
-            CUSTOM_LOCAL = 99
-            DEFAULT = SWUDBAPI
             
         class DeploymentListSortCriteria(int, Enum):
             FILE_NAME = 0
@@ -101,7 +94,6 @@ class Configuration:
             },
             Configuration.Keys.SETTINGS: {
                 Configuration.Settings.Keys.SEARCH_SOURCE: Configuration.Settings.SearchSource.DEFAULT.value,
-                Configuration.Settings.Keys.IMAGE_SOURCE: Configuration.Settings.ImageSource.DEFAULT.value,
                 
                 Configuration.Settings.Keys.CUSTOM_SEARCH_SOURCE_ENABLED: False,
                 Configuration.Settings.Keys.CUSTOM_SEARCH_SOURCE_PATH: None,
@@ -193,10 +185,6 @@ class Configuration:
     @property 
     def search_source(self) -> Settings.SearchSource:
         return self.Settings.SearchSource(self._get_with_default_settings(self.Settings.Keys.SEARCH_SOURCE))
-
-    @property 
-    def image_source(self) -> Settings.ImageSource:
-        return self.Settings.ImageSource(self._get_with_default_settings(self.Settings.Keys.IMAGE_SOURCE))
     
     @property 
     def custom_search_source_path(self) -> Optional[str]:
@@ -365,9 +353,6 @@ class MutableConfiguration(Configuration):
 
     def set_custom_search_source_path(self, value: Optional[str]):
         self._settings[self.Settings.Keys.CUSTOM_SEARCH_SOURCE_PATH] = value
-
-    def set_image_source(self, source: Configuration.Settings.ImageSource):
-        self._settings[self.Settings.Keys.IMAGE_SOURCE] = source.value
 
     def set_show_resource_details(self, value: bool):
         self._settings[self.Settings.Keys.SHOW_RESOURCE_DETAILS] = value

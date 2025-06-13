@@ -2,7 +2,7 @@ import json
 from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
-from typing import Any, List, Tuple
+from typing import Any, List, Tuple, Optional, Dict
 
 from AppCore.CoreDependencyProviding import CoreDependencyProviding
 
@@ -10,14 +10,13 @@ from AppCore.Observation import *
 from AppCore.Observation.Events import (LocalResourceSelectedEvent,
                                   PublishStagedResourcesEvent)
 from AppCore.Service.ModelEncoder import ModelEncoder
-from .LocalResourceDataSourceProtocol import *
-
+from AppCore.Models import LocalCardResource
 
 class RecentPublishedDataSourceDelegate:
     def rp_did_retrieve_card_resource_for_card_selection(self, ds: ..., local_resource: LocalCardResource) -> None:
         pass
     
-class RecentPublishedDataSource(LocalResourceDataSourceProtocol, TransmissionReceiverProtocol):
+class RecentPublishedDataSource(TransmissionReceiverProtocol):
     class Keys:
         DATETIME = 'datetime'
         PUBLISHED_RESOURCE = 'published_resource'

@@ -1,7 +1,7 @@
 from typing import Optional
 
-from AppCore.Data.CardSearchDataSource import (
-    LocalResourceDataSourceProtocol, LocalResourceDataSourceProviding)
+from AppCore.Data import (LocalResourceDataSourceProtocol,
+                          LocalResourceDataSourceProviding)
 from AppCore.Models import LocalCardResource
 from AppCore.Observation import *
 from AppCore.Observation.Events import LocalResourceSelectedEvent
