@@ -6,7 +6,6 @@ from AppCore.CoreDependencies import CoreDependencies
 from AppCore.Data.CardSearchDataSource import *
 from AppCore.Data.RecentSearchDataSource import *
 from AppCore.Image import *
-from AppCore.ImageNetwork import MockImageFetcher, RemoteImageFetcher
 from AppCore.Network import *
 from AppUI.Coordinators import MenuActionCoordinator, ShortcutActionCoordinator
 from AppUI.MainProgramViewController import MainProgramViewController
@@ -33,10 +32,6 @@ class MainAssembly(ComponentProviding):
             super().__init__()
             self._asset_provider = AssetProvider()
             
-            self._image_resource_processor_provider = self._assemble_image_resource_processor_provider()
-            self._image_resource_deployer = ImageResourceDeployer(self._configuration_manager,
-                                                                  self._observation_tower, 
-                                                                  self._image_resource_processor_provider)
             client_provider = self._assemble_client_provider()
             self._api_client_provider = client_provider
             self._image_source_provider = client_provider
@@ -64,18 +59,10 @@ class MainAssembly(ComponentProviding):
         @property
         def asset_provider(self) -> AssetProvider:
             return self._asset_provider
-        
-        @property
-        def image_resource_processor_provider(self) -> ImageResourceProcessorProviding:
-            return self._image_resource_processor_provider
 
         @property
         def api_client_provider(self) -> APIClientProviding:
             return self._api_client_provider
-        
-        @property
-        def image_source_provider(self) -> CardImageSourceProviding:
-            return self._image_source_provider
         
         def _assemble_client_provider(self) -> ClientProvider:
             return ClientProvider(ClientProvider.Dependencies(
@@ -85,15 +72,6 @@ class MainAssembly(ComponentProviding):
                 LocalNetworker(self._configuration_manager)
                 ))
     
-        def _assemble_image_resource_processor_provider(self) -> ImageResourceProcessorProviding:
-            image_fetcher_provider = self._assemble_image_fetcher_provider()
-            return ImageResourceProcessorProvider(ImageResourceProcessor(image_fetcher_provider,
-                                                                         self.observation_tower))
-        
-        def _assemble_image_fetcher_provider(self) -> ImageFetcherProviding:
-            return ImageFetcherProvider(self._configuration_manager, 
-                                        RemoteImageFetcher(self._configuration_manager),
-                                        MockImageFetcher(self._configuration_manager))
 
     def __init__(self):
         self.app = QApplication([])

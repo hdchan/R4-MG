@@ -26,7 +26,6 @@ class CustomDirectorySearchTableViewController(QWidget, TransmissionReceiverProt
                  image_preview_view: ImagePreviewViewController):
         super().__init__()
         self._image_preview_view = image_preview_view
-        self._card_image_source_provider = app_dependency_provider.image_source_provider
         self._observation_tower = app_dependency_provider.observation_tower
         self._card_search_data_source = CustomDirectorySearchDataSource(app_dependency_provider)
         self._card_search_data_source.delegate = self
