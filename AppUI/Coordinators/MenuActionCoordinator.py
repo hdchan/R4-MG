@@ -35,7 +35,7 @@ class MenuActionCoordinator(QMenuBar):
         self._refresh_production_images = QAction('Refresh production images')
         self._file_menu.addAction(self._refresh_production_images)
         
-        self._open_production_dir = QAction('Reveal images in file explorer')
+        self._open_production_dir = QAction('Open image directory')
         self._open_production_dir.triggered.connect(self.did_open_production_dir)
         self._file_menu.addAction(self._open_production_dir)
         
@@ -381,7 +381,7 @@ class MenuActionCoordinator(QMenuBar):
         self._platform_service.open_file(self._configuration.config_directory)
 
     def did_open_production_dir(self):
-        self._platform_service.open_file(self._configuration.production_dir_path)
+        self._platform_service.open_file(self._configuration.picture_dir_path)
 
     def did_open_temp_dir(self):
         self._platform_service.open_file(self._configuration.temp_dir_path)

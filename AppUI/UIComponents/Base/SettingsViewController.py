@@ -2,19 +2,24 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIntValidator
 from PyQt5.QtWidgets import (QCheckBox, QGroupBox, QHBoxLayout, QLabel,
                              QLineEdit, QPushButton, QRadioButton, QVBoxLayout,
-                             QWidget)
+                             QWidget, QFileDialog)
 
 from AppCore.Config import Configuration
-
+from AppCore.Observation import TransmissionProtocol, TransmissionReceiverProtocol
+from AppCore.Observation.Events import ConfigurationUpdatedEvent
 from AppUI.AppDependencyProviding import AppDependencyProviding
 
 
-class SettingsViewController(QWidget):
+class SettingsViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
                  app_dependencies_provider: AppDependencyProviding):
         super().__init__()
-        self.configuration_manager = app_dependencies_provider.configuration_manager
-        self.mutable_configuration = self.configuration_manager.mutable_configuration()
+        self._configuration_manager = app_dependencies_provider.configuration_manager
+        self._mutable_configuration = self._configuration_manager.mutable_configuration()
+        self._observation_tower = app_dependencies_provider.observation_tower
+        
+        self._observation_tower.subscribe(self, ConfigurationUpdatedEvent)
+        
         self.setWindowTitle("Settings")
 
         vertical_layout = QVBoxLayout()
@@ -40,20 +45,43 @@ class SettingsViewController(QWidget):
         search_ffg_radio = QRadioButton()
         search_ffg_radio.setText("https://www.starwarsunlimited.com/")
         search_ffg_radio.toggled.connect(self.search_ffg_toggled)
-        search_ffg_radio.setChecked(self.mutable_configuration.search_source == Configuration.Settings.SearchSource.STARWARSUNLIMITED_FFG)
+        search_ffg_radio.setChecked(self._mutable_configuration.search_source == Configuration.Settings.SearchSource.STARWARSUNLIMITED_FFG)
         search_source_options_layout.addWidget(search_ffg_radio)
         
         search_swudb_api_radio = QRadioButton()
         search_swudb_api_radio.setText("https://www.swu-db.com/")
         search_swudb_api_radio.toggled.connect(self.search_swudbapi_toggled)
-        search_swudb_api_radio.setChecked(self.mutable_configuration.search_source == Configuration.Settings.SearchSource.SWUDBAPI)
+        search_swudb_api_radio.setChecked(self._mutable_configuration.search_source == Configuration.Settings.SearchSource.SWUDBAPI)
         search_source_options_layout.addWidget(search_swudb_api_radio)
         
         search_local_radio = QRadioButton()
         search_local_radio.setText("Local Search + www.swu-db.com Images (Set 1-4)")
         search_local_radio.toggled.connect(self.search_local_toggled)
-        search_local_radio.setChecked(self.mutable_configuration.search_source == Configuration.Settings.SearchSource.LOCAL)
+        search_local_radio.setChecked(self._mutable_configuration.search_source == Configuration.Settings.SearchSource.LOCAL)
         search_source_options_layout.addWidget(search_local_radio)
+        
+        # Custom Directory Search
+        custom_directory_search_source_row_layout = QVBoxLayout()
+        custom_directory_search_source_row_widget = QGroupBox()
+        custom_directory_search_source_row_widget.setLayout(custom_directory_search_source_row_layout)
+        vertical_layout.addWidget(custom_directory_search_source_row_widget)
+        
+        custom_directory_search_source_label = QLabel()
+        custom_directory_search_source_label.setText("Custom directory search source")
+        custom_directory_search_source_row_layout.addWidget(custom_directory_search_source_label)
+        
+        custom_directory_search_source_options_layout = QHBoxLayout()
+        custom_directory_search_source_options_widget = QWidget()
+        custom_directory_search_source_options_widget.setLayout(custom_directory_search_source_options_layout)
+        custom_directory_search_source_row_layout.addWidget(custom_directory_search_source_options_widget)
+        
+        custom_directory_search_source_button = QPushButton()
+        custom_directory_search_source_button.setText("Edit")
+        custom_directory_search_source_button.clicked.connect(self._edit_custom_dir_path)
+        custom_directory_search_source_options_layout.addWidget(custom_directory_search_source_button)
+        
+        self._custom_directory_search_source_value_label = QLabel()
+        custom_directory_search_source_options_layout.addWidget(self._custom_directory_search_source_value_label, 2)
         
         # Production Image Resizing
         resize_prod_image_row_layout = QHBoxLayout()
@@ -77,7 +105,7 @@ class SettingsViewController(QWidget):
         enable_resize_prod_image_row_layout.addWidget(enable_resize_prod_image_label)
         
         enable_resize_prod_image_row_checkbox = QCheckBox()
-        enable_resize_prod_image_row_checkbox.setChecked(self.mutable_configuration.resize_prod_images)
+        enable_resize_prod_image_row_checkbox.setChecked(self._mutable_configuration.resize_prod_images)
         enable_resize_prod_image_row_checkbox.stateChanged.connect(self.enable_resize_prod_image)
         enable_resize_prod_image_row_layout.addWidget(enable_resize_prod_image_row_checkbox)
         
@@ -94,7 +122,7 @@ class SettingsViewController(QWidget):
         max_resize_prod_image_size_input = QLineEdit()
         max_resize_prod_image_size_input.setPlaceholderText("greater than or equal to 256")
         max_resize_prod_image_size_input.setValidator(QIntValidator(256, 2000, max_resize_prod_image_size_input))
-        max_resize_prod_image_size_input.setText(str(self.mutable_configuration.resize_prod_images_max_size))
+        max_resize_prod_image_size_input.setText(str(self._mutable_configuration.resize_prod_images_max_size))
         max_resize_prod_image_size_input.textChanged.connect(self.max_resize_prod_image_size_updated)
         max_resize_prod_image_size_row_layout.addWidget(max_resize_prod_image_size_input)
         
@@ -113,26 +141,47 @@ class SettingsViewController(QWidget):
         save_and_close.setText("Save && Close")
         save_and_close.clicked.connect(self.save_and_close)
         buttons_layout.addWidget(save_and_close)
-        
+
+        self._sync_ui()
+
+    @property
+    def _configuration(self) -> Configuration:
+        return self._configuration_manager.configuration
+
+    def _sync_ui(self):
+        path_text = "Path not set"
+        if self._configuration_manager.configuration.custom_directory_search_path is not None:
+            path_text = self._configuration_manager.configuration.custom_directory_search_path
+        self._custom_directory_search_source_value_label.setText(path_text)
+
+    def _edit_custom_dir_path(self):
+        directory = QFileDialog.getExistingDirectory(self, 
+                                                     "Select Directory", 
+                                                     self._configuration_manager.configuration.picture_dir_path)
+        if directory:
+            print(f"Selected directory: {directory}")
+            self._mutable_configuration.set_custom_directory_search_path(directory)
+            self._custom_directory_search_source_value_label.setText(self._mutable_configuration.custom_directory_search_path)
+    
     def search_ffg_toggled(self):
-        self.mutable_configuration.set_search_source(Configuration.Settings.SearchSource.STARWARSUNLIMITED_FFG)
+        self._mutable_configuration.set_search_source(Configuration.Settings.SearchSource.STARWARSUNLIMITED_FFG)
         
     def search_swudbapi_toggled(self):
-        self.mutable_configuration.set_search_source(Configuration.Settings.SearchSource.SWUDBAPI)
+        self._mutable_configuration.set_search_source(Configuration.Settings.SearchSource.SWUDBAPI)
         
     def search_local_toggled(self):
-        self.mutable_configuration.set_search_source(Configuration.Settings.SearchSource.LOCAL)
+        self._mutable_configuration.set_search_source(Configuration.Settings.SearchSource.LOCAL)
 
     def enable_resize_prod_image(self, state: Qt.CheckState):
         if state == Qt.CheckState.Checked:
-            self.mutable_configuration.set_resize_prod_images(True)
+            self._mutable_configuration.set_resize_prod_images(True)
         else:
-            self.mutable_configuration.set_resize_prod_images(False)
+            self._mutable_configuration.set_resize_prod_images(False)
             
     def max_resize_prod_image_size_updated(self, text: str):
         # TODO: guard against invalid value
         try:
-            self.mutable_configuration.set_resize_prod_images_max_size(int(text))
+            self._mutable_configuration.set_resize_prod_images_max_size(int(text))
         except:
             pass
 
@@ -142,4 +191,9 @@ class SettingsViewController(QWidget):
         self.close()
     
     def save_settings(self):
-        self.configuration_manager.save_configuration(self.mutable_configuration)
+        self._configuration_manager.save_configuration(self._mutable_configuration)
+        
+    def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
+        # if type(event) == ConfigurationUpdatedEvent:
+        #     self._sync_ui()
+        pass

@@ -28,6 +28,6 @@ class SWUDBAPIRemoteClient(APIClientProtocol):
                search_configuration: SearchConfiguration,
                pagination_configuration: Optional[PaginationConfiguration],
                callback: APIClientSearchCallback):
+        print(f'Remote search www.swu-db.com. card_name: {search_configuration.card_name}, search_configuration: {search_configuration}')
         swu_search_config = SWUCardSearchConfiguration.from_search_configuration(search_configuration)
-        
         self._networker.load(SearchRequest(swu_search_config), callback)

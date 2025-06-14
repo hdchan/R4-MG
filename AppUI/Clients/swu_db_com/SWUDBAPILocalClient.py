@@ -33,13 +33,13 @@ class SWUDBAPILocalClient(APIClientProtocol):
                search_configuration: SearchConfiguration,
                pagination_configuration: Optional[PaginationConfiguration],
                callback: APIClientSearchCallback):
+        print(f'Local search www.swu-db.com. card_name: {search_configuration.card_name}, search_configuration: {search_configuration}')
         def completed_search(result: APIClientSearchResult):
             callback(result)
         self.local_networker.load(self._perform_search, completed_search, search_configuration=search_configuration)
     
     def _perform_search(self, args: Any) -> APIClientSearchResult:
         search_configuration: SearchConfiguration = args.get('search_configuration')
-        print(f'Mock search. card_name: {search_configuration.card_name}, search_configuration: {search_configuration}')
         swu_search_config = SWUCardSearchConfiguration.from_search_configuration(search_configuration)
         def filter_the_result(card: TradingCard):
             return (swu_search_config.card_name.lower() in card.name.lower() and 

@@ -209,8 +209,9 @@ class CardSearchDataSource:
 
     def search(self, search_configuration: SearchConfiguration):
         initial_event = SearchEvent(SearchEvent.EventType.STARTED,
+                                    SearchEvent.SourceType.REMOTE,
                                     copy.deepcopy(search_configuration))
-        self._observation_tower.notify(initial_event) # TODO: need way to identify which data source is making call
+        self._observation_tower.notify(initial_event)
 
         def completed_with_search_result(result: APIClientSearchResult):
             response, error = result
@@ -248,6 +249,7 @@ class CardSearchDataSource:
                                                                   error=error, 
                                                                   is_initial_load=True)
             finished_event = SearchEvent(SearchEvent.EventType.FINISHED,
+                                         SearchEvent.SourceType.REMOTE,
                                          copy.deepcopy(search_configuration))
             finished_event.predecessor = initial_event
             self._observation_tower.notify(finished_event)

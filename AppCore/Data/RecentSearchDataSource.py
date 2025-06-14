@@ -39,6 +39,9 @@ class RecentSearchDataSource(TransmissionReceiverProtocol):
 
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
         if type(event) == SearchEvent and event.event_type == SearchEvent.EventType.FINISHED:
+            if event.source_type is not SearchEvent.SourceType.REMOTE:
+                # don't record local searches for now
+                return
             self._search_history.insert(0, (event.search_configuration, event.date_time))
             self._save_data()
             

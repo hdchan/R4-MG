@@ -1,10 +1,11 @@
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QWidget
 
-from AppCore import *
+# from AppCore import *
 from AppCore.CoreDependencies import CoreDependencies
 from AppCore.Data.CardSearchDataSource import *
 from AppCore.Data.RecentSearchDataSource import *
+from AppCore.Data.RecentPublishedDataSource import *
 from AppCore.Image import *
 from AppCore.Network import *
 from AppUI.Coordinators import MenuActionCoordinator, ShortcutActionCoordinator

@@ -11,11 +11,11 @@ class ImageResourceProcessorProtocol:
     def regenerate_resource_preview(self, local_resource: LocalCardResource) -> None:
         raise Exception
     
-    def generate_preview_image(self, original_img: Image.Image) -> Image.Image:
-        return NotImplemented
-    
     def down_scale_image(self, original_img: Image.Image, max_size: float) -> Image.Image:
         return NotImplemented
+
+    def generate_placeholder(self, local_resource: LocalCardResource, placeholder_image: Image.Image) -> None:
+        raise Exception
     
 class ImageResourceProcessorProviding:
     @property
