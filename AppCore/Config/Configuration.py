@@ -12,7 +12,7 @@ from PyQt5.QtCore import QStandardPaths
 class Configuration:
     
     APP_NAME = 'R4-MG'
-    APP_VERSION = '0.17.0-alpha-1'
+    APP_VERSION = '0.17.0'
     SETTINGS_VERSION = '1.0'
     
     class Toggles:
@@ -23,8 +23,7 @@ class Configuration:
         class Keys:
             SEARCH_SOURCE = 'search_source'
 
-            CUSTOM_SEARCH_SOURCE_ENABLED = 'custom_search_source_enabled'
-            CUSTOM_SEARCH_SOURCE_PATH = 'custom_search_source_path'
+            CUSTOM_DIRECTORY_SEARCH_PATH = 'custom_directory_search_path'
 
             IMAGE_CACHE_LIFE_IN_DAYS = 'image_cache_life_in_days'
             SEARCH_HISTORY_CACHE_LIFE_IN_DAYS = 'search_history_cache_life_in_days' # TODO: deprecated
@@ -73,7 +72,7 @@ class Configuration:
             SWUDBAPI = 0
             LOCAL = 1
             STARWARSUNLIMITED_FFG = 2
-            DEFAULT = STARWARSUNLIMITED_FFG
+            DEFAULT = SWUDBAPI
             
         class DeploymentListSortCriteria(int, Enum):
             FILE_NAME = 0
@@ -95,8 +94,7 @@ class Configuration:
             Configuration.Keys.SETTINGS: {
                 Configuration.Settings.Keys.SEARCH_SOURCE: Configuration.Settings.SearchSource.DEFAULT.value,
                 
-                Configuration.Settings.Keys.CUSTOM_SEARCH_SOURCE_ENABLED: False,
-                Configuration.Settings.Keys.CUSTOM_SEARCH_SOURCE_PATH: None,
+                Configuration.Settings.Keys.CUSTOM_DIRECTORY_SEARCH_PATH: None,
 
                 Configuration.Settings.Keys.IMAGE_CACHE_LIFE_IN_DAYS: Configuration.Settings.ImageCacheLifeInDays.DEFAULT.value,
                 Configuration.Settings.Keys.SEARCH_HISTORY_CACHE_LIFE_IN_DAYS: Configuration.Settings.SearchHistoryCacheLifeInDays.DEFAULT.value,
@@ -187,11 +185,10 @@ class Configuration:
         return self.Settings.SearchSource(self._get_with_default_settings(self.Settings.Keys.SEARCH_SOURCE))
     
     @property 
-    def custom_search_source_path(self) -> Optional[str]:
-        if self._get_with_default_settings(self.Settings.Keys.CUSTOM_SEARCH_SOURCE_ENABLED):
-            value: Optional[str] = self._get_with_default_settings(self.Settings.Keys.CUSTOM_SEARCH_SOURCE_PATH)
-            if value is not None and not value.isspace():
-                return self._get_with_default_settings(self.Settings.Keys.CUSTOM_SEARCH_SOURCE_PATH)
+    def custom_directory_search_path(self) -> Optional[str]:
+        value: Optional[str] = self._get_with_default_settings(self.Settings.Keys.CUSTOM_DIRECTORY_SEARCH_PATH)
+        if value is not None and not value.isspace():
+            return f'{self._get_with_default_settings(self.Settings.Keys.CUSTOM_DIRECTORY_SEARCH_PATH)}/' # needs trailing slash
         
         return None
     
@@ -264,6 +261,10 @@ class Configuration:
             return 0
         
     # MARK: - file paths
+    @property
+    def picture_dir_path(self) -> str:
+        return self._picture_dir_path
+    
     @property
     def _picture_dir_path(self) -> str:
         # always points to picture dir
@@ -351,8 +352,8 @@ class MutableConfiguration(Configuration):
     def set_search_source(self, source: Configuration.Settings.SearchSource):
         self._settings[self.Settings.Keys.SEARCH_SOURCE] = source.value
 
-    def set_custom_search_source_path(self, value: Optional[str]):
-        self._settings[self.Settings.Keys.CUSTOM_SEARCH_SOURCE_PATH] = value
+    def set_custom_directory_search_path(self, value: Optional[str]):
+        self._settings[self.Settings.Keys.CUSTOM_DIRECTORY_SEARCH_PATH] = value
 
     def set_show_resource_details(self, value: bool):
         self._settings[self.Settings.Keys.SHOW_RESOURCE_DETAILS] = value

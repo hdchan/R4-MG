@@ -19,7 +19,8 @@ class LocalCardResource:
                  display_name: str,
                  display_name_short: str,
                  display_name_detailed: str,
-                 remote_image_url: Optional[str] = None):
+                 remote_image_url: Optional[str] = None, 
+                 can_generate_placeholder: bool = False):
         self.image_dir = image_dir
         self.image_preview_dir = image_preview_dir
         self.file_name = file_name
@@ -27,6 +28,7 @@ class LocalCardResource:
         self.display_name_short = display_name_short
         self.display_name_detailed = display_name_detailed
         self.remote_image_url = remote_image_url
+        self._can_generate_placeholder = can_generate_placeholder
         self.file_extension = PNG_EXTENSION
 
         assert(self.image_dir is not None)
@@ -99,6 +101,10 @@ class LocalCardResource:
     can recover
     '''
 
+    @property
+    def can_be_replaced_with_placeholder(self) -> bool:
+        return not self.is_ready and self._can_generate_placeholder
+    
     @property
     def is_ready(self) -> bool:
         return Path(self.image_path).is_file()

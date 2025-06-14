@@ -284,6 +284,8 @@ class SearchTableViewController(QWidget, TransmissionReceiverProtocol, CardSearc
         
     def handle_observation_tower_event(self, event: TransmissionProtocol):
         if type(event) == SearchEvent:
+            if event.source_type is not SearchEvent.SourceType.REMOTE:
+                return # dont'process local searches
             if event.event_type == SearchEvent.EventType.STARTED:
                 self._set_search_components_enabled(False)
                 self.card_name_search_bar.setText(event.search_configuration.card_name)

@@ -261,8 +261,10 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
             self.loading_spinner.stop()
             if self._local_resource.remote_image_url is not None:
                 self._image_view.setText(f'⛔ {self._local_resource.display_name} not found. <a href="{self.LinkKey.REDOWNLOAD_IMAGE}">Redownload</a>')
+            elif self._local_resource.can_be_replaced_with_placeholder:
+                self._image_view.setText(f'⛔ {self._local_resource.display_name} not found. <a href="{self.LinkKey.REGENERATE_PRODUCTION_FILE}">Generate placeholder</a>')
             else:
-                self._image_view.setText(f'⛔ {self._local_resource.display_name} not found. <a href="{self.LinkKey.REGENERATE_PRODUCTION_FILE}">Generate production file</a>')
+                self._image_view.setText(f'⛔ {self._local_resource.display_name} not found')
     
         
     def _dynamic_display_name(self, local_resource: LocalCardResource) -> str:
@@ -282,7 +284,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
                 self._image_resource_processor
                 self._image_resource_processor.regenerate_resource_preview(self._local_resource)
             elif link == self.LinkKey.REGENERATE_PRODUCTION_FILE:
-                self._image_resource_deployer.generate_new_file(self._local_resource.file_name, Image.open(self._asset_provider.image.swu_card_back))
+                self._image_resource_processor.generate_placeholder(self._local_resource, Image.open(self._asset_provider.image.swu_card_back))
                 self._sync_image_view_state()
     
     def _toggle_resource_details_visibility(self):

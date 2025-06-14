@@ -76,6 +76,7 @@ class MyWidget(QWidget):
             return (disc_w / 2) + (size / 2 * math.cos(t)), (disc_h / 2) + (size / 2 * math.sin(t))
 
         disc_multipliers = [.95, .90, .70, .50, .30]
+        # disc_multipliers = [.8, .5, .3]
         for m in disc_multipliers:
             circle_size = get_size(m)
             circle_origin_x, circle_origin_y = local_origin(circle_size)

@@ -18,7 +18,21 @@ from .ImageResourceProcessorProtocol import *
 
 PNG_EXTENSION = '.png'
 
-    
+class ProductionLocalCardResource(LocalCardResource):
+    def __init__(self, 
+                 image_dir: str,
+                 image_preview_dir: str,
+                 file_name: str,
+                 display_name: str,
+                 display_name_short: str,
+                 display_name_detailed: str):
+        super().__init__(image_dir=image_dir,
+                         image_preview_dir=image_preview_dir,
+                         file_name=file_name, display_name=display_name,
+                         display_name_short=display_name_short,
+                         display_name_detailed=display_name_detailed, 
+                         can_generate_placeholder=True)
+ 
 class ImageResourceDeployer:
     def __init__(self,
                  configuration_manager: ConfigurationManager, 
@@ -57,21 +71,18 @@ class ImageResourceDeployer:
         for production_file_name_with_ext in filelist[:]:
             path = Path(production_file_name_with_ext)
             if path.suffix == PNG_EXTENSION:
-                resource = LocalCardResource(image_dir=self._configuration.production_dir_path, 
-                                             image_preview_dir=self._configuration.production_preview_dir_path, 
-                                             file_name=path.stem,
-                                             display_name=path.stem + path.suffix,
-                                             display_name_short=path.stem + path.suffix,
-                                             display_name_detailed=path.stem + path.suffix)
+                resource = ProductionLocalCardResource(image_dir=self._configuration.production_dir_path,
+                                                       image_preview_dir=self._configuration.production_preview_dir_path, 
+                                                       file_name=path.stem,
+                                                       display_name=path.stem + path.suffix,
+                                                       display_name_short=path.stem + path.suffix,
+                                                       display_name_detailed=path.stem + path.suffix)
                 
                 staged_resource = DeploymentCardResource(resource)
                 deployment_resources.append(staged_resource)
 
-                if not Path(resource.image_preview_path).is_file():
-                    # regnerate preview file
-                    large_img = Image.open(resource.image_path)
-                    preview_img = self._image_resource_processor.generate_preview_image(large_img)
-                    preview_img.save(resource.image_preview_path)
+                if not resource.is_preview_ready:
+                    self._image_resource_processor.regenerate_resource_preview(resource)
 
         # Maintains any existing staged resources when loading, removes any deleted prod files, and appends new prod files
         latest_prod_resources = list(map(lambda x: x.production_resource, deployment_resources))
@@ -163,23 +174,14 @@ class ImageResourceDeployer:
             self._observation_tower.notify(failed_event)
             raise Exception("Failed to publish. Please redownload resources and retry.")
         
-    def generate_new_file(self, file_name: str, image: Optional[Image.Image] = None):
-        local_resource = LocalCardResource(image_dir=self._configuration.production_dir_path, 
-                                           image_preview_dir=self._configuration.production_preview_dir_path, 
-                                           file_name=file_name,
-                                           display_name=file_name,
-                                           display_name_short=file_name,
-                                           display_name_detailed=file_name)
-        
-        self._generate_directories_if_needed()
-        existing_file = Path(local_resource.image_path)
-        if existing_file.is_file():
-            raise Exception(f"File already exists: {local_resource.file_name_with_ext}")
-        img = image or Image.new("RGB", (1, 1))
-        img.save(local_resource.image_path, "PNG")
-        
-        preview_img = self._image_resource_processor.generate_preview_image(img)
-        preview_img.save(local_resource.image_preview_path, "PNG")
+    def generate_new_file(self, file_name: str, image: Image.Image):
+        local_resource = ProductionLocalCardResource(image_dir=self._configuration.production_dir_path,
+                                                     image_preview_dir=self._configuration.production_preview_dir_path,
+                                                     file_name=file_name,
+                                                     display_name=file_name,
+                                                     display_name_short=file_name,
+                                                     display_name_detailed=file_name)
+        self._image_resource_processor.generate_placeholder(local_resource, image)
 
     def _notify_publish_status_changed_if_needed(self):
         if self._can_publish_state != self.can_publish_staged_resources:

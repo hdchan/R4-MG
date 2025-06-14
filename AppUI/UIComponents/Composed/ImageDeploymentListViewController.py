@@ -147,6 +147,7 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
                 # failed to publish
                 # show error messages
                 self._router.show_error(error)
+                self._reload_production_resources_list()
 
     def set_production_button_enabled(self, enabled: bool):
         self.production_button.setEnabled(enabled)
@@ -176,7 +177,10 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
             type(event) == PublishStagedResourcesEvent):
             can_publish_staged_resources = self._image_resource_deployer.can_publish_staged_resources
             self.set_production_button_enabled(can_publish_staged_resources)
-
+        # if type(event) == PublishStagedResourcesEvent:
+        #     if (event.event_type == PublishStagedResourcesEvent.EventType.FINISHED or 
+        #         event.event_type == PublishStagedResourcesEvent.EventType.FAILED):
+        #         self._reload_production_resources_list()
         if type(event) == ProductionResourcesLoadEvent:
             if event.event_type == ProductionResourcesLoadEvent.EventType.STARTED:
                 self.loading_spinner.start()

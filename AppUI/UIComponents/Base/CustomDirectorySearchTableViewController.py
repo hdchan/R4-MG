@@ -13,13 +13,12 @@ from AppCore.Observation import *
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         LocalResourceFetchEvent, SearchEvent)
 from AppUI.AppDependencyProviding import AppDependencyProviding
-
 from AppUI.Observation.Events import KeyboardEvent
+
 from ..Base.ImagePreviewViewController import ImagePreviewViewController
 from .LoadingSpinner import LoadingSpinner
 
 
-# TODO: add pagination
 class CustomDirectorySearchTableViewController(QWidget, TransmissionReceiverProtocol, CustomDirectorySearchDataSourceDelegate):
     def __init__(self, 
                  app_dependency_provider: AppDependencyProviding,
@@ -27,6 +26,7 @@ class CustomDirectorySearchTableViewController(QWidget, TransmissionReceiverProt
         super().__init__()
         self._image_preview_view = image_preview_view
         self._observation_tower = app_dependency_provider.observation_tower
+        self._router = app_dependency_provider.router
         self._card_search_data_source = CustomDirectorySearchDataSource(app_dependency_provider)
         self._card_search_data_source.delegate = self
         
@@ -43,7 +43,7 @@ class CustomDirectorySearchTableViewController(QWidget, TransmissionReceiverProt
         layout.addWidget(query_widget)
         
         card_name_search_bar = QLineEdit(self)
-        card_name_search_bar.setPlaceholderText("Lookup by card name (Ctrl+L)")
+        card_name_search_bar.setPlaceholderText("Lookup by file name (Ctrl+L)")
         self.card_name_search_bar = card_name_search_bar
         query_layout.addWidget(card_name_search_bar, 1)
         
@@ -92,10 +92,7 @@ class CustomDirectorySearchTableViewController(QWidget, TransmissionReceiverProt
                                         error: Optional[Exception]):
         status = "🟢 OK"
         if error is not None:
-            if isinstance(error, HTTPError):
-                status = f"🔴 {error.code}"
-            else:
-                status = str(error)
+            status = f"🔴 {error}"
         self._load_list()
         self._load_source_labels(status_string=status)
 
@@ -150,6 +147,8 @@ class CustomDirectorySearchTableViewController(QWidget, TransmissionReceiverProt
         for i in trading_cards:
             self.result_list.addItem(i)
         
+        self.result_list.addItem('No more results')
+        
         self.set_item_active(selected_index)
         self._set_search_components_enabled(True)
             
@@ -170,24 +169,24 @@ class CustomDirectorySearchTableViewController(QWidget, TransmissionReceiverProt
     
     def _handle_link_activated(self, link: str):
         if link == "#open-directory":
-            self._card_search_data_source.open_directory_path()
+            try:
+                self._card_search_data_source.open_directory_path()
+            except Exception as error:
+                self._router.show_error(error)
     
     def _sync_search_button_text(self):
         self.search_button.setText("Search (Enter)")
         
     def handle_observation_tower_event(self, event: TransmissionProtocol):
-        # if type(event) == SearchEvent:
-        #     if event.event_type == SearchEvent.EventType.STARTED:
-        #         self._set_search_components_enabled(False)
-        #         self.card_name_search_bar.setText(event.search_configuration.card_name)
+        if type(event) == SearchEvent:
+            if event.event_type == SearchEvent.EventType.STARTED:
+                self._set_search_components_enabled(False)
 
-        #     elif event.event_type == SearchEvent.EventType.FINISHED:
-        #         self._set_search_components_enabled(True)
-        #         if self.result_list.count() > 0:
-        #             self.set_item_active(0)
+            elif event.event_type == SearchEvent.EventType.FINISHED:
+                self._set_search_components_enabled(True)
 
-        #     if event.seconds_since_predecessor is not None:
-        #         print(f"Search took :{event.seconds_since_predecessor}s")
+            if event.seconds_since_predecessor is not None:
+                print(f"Search took :{event.seconds_since_predecessor}s")
                     
         if type(event) == KeyboardEvent:
             self._sync_search_button_text()

@@ -1,15 +1,13 @@
 import copy
 import os
-from typing import Callable, List, Optional, Tuple, Any, Dict
-
-from PyQt5.QtCore import QStandardPaths
+from typing import Any, List, Optional, Tuple
 
 from AppCore.Config import Configuration
 from AppCore.CoreDependencyProviding import CoreDependencyProviding
 from AppCore.Models import LocalCardResource, SearchConfiguration
 from AppCore.Models.LocalCardResource import LocalCardResource
 from AppCore.Network import NetworkerLocal
-from AppCore.Observation.Events import LocalResourceSelectedEvent
+from AppCore.Observation.Events import LocalResourceSelectedEvent, SearchEvent
 
 PNG_EXTENSION = '.png'
 
@@ -28,8 +26,10 @@ class CustomDirectorySearchDataSource:
     
     class CardResourceProvider:
         def __init__(self,
-                     file_name_components: Tuple[str, str]):
+                     file_name_components: Tuple[str, str], 
+                     directory_path: str):
             self._file_name_components = file_name_components
+            self._directory_path = directory_path
         
         @property
         def file_name(self) -> str:
@@ -52,9 +52,9 @@ class CustomDirectorySearchDataSource:
                                     display_name_short=self.file_name,
                                     display_name_detailed=self.file_name)
         
-        @property
-        def _directory_path(self) -> str:
-            return f'{QStandardPaths.writableLocation(QStandardPaths.StandardLocation.PicturesLocation)}/R4-MG/custom/'
+        # @property
+        # def _directory_path(self) -> str:
+        #     return f'{QStandardPaths.writableLocation(QStandardPaths.StandardLocation.PicturesLocation)}/R4-MG/custom/'
         
         @property
         def _preview_dir_path(self) -> str:
@@ -91,15 +91,17 @@ class CustomDirectorySearchDataSource:
         return result_list
     
     @property
-    def source_display_name(self) -> str:
+    def source_display_name(self) -> Optional[str]:
         return self._directory_path
     
     @property
-    def _directory_path(self) -> str:
-        return f'{QStandardPaths.writableLocation(QStandardPaths.StandardLocation.PicturesLocation)}/R4-MG/custom/'
+    def _directory_path(self) -> Optional[str]:
+        # return f'{QStandardPaths.writableLocation(QStandardPaths.StandardLocation.PicturesLocation)}/R4-MG/custom/'
+        return self._configuration.custom_directory_search_path
     
     def open_directory_path(self):
-        self._platform_service_provider.platform_service.open_file(self._directory_path)
+        if self._directory_path is not None:
+            self._platform_service_provider.platform_service.open_file(self._directory_path)
     
     def select_card_resource_for_card_selection(self, index: int):
         if index < len(self._trading_card_providers):
@@ -116,42 +118,54 @@ class CustomDirectorySearchDataSource:
             self.delegate.ds_did_retrieve_card_resource_for_card_selection(self, copy.deepcopy(selected_resource))
     
     def search(self, search_configuration: SearchConfiguration):
+        if self._directory_path is None:
+            print("Directory not set")
+            return
+        dir_path = self._directory_path
+        print(f'Custom directory search. card_name: {search_configuration.card_name}, search_configuration: {search_configuration}')
+        initial_event = SearchEvent(SearchEvent.EventType.STARTED,
+                                    SearchEvent.SourceType.LOCAL,
+                                    copy.deepcopy(search_configuration))
+        self._observation_tower.notify(initial_event)
+        
         def callback(result: Tuple[List[Tuple[str, str]], Optional[Exception]]):
             def create_trading_card_resource(file_name_components: Tuple[str, str]):
-                    return self.CardResourceProvider(file_name_components)
-            result_list = result[0]
+                    return self.CardResourceProvider(file_name_components, dir_path)
+            result_list, error = result
             self._trading_card_providers = list(map(create_trading_card_resource, result_list))
             if self.delegate is not None:
-                self.delegate.ds_completed_search_with_result(self, None)
+                self.delegate.ds_completed_search_with_result(self, error)
+                
+            finished_event = SearchEvent(SearchEvent.EventType.FINISHED,
+                                         SearchEvent.SourceType.LOCAL,
+                                         copy.deepcopy(search_configuration))
+            finished_event.predecessor = initial_event
+            self._observation_tower.notify(finished_event)
+            
         self._local_networker.load(self._perform_search, callback, search_configuration=search_configuration)
     
     # MARK: - async work
     def _perform_search(self, args: Any) -> Tuple[List[Tuple[str, str]], Optional[Exception]]:
         search_configuration: SearchConfiguration = args.get('search_configuration')
-        print(f'Custom search. card_name: {search_configuration.card_name}, search_configuration: {search_configuration}')
         def filter_the_result(card: Tuple[str, str]):
             if search_configuration.card_name.replace(" ", "") == '':
                 return True
             return (search_configuration.card_name.lower() in card[0].lower())
         def sort_the_result(card: Tuple[str, str]):
             return card[0]
-        filtered_list = list(filter(filter_the_result, self._response_card_list))
-        filtered_list.sort(key=sort_the_result)
-        return (filtered_list, None)
         
-    @property
-    def _response_card_list(self) -> List[Tuple[str, str]]:
-        result: List[Tuple[str, str]] = []
-        for file_name_with_ext in self.list_files_in_directory():
-            file_name_components = os.path.splitext(file_name_with_ext)
-            if file_name_components[1] == PNG_EXTENSION:
-                result.append(file_name_components)
-        return result
-    
-    def list_files_in_directory(self) -> List[str]:
+        if self._directory_path is None:
+            return [], None
         try:
             files = [f for f in os.listdir(self._directory_path) if os.path.isfile(os.path.join(self._directory_path, f))]
-            return files
-        except FileNotFoundError:
-            return []
-        
+            result: List[Tuple[str, str]] = []
+            for file_name_with_ext in files:
+                file_name_components = os.path.splitext(file_name_with_ext)
+                if file_name_components[1] == PNG_EXTENSION:
+                    result.append(file_name_components)
+            
+            filtered_list = list(filter(filter_the_result, result))
+            filtered_list.sort(key=sort_the_result)
+            return (filtered_list, None)
+        except Exception as error:
+            return [], error 

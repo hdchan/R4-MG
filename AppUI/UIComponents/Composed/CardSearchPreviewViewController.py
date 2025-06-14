@@ -73,7 +73,7 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
         if index == CardSearchPreviewViewController.TabKeys.CARD_SEARCH:
             self._search_table_view.set_active()
         elif index == CardSearchPreviewViewController.TabKeys.CUSTOM_DIR_SEARCH:
-            pass
+            self._custom_dir_search_table_view.set_active()
         elif index == CardSearchPreviewViewController.TabKeys.PUBLISH_HISTORY:
             self._publish_history_list.set_active()
         elif index == CardSearchPreviewViewController.TabKeys.SEARCH_HISTORY:
@@ -81,7 +81,7 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
 
     def handle_observation_tower_event(self, event: TransmissionProtocol):
         if type(event) == SearchEvent:
-            if event.event_type == SearchEvent.EventType.STARTED:
+            if event.event_type == SearchEvent.EventType.STARTED and event.source_type == SearchEvent.SourceType.REMOTE:
                 self._tab_widget.setCurrentIndex(CardSearchPreviewViewController.TabKeys.CARD_SEARCH)
         if type(event) == ConfigurationUpdatedEvent:
             if self._tab_widget.currentIndex() == CardSearchPreviewViewController.TabKeys.CARD_SEARCH:

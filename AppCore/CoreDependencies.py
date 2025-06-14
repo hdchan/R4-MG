@@ -4,8 +4,9 @@ from AppCore import *
 from AppCore.Config import ConfigurationManager
 from AppCore.Data.CardSearchDataSource import *
 from AppCore.Data.RecentPublishedDataSource import *
-from AppCore.Image import *
-from AppCore.ImageNetwork import ImageFetcherLocal, ImageFetcherRemote
+from AppCore.Image import ImageResourceProcessor, ImageResourceDeployer
+from AppCore.ImageNetwork import (ImageFetcherLocal, ImageFetcherProvider,
+                                  ImageFetcherRemote)
 from AppCore.Network import *
 from AppCore.Observation.Events import ApplicationEvent
 from AppCore.Observation.ObservationTower import ObservationTower
@@ -27,8 +28,7 @@ class CoreDependencies(CoreDependencyProviding):
             image_fetcher_provider = ImageFetcherProvider(self._configuration_manager,
                                                           ImageFetcherRemote(self._configuration_manager),
                                                           ImageFetcherLocal(self._configuration_manager))
-            self._image_resource_processor_provider = ImageResourceProcessorProvider(ImageResourceProcessor(image_fetcher_provider,
-                                                                                                      self.observation_tower))
+            self._image_resource_processor_provider = ImageResourceProcessor(image_fetcher_provider, self.observation_tower)
             self._image_resource_deployer = ImageResourceDeployer(self._configuration_manager,
                                                                   self._observation_tower, 
                                                                   self._image_resource_processor_provider)

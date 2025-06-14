@@ -10,7 +10,8 @@ from AppCore.Models import LocalCardResource
 from AppCore.Observation import ObservationTower
 from AppCore.Observation.Events import LocalResourceFetchEvent
 
-from .ImageResourceProcessorProtocol import ImageResourceProcessorProtocol
+from .ImageResourceProcessorProtocol import (ImageResourceProcessorProtocol,
+                                             ImageResourceProcessorProviding)
 
 THUMBNAIL_SIZE = 256
 ROUNDED_CORNERS = 30
@@ -21,7 +22,7 @@ ROUNDED_CORDERS_MULTIPLIER_RELATIVE_TO_HEIGHT = ROUNDED_CORNERS / NORMAL_CARD_HE
 ImageDownscaleCallback = Callable[[Image.Image], Image.Image]
 ImageAddCornersCallback = Callable[[Image.Image, int], Image.Image]
 
-class ImageResourceProcessor(ImageResourceProcessorProtocol):
+class ImageResourceProcessor(ImageResourceProcessorProtocol, ImageResourceProcessorProviding):
     def __init__(self,
                  image_fetcher_provider: ImageFetcherProviding,
                  observation_tower: ObservationTower):
@@ -30,6 +31,10 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol):
         self.pool = QThreadPool()
         self.mutex = QMutex()
         self.working_resources: Set[str] = set()
+
+    @property
+    def image_resource_processor(self) -> 'ImageResourceProcessor':
+        return self
 
     def async_store_local_resource(self, local_resource: LocalCardResource, retry: bool = False):
         # TODO: implement stale cache
@@ -56,7 +61,7 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol):
         if self._lock_resource_and_notify(local_resource):
             worker = StoreImageWorker(local_resource,
                                       self.image_fetcher_provider,
-                                      self.generate_preview_image,
+                                      self._generate_preview_image,
                                       self._add_corners)
             worker.signals.finished.connect(self._unlock_resource_and_notify)
             self.pool.start(worker)
@@ -70,7 +75,7 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol):
     def regenerate_resource_preview(self, local_resource: LocalCardResource):
         if self._lock_resource_and_notify(local_resource):
             # should lock UI incase another job is added
-            worker = RegenerateImageWorker(local_resource, self.generate_preview_image)
+            worker = RegenerateImageWorker(local_resource, self._generate_preview_image)
             worker.signals.finished.connect(self._unlock_resource_and_notify)
             self.pool.start(worker)
 
@@ -99,7 +104,7 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol):
         else:
             self.observation_tower.notify(LocalResourceFetchEvent(LocalResourceFetchEvent.EventType.FINISHED, local_resource))
 
-    def generate_preview_image(self, original_img: Image.Image) -> Image.Image:
+    def _generate_preview_image(self, original_img: Image.Image) -> Image.Image:
         return self.down_scale_image(original_img, THUMBNAIL_SIZE)
     
     def down_scale_image(self, original_img: Image.Image, max_size: float) -> Image.Image:
@@ -111,6 +116,19 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol):
             downscaled_size = THUMBNAIL_SIZE
         preview_img.thumbnail((downscaled_size, downscaled_size), Image.Resampling.BICUBIC)
         return preview_img
+    
+    def generate_placeholder(self, local_resource: LocalCardResource, placeholder_image: Image.Image): 
+        existing_file = Path(local_resource.image_path)
+        if existing_file.is_file():
+            raise Exception(f"File already exists: {local_resource.file_name_with_ext}")
+        
+        Path(local_resource.image_dir).mkdir(parents=True, exist_ok=True)
+        img = placeholder_image or Image.new("RGB", (1, 1))
+        img.save(local_resource.image_path, "PNG")
+        
+        Path(local_resource.image_preview_dir).mkdir(parents=True, exist_ok=True)
+        preview_img = self._generate_preview_image(img)
+        preview_img.save(local_resource.image_preview_path, "PNG")
     
     def _add_corners(self, im: Image.Image, rad: int) -> Image.Image:
         circle = Image.new('L', (rad * 2, rad * 2), 0)
