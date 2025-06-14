@@ -116,17 +116,17 @@ class CustomDirectorySearchDataSource:
             self.delegate.ds_did_retrieve_card_resource_for_card_selection(self, copy.deepcopy(selected_resource))
     
     def search(self, search_configuration: SearchConfiguration):
-        def callback(result: List[Tuple[str, str]]):
+        def callback(result: Tuple[List[Tuple[str, str]], Optional[Exception]]):
             def create_trading_card_resource(file_name_components: Tuple[str, str]):
                     return self.CardResourceProvider(file_name_components)
-            self._trading_card_providers = list(map(create_trading_card_resource, result))
+            result_list = result[0]
+            self._trading_card_providers = list(map(create_trading_card_resource, result_list))
             if self.delegate is not None:
                 self.delegate.ds_completed_search_with_result(self, None)
         self._local_networker.load(self._perform_search, callback, search_configuration=search_configuration)
     
     # MARK: - async work
-    def _perform_search(self, args: Any) -> List[Tuple[str, str]]:
-        # search_configuration: SearchConfiguration
+    def _perform_search(self, args: Any) -> Tuple[List[Tuple[str, str]], Optional[Exception]]:
         search_configuration: SearchConfiguration = args.get('search_configuration')
         print(f'Custom search. card_name: {search_configuration.card_name}, search_configuration: {search_configuration}')
         def filter_the_result(card: Tuple[str, str]):
@@ -137,13 +137,12 @@ class CustomDirectorySearchDataSource:
             return card[0]
         filtered_list = list(filter(filter_the_result, self._response_card_list))
         filtered_list.sort(key=sort_the_result)
-        return filtered_list
+        return (filtered_list, None)
         
     @property
     def _response_card_list(self) -> List[Tuple[str, str]]:
         result: List[Tuple[str, str]] = []
         for file_name_with_ext in self.list_files_in_directory():
-            # TODO: guard against non PNG files
             file_name_components = os.path.splitext(file_name_with_ext)
             if file_name_components[1] == PNG_EXTENSION:
                 result.append(file_name_components)

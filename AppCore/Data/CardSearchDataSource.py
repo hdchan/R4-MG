@@ -199,12 +199,7 @@ class CardSearchDataSource:
     @property
     def _trading_cards(self) -> List[TradingCard]:
         return list(map(lambda x: x.trading_card, self._trading_card_providers))
-
-    # @property
-    # def selected_local_resource(self) -> Optional[LocalCardResource]:
-    #     if self._selected_resource is not None:
-    #         return self._selected_resource
-    #     return None
+    
     
     @property
     def current_card_search_resource(self) -> Optional[LocalCardResource]:
