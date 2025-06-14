@@ -4,7 +4,8 @@ from typing import Any, Dict, List, Optional
 
 from AppCore.Data.APIClientProtocol import (APIClientProtocol,
                                             APIClientSearchCallback,
-                                            APIClientSearchResponse)
+                                            APIClientSearchResponse,
+                                            APIClientSearchResult)
 from AppCore.Models import (CardType, PaginationConfiguration,
                             SearchConfiguration, TradingCard)
 from AppCore.Network import NetworkerLocal
@@ -32,12 +33,13 @@ class SWUDBAPILocalClient(APIClientProtocol):
                search_configuration: SearchConfiguration,
                pagination_configuration: Optional[PaginationConfiguration],
                callback: APIClientSearchCallback):
-        def completed_search():
-            self._perform_search(search_configuration, callback)
-        print(f'Mock search. card_name: {search_configuration.card_name}, search_configuration: {search_configuration}')
-        self.local_networker.load_mock(completed_search) # TODO: needs to perform retrieval in thread
+        def completed_search(result: APIClientSearchResult):
+            callback(result)
+        self.local_networker.load(self._perform_search, completed_search, search_configuration=search_configuration)
     
-    def _perform_search(self, search_configuration: SearchConfiguration, callback: APIClientSearchCallback):
+    def _perform_search(self, args: Any) -> APIClientSearchResult:
+        search_configuration: SearchConfiguration = args.get('search_configuration')
+        print(f'Mock search. card_name: {search_configuration.card_name}, search_configuration: {search_configuration}')
         swu_search_config = SWUCardSearchConfiguration.from_search_configuration(search_configuration)
         def filter_the_result(card: TradingCard):
             return (swu_search_config.card_name.lower() in card.name.lower() and 
@@ -47,7 +49,7 @@ class SWUDBAPILocalClient(APIClientProtocol):
         filtered_list = list(filter(filter_the_result, self._response_card_list))
         filtered_list.sort(key=sort_the_result)
         result = APIClientSearchResponse(filtered_list)
-        callback((result, None))
+        return (result, None)
         
     @property
     def _response_card_list(self) -> List[TradingCard]:
