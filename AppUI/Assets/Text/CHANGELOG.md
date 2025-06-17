@@ -2,9 +2,13 @@
 
 ### 0.17.0
 #### Feature updates
-- Adds custom directory search
+- Adds custom directory search with working previews
+- Adds Death Star plans disc spinner
 #### Engineering updates
--
+- Graceful handling of folder related exceptions
+- Updates local api client to use update local async logic
+- Implement async local file retrieval
+- Removes CardResourceProvider and ImageSource
 
 ### 0.16.0
 #### Feature updates
