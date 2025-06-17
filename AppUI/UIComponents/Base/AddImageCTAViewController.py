@@ -5,13 +5,20 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtMultimedia import QSoundEffect
 from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QMenu, QPushButton,
                              QVBoxLayout, QWidget)
-
+from AppCore.Observation.Events import SearchEvent
+from AppCore.Observation import *
 from AppUI.AppDependencyProviding import AppDependencyProviding
 
-class AddImageCTAViewController(QWidget):
+from .LoadingSpinnerDisc import LoadingSpinnerDisc
+
+
+class AddImageCTAViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
                  app_dependencies_provider: AppDependencyProviding):
         super().__init__()
+        
+        self._observation_tower = app_dependencies_provider.observation_tower
+        self._observation_tower.subscribe(self, SearchEvent)
         
         self.setFixedHeight(150)
         self._asset_provider = app_dependencies_provider.asset_provider
@@ -45,7 +52,8 @@ class AddImageCTAViewController(QWidget):
         r4_image.customContextMenuRequested.connect(self._showContextMenu)
         layout.addWidget(r4_image)
         
-        layout.addWidget(QWidget())
+        self._loading_spinner = LoadingSpinnerDisc()
+        layout.addWidget(self._loading_spinner)
         
         cta_container_layout = QVBoxLayout()
         cta_container_widget = QWidget()
@@ -99,3 +107,11 @@ class AddImageCTAViewController(QWidget):
         self.sound_effect.setSource(QUrl.fromLocalFile(self._asset_provider.audio.r4_effect_path))
         print(f'playing sound effect: {self._asset_provider.audio.r4_effect_path}')
         self.sound_effect.play()
+        
+        
+    def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
+        if type(event) == SearchEvent:
+            if event.event_type == SearchEvent.EventType.STARTED:
+                self._loading_spinner.start()
+            else:
+                self._loading_spinner.stop()
