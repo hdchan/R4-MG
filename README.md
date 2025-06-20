@@ -30,15 +30,7 @@ We can source image files on our stream from the `production` folder, and they'l
 ![OBS](./resources/obs.png)
 
 
-## Planned functionality
-- [ ] Player group macro
-- [ ] Macro for last played card
-- [ ] Advanced filtered search
-- [x] Recently published cards
-- [x] Recent searches
-
 ## Attributions
 
 - [SWU-DB.com](https://www.swu-db.com/api)
-- [SWUDB.com](https://swudb.com/)
 - [PyQt5](https://www.riverbankcomputing.com/static/Docs/PyQt5/)

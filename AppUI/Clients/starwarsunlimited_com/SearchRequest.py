@@ -2,17 +2,17 @@ import json
 from typing import Any, Dict, List, Optional
 from urllib.request import Request
 
-from AppCore.Data import APIClientSearchResponse
+from AppCore.DataSource import DataSourceCardSearchClientSearchResponse
 from AppCore.Models import PaginationConfiguration, TradingCard
 from AppCore.Models.CardType import CardType
-from AppCore.Network import NetworkRequestProtocol
+from AppCore.DataFetcher import DataFetcherRemoteRequestProtocol
 from AppUI.Assets import AssetProvider
 
 from ..SWUCardSearchConfiguration import SWUCardSearchConfiguration
 from .StarWarsUnlimitedTradingCard import StarWarsUnlimitedTradingCard
 
 
-class SearchRequest(NetworkRequestProtocol[APIClientSearchResponse]):
+class SearchRequest(DataFetcherRemoteRequestProtocol[DataSourceCardSearchClientSearchResponse]):
     API_ENDPOINT = "https://admin.starwarsunlimited.com/api/card-list"
     
     def __init__(self, 
@@ -57,14 +57,14 @@ class SearchRequest(NetworkRequestProtocol[APIClientSearchResponse]):
         return request
         # return Request('https://admin.starwarsunlimited.com/api/card-list?locale=en&orderBy[title][id]=asc&filters[$and][0][variantOf][id][$null]=true&filters[$and][1][$or][0][type][id][$in][0]=4&filters[$and][1][$or][1][type2][id][$in][0]=4&filters[$and][2][$or][0][title][$containsi]=luke&pagination[page]=1&pagination[pageSize]=100')
     
-    def response(self, json: Dict[str, Any]) -> APIClientSearchResponse:
+    def response(self, json: Dict[str, Any]) -> DataSourceCardSearchClientSearchResponse:
         data = json['data']
         result: List[TradingCard] = []
         for card in data:
             trading_card = StarWarsUnlimitedTradingCard.from_swudb_response(card)
             result.append(trading_card)
         pagination_meta = json['meta']['pagination']
-        return APIClientSearchResponse(result,
+        return DataSourceCardSearchClientSearchResponse(result,
                                        page=pagination_meta['page'],
                                        page_count=pagination_meta['pageCount'])
     

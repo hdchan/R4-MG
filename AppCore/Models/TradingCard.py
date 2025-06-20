@@ -1,5 +1,5 @@
-from typing import Any, Dict
-from typing import Optional
+from typing import Any, Dict, Optional
+
 
 # Should only be subclassed
 class TradingCard:

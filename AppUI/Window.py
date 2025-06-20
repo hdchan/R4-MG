@@ -1,21 +1,21 @@
 
 from typing import Optional
 
-from PyQt5.QtGui import QCloseEvent, QKeyEvent, QResizeEvent
-from PyQt5.QtWidgets import QDesktopWidget, QMainWindow, QApplication
-
-from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
-                                        TransmissionProtocol)
-from AppCore.Observation.TransmissionReceiverProtocol import \
-    TransmissionReceiverProtocol
-
-from .AppDependencyProviding import AppDependencyProviding
-from .Observation.Events import KeyboardEvent
 from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import QCloseEvent, QKeyEvent, QResizeEvent
+from PyQt5.QtWidgets import QApplication, QDesktopWidget, QMainWindow
+
+from AppCore.Observation.Events import ConfigurationUpdatedEvent
+from AppCore.Observation.TransmissionReceiverProtocol import (
+    TransmissionProtocol, TransmissionReceiverProtocol)
+
+from .AppDependenciesProviding import AppDependenciesProviding
+from .Observation.Events import KeyboardEvent
+
 
 class Window(QMainWindow, TransmissionReceiverProtocol):
     def __init__(self,
-                 app_dependencies: AppDependencyProviding):
+                 app_dependencies: AppDependenciesProviding):
         """Initializer."""
         super().__init__()
         self.configuration_manager = app_dependencies.configuration_manager

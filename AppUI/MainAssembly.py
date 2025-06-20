@@ -1,80 +1,34 @@
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QWidget
 
-# from AppCore import *
-from AppCore.CoreDependencies import CoreDependencies
-from AppCore.Data.CardSearchDataSource import *
-from AppCore.Data.RecentSearchDataSource import *
-from AppCore.Data.RecentPublishedDataSource import *
-from AppCore.Image import *
-from AppCore.Network import *
-from AppUI.Coordinators import MenuActionCoordinator, ShortcutActionCoordinator
+from AppCore.Config import Configuration
+from AppCore.DataSource.DataSourceRecentPublished import \
+    DataSourceRecentPublished
+from AppCore.DataSource.DataSourceRecentSearch import DataSourceRecentSearch
+from AppCore.Models import LocalAssetResource
 from AppUI.MainProgramViewController import MainProgramViewController
 from AppUI.UIComponents import (CardSearchPreviewViewController,
                                 ImageDeploymentListViewController,
                                 ImagePreviewLocalResourceDataSourceDecorator)
 from AppUI.Window import Window
 
-from .AppDependencyProviding import *
-from .Assets import AssetProvider
-from .Clients.ClientProvider import ClientProvider
+from .AppDependenciesProvider import AppDependenciesProvider
 from .ComponentProvider import ComponentProviding
-from .Coordinators import MenuActionCoordinator, ShortcutActionCoordinator
-from .Router import Router
 from .UIComponents.Base.AboutViewController import AboutViewController
+from .UIComponents.Base.ManageSetListViewController import \
+    ManageSetListViewController
 from .UIComponents.Base.SettingsViewController import SettingsViewController
 from .UIComponents.Base.ShortcutsViewController import ShortcutsViewController
-
+from .UIComponents.Composed.LocallyManagedSetPreviewViewController import LocallyManagedSetPreviewViewController
 # TODO: graphing algorithm to sort dependencies?
 
 class MainAssembly(ComponentProviding):
-    class AppDependencies(CoreDependencies, AppDependencyProviding):
-        def __init__(self, component_provider: ComponentProviding):
-            super().__init__()
-            self._asset_provider = AssetProvider()
-            
-            client_provider = ClientProvider(ClientProvider.Dependencies(
-                self._configuration_manager,
-                self._asset_provider,
-                NetworkerRemote(self._configuration_manager),
-                NetworkerLocal(self._configuration_manager)
-                ))
-            self._api_client_provider = client_provider
-            self._shortcut_action_coordinator = ShortcutActionCoordinator()
-            self._menu_action_coordinator = MenuActionCoordinator(self._configuration_manager, 
-                                                                  self._platform_service_provider)
-            self._router = Router(self._image_resource_deployer, 
-                                 self._asset_provider, 
-                                 self._menu_action_coordinator, 
-                                 component_provider, 
-                                 self._platform_service_provider)
-
-        @property
-        def router(self) -> Router:
-            return self._router
-
-        @property
-        def shortcut_action_coordinator(self) -> ShortcutActionCoordinator:
-            return self._shortcut_action_coordinator
-        
-        @property
-        def menu_action_coordinator(self) -> MenuActionCoordinator:
-            return self._menu_action_coordinator
-        
-        @property
-        def asset_provider(self) -> AssetProvider:
-            return self._asset_provider
-
-        @property
-        def api_client_provider(self) -> APIClientProviding:
-            return self._api_client_provider
     
-
     def __init__(self):
         self.app = QApplication([])
         # Ensure this is set before config manager writes out to settings file
         self.app.setApplicationName(Configuration.APP_NAME)
-        self._app_dependencies = self.AppDependencies(self)
+        self._app_dependencies = AppDependenciesProvider(self)
         self.app.setWindowIcon(QIcon(self._app_dependencies.asset_provider.image.logo_path))
         self._style_app()
 
@@ -99,15 +53,12 @@ class MainAssembly(ComponentProviding):
         self.app.setFont(custom_font)
 
     def _assemble_main_widget(self) -> QWidget:
-        recent_published_data_source = RecentPublishedDataSource(self._app_dependencies)
-        
-        recent_search_data_source = RecentSearchDataSource(self._app_dependencies)
+        recent_published_data_source = DataSourceRecentPublished(self._app_dependencies)
 
         image_preview_view = ImagePreviewLocalResourceDataSourceDecorator(self._app_dependencies)
         
         card_search_view = CardSearchPreviewViewController(self._app_dependencies, 
                                                            recent_published_data_source,
-                                                           recent_search_data_source,
                                                            image_preview_view)
         
         deployment_view = ImageDeploymentListViewController(self._app_dependencies,  
@@ -131,3 +82,10 @@ class MainAssembly(ComponentProviding):
     @property
     def shortcuts_view(self) -> QWidget:
         return ShortcutsViewController(self._app_dependencies)
+    
+    @property
+    def manage_deck_list_view(self) -> QWidget:
+        return ManageSetListViewController(self._app_dependencies)
+    
+    def locally_managed_deck_preview_view(self, resource: LocalAssetResource) -> QWidget:
+        return LocallyManagedSetPreviewViewController(self._app_dependencies, resource)

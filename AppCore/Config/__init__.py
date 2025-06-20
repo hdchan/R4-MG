@@ -1,2 +1,2 @@
-from .ConfigurationManager import *
-from .Configuration import *
+from .ConfigurationManager import ConfigurationManager
+from .Configuration import Configuration

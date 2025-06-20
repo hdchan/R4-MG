@@ -3,8 +3,8 @@ from typing import Any, Dict, List, Optional
 from urllib.request import Request
 
 from AppCore.Models import TradingCard
-from AppCore.Network import NetworkRequestProtocol
-from AppCore.Data import APIClientSearchResponse
+from AppCore.DataFetcher import DataFetcherRemoteRequestProtocol
+from AppCore.DataSource import DataSourceCardSearchClientSearchResponse
 
 from AppCore.Models.CardAspect import CardAspect
 from AppCore.Models.CardType import CardType
@@ -12,7 +12,7 @@ from ..SWUCardSearchConfiguration import SWUCardSearchConfiguration
 from .SWUTradingCard import SWUTradingCard
 
 # https://api.swu-db.com/cards/search?q=type:leader%20name:luke
-class SearchRequest(NetworkRequestProtocol[APIClientSearchResponse]):
+class SearchRequest(DataFetcherRemoteRequestProtocol[DataSourceCardSearchClientSearchResponse]):
         SWUDB_API_ENDPOINT = 'https://api.swu-db.com/cards/search'
         
         def __init__(self, 
@@ -46,12 +46,12 @@ class SearchRequest(NetworkRequestProtocol[APIClientSearchResponse]):
             print(url)
             return Request(url)
         
-        def response(self, json: Dict[str, Any]) -> APIClientSearchResponse:
+        def response(self, json: Dict[str, Any]) -> DataSourceCardSearchClientSearchResponse:
             result_list: List[TradingCard] = []
             for i in json['data']:
                 swu_card = SWUTradingCard.from_swudb_response(i)
                 result_list.append(swu_card)
-            return APIClientSearchResponse(result_list)
+            return DataSourceCardSearchClientSearchResponse(result_list)
         
         @staticmethod
         def _aspect_query_mapping() -> Dict['CardAspect', str]:

@@ -1,17 +1,17 @@
 from PyQt5.QtWidgets import QListWidget, QVBoxLayout, QWidget, QListWidgetItem
 
-from AppCore.Data.RecentPublishedDataSource import *
+from AppCore.DataSource.DataSourceRecentPublished import *
 from AppCore.Observation import *
-from AppCore.Observation.Events import PublishStagedResourcesEvent
-from AppUI.AppDependencyProviding import AppDependencyProviding
+from AppCore.Observation.Events import PublishStagedCardResourcesEvent
+from AppUI.AppDependenciesProviding import AppDependenciesProviding
 
 from ..Base.ImagePreviewViewController import ImagePreviewViewController
 
-
-class PublishHistoryTableViewController(QWidget, TransmissionReceiverProtocol, RecentPublishedDataSourceDelegate):
+# TODO: deprecate
+class PublishHistoryTableViewController(QWidget, TransmissionReceiverProtocol, DataSourceRecentPublishedDelegate):
     def __init__(self, 
-                 app_dependency_provider: AppDependencyProviding, 
-                 recent_published_data_source: RecentPublishedDataSource, 
+                 app_dependency_provider: AppDependenciesProviding, 
+                 recent_published_data_source: DataSourceRecentPublished, 
                  image_preview_view: ImagePreviewViewController):
         super().__init__()
         self._image_preview_view = image_preview_view
@@ -27,7 +27,7 @@ class PublishHistoryTableViewController(QWidget, TransmissionReceiverProtocol, R
         self._history_list.itemSelectionChanged.connect(self.get_selection)
         history_layout.addWidget(self._history_list)
         
-        self._observation_tower.subscribe_multi(self, [PublishStagedResourcesEvent])
+        self._observation_tower.subscribe_multi(self, [PublishStagedCardResourcesEvent])
     
         self._update_history_list()
 
@@ -54,5 +54,5 @@ class PublishHistoryTableViewController(QWidget, TransmissionReceiverProtocol, R
             self._history_list.addItem(item)
     
     def handle_observation_tower_event(self, event: TransmissionProtocol):
-        if type(event) == PublishStagedResourcesEvent:
+        if type(event) == PublishStagedCardResourcesEvent:
             self._update_history_list()

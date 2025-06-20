@@ -1,6 +1,9 @@
 from enum import Enum
 from typing import Dict
 
+
+# TODO: needs to be generalized
+
 class CardAspect(str, Enum):
     VIGILANCE = 'Vigilance'
     COMMAND = 'Command'

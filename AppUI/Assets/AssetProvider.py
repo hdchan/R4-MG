@@ -38,6 +38,10 @@ class AssetProvider:
         def sor_background(self) -> str:
             return self._image_path('large_spark_of_rebellion_starfield_c4fdfaa6a7.png')
         
+        @property
+        def set_identifier_example(self) -> str:
+            return self._image_path('set-identifier-example.png')
+        
         def _image_path(self, file_name: str) -> str:
             return os.path.join(appdir, f'Images/{file_name}')
         
@@ -102,6 +106,10 @@ class AssetProvider:
         @property
         def jtl_set_path(self):
             return self._data_path('jtl.json')
+        
+        @property
+        def lof_set_path(self):
+            return self._data_path('lof.json')
         
         @property
         def starwarsunlimited_com_filter_path(self):

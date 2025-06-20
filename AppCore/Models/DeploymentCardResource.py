@@ -1,7 +1,9 @@
 from typing import Optional
 
 from AppCore.Observation.ObservationTower import *
+
 from .LocalCardResource import *
+
 
 class DeploymentCardResource:
     def __init__(self, production_resource: LocalCardResource):

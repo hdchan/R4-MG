@@ -13,13 +13,15 @@ a = Analysis(
         ('AppUI\\Assets\\Data\\sor.json', 'AppUI\\Assets\\Data'),
         ('AppUI\\Assets\\Data\\twi.json', 'AppUI\\Assets\\Data'),
         ('AppUI\\Assets\\Data\\jtl.json', 'AppUI\\Assets\\Data'),
+        ('AppUI\\Assets\\Data\\lof.json', 'AppUI\\Assets\\Data'),
         ('AppUI\\Assets\\Data\\starwarsunlimited_com_filters.json', 'AppUI\\Assets\\Data'),
 
         ('AppUI\\Assets\\Images\\logo.png', 'AppUI\\Assets\\Images'),
         ('AppUI\\Assets\\Images\\SWH_Logo_Black_preview.png', 'AppUI\\Assets\\Images'),
         ('AppUI\\Assets\\Images\\cardback.png', 'AppUI\\Assets\\Images'),
         ('AppUI\\Assets\\Images\\r4-head.png', 'AppUI\\Assets\\Images'),
-        ('AppUI\\Assets\\Images\\large_spark_of_rebellion_starfield_c4fdfaa6a7.png', 'AppUI\\Assets\\Images')
+        ('AppUI\\Assets\\Images\\large_spark_of_rebellion_starfield_c4fdfaa6a7.png', 'AppUI\\Assets\\Images'),
+        ('AppUI\\Assets\\Images\\set-identifier-example.png', 'AppUI\\Assets\\Images')
     ],
     hiddenimports=[],
     hookspath=[],

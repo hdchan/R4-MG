@@ -5,20 +5,20 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtMultimedia import QSoundEffect
 from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QMenu, QPushButton,
                              QVBoxLayout, QWidget)
-from AppCore.Observation.Events import SearchEvent
+from AppCore.Observation.Events import CardSearchEvent
 from AppCore.Observation import *
-from AppUI.AppDependencyProviding import AppDependencyProviding
+from AppUI.AppDependenciesProviding import AppDependenciesProviding
 
 from .LoadingSpinnerDisc import LoadingSpinnerDisc
 
 
 class AddImageCTAViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
-                 app_dependencies_provider: AppDependencyProviding):
+                 app_dependencies_provider: AppDependenciesProviding):
         super().__init__()
         
         self._observation_tower = app_dependencies_provider.observation_tower
-        self._observation_tower.subscribe(self, SearchEvent)
+        self._observation_tower.subscribe(self, CardSearchEvent)
         
         self.setFixedHeight(150)
         self._asset_provider = app_dependencies_provider.asset_provider
@@ -110,8 +110,8 @@ class AddImageCTAViewController(QWidget, TransmissionReceiverProtocol):
         
         
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
-        if type(event) == SearchEvent:
-            if event.event_type == SearchEvent.EventType.STARTED:
+        if type(event) == CardSearchEvent:
+            if event.event_type == CardSearchEvent.EventType.STARTED:
                 self._loading_spinner.start()
             else:
                 self._loading_spinner.stop()
