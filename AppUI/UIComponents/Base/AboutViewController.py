@@ -3,12 +3,12 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtMultimedia import QSoundEffect
 from PyQt5.QtWidgets import QAction, QLabel, QMenu, QVBoxLayout, QWidget, QTextEdit
 
-from AppUI.AppDependencyProviding import AppDependencyProviding
+from AppUI.AppDependenciesProviding import AppDependenciesProviding
 
 
 class AboutViewController(QWidget):
     def __init__(self, 
-                 app_dependencies_provider: AppDependencyProviding):
+                 app_dependencies_provider: AppDependenciesProviding):
         super().__init__()
         self.setWindowTitle("About")
         self.configuration_manager = app_dependencies_provider.configuration_manager

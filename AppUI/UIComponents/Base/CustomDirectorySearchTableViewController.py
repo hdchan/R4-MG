@@ -1,18 +1,17 @@
 from typing import Optional
-from urllib.error import HTTPError
 
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QLineEdit, QListWidget,
                              QPushButton, QVBoxLayout, QWidget)
 
 from AppCore.Config import Configuration
-from AppCore.CustomDirectorySearch.CustomDirectorySearchDataSource import (
+from AppCore.DataSource.DataSourceCustomDirectorySearch import (
     CustomDirectorySearchDataSource, CustomDirectorySearchDataSourceDelegate)
-from AppCore.Data.CardSearchDataSource import *
+from AppCore.DataSource.DataSourceCardSearch import *
 from AppCore.Models import LocalCardResource, SearchConfiguration
 from AppCore.Observation import *
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
-                                        LocalResourceFetchEvent, SearchEvent)
-from AppUI.AppDependencyProviding import AppDependencyProviding
+                                        LocalCardResourceFetchEvent, CardSearchEvent)
+from AppUI.AppDependenciesProviding import AppDependenciesProviding
 from AppUI.Observation.Events import KeyboardEvent
 
 from ..Base.ImagePreviewViewController import ImagePreviewViewController
@@ -21,14 +20,13 @@ from .LoadingSpinner import LoadingSpinner
 
 class CustomDirectorySearchTableViewController(QWidget, TransmissionReceiverProtocol, CustomDirectorySearchDataSourceDelegate):
     def __init__(self, 
-                 app_dependency_provider: AppDependencyProviding,
+                 app_dependency_provider: AppDependenciesProviding,
                  image_preview_view: ImagePreviewViewController):
         super().__init__()
         self._image_preview_view = image_preview_view
         self._observation_tower = app_dependency_provider.observation_tower
         self._router = app_dependency_provider.router
-        self._card_search_data_source = CustomDirectorySearchDataSource(app_dependency_provider)
-        self._card_search_data_source.delegate = self
+        self._card_search_data_source = app_dependency_provider.new_instance_custom_directory_search_data_source(self)
         
         self._configuration_manager = app_dependency_provider.configuration_manager
 
@@ -72,10 +70,10 @@ class CustomDirectorySearchTableViewController(QWidget, TransmissionReceiverProt
         self._loading_spinner = LoadingSpinner(self)
         
         
-        app_dependency_provider.observation_tower.subscribe_multi(self, [SearchEvent,
+        app_dependency_provider.observation_tower.subscribe_multi(self, [CardSearchEvent,
                                                                          KeyboardEvent,
                                                                          ConfigurationUpdatedEvent, 
-                                                                         LocalResourceFetchEvent]) 
+                                                                         LocalCardResourceFetchEvent]) 
         
         app_dependency_provider.shortcut_action_coordinator.bind_focus_search(self._set_search_focus, self)
         app_dependency_provider.shortcut_action_coordinator.bind_reset_search(self._reset_search, self)
@@ -89,6 +87,7 @@ class CustomDirectorySearchTableViewController(QWidget, TransmissionReceiverProt
     
     def ds_completed_search_with_result(self, 
                                         ds: CustomDirectorySearchDataSource,
+                                        search_configuration: SearchConfiguration,
                                         error: Optional[Exception]):
         status = "🟢 OK"
         if error is not None:
@@ -178,15 +177,15 @@ class CustomDirectorySearchTableViewController(QWidget, TransmissionReceiverProt
         self.search_button.setText("Search (Enter)")
         
     def handle_observation_tower_event(self, event: TransmissionProtocol):
-        if type(event) == SearchEvent:
-            if event.event_type == SearchEvent.EventType.STARTED:
+        if type(event) == CardSearchEvent:
+            if event.event_type == CardSearchEvent.EventType.STARTED:
                 self._set_search_components_enabled(False)
 
-            elif event.event_type == SearchEvent.EventType.FINISHED:
+            elif event.event_type == CardSearchEvent.EventType.FINISHED:
                 self._set_search_components_enabled(True)
 
-            if event.seconds_since_predecessor is not None:
-                print(f"Search took :{event.seconds_since_predecessor}s")
+            if event.seconds_since_predecessor is not None and event.source_type is CardSearchEvent.SourceType.LOCAL:
+                print(f"Custom search took :{event.seconds_since_predecessor}s")
                     
         if type(event) == KeyboardEvent:
             self._sync_search_button_text()

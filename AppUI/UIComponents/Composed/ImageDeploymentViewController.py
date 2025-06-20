@@ -2,19 +2,19 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QSizePolicy,
                              QVBoxLayout, QWidget)
 
-from AppCore.Data.LocalResourceDataSourceProtocol import *
-from AppCore.Image.ImageResourceProcessorProtocol import *
+from AppCore.DataSource.DataSourceSelectedLocalCardResource import *
+from AppCore.ImageResource.ImageResourceProcessorProtocol import *
 from AppCore.Models import DeploymentCardResource, LocalCardResource
+from AppCore.Observation import TransmissionProtocol
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
-                                        DeploymentResourceEvent,
-                                        TransmissionProtocol)
-from AppUI.AppDependencyProviding import AppDependencyProviding
+                                        DeploymentCardResourceEvent)
+from AppUI.AppDependenciesProviding import AppDependenciesProviding
 from AppUI.UIComponents.Base.ImagePreviewViewController import *
 
 
 class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
-                 app_dependency_provider: AppDependencyProviding,
+                 app_dependency_provider: AppDependenciesProviding,
                  deployment_resource: DeploymentCardResource, 
                  local_resource_data_source_provider: LocalResourceDataSourceProviding, 
                  is_horizontal: bool):
@@ -45,7 +45,7 @@ class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
         layout_widget.setLayout(layout)
         
         vertical_layout.addWidget(label)
-        vertical_layout.addWidget(layout_widget)
+        vertical_layout.addWidget(layout_widget, 1)
         
         first_column_layout = QVBoxLayout()
 
@@ -73,26 +73,30 @@ class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
         self._sync_configuration_state()
 
         staging_image_view = ImagePreviewViewController(app_dependency_provider)
-        layout.addWidget(staging_image_view, 4)
+        layout.addWidget(staging_image_view)
         self.staging_image_view = staging_image_view
 
         production_image_view = ImagePreviewViewController(app_dependency_provider, False)
-        layout.addWidget(production_image_view, 4)
+        layout.addWidget(production_image_view)
         self.production_image_view = production_image_view
 
+        if not is_horizontal:
+            # allows for spacing
+            layout.addWidget(QWidget(), 1)
+        
         self.setLayout(vertical_layout)
 
         
-        app_dependency_provider.observation_tower.subscribe_multi(self, [DeploymentResourceEvent, 
-                                                                         PublishStagedResourcesEvent, 
+        app_dependency_provider.observation_tower.subscribe_multi(self, [DeploymentCardResourceEvent, 
+                                                                         PublishStagedCardResourcesEvent, 
                                                                          PublishStatusUpdatedEvent, 
-                                                                         LocalResourceSelectedEvent, 
+                                                                         LocalCardResourceSelectedEvent, 
                                                                          ConfigurationUpdatedEvent])
     
         self._sync_state()
     
     @property
-    def _local_resource_data_source(self) -> LocalResourceDataSourceProtocol:
+    def _local_resource_data_source(self) -> DataSourceSelectedLocalCardResourceProtocol:
         return self._local_resource_data_source_provider.data_source
     
     def set_staging_image(self, local_resource: LocalCardResource):
@@ -148,10 +152,10 @@ class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
             self.stage_button.setStyleSheet("")
     
     def handle_observation_tower_event(self, event: TransmissionProtocol):
-        if (type(event) == DeploymentResourceEvent or 
-            type(event) == PublishStagedResourcesEvent or 
+        if (type(event) == DeploymentCardResourceEvent or 
+            type(event) == PublishStagedCardResourcesEvent or 
             type(event) == PublishStatusUpdatedEvent or 
-            type(event) == LocalResourceSelectedEvent):
+            type(event) == LocalCardResourceSelectedEvent):
             self._sync_state()
         if type(event) == ConfigurationUpdatedEvent:
             self._sync_configuration_state()

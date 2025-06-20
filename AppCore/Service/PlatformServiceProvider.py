@@ -3,7 +3,7 @@ import platform
 import shutil
 import subprocess
 
-from AppCore.Config import ConfigurationManager
+from AppCore.Config import ConfigurationManager, Configuration
 from AppCore.Observation import ObservationTower
 from AppCore.Observation.Events import *
 
@@ -27,17 +27,19 @@ class PlatformServiceProtocol:
         pass
     
     def clear_cache(self):
-        shutil.rmtree(self._configuration.cache_dir_path)
-        self._observation_tower.notify(CacheClearedEvent())
+        # check if directory exists
+        if os.path.exists(self._configuration.cache_card_search_dir_path):
+            shutil.rmtree(self._configuration.cache_card_search_dir_path)
+            self._observation_tower.notify(CacheClearedEvent())
 
 
 class PlatformServiceProvider:
     class Mac(PlatformServiceProtocol):
         def open_file(self, file_path: str) -> None:
-            os.system(f"open {file_path}")
+            os.system(f'open "{file_path}"')
 
         def open_file_directory_and_select_file(self, file_path: str) -> None:
-            subprocess.call(["open", "-R", f"{os.path.abspath(file_path)}"])
+            subprocess.call(["open", "-R", f'{os.path.abspath(file_path)}'])
 
     class Windows(PlatformServiceProtocol):
         def open_file(self, file_path: str) -> None:

@@ -1,20 +1,20 @@
 from typing import List
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QScrollArea,
+from PyQt5.QtWidgets import (QHBoxLayout, QPushButton, QScrollArea,
                              QSizePolicy, QVBoxLayout, QWidget)
 
 from AppCore.Config import Configuration
-from AppCore.Data.LocalResourceDataSourceProtocol import *
-from AppCore.Image.ImageResourceProcessorProtocol import *
+from AppCore.DataSource.DataSourceSelectedLocalCardResource import *
+from AppCore.ImageResource.ImageResourceProcessorProtocol import *
 from AppCore.Observation import *
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
-                                        LocalResourceFetchEvent,
-                                        LocalResourceSelectedEvent,
-                                        ProductionResourcesLoadEvent,
-                                        PublishStagedResourcesEvent,
+                                        LocalCardResourceFetchEvent,
+                                        LocalCardResourceSelectedEvent,
+                                        ProductionCardResourcesLoadEvent,
+                                        PublishStagedCardResourcesEvent,
                                         PublishStatusUpdatedEvent)
-from AppUI.AppDependencyProviding import AppDependencyProviding
+from AppUI.AppDependenciesProviding import AppDependenciesProviding
 
 from ..Base import AddImageCTAViewController
 from ..Base.LoadingSpinner import LoadingSpinner
@@ -23,7 +23,7 @@ from . import ImageDeploymentViewController
 
 class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
-                 app_dependency_provider: AppDependencyProviding,
+                 app_dependency_provider: AppDependenciesProviding,
                  local_resource_data_source_provider: LocalResourceDataSourceProviding):
         super().__init__()
         self.app_dependency_provider = app_dependency_provider
@@ -33,6 +33,7 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
         self._router = app_dependency_provider.router
 
         outer_container_layout = QVBoxLayout()
+        # outer_container_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(outer_container_layout)
         
         cells_container_layout = QVBoxLayout()
@@ -66,21 +67,16 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
         production_button.clicked.connect(self.tapped_production_button)
         self.production_button = production_button
         outer_container_layout.addWidget(production_button)
-        
-        self.resize_prod_image_label = QLabel()
-        self.resize_prod_image_label.setAlignment(Qt.AlignmentFlag.AlignRight)
-        outer_container_layout.addWidget(self.resize_prod_image_label)
-        self._sync_resize_label_text()
 
         self.list_items: List[ImageDeploymentViewController] = []
         
         self.loading_spinner = LoadingSpinner(self)
         
         self._observation_tower.subscribe_multi(self, [PublishStatusUpdatedEvent, 
-                                                      LocalResourceFetchEvent, 
-                                                      PublishStagedResourcesEvent, 
-                                                      LocalResourceSelectedEvent, 
-                                                      ProductionResourcesLoadEvent, 
+                                                      LocalCardResourceFetchEvent, 
+                                                      PublishStagedCardResourcesEvent, 
+                                                      LocalCardResourceSelectedEvent, 
+                                                      ProductionCardResourcesLoadEvent, 
                                                       ConfigurationUpdatedEvent])
         
         app_dependency_provider.shortcut_action_coordinator.bind_publish(self.tapped_production_button, self)
@@ -155,36 +151,25 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
             self.production_button.setStyleSheet("background-color : #41ad49; color: white;")
         else:
             self.production_button.setStyleSheet("")
-        
-    def _sync_resize_label_text(self):
-        self.resize_prod_image_label.setHidden(not self._configuration.resize_prod_images)
-        value = "-"
-        if self._configuration.resize_prod_images:
-            size = self._configuration.resize_prod_images_max_size
-            value = f"Enabled to {size}px (min 256px)"
-        else:
-            value = "Disabled"
-        self.resize_prod_image_label.setText(f"Resize prod images: {value}")
     
     def _sync_configuration_related_components(self):
-        self._sync_resize_label_text()
         self._reload_production_resources_list()
 
 
     def handle_observation_tower_event(self, event: TransmissionProtocol):
         if (type(event) == PublishStatusUpdatedEvent or 
-            type(event) == LocalResourceFetchEvent or 
-            type(event) == PublishStagedResourcesEvent):
+            type(event) == LocalCardResourceFetchEvent or 
+            type(event) == PublishStagedCardResourcesEvent):
             can_publish_staged_resources = self._image_resource_deployer.can_publish_staged_resources
             self.set_production_button_enabled(can_publish_staged_resources)
-        # if type(event) == PublishStagedResourcesEvent:
-        #     if (event.event_type == PublishStagedResourcesEvent.EventType.FINISHED or 
-        #         event.event_type == PublishStagedResourcesEvent.EventType.FAILED):
+        # if type(event) == PublishStagedCardResourcesEvent:
+        #     if (event.event_type == PublishStagedCardResourcesEvent.EventType.FINISHED or 
+        #         event.event_type == PublishStagedCardResourcesEvent.EventType.FAILED):
         #         self._reload_production_resources_list()
-        if type(event) == ProductionResourcesLoadEvent:
-            if event.event_type == ProductionResourcesLoadEvent.EventType.STARTED:
+        if type(event) == ProductionCardResourcesLoadEvent:
+            if event.event_type == ProductionCardResourcesLoadEvent.EventType.STARTED:
                 self.loading_spinner.start()
-            elif event.event_type == ProductionResourcesLoadEvent.EventType.FINISHED:
+            elif event.event_type == ProductionCardResourcesLoadEvent.EventType.FINISHED:
                 self._reload_production_resources_list()
                 self.loading_spinner.stop()
             

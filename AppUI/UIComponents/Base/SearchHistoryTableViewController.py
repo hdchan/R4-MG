@@ -1,20 +1,17 @@
 from PyQt5.QtWidgets import QListWidget, QVBoxLayout, QWidget, QPushButton, QListWidgetItem
 
-from AppCore.Data.RecentSearchDataSource import RecentSearchDataSource
 from AppCore.Observation import *
-from AppCore.Observation.Events import SearchEvent
-from AppUI.AppDependencyProviding import AppDependencyProviding
+from AppCore.Observation.Events import CardSearchEvent
+from AppUI.AppDependenciesProviding import AppDependenciesProviding
 from AppUI.Clients import SWUCardSearchConfiguration
-from AppCore.Data.CardSearchDataSource import CardSearchDataSource
+from AppCore.DataSource.DataSourceCardSearch import DataSourceCardSearch
 
 class SearchHistoryTableViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
-                 app_dependency_provider: AppDependencyProviding,
-                 recent_search_data_source: RecentSearchDataSource, 
-                 card_search_data_source: CardSearchDataSource):
+                 app_dependency_provider: AppDependenciesProviding,
+                 card_search_data_source: DataSourceCardSearch):
         super().__init__()
         self._observation_tower = app_dependency_provider.observation_tower
-        self._recent_search_data_source = recent_search_data_source
         self._card_search_data_source = card_search_data_source
         self._string_formatter = app_dependency_provider.string_formatter
         
@@ -31,7 +28,7 @@ class SearchHistoryTableViewController(QWidget, TransmissionReceiverProtocol):
         self._search_button.clicked.connect(self._perform_search)
         recent_search_layout.addWidget(self._search_button)
         
-        self._observation_tower.subscribe(self, SearchEvent)
+        self._observation_tower.subscribe(self, CardSearchEvent)
         
         app_dependency_provider.shortcut_action_coordinator.bind_search(self._perform_search, self)
     
@@ -42,7 +39,7 @@ class SearchHistoryTableViewController(QWidget, TransmissionReceiverProtocol):
 
     def _update_recent_search_list(self):
         self._recent_search_list.clear()
-        for r in self._recent_search_data_source.search_list_history:
+        for r in self._card_search_data_source.search_list_history:
             swu_search_config = SWUCardSearchConfiguration.from_search_configuration(r[0])
             item = QListWidgetItem(f'{self._string_formatter.format_date(r[1])} - Name: "{swu_search_config.card_name}", Type: {swu_search_config.card_type.value}')
             item.setToolTip(f'{r[1].strftime("%m/%d/%Y, %I:%M %p")}')
@@ -59,9 +56,9 @@ class SearchHistoryTableViewController(QWidget, TransmissionReceiverProtocol):
     def _perform_search(self):
         index = self._recent_search_list.currentIndex()
         if index.row() >= 0:
-            search_config = self._recent_search_data_source.search_list_history[index.row()][0]
+            search_config = self._card_search_data_source.search_list_history[index.row()][0]
             self._card_search_data_source.search(search_config)
     
     def handle_observation_tower_event(self, event: TransmissionProtocol):
-        if type(event) == SearchEvent:
+        if type(event) == CardSearchEvent:
             self._update_recent_search_list()

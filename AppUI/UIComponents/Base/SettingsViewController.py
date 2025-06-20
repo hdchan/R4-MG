@@ -7,12 +7,12 @@ from PyQt5.QtWidgets import (QCheckBox, QGroupBox, QHBoxLayout, QLabel,
 from AppCore.Config import Configuration
 from AppCore.Observation import TransmissionProtocol, TransmissionReceiverProtocol
 from AppCore.Observation.Events import ConfigurationUpdatedEvent
-from AppUI.AppDependencyProviding import AppDependencyProviding
+from AppUI.AppDependenciesProviding import AppDependenciesProviding
 
 
 class SettingsViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
-                 app_dependencies_provider: AppDependencyProviding):
+                 app_dependencies_provider: AppDependenciesProviding):
         super().__init__()
         self._configuration_manager = app_dependencies_provider.configuration_manager
         self._mutable_configuration = self._configuration_manager.mutable_configuration()
@@ -54,11 +54,18 @@ class SettingsViewController(QWidget, TransmissionReceiverProtocol):
         search_swudb_api_radio.setChecked(self._mutable_configuration.search_source == Configuration.Settings.SearchSource.SWUDBAPI)
         search_source_options_layout.addWidget(search_swudb_api_radio)
         
+        # TODO: deprecate 
         search_local_radio = QRadioButton()
-        search_local_radio.setText("Local Search + www.swu-db.com Images (Set 1-4)")
+        search_local_radio.setText("Local Search + www.swu-db.com Images (Set 1-5)")
         search_local_radio.toggled.connect(self.search_local_toggled)
         search_local_radio.setChecked(self._mutable_configuration.search_source == Configuration.Settings.SearchSource.LOCAL)
         search_source_options_layout.addWidget(search_local_radio)
+        
+        search_locally_managed_decks_radio = QRadioButton()
+        search_locally_managed_decks_radio.setText("Locally managed sets")
+        search_locally_managed_decks_radio.toggled.connect(self.search_locally_managed_decks_toggled)
+        search_locally_managed_decks_radio.setChecked(self._mutable_configuration.search_source == Configuration.Settings.SearchSource.LOCALLY_MANAGED_DECKS)
+        search_source_options_layout.addWidget(search_locally_managed_decks_radio)
         
         # Custom Directory Search
         custom_directory_search_source_row_layout = QVBoxLayout()
@@ -171,6 +178,9 @@ class SettingsViewController(QWidget, TransmissionReceiverProtocol):
         
     def search_local_toggled(self):
         self._mutable_configuration.set_search_source(Configuration.Settings.SearchSource.LOCAL)
+        
+    def search_locally_managed_decks_toggled(self):
+        self._mutable_configuration.set_search_source(Configuration.Settings.SearchSource.LOCALLY_MANAGED_DECKS)
 
     def enable_resize_prod_image(self, state: Qt.CheckState):
         if state == Qt.CheckState.Checked:

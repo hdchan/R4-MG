@@ -21,7 +21,10 @@ class SWUCardSearchConfiguration(SearchConfiguration):
 
     @property
     def card_type(self) -> CardType:
-        return CardType(self.metadata[self.SWUSearchConfigKeys.CARD_TYPE])
+        if self.SWUSearchConfigKeys.CARD_TYPE in self.metadata:
+            return CardType(self.metadata[self.SWUSearchConfigKeys.CARD_TYPE])
+        else:
+            return CardType.UNSPECIFIED
     
     @card_type.setter
     def card_type(self, value: CardType):

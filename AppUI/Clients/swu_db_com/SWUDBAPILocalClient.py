@@ -2,28 +2,33 @@
 import json
 from typing import Any, Dict, List, Optional
 
-from AppCore.Data.APIClientProtocol import (APIClientProtocol,
-                                            APIClientSearchCallback,
-                                            APIClientSearchResponse,
-                                            APIClientSearchResult)
+from AppCore.DataFetcher import DataFetcherLocal
+from AppCore.DataSource.DataSourceCardSearchClientProtocol import (
+    DataSourceCardSearchClientProtocol,
+    DataSourceCardSearchClientSearchCallback,
+    DataSourceCardSearchClientSearchResponse,
+    DataSourceCardSearchClientSearchResult)
 from AppCore.Models import (CardType, PaginationConfiguration,
                             SearchConfiguration, TradingCard)
-from AppCore.Network import NetworkerLocal
 from AppUI.Assets import AssetProvider
 
 from ..SWUCardSearchConfiguration import SWUCardSearchConfiguration
 from .SWUTradingCard import SWUTradingCard
 
 CardListData = List[Dict[str, Any]]
-class SWUDBAPILocalClient(APIClientProtocol):
-    def __init__(self, local_networker: NetworkerLocal, asset_provider: AssetProvider):
-        self.local_networker = local_networker
-        self.asset_provider = asset_provider
+
+# TODO: Deprecate
+class SWUDBAPILocalClient(DataSourceCardSearchClientProtocol):
+    def __init__(self, 
+                 local_fetcher: DataFetcherLocal, 
+                 asset_provider: AssetProvider):
+        self._local_fetcher = local_fetcher
+        self._asset_provider = asset_provider
         self.__response_card_list: Optional[List[TradingCard]] = None
     
     @property
     def source_display_name(self) -> str:
-        return "Local Search + www.swu-db.com Images (Set 1-4)"
+        return "Local Search + www.swu-db.com Images (Set 1-5)"
     
     @property
     def site_source_url(self) -> Optional[str]:
@@ -32,13 +37,14 @@ class SWUDBAPILocalClient(APIClientProtocol):
     def search(self, 
                search_configuration: SearchConfiguration,
                pagination_configuration: Optional[PaginationConfiguration],
-               callback: APIClientSearchCallback):
+               callback: DataSourceCardSearchClientSearchCallback):
         print(f'Local search www.swu-db.com. card_name: {search_configuration.card_name}, search_configuration: {search_configuration}')
-        def completed_search(result: APIClientSearchResult):
+        def completed_search(result: DataSourceCardSearchClientSearchResult):
             callback(result)
-        self.local_networker.load(self._perform_search, completed_search, search_configuration=search_configuration)
+        self._local_fetcher.load(self._perform_search, completed_search, search_configuration=search_configuration)
     
-    def _perform_search(self, args: Any) -> APIClientSearchResult:
+    def _perform_search(self, args: Any) -> DataSourceCardSearchClientSearchResult:
+        # TODO: implement more performant search
         search_configuration: SearchConfiguration = args.get('search_configuration')
         swu_search_config = SWUCardSearchConfiguration.from_search_configuration(search_configuration)
         def filter_the_result(card: TradingCard):
@@ -48,21 +54,27 @@ class SWUDBAPILocalClient(APIClientProtocol):
             return card.name
         filtered_list = list(filter(filter_the_result, self._response_card_list))
         filtered_list.sort(key=sort_the_result)
-        result = APIClientSearchResponse(filtered_list)
+        result = DataSourceCardSearchClientSearchResponse(filtered_list)
         return (result, None)
         
     @property
     def _response_card_list(self) -> List[TradingCard]:
         if self.__response_card_list is None:
-            with open(self.asset_provider.data.sor_set_path, 'r') as file, open(self.asset_provider.data.shd_set_path) as file2, open(self.asset_provider.data.twi_set_path) as file3, open(self.asset_provider.data.jtl_set_path) as file4:
-                sor_response = json.load(file)['data']
-                shd_response = json.load(file2)['data']
-                twi_response = json.load(file3)['data']
-                jtl_response = json.load(file4)['data']
-                response_data = sor_response + shd_response + twi_response + jtl_response
-                result_list: List[TradingCard] = []
-                for i in response_data:
-                    swu_card = SWUTradingCard.from_swudb_response(i)
-                    result_list.append(swu_card)
-                self.__response_card_list = result_list
+            # retrieve from asset provider
+            decks = [
+                self._asset_provider.data.sor_set_path,
+                self._asset_provider.data.shd_set_path,
+                self._asset_provider.data.twi_set_path,
+                self._asset_provider.data.jtl_set_path,
+                self._asset_provider.data.lof_set_path
+            ]
+            result_list: List[TradingCard] = []
+            for deck in decks:
+                with open(deck, 'r') as file:
+                    cards = json.load(file)['data']
+                    for card in cards:
+                        swu_card = SWUTradingCard.from_swudb_response(card)
+                        result_list.append(swu_card)
+            self.__response_card_list = result_list
+                
         return self.__response_card_list or []

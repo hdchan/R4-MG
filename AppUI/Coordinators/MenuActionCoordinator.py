@@ -1,11 +1,8 @@
 from typing import Callable
 
 from PyQt5.QtWidgets import QAction, QMenu, QMenuBar
-
 from AppCore.Config.ConfigurationManager import *
 from AppCore.Service import PlatformServiceProtocol, PlatformServiceProvider
-
-
 class MenuActionCoordinator(QMenuBar):
     def __init__(self, 
                  configuration_manager: ConfigurationManager, 
@@ -48,7 +45,7 @@ class MenuActionCoordinator(QMenuBar):
         self._action_menu = QMenu("&Action")
         self.addMenu(self._action_menu)
 
-        self._unstage_all_staging_resources = QAction('Unstage all staging resources')
+        self._unstage_all_staging_resources = QAction('Unstage all staged resources')
         self._action_menu.addAction(self._unstage_all_staging_resources)
 
         self._clear_cache_dir = QAction('Clear cache')
@@ -180,6 +177,12 @@ class MenuActionCoordinator(QMenuBar):
         self._reset_window_size.triggered.connect(self.did_toggle_reset_window_size)
         self._view_menu.addAction(self._reset_window_size)
 
+        # MARK: - Tools
+        self._tool_menu = QMenu("&Tools")
+        self.addMenu(self._tool_menu)
+        
+        self._manage_deck_list_action = QAction('Manage set list')
+        self._tool_menu.addAction(self._manage_deck_list_action)
         
         # MARK: - About
         self._help_menu = QMenu("&Help")
@@ -204,8 +207,8 @@ class MenuActionCoordinator(QMenuBar):
             self._open_configuration_dir.triggered.connect(self.did_open_configuration_dir)
             self._developer_menu.addAction(self._open_configuration_dir)
 
-            self._open_temp_dir = QAction('Reveal temp folder in file explorer')
-            self._open_temp_dir.triggered.connect(self.did_open_temp_dir)
+            self._open_temp_dir = QAction('Reveal app data folder in file explorer')
+            self._open_temp_dir.triggered.connect(self.did_open_app_data_dir)
             self._developer_menu.addAction(self._open_temp_dir)
 
             self._mock_data_mode = QAction('Mock data')
@@ -219,6 +222,11 @@ class MenuActionCoordinator(QMenuBar):
             self._delay_network_mode.setCheckable(True)
             self._delay_network_mode.setChecked(self._configuration.is_delay_network_mode)
             self._developer_menu.addAction(self._delay_network_mode)
+            
+            
+            self._download_remote_asset = QAction('Open cache')
+            self._download_remote_asset.triggered.connect(self.did_toggle_download_remote_asset)
+            self._developer_menu.addAction(self._download_remote_asset)
 
     # MARK: - binders
     def bind_new_file(self, fn: Callable[[], None]):
@@ -244,6 +252,9 @@ class MenuActionCoordinator(QMenuBar):
         
     def bind_open_shortcuts_page(self, fn: Callable[[], None]):
         self._shortcuts_list_action.triggered.connect(fn)
+        
+    def bind_open_manage_deck_list_page(self, fn: Callable[[], None]):
+        self._manage_deck_list_action.triggered.connect(fn)
 
     # MARK: - actions
     def did_toggle_show_resource_details(self, is_on: bool):
@@ -284,6 +295,7 @@ class MenuActionCoordinator(QMenuBar):
 
     def _sync_image_preview_scale_checkmarks(self):
         preference = self._configuration.image_preview_scale
+        # TODO: change preferences to encoded ints
         self._image_preview_scale_25.setChecked(preference == 0.25)
         self._image_preview_scale_50.setChecked(preference == 0.5)
         self._image_preview_scale_75.setChecked(preference == 0.75)
@@ -293,16 +305,6 @@ class MenuActionCoordinator(QMenuBar):
     def did_toggle_hide_deployment_cell_controls(self, is_on: bool):
         new_config = self._configuration_manager.mutable_configuration()
         new_config.set_hide_deployment_cell_controls(is_on)
-        self._configuration_manager.save_configuration(new_config)
-
-    def did_toggle_mock_data_mode(self, is_on: bool):
-        new_config = self._configuration_manager.mutable_configuration()
-        new_config.set_is_mock_data(is_on)
-        self._configuration_manager.save_configuration(new_config)
-
-    def did_toggle_delay_network_mode(self, is_on: bool):
-        new_config = self._configuration_manager.mutable_configuration()
-        new_config.set_is_delay_network_mode(is_on)
         self._configuration_manager.save_configuration(new_config)
     
     
@@ -377,11 +379,30 @@ class MenuActionCoordinator(QMenuBar):
         new_config.reset_window_size()
         self._configuration_manager.save_configuration(new_config)
     
-    def did_open_configuration_dir(self):
-        self._platform_service.open_file(self._configuration.config_directory)
+    
 
     def did_open_production_dir(self):
         self._platform_service.open_file(self._configuration.picture_dir_path)
 
-    def did_open_temp_dir(self):
-        self._platform_service.open_file(self._configuration.temp_dir_path)
+    
+        
+        
+    # MARK: - developer
+    def did_open_configuration_dir(self):
+        self._platform_service.open_file(self._configuration.config_directory)
+
+    def did_open_app_data_dir(self):
+        self._platform_service.open_file(self._configuration.assets_dir_path)
+
+    def did_toggle_download_remote_asset(self):
+        self._platform_service.open_file(self._configuration.cache_dir_path)
+
+    def did_toggle_mock_data_mode(self, is_on: bool):
+        new_config = self._configuration_manager.mutable_configuration()
+        new_config.set_is_mock_data(is_on)
+        self._configuration_manager.save_configuration(new_config)
+
+    def did_toggle_delay_network_mode(self, is_on: bool):
+        new_config = self._configuration_manager.mutable_configuration()
+        new_config.set_is_delay_network_mode(is_on)
+        self._configuration_manager.save_configuration(new_config)

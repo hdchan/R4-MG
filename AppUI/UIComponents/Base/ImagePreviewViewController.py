@@ -5,22 +5,23 @@ from PyQt5.QtCore import QPoint, Qt
 from PyQt5.QtGui import QClipboard, QGuiApplication, QPixmap
 from PyQt5.QtWidgets import QAction, QLabel, QMenu, QVBoxLayout, QWidget
 from AppCore.Config import Configuration
-from AppCore.Image.ImageResourceProcessorProtocol import *
+from AppCore.ImageResource.ImageResourceProcessorProtocol import *
 from AppCore.Models import LocalCardResource
 from AppCore.Observation import *
 from AppCore.Observation.Events import (CacheClearedEvent,
                                         ConfigurationUpdatedEvent,
-                                        LocalResourceFetchEvent,
+                                        LocalCardResourceFetchEvent,
                                         PublishStatusUpdatedEvent)
 from AppCore.Service.PlatformServiceProvider import *
 from .LoadingSpinner import LoadingSpinner
-from AppUI.AppDependencyProviding import AppDependencyProviding
+from AppUI.AppDependenciesProviding import AppDependenciesProviding
 from PIL import Image
 
 MAX_PREVIEW_SIZE = 256
 class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
-                 app_dependency_provider: AppDependencyProviding, 
+                 app_dependency_provider: AppDependenciesProviding, 
+                 # whether we can manipulate images
                  can_post_process: bool = True):
         super().__init__()
         self._can_post_process = can_post_process
@@ -85,7 +86,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
         self._sync_image_view_state()
 
         app_dependency_provider.observation_tower.subscribe_multi(self, [ConfigurationUpdatedEvent, 
-                                                 LocalResourceFetchEvent, 
+                                                 LocalCardResourceFetchEvent, 
                                                  PublishStatusUpdatedEvent, 
                                                  CacheClearedEvent])
     
@@ -166,11 +167,13 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
                     menu.addAction(redownload_resource) # type: ignore
                 
                 menu.addSeparator()
-                reveal_action = QAction(f"Open {self._local_resource.file_name_with_ext}", self)
-                reveal_action.triggered.connect(open_file)
-                menu.addAction(reveal_action) # type: ignore
                 
-                reveal_action = QAction(f"Reveal {self._local_resource.file_name_with_ext} in file explorer", self)
+                action_label = self._local_resource.file_name_with_ext if self._configuration.is_developer_mode else "image"
+                open_action = QAction(f"Open {action_label}", self)
+                open_action.triggered.connect(open_file)
+                menu.addAction(open_action) # type: ignore
+                
+                reveal_action = QAction(f"Reveal {action_label} in file explorer", self)
                 reveal_action.triggered.connect(open_file_directory)
                 menu.addAction(reveal_action) # type: ignore
                 
@@ -318,10 +321,10 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
             type(event) == CacheClearedEvent):
             self._sync_image_view_state()
             
-        if type(event) == LocalResourceFetchEvent:
+        if type(event) == LocalCardResourceFetchEvent:
             if self._local_resource is not None and self._local_resource.image_preview_path == event.local_resource.image_preview_path:
                 self._sync_image_view_state()
-                if event.event_type == LocalResourceFetchEvent.EventType.FAILED:
+                if event.event_type == LocalCardResourceFetchEvent.EventType.FAILED:
                     print(f"Failed resource: {self._local_resource.image_preview_path}")
-                elif event.event_type == LocalResourceFetchEvent.EventType.FINISHED:
+                elif event.event_type == LocalCardResourceFetchEvent.EventType.FINISHED:
                     print(f"Reloading resource: {self._local_resource.image_preview_path}")

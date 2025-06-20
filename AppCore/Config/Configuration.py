@@ -12,7 +12,7 @@ from PyQt5.QtCore import QStandardPaths
 class Configuration:
     
     APP_NAME = 'R4-MG'
-    APP_VERSION = '0.17.0'
+    APP_VERSION = '0.18.0'
     SETTINGS_VERSION = '1.0'
     
     class Toggles:
@@ -72,6 +72,7 @@ class Configuration:
             SWUDBAPI = 0
             LOCAL = 1
             STARWARSUNLIMITED_FFG = 2
+            LOCALLY_MANAGED_DECKS = 3
             DEFAULT = SWUDBAPI
             
         class DeploymentListSortCriteria(int, Enum):
@@ -261,6 +262,29 @@ class Configuration:
             return 0
         
     # MARK: - file paths
+    
+    # MARK: - App data
+    @property
+    def _app_data_dir_path(self) -> str:
+        # will point to app name folder
+        return QStandardPaths.writableLocation(QStandardPaths.StandardLocation.AppLocalDataLocation)
+    
+    @property
+    def assets_dir_path(self) -> str:
+        return f'{self._app_data_dir_path}/assets/'
+    
+    # MARK: - Config
+    @property
+    def _config_dir_path(self) -> str:
+        # will point to app name folder
+        return QStandardPaths.writableLocation(QStandardPaths.StandardLocation.AppConfigLocation)
+    
+    @property
+    def config_directory(self) -> str:
+        return f'{self._config_dir_path}'
+    
+    
+    # MARK: - Picture
     @property
     def picture_dir_path(self) -> str:
         return self._picture_dir_path
@@ -270,32 +294,7 @@ class Configuration:
         # always points to picture dir
         # append app name
         return f'{QStandardPaths.writableLocation(QStandardPaths.StandardLocation.PicturesLocation)}/{self.app_path_name}'
-    
-    @property
-    def _config_dir_path(self) -> str:
-        # will point to app name folder
-        return QStandardPaths.writableLocation(QStandardPaths.StandardLocation.AppConfigLocation)
-    
-    @property
-    def _temp_dir_path(self) -> str:
-        return QStandardPaths.writableLocation(QStandardPaths.StandardLocation.TempLocation)
 
-    @property
-    def publish_history_path(self) -> str:
-        return f'{self._picture_dir_path}/publish_history.json'
-    
-    @property
-    def search_history_path(self) -> str:
-        return f'{self._picture_dir_path}/search_history.json'
-
-    @property
-    def config_directory(self) -> str:
-        return f'{self._config_dir_path}'
-    
-    @property
-    def temp_dir_path(self) -> str:
-        return self._temp_dir_path
-    
     @property
     def production_dir_path(self) -> str:
         return f'{self._picture_dir_path}/production/'
@@ -304,13 +303,23 @@ class Configuration:
     def production_preview_dir_path(self) -> str:
         return f'{self.production_dir_path}preview/'
     
-    @property
-    def cache_dir_path(self) -> str:
-        return f'{self._picture_dir_path}/cache/' 
+    # MARK: - Cache
     
     @property
-    def cache_preview_dir_path(self) -> str:
-        return f'{self.cache_dir_path}preview/'
+    def cache_dir_path(self) -> str:
+        return f'{QStandardPaths.writableLocation(QStandardPaths.StandardLocation.CacheLocation)}'
+    
+    @property
+    def cache_card_search_dir_path(self) -> str:
+        return f'{self.cache_dir_path}/card_search/' 
+    
+    @property
+    def cache_card_search_preview_dir_path(self) -> str:
+        return f'{self.cache_card_search_dir_path}preview/'
+    
+    @property
+    def cache_history_dir_path(self) -> str:
+        return f'{self.cache_dir_path}/history/'
     
     # MARK: - Helpers
     '''

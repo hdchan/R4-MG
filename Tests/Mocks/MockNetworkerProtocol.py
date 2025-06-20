@@ -1,6 +1,6 @@
 from typing import TypeVar
 
-from AppCore.Network import (NetworkerProtocol, NetworkerProtocolCallback,
+from AppCore.DataFetcher import (NetworkerProtocol, NetworkerProtocolCallback,
                              NetworkRequestProtocol)
 
 T = TypeVar("T")

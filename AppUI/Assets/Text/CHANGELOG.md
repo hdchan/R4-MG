@@ -1,5 +1,22 @@
 ## Changelog
 
+### 0.18.0
+#### Feature updates
+- Add LoF set 5
+- Remove resize label below deployment list
+- Implement locally managed sets
+
+#### Engineering updates
+- Naming and import refactors
+- Moves card search cache directory
+- Moves history files directory
+- Abstracting local asset resource and working asset downloader
+- Dependency refactors
+- Refactor router logic
+- Decouple search table combo view
+- Refactor recent search DS to be part of existing card search DS
+- Fix calling dead object in observer
+
 ### 0.17.0
 #### Feature updates
 - Adds custom directory search with working previews
@@ -36,7 +53,7 @@
 - Removes swudb.com image source
 - Updates "Quick Guide"
 #### Engineering updates
-- Adds pagination capabilities for `SearchTableViewController` and respective `CardSearchDataSource`
+- Adds pagination capabilities for `SearchTableViewController` and respective `DataSourceCardSearch`
 
 ### 0.13.1
 #### Hotfix
@@ -113,7 +130,7 @@
 - Adjusting observation logic
 - Consolidate downscale function
 - Consolidate image processing
-- Consolidating LocalResourceFetchEvent
+- Consolidating LocalCardResourceFetchEvent
 - Removing more dependencies
 - Add old configuration to config updated event
 - Move card aspect and type out of app core

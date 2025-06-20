@@ -1,9 +1,9 @@
 from typing import Optional
 
-from AppCore.Data.APIClientProtocol import (APIClientProtocol,
-                                            APIClientSearchCallback)
+from AppCore.DataSource.DataSourceCardSearchClientProtocol import (DataSourceCardSearchClientProtocol,
+                                            DataSourceCardSearchClientSearchCallback)
 from AppCore.Models import PaginationConfiguration, SearchConfiguration
-from AppCore.Network import NetworkerProtocol
+from AppCore.DataFetcher import DataFetcherRemote
 
 from ..SWUCardSearchConfiguration import SWUCardSearchConfiguration
 from .SearchRequest import SearchRequest
@@ -11,9 +11,9 @@ from .SearchRequest import SearchRequest
 
 # https://stackoverflow.com/a/33453124
 # suggests using move to thread
-class SWUDBAPIRemoteClient(APIClientProtocol):
+class SWUDBAPIRemoteClient(DataSourceCardSearchClientProtocol):
 
-    def __init__(self, networker: NetworkerProtocol):
+    def __init__(self, networker: DataFetcherRemote):
         self._networker = networker
 
     @property
@@ -27,7 +27,7 @@ class SWUDBAPIRemoteClient(APIClientProtocol):
     def search(self, 
                search_configuration: SearchConfiguration,
                pagination_configuration: Optional[PaginationConfiguration],
-               callback: APIClientSearchCallback):
+               callback: DataSourceCardSearchClientSearchCallback):
         print(f'Remote search www.swu-db.com. card_name: {search_configuration.card_name}, search_configuration: {search_configuration}')
         swu_search_config = SWUCardSearchConfiguration.from_search_configuration(search_configuration)
         self._networker.load(SearchRequest(swu_search_config), callback)

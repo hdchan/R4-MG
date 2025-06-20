@@ -1,24 +1,24 @@
 from typing import Optional
 
-from AppCore.Data import (LocalResourceDataSourceProtocol,
+from AppCore.DataSource import (DataSourceSelectedLocalCardResourceProtocol,
                           LocalResourceDataSourceProviding)
 from AppCore.Models import LocalCardResource
 from AppCore.Observation import *
-from AppCore.Observation.Events import LocalResourceSelectedEvent
+from AppCore.Observation.Events import LocalCardResourceSelectedEvent
 
 from .ImagePreviewViewController import ImagePreviewViewController
 
 
-class ImagePreviewLocalResourceDataSourceDecorator(ImagePreviewViewController, LocalResourceDataSourceProviding, LocalResourceDataSourceProtocol):
+class ImagePreviewLocalResourceDataSourceDecorator(ImagePreviewViewController, LocalResourceDataSourceProviding, DataSourceSelectedLocalCardResourceProtocol):
     
     def set_image(self, local_resource: LocalCardResource):
         super().set_image(local_resource)
-        self._observation_tower.notify(LocalResourceSelectedEvent(local_resource)) # rework?
+        self._observation_tower.notify(LocalCardResourceSelectedEvent(local_resource)) # rework?
         
     
-    # MARK: - LocalResourceDataSourceProviding, LocalResourceDataSourceProtocol
+    # MARK: - LocalResourceDataSourceProviding, DataSourceSelectedLocalCardResourceProtocol
     @property
-    def data_source(self) -> LocalResourceDataSourceProtocol:
+    def data_source(self) -> DataSourceSelectedLocalCardResourceProtocol:
         return self
     
     @property

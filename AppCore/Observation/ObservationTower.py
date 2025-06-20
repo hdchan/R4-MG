@@ -12,16 +12,18 @@ class ObservationTower:
          self.subscribers: Dict[Type[TransmissionProtocol], List[ReferenceType[TransmissionReceiverProtocol]]] = {}
 
     def notify(self, event: TransmissionProtocol):
-        # filter dead subscribers
         if event.__class__ not in self.subscribers:
             return
-        filtered_subscribers = filter(lambda x: x() is not None, self.subscribers[event.__class__])
-        self.subscribers[event.__class__] = list(filtered_subscribers)
+        dead_subscribers: List[ReferenceType[TransmissionReceiverProtocol]] = []
         if event.__class__ in self.subscribers:
             for s in self.subscribers[event.__class__]:
-                obj = s()
-                if obj is not None: # its possible for objs to get deallocated after filtering
-                    obj.handle_observation_tower_event(event) # type: ignore
+                try:
+                    s().handle_observation_tower_event(event) # type: ignore
+                except:
+                    dead_subscribers.append(s)
+        # filter dead subscribers
+        for s in dead_subscribers:
+            self.subscribers[event.__class__].remove(s)
 
     def subscribe(self, subscriber: TransmissionReceiverProtocol, eventType: Type[TransmissionProtocol]):
         if eventType not in self.subscribers:
