@@ -1,0 +1,471 @@
+from typing import Callable, Optional
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QFileDialog, QLabel, QWidget, QSpacerItem, QSizePolicy
+from AppCore.Config import Configuration
+from AppCore.Observation import TransmissionReceiverProtocol
+from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from PyQtUI import (HorizontalBoxLayout, HorizontalLabeledInputRow,
+                    LineEditInt, LineEditText, PushButton, ScrollArea,
+                    VerticalBoxLayout, VerticalGroupBox, CheckBox, BoldLabel, GridLayout, HeaderLabel, ComboBox)
+
+from ...Models.DraftListStyleSheet import DraftListStyleSheet
+
+
+class CellStyleWrapper(VerticalGroupBox):
+    def __init__(self, index: int, 
+                 stylesheet: DraftListStyleSheet, 
+                 trash_fn: Callable[[int], None]):
+        super().__init__()
+        self._index = index
+        self._stylesheet = stylesheet
+        self._trash_fn = trash_fn
+        cell_style = self._stylesheet.get_interval_cell_style(self._index)
+        
+        
+        trash_button = PushButton("Remove", self._trash)
+        trash_button.setEnabled(self._index == self._stylesheet.cell_interval_count - 1)
+        trash_button.setVisible(index > 0)
+        
+        if cell_style is not None:
+            self.add_widgets([
+                HorizontalBoxLayout([
+                    BoldLabel(f'Cell item - {self._index + 1}'),
+                    trash_button
+                    ]),
+                
+                HorizontalLabeledInputRow(
+                    "Background color",
+                    LineEditText(
+                        cell_style.cell_background_color, 
+                        lambda x: self._stylesheet.set_interval_cell_background_color(index, x)
+                        )
+                    ),
+                
+                HorizontalLabeledInputRow(
+                    "Font color",
+                    LineEditText(
+                        cell_style.cell_font_color, 
+                        lambda x: self._stylesheet.set_interval_cell_font_color(index, x)
+                        )
+                    ),
+                ])
+            
+    def _trash(self):
+        self._trash_fn(self._index)
+
+
+
+class DraftListSettingsViewController(QWidget, TransmissionReceiverProtocol):
+    def __init__(self, 
+                 app_dependencies_provider: AppDependenciesProviding,
+                 parent: Optional[QWidget] = None):
+        super().__init__()
+        self._app_dependencies_provider = app_dependencies_provider
+        self._configuration_manager = app_dependencies_provider.configuration_manager
+        self._app_ui_configuration_manager = app_dependencies_provider.app_ui_configuration_manager
+        self._router = app_dependencies_provider.router
+        self._mutable_app_ui_configuration = self._app_ui_configuration_manager.mutable_configuration()
+        
+        self._stylesheet = self._mutable_app_ui_configuration.draft_list_styles
+        
+        self._setup_view()
+        
+    def _setup_view(self):
+        
+        self._cell_configuration_list = VerticalGroupBox()
+        self._container_background_image_label = QLabel()
+        self._cell_font_label = QLabel()
+        self._cell_header_font_label = QLabel()
+        self._reset_styles_checkbox = CheckBox(self._reset_styles_checked)
+        self._add_card_mode_combo_box = ComboBox([
+                            "Off",
+                            "Stage",
+                            "Stage & Publish"
+                        ])
+        # self._add_card_mode_combo_box.currentIndexChanged.connect(self._add_card_mode_changed)
+        self._add_card_mode_combo_box.setCurrentIndex(self._configuration_manager.configuration.draft_list_add_card_mode)
+        
+        VerticalBoxLayout([
+            ScrollArea(
+                VerticalBoxLayout([
+                    VerticalGroupBox([
+                        HeaderLabel("Add card mode"),
+                        self._add_card_mode_combo_box
+                    ]),
+                    VerticalGroupBox([
+                        HeaderLabel("Container"),
+                        VerticalGroupBox([
+                            BoldLabel("Padding"),
+                            GridLayout([
+                                (
+                                    HorizontalLabeledInputRow(
+                                        "Left",
+                                        LineEditInt(
+                                            self._stylesheet.container_padding_left, 
+                                            self._stylesheet.set_container_padding_left
+                                            )
+                                        ),
+                                    (1, 0)
+                                ),
+                                (
+                                    HorizontalLabeledInputRow(
+                                        "Top",
+                                        LineEditInt(
+                                            self._stylesheet.container_padding_top, 
+                                            self._stylesheet.set_container_padding_top
+                                            )
+                                        ),
+                                    (0, 1)
+                                ),
+                                (
+                                    HorizontalLabeledInputRow(
+                                        "Right",
+                                        LineEditInt(
+                                            self._stylesheet.container_padding_right, 
+                                            self._stylesheet.set_container_padding_right
+                                            )
+                                        ),
+                                    (1, 2)
+                                ),
+                                (
+                                    HorizontalLabeledInputRow(
+                                        "Bottom",
+                                        LineEditInt(
+                                            self._stylesheet.container_padding_bottom, 
+                                            self._stylesheet.set_container_padding_bottom
+                                            )
+                                        ),
+                                    (2, 1)
+                                )
+                                ]),
+                            ]),
+                        
+                            HorizontalLabeledInputRow(
+                                "Background Color",
+                                LineEditText(
+                                    self._stylesheet.container_background_color, 
+                                    self._stylesheet.set_container_background_color
+                                    )
+                                ),
+                            
+                        ]),
+                    
+                    VerticalGroupBox([
+                        HeaderLabel("Cell Header"),
+                        
+                        VerticalGroupBox([
+                            BoldLabel("Padding"),
+                            GridLayout([
+                                (
+                                    HorizontalLabeledInputRow(
+                                        "Left",
+                                        LineEditInt(
+                                            self._stylesheet.cell_header_padding_left, 
+                                            self._stylesheet.set_cell_header_padding_left
+                                            )
+                                        ),
+                                    (1, 0)
+                                ),
+                                (
+                                    HorizontalLabeledInputRow(
+                                        "Top",
+                                        LineEditInt(
+                                            self._stylesheet.cell_header_padding_top, 
+                                            self._stylesheet.set_cell_header_padding_top
+                                            )
+                                        ),
+                                    (0, 1)
+                                ),
+                                (
+                                    HorizontalLabeledInputRow(
+                                        "Right",
+                                        LineEditInt(
+                                            self._stylesheet.cell_header_padding_right, 
+                                            self._stylesheet.set_cell_header_padding_right
+                                            )
+                                        ),
+                                    (1, 2)
+                                ),
+                                (
+                                    HorizontalLabeledInputRow(
+                                        "Bottom",
+                                        LineEditInt(
+                                            self._stylesheet.cell_header_padding_bottom, 
+                                            self._stylesheet.set_cell_header_padding_bottom
+                                            )
+                                        ),
+                                    (2, 1)
+                                )
+                                ]),
+                            
+                            
+                            ]),
+                        
+                            HorizontalLabeledInputRow(
+                                    "Background color",
+                                    LineEditText(
+                                        self._stylesheet.cell_header_background_color, 
+                                        self._stylesheet.set_cell_header_background_color
+                                        )
+                                    ),
+                        
+                            HorizontalLabeledInputRow(
+                                "Spacing",
+                                LineEditInt(
+                                    self._stylesheet.cell_header_spacing, 
+                                    self._stylesheet.set_cell_header_spacing
+                                    )
+                                ),
+                            
+                        VerticalGroupBox([
+                            BoldLabel("Text"),
+                            HorizontalLabeledInputRow(
+                                "Font size",
+                                LineEditInt(
+                                    self._stylesheet.cell_header_font_size, 
+                                    self._stylesheet.set_cell_header_font_size
+                                    )
+                                ),
+                            HorizontalLabeledInputRow(
+                                "Font color",
+                                LineEditText(
+                                    self._stylesheet.cell_header_font_color, 
+                                    self._stylesheet.set_cell_header_font_color
+                                    )
+                                ),
+                            VerticalGroupBox([
+                        
+                                VerticalBoxLayout([
+                                    self._cell_header_font_label,
+                                    PushButton(
+                                        "Set cell header font ",
+                                        self._edit_cell_header_font
+                                        ),
+                                    PushButton(
+                                        "Remove cell header font",
+                                        self._remove_cell_header_font
+                                        )
+                                    ]),
+                                ])
+                            ])
+                        ]),
+                    
+                    VerticalGroupBox([
+                        HeaderLabel("Cells Items - Global"),
+                        
+                        VerticalGroupBox([
+                            BoldLabel("Padding"),
+                            GridLayout([
+                                (
+                                    HorizontalLabeledInputRow(
+                                        "Left",
+                                        LineEditInt(
+                                            self._stylesheet.cell_padding_left, 
+                                            self._stylesheet.set_cell_padding_left
+                                            )
+                                        ),
+                                    (1, 0)
+                                ),
+                                (
+                                    HorizontalLabeledInputRow(
+                                        "Top",
+                                        LineEditInt(
+                                            self._stylesheet.cell_padding_top, 
+                                            self._stylesheet.set_cell_padding_top
+                                            )
+                                        ),
+                                    (0, 1)
+                                ),
+                                (
+                                    HorizontalLabeledInputRow(
+                                        "Right",
+                                        LineEditInt(
+                                            self._stylesheet.cell_padding_right, 
+                                            self._stylesheet.set_cell_padding_right
+                                            )
+                                        ),
+                                    (1, 2)
+                                ),
+                                (
+                                    HorizontalLabeledInputRow(
+                                        "Bottom",
+                                        LineEditInt(
+                                            self._stylesheet.cell_padding_bottom, 
+                                            self._stylesheet.set_cell_padding_bottom
+                                            )
+                                        ),
+                                    (2, 1)
+                                )
+                                ]),
+                            
+                            
+                            ]),
+                        
+                        VerticalGroupBox([
+                            HorizontalBoxLayout([
+                                HorizontalLabeledInputRow(
+                                    "Spacing",
+                                    LineEditInt(
+                                        self._stylesheet.cell_spacing, 
+                                        self._stylesheet.set_cell_spacing
+                                        )
+                                    ),
+                                
+                                HorizontalLabeledInputRow(
+                                    "Content spacing",
+                                    LineEditInt(
+                                        self._stylesheet.cell_content_spacing, 
+                                        self._stylesheet.set_cell_content_spacing
+                                        )
+                                    ),
+                                ]),
+                            
+                            HorizontalBoxLayout([
+                                HorizontalLabeledInputRow(
+                                    "Font size",
+                                    LineEditInt(
+                                        self._stylesheet.cell_font_size, 
+                                        self._stylesheet.set_cell_font_size
+                                        )
+                                    ),
+                                
+                                HorizontalLabeledInputRow(
+                                    "Aspect image size",
+                                    LineEditInt(
+                                        self._stylesheet.cell_aspect_image_size, 
+                                        self._stylesheet.set_cell_aspect_image_size
+                                        )
+                                    ), 
+                                ]),
+                            ]),
+                        
+                            VerticalGroupBox([
+                            
+                                VerticalBoxLayout([
+                                    self._cell_font_label,
+                                    PushButton(
+                                        "Set cell font ",
+                                        self._edit_cell_font
+                                        ),
+                                    PushButton(
+                                        "Remove cell font",
+                                        self._remove_cell_font
+                                        )
+                                    ]),
+                                ])
+                        
+                    ]),
+                    self._cell_configuration_list,
+                    PushButton("Add Cell Interval", self._add_new_cell_configuration)
+                ])),
+            
+                HorizontalBoxLayout([
+                    QLabel("Reset styles"),
+                    self._reset_styles_checkbox,
+                ]).add_spacer(QSpacerItem(0, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)),
+                
+                HorizontalBoxLayout([
+                    PushButton(
+                        "Apply", 
+                        self._save_settings
+                        ),
+                    PushButton(
+                        "Save && Close", 
+                        self._save_and_close
+                        ),
+                ])
+            
+            ]).set_to_layout(self)
+        
+        self._sync_ui()
+    
+    def _load_cell_interval_configuration(self):
+        self._cell_configuration_list.replace_widgets([HeaderLabel("Cell Items - Intervals")])
+        for current_index in range(self._stylesheet.cell_interval_count):
+            self._cell_configuration_list.add_widgets([
+                CellStyleWrapper(current_index,
+                                 self._stylesheet, 
+                                 self._trash)
+                ])
+    
+    def _add_new_cell_configuration(self):
+        self._stylesheet.add_interval_cell_style()
+        self._sync_ui()
+    
+    def _reset_styles_checked(self, state: Qt.CheckState):
+        pass
+    
+    def _trash(self, index: int):
+        self._stylesheet.remove_interval_cell_style()
+        self._sync_ui()
+    
+    def _sync_ui(self):
+        self._container_background_image_label.setText(self._stylesheet.container_background_image_path if self._stylesheet.container_background_image_path is not None else "No image selected")
+        self._cell_font_label.setText(self._stylesheet.cell_font_path if self._stylesheet.cell_font_path is not None else "No font selected")
+        self._cell_header_font_label.setText(self._stylesheet.cell_header_font_path if self._stylesheet.cell_header_font_path is not None else "No font selected")
+        self._load_cell_interval_configuration()
+    
+    def _edit_background_image(self):
+        file_path, _ = QFileDialog.getOpenFileName(self, 
+                                                     "Select image", 
+                                                     self._configuration_manager.configuration.picture_dir_path, 
+                                                     "Image Files (*.png *.jpg *.jpeg *.bmp *.gif);;All Files (*)")
+        if file_path:
+            self._stylesheet.set_container_background_image_path(file_path)
+            self._sync_ui()
+            
+    def _remove_background_image(self):
+        self._stylesheet.set_container_background_image_path(None)
+        self._sync_ui()
+        
+    def _edit_cell_font(self):
+        file_path, _ = QFileDialog.getOpenFileName(self, 
+                                                     "Select font", 
+                                                     self._configuration_manager.configuration.picture_dir_path, 
+                                                     "Font files (*.ttf *.otf *.woff *.woff2);;All Files (*)")
+        if file_path:
+            self._stylesheet.set_cell_font_path(file_path)
+            self._sync_ui()
+            
+    def _remove_cell_font(self):
+        self._stylesheet.set_cell_font_path(None)
+        self._sync_ui()
+        
+    def _edit_cell_header_font(self):
+        file_path, _ = QFileDialog.getOpenFileName(self, 
+                                                     "Select font", 
+                                                     self._configuration_manager.configuration.picture_dir_path, 
+                                                     "Font files (*.ttf *.otf *.woff *.woff2);;All Files (*)")
+        if file_path:
+            self._stylesheet.set_cell_header_font_path(file_path)
+            self._sync_ui()
+            
+    def _remove_cell_header_font(self):
+        self._stylesheet.set_cell_header_font_path(None)
+        self._sync_ui()
+        
+    
+    def _reset_styles(self):
+        if self._router.prompt_accept("Reset styles?", "Are you sure you want to reset styles?"):
+            self._stylesheet = DraftListStyleSheet.default_style()
+            self._mutable_app_ui_configuration.set_draft_list_styles(self._stylesheet)
+            self._app_ui_configuration_manager.save_configuration(self._mutable_app_ui_configuration)
+            self.close()
+    
+    def _save_and_close(self):
+        if self._reset_styles_checkbox.checkState() == Qt.CheckState.Checked:
+            self._reset_styles()
+            return
+        self._save_settings()
+        self.close()
+    
+    def _save_settings(self):
+        if self._reset_styles_checkbox.checkState() == Qt.CheckState.Checked:
+            self._reset_styles()
+            return
+        self._mutable_app_ui_configuration.set_draft_list_styles(self._stylesheet)
+        self._app_ui_configuration_manager.save_configuration(self._mutable_app_ui_configuration)
+        
+        new_config = self._configuration_manager.mutable_configuration()
+        new_config.set_draft_list_add_card_mode(Configuration.Settings.DraftListAddCardMode(self._add_card_mode_combo_box.currentIndex()))
+        self._configuration_manager.save_configuration(new_config)

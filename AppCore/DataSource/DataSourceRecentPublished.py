@@ -1,16 +1,17 @@
-import json
 from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
-from typing import Any, List, Tuple, Optional, Dict
+from typing import Any, Dict, List, Optional, Tuple
 
-from AppCore.CoreDependenciesProviding import CoreDependenciesProviding
-
+from AppCore.Config import ConfigurationManager
+from AppCore.ImageResource.ImageResourceProcessorProvider import \
+    ImageResourceProcessorProviding
+from AppCore.Models import LocalCardResource
 from AppCore.Observation import *
 from AppCore.Observation.Events import (LocalCardResourceSelectedEvent,
-                                  PublishStagedCardResourcesEvent)
-from AppCore.Service.ModelEncoder import ModelEncoder
-from AppCore.Models import LocalCardResource
+                                        PublishStagedCardResourcesEvent)
+from AppCore.Service import DataSerializer
+
 
 class DataSourceRecentPublishedDelegate:
     def rp_did_retrieve_card_resource_for_card_selection(self, ds: ..., local_resource: LocalCardResource) -> None:
@@ -22,23 +23,24 @@ class DataSourceRecentPublished(TransmissionReceiverProtocol):
         PUBLISHED_RESOURCE = 'published_resource'
 
     def __init__(self, 
-                 core_dependency_provider: CoreDependenciesProviding):
-        self._observation_tower = core_dependency_provider.observation_tower
-        self._image_resource_processor_provider = core_dependency_provider.image_resource_processor_provider
-        self._configuration_provider = core_dependency_provider.configuration_manager
-
+                 observation_tower: ObservationTower, 
+                 image_resource_processor_provider: ImageResourceProcessorProviding, 
+                 configuration_manager: ConfigurationManager, 
+                 data_serializer: DataSerializer):
+        self._observation_tower = observation_tower
+        self._image_resource_processor_provider = image_resource_processor_provider
+        self._configuration_provider = configuration_manager
+        self._data_serializer = data_serializer
         self._published_history: List[Tuple[LocalCardResource, datetime]] = []
         
         Path(self._configuration_provider.configuration.cache_history_dir_path).mkdir(parents=True, exist_ok=True)
         self._publish_history_path = f'{self._configuration_provider.configuration.cache_history_dir_path}publish_history.json'
-        my_file = Path(self._publish_history_path)
-        if my_file.is_file():
-            with open(self._publish_history_path, "r") as f:
-                loaded = json.load(f)
-                for l in loaded:
-                    self._published_history.append((LocalCardResource.from_json(l[self.Keys.PUBLISHED_RESOURCE]), datetime.fromtimestamp(l[self.Keys.DATETIME])))
         
-
+        loaded = self._data_serializer.load(self._publish_history_path)
+        if loaded is not None:
+            for l in loaded:
+                self._published_history.append((LocalCardResource.from_json(l[self.Keys.PUBLISHED_RESOURCE]), datetime.fromtimestamp(l[self.Keys.DATETIME])))
+                
         self._selected_index: Optional[int] = None
         self._selected_resource: Optional[LocalCardResource] = None
         self.delegate: Optional[DataSourceRecentPublishedDelegate] = None
@@ -78,10 +80,9 @@ class DataSourceRecentPublished(TransmissionReceiverProtocol):
     def _save_data(self):
         # save async
         data: List[Dict[str, Any]] = []
-        for e in self._published_history[:100]: # TODO: configuration
+        for e in self._published_history[:100]:
             data.append({
                 self.Keys.PUBLISHED_RESOURCE: e[0],
                 self.Keys.DATETIME: e[1].timestamp()
             })
-        with open(self._publish_history_path, "w") as f:
-            json.dump(data, f, cls=ModelEncoder)
+        self._data_serializer.save_json_data(self._publish_history_path, data)

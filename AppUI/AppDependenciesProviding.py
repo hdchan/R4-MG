@@ -2,10 +2,10 @@ from AppCore.CoreDependenciesProviding import CoreDependenciesProviding
 from AppCore.DataSource import DataSourceCardSearchClientProviding, DataSourceLocallyManagedSets
 
 from .Assets import AssetProvider
-from .Coordinators import MenuActionCoordinator, ShortcutActionCoordinator
+from .Coordinators import ShortcutActionCoordinator
 from .Router import Router
-
-
+from .Configuration.AppUIConfiguration import AppUIConfigurationManager
+from .ExternalAppDependenciesProviding import ExternalAppDependenciesProviding
 class AppDependenciesProviding(CoreDependenciesProviding):
     
     @property
@@ -21,13 +21,17 @@ class AppDependenciesProviding(CoreDependenciesProviding):
         raise Exception
     
     @property
-    def menu_action_coordinator(self) -> MenuActionCoordinator:
-        raise Exception
-    
-    @property
     def search_client_provider(self) -> DataSourceCardSearchClientProviding:
         raise Exception
     
     @property
     def local_managed_sets_data_source(self) -> DataSourceLocallyManagedSets:
+        raise Exception
+    
+    @property
+    def app_ui_configuration_manager(self) -> AppUIConfigurationManager:
+        raise Exception
+    
+    @property
+    def external_app_dependencies_provider(self) -> ExternalAppDependenciesProviding:
         raise Exception

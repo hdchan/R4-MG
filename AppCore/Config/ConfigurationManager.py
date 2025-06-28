@@ -4,7 +4,7 @@ from pathlib import Path
 
 import yaml
 
-from AppCore.Config.Configuration import *
+from AppCore.Config.Configuration import MutableConfiguration, Configuration
 from AppCore.Observation.Events import (ApplicationEvent,
                                         ConfigurationUpdatedEvent)
 from AppCore.Observation.ObservationTower import *
@@ -13,11 +13,12 @@ from AppCore.Observation.ObservationTower import *
 
 
 class ConfigurationManager(TransmissionReceiverProtocol):
-    def __init__(self, observation_tower: ObservationTower):
+    def __init__(self,
+                 observation_tower: ObservationTower):
         self._configuration = MutableConfiguration.default()
         # ensure that the app path points to our designated application name
         assert(Path(self._configuration.config_directory).parts[-1] == Configuration.APP_NAME)
-        self.observation_tower = observation_tower
+        self._observation_tower = observation_tower
 
         self._create_directory_if_needed()
         my_file = Path(self._settings_file_path)
@@ -34,11 +35,12 @@ class ConfigurationManager(TransmissionReceiverProtocol):
         # self._save_async_timer.timeout.connect(self.save)
         # self.debounce_time = 5000
 
-        observation_tower.subscribe(self, ApplicationEvent)
+        self._observation_tower.subscribe(self, ApplicationEvent)
 
     @property
     def configuration(self) -> Configuration:
-        return deepcopy(self._configuration)
+        return self.mutable_configuration()
+    
     
     def mutable_configuration(self) -> MutableConfiguration:
         return deepcopy(self._configuration)
@@ -63,7 +65,7 @@ class ConfigurationManager(TransmissionReceiverProtocol):
     
 
     def _notify_configuration_changed(self, old_configuration: Configuration):
-        self.observation_tower.notify(ConfigurationUpdatedEvent(self.configuration, old_configuration))
+        self._observation_tower.notify(ConfigurationUpdatedEvent(self.configuration, old_configuration))
         self._write_configuration_changes()
 
     def _create_directory_if_needed(self):

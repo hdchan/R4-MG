@@ -1,6 +1,6 @@
 
 from AppCore.Models import SearchConfiguration
-from AppCore.Models.CardType import CardType
+from AppUI.Clients.CardType import CardType
 
 
 class SWUCardSearchConfiguration(SearchConfiguration):

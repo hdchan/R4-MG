@@ -3,8 +3,8 @@ import random
 from pathlib import Path
 from typing import List, Optional
 
-# basedir = os.path.dirname(__file__)
-appdir = os.path.dirname(os.path.abspath(__file__))
+
+APP_DIR = os.path.dirname(os.path.abspath(__file__))
 class AssetProvider:
     class Text:
         @property
@@ -16,7 +16,7 @@ class AssetProvider:
             return self._text_path('shortcuts.md')
 
         def _text_path(self, file_name: str) -> str:
-            return os.path.join(appdir, f'Text/{file_name}')
+            return os.path.join(APP_DIR, f'Text/{file_name}')
     class Image:
         @property
         def logo_path(self) -> str:
@@ -42,8 +42,35 @@ class AssetProvider:
         def set_identifier_example(self) -> str:
             return self._image_path('set-identifier-example.png')
         
+        @property
+        def aspect_aggression(self) -> str:
+            return self._aspect_resource("Aggression")
+        
+        @property
+        def aspect_command(self) -> str:
+            return self._aspect_resource("Command")
+        
+        @property
+        def aspect_cunning(self) -> str:
+            return self._aspect_resource("Cunning")
+        
+        @property
+        def aspect_heroism(self) -> str:
+            return self._aspect_resource("Heroism")
+        
+        @property
+        def aspect_vigilance(self) -> str:
+            return self._aspect_resource("Vigilance")
+        
+        @property
+        def aspect_villainy(self) -> str:
+            return self._aspect_resource("Villainy")
+        
+        def _aspect_resource(self, aspect: str) -> str:
+            return self._image_path(f'Aspects/SWH_Aspects_{aspect}_100.png')
+        
         def _image_path(self, file_name: str) -> str:
-            return os.path.join(appdir, f'Images/{file_name}')
+            return os.path.join(APP_DIR, f'Images/{file_name}')
         
     class Audio:
         def __init__(self):
@@ -52,7 +79,7 @@ class AssetProvider:
         @property
         def _r2_file_list(self) -> Optional[List[str]]:
             if self.__r2_file_list is None:
-                sound_effect_files = os.listdir(os.path.join(appdir, f'Audio/r2/'))
+                sound_effect_files = os.listdir(os.path.join(APP_DIR, f'Audio/r2/'))
                 filtered_list: List[str] = []
                 for file in sound_effect_files[:]:
                     path = Path(file)
@@ -88,38 +115,21 @@ class AssetProvider:
         
         
         def _audio_path(self, file_name: str) -> str:
-            return os.path.join(appdir, f'Audio/r2/{file_name}')
+            return os.path.join(APP_DIR, f'Audio/r2/{file_name}')
     
     class Data:
-        @property
-        def sor_set_path(self):
-            return self._data_path('sor.json')
-        
-        @property
-        def shd_set_path(self):
-            return self._data_path('shd.json')
-        
-        @property
-        def twi_set_path(self):
-            return self._data_path('twi.json')
-        
-        @property
-        def jtl_set_path(self):
-            return self._data_path('jtl.json')
-        
-        @property
-        def lof_set_path(self):
-            return self._data_path('lof.json')
-        
-        @property
-        def starwarsunlimited_com_filter_path(self):
-            return self._data_path('starwarsunlimited_com_filters.json')
         
         def _data_path(self, file_name: str) -> str:
-            return os.path.join(appdir, f'Data/{file_name}')
+            return os.path.join(APP_DIR, f'Data/{file_name}')
+    
+    class Fonts:
         
+        def _fonts_path(self, file_name: str) -> str:
+            return os.path.join(APP_DIR, f'Fonts/{file_name}')
+    
     def __init__(self):
         self.text = self.Text()
         self.image = self.Image()
         self.audio = self.Audio()
         self.data = self.Data()
+        self.fonts = self.Fonts()

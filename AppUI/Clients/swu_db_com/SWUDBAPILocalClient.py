@@ -8,12 +8,13 @@ from AppCore.DataSource.DataSourceCardSearchClientProtocol import (
     DataSourceCardSearchClientSearchCallback,
     DataSourceCardSearchClientSearchResponse,
     DataSourceCardSearchClientSearchResult)
-from AppCore.Models import (CardType, PaginationConfiguration,
-                            SearchConfiguration, TradingCard)
-from AppUI.Assets import AssetProvider
+from AppCore.Models import (PaginationConfiguration, SearchConfiguration,
+                            TradingCard)
+from ..Assets import AssetProvider
 
+from ..CardType import CardType
 from ..SWUCardSearchConfiguration import SWUCardSearchConfiguration
-from .SWUTradingCard import SWUTradingCard
+from .SWUDBTradingCard import SWUDBTradingCard
 
 CardListData = List[Dict[str, Any]]
 
@@ -73,7 +74,7 @@ class SWUDBAPILocalClient(DataSourceCardSearchClientProtocol):
                 with open(deck, 'r') as file:
                     cards = json.load(file)['data']
                     for card in cards:
-                        swu_card = SWUTradingCard.from_swudb_response(card)
+                        swu_card = SWUDBTradingCard.from_swudb_response(card)
                         result_list.append(swu_card)
             self.__response_card_list = result_list
                 

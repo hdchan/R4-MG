@@ -20,15 +20,15 @@ from .LoadingSpinner import LoadingSpinner
 
 class CustomDirectorySearchTableViewController(QWidget, TransmissionReceiverProtocol, CustomDirectorySearchDataSourceDelegate):
     def __init__(self, 
-                 app_dependency_provider: AppDependenciesProviding,
+                 app_dependencies_provider: AppDependenciesProviding,
                  image_preview_view: ImagePreviewViewController):
         super().__init__()
         self._image_preview_view = image_preview_view
-        self._observation_tower = app_dependency_provider.observation_tower
-        self._router = app_dependency_provider.router
-        self._card_search_data_source = app_dependency_provider.new_instance_custom_directory_search_data_source(self)
+        self._observation_tower = app_dependencies_provider.observation_tower
+        self._router = app_dependencies_provider.router
+        self._card_search_data_source = app_dependencies_provider.new_instance_custom_directory_search_data_source(self)
         
-        self._configuration_manager = app_dependency_provider.configuration_manager
+        self._configuration_manager = app_dependencies_provider.configuration_manager
 
         layout = QVBoxLayout()
         self.setLayout(layout)
@@ -70,14 +70,14 @@ class CustomDirectorySearchTableViewController(QWidget, TransmissionReceiverProt
         self._loading_spinner = LoadingSpinner(self)
         
         
-        app_dependency_provider.observation_tower.subscribe_multi(self, [CardSearchEvent,
+        app_dependencies_provider.observation_tower.subscribe_multi(self, [CardSearchEvent,
                                                                          KeyboardEvent,
                                                                          ConfigurationUpdatedEvent, 
                                                                          LocalCardResourceFetchEvent]) 
         
-        app_dependency_provider.shortcut_action_coordinator.bind_focus_search(self._set_search_focus, self)
-        app_dependency_provider.shortcut_action_coordinator.bind_reset_search(self._reset_search, self)
-        app_dependency_provider.shortcut_action_coordinator.bind_search(self.search, self)
+        app_dependencies_provider.shortcut_action_coordinator.bind_focus_search(self._set_search_focus, self)
+        app_dependencies_provider.shortcut_action_coordinator.bind_reset_search(self._reset_search, self)
+        app_dependencies_provider.shortcut_action_coordinator.bind_search(self.search, self)
         
         self._sync_ui()
     

@@ -21,7 +21,16 @@ a = Analysis(
         ('AppUI\\Assets\\Images\\cardback.png', 'AppUI\\Assets\\Images'),
         ('AppUI\\Assets\\Images\\r4-head.png', 'AppUI\\Assets\\Images'),
         ('AppUI\\Assets\\Images\\large_spark_of_rebellion_starfield_c4fdfaa6a7.png', 'AppUI\\Assets\\Images'),
-        ('AppUI\\Assets\\Images\\set-identifier-example.png', 'AppUI\\Assets\\Images')
+        ('AppUI\\Assets\\Images\\set-identifier-example.png', 'AppUI\\Assets\\Images'),
+
+        ('AppUI\\Assets\\Images\\Aspects\\SWH_Aspects_Aggression_100.png', 'AppUI\\Assets\\Images'),
+        ('AppUI\\Assets\\Images\\Aspects\\SWH_Aspects_Command_100.png', 'AppUI\\Assets\\Images'),
+        ('AppUI\\Assets\\Images\\Aspects\\SWH_Aspects_Cunning_100.png', 'AppUI\\Assets\\Images'),
+        ('AppUI\\Assets\\Images\\Aspects\\SWH_Aspects_Heroism_100.png', 'AppUI\\Assets\\Images'),
+        ('AppUI\\Assets\\Images\\Aspects\\SWH_Aspects_Vigilance_100.png', 'AppUI\\Assets\\Images'),
+        ('AppUI\\Assets\\Images\\Aspects\\SWH_Aspects_Villainy_100.png', 'AppUI\\Assets\\Images'),
+
+        ('AppUI\\Clients\\Assets', 'AppUI\\Clients\\Assets')
     ],
     hiddenimports=[],
     hookspath=[],

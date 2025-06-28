@@ -1,3 +1,4 @@
+import copy
 import weakref
 from typing import Dict, List, Type
 from weakref import ReferenceType
@@ -9,27 +10,50 @@ from .TransmissionReceiverProtocol import TransmissionReceiverProtocol
 class ObservationTower:
 
     def __init__(self):
-         self.subscribers: Dict[Type[TransmissionProtocol], List[ReferenceType[TransmissionReceiverProtocol]]] = {}
+         self._subscribers: Dict[Type[TransmissionProtocol], List[ReferenceType[TransmissionReceiverProtocol]]] = {}
+
+    @property
+    def subscribers(self) -> Dict[Type[TransmissionProtocol], List[ReferenceType[TransmissionReceiverProtocol]]]:
+        return copy.deepcopy(self._subscribers)
 
     def notify(self, event: TransmissionProtocol):
-        if event.__class__ not in self.subscribers:
+        if event.__class__ not in self._subscribers:
             return
-        dead_subscribers: List[ReferenceType[TransmissionReceiverProtocol]] = []
-        if event.__class__ in self.subscribers:
-            for s in self.subscribers[event.__class__]:
+        
+        dead_subscribers: Dict[Type[TransmissionProtocol], List[ReferenceType[TransmissionReceiverProtocol]]] = {}
+        for key in self._subscribers:
+            dead_subscribers[key] = []
+            for s in self._subscribers[key]:
+                if s() == None:
+                    dead_subscribers[key].append(s)
+        for key in dead_subscribers:
+            for s in dead_subscribers[key]:
+                self._subscribers[key].remove(s)
+        
+        if event.__class__ in self._subscribers:
+            event_subscribers = self._subscribers[event.__class__]
+            for s in event_subscribers:
                 try:
                     s().handle_observation_tower_event(event) # type: ignore
                 except:
-                    dead_subscribers.append(s)
-        # filter dead subscribers
-        for s in dead_subscribers:
-            self.subscribers[event.__class__].remove(s)
+                    pass
+                
+        self._debug_log()
 
     def subscribe(self, subscriber: TransmissionReceiverProtocol, eventType: Type[TransmissionProtocol]):
-        if eventType not in self.subscribers:
-            self.subscribers[eventType] = []
-        self.subscribers[eventType].append(weakref.ref(subscriber))
+        if eventType not in self._subscribers:
+            self._subscribers[eventType] = []
+        self._subscribers[eventType].append(weakref.ref(subscriber))
         
     def subscribe_multi(self, subscriber: TransmissionReceiverProtocol, eventTypes: List[Type[TransmissionProtocol]]):
         for e in eventTypes:
             self.subscribe(subscriber, e)
+            
+    def _debug_log(self):
+        subscribers = self.subscribers
+        result: Dict[Type[TransmissionProtocol], int] = {}
+        for key in subscribers.keys():
+            result[key] = len(subscribers[key])
+        res =  max(result, key=result.get)
+        text = f'{res} {result[res]})'
+        print(text)

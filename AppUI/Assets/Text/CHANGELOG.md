@@ -1,12 +1,36 @@
-## Changelog
+# Changelog
 
-### 0.18.0
-#### Feature updates
+## [0.19.0] - 2025-09-23
+
+### Added
+- Draft list pack preview functionality
+  - Header cell styling support for pack previews
+  - Configurable header properties (padding, colors, fonts)
+  - Pack preview tab navigation 
+  - Card deployment and publishing workflow
+- New configuration options
+  - `DRAFT_LIST_STYLES` for customizing pack preview appearance
+  - `DRAFT_LIST_ADD_CARD_MODE` for card deployment behavior
+  - `DRAFT_LIST_ADD_CARD_DEPLOYMENT_DESTINATION` for deployment targets
+
+### Changed
+- Reorganized configuration structure
+  - Moved default values to `default_style` method
+  - Added type hints for configuration properties
+- Updated version to 0.19.0-beta
+
+### Removed
+- Deprecated search/publish history caching
+- Legacy build and deployment tasks
+
+## [0.18.0] - 2025-06-28
+
+### Added
 - Add LoF set 5
 - Remove resize label below deployment list
 - Implement locally managed sets
 
-#### Engineering updates
+### Engineering
 - Naming and import refactors
 - Moves card search cache directory
 - Moves history files directory
@@ -17,63 +41,74 @@
 - Refactor recent search DS to be part of existing card search DS
 - Fix calling dead object in observer
 
-### 0.17.0
-#### Feature updates
+## [0.17.0] - 2025-05-14
+
+### Added
 - Adds custom directory search with working previews
 - Adds Death Star plans disc spinner
-#### Engineering updates
+
+### Engineering
 - Graceful handling of folder related exceptions
 - Updates local api client to use update local async logic
 - Implement async local file retrieval
 - Removes CardResourceProvider and ImageSource
 
-### 0.16.0
-#### Feature updates
+## [0.16.0] - 2025-04-30
+
+### Added
 - Adds preview image scale option
 
-### 0.15.0
-#### Feature updates
+## [0.15.0] - 2025-04-15
+
+### Added
 - Adds reset search functionality and shortcut
 - Adds new variant type emojis
 - Adds configuration for horizontal layout
 
-### 0.14.2
-#### Feature updates
+## [0.14.2] - 2025-03-20
+
+### Added
 - Adds JTL local response
 #### Hotfix
 - Fix caching identifier conflict
 
-### 0.14.1
+## [0.14.1] - 2025-03-15
+
 #### Hotfix
 - Fix edge case crash for no results
 
-### 0.14.0
-#### Feature updates
+## [0.14.0] - 2025-03-01
+
+### Added
 - Adds search source from FFG
 - Removes swudb.com image source
 - Updates "Quick Guide"
 #### Engineering updates
 - Adds pagination capabilities for `SearchTableViewController` and respective `DataSourceCardSearch`
 
-### 0.13.1
+## [0.13.1] - 2025-02-15
+
 #### Hotfix
 - Update shortcut list
 
-### 0.13.0
-#### Feature updates
+## [0.13.0] - 2025-02-01
+
+### Added
 - Updating rounded corners
 - Update refresh to maintain staging resource state when refreshing
 - Add deployment list sort
 - Add shortcuts list
 
-### 0.12.0
-#### Feature updates
+## [0.12.0] - 2025-01-15
+
+### Added
 - Adds configuration for max rescale size
-#### Engineering updates
+### Engineering updates
 - Adds new loading spinner prototype
 
-### 0.11.0
-#### Feature updates
+## [0.11.0] - 2024-12-15
+
+### Added
 - Adds window dimension configuration
 - Add new card back
 - Add creation date metadata
@@ -84,7 +119,7 @@
 - Add markdown to about page
 - Add duration string format
 
-#### Engineering updates
+### Engineering updates
 - Adds abstract image processor
 - Fix broken delegate to regenerate production image from link
 - Refactor search datasource out of application core
@@ -111,19 +146,21 @@
 - Add custom encoder
 - Refactor configuration implementation
 
-### 0.10.1
+## [0.10.1] - 2024-11-15
+
 #### Hotfix
 - Fix broken delegate to regenerate production image from link
 
-### 0.10.0
-#### Feature updates
+## [0.10.0] - 2024-11-01
+
+### Added
 - Add clear cache and unstage all resources options
 - Async image processing
 - Fix production button state bug when redownloading asset
 - Fix crash when re-downloading multiple times
 - Fix update preview when changing image source
 
-#### Engineering updates
+### Engineering updates
 - Create App state model
 - Abstracting os platform operations
 - Add temp folder access
@@ -136,20 +173,24 @@
 - Move card aspect and type out of app core
 - Arc refactors
 
-### 0.9.3
+## [0.9.3] - 2024-10-15
+
 #### Hotfix
 - Fix production button state bug when redownloading asset
 
-### 0.9.2
+## [0.9.2] - 2024-10-01
+
 #### Hotfix
 - Fix crash when re-downloading multiple times
 
-### 0.9.1
+## [0.9.1] - 2024-09-15
+
 #### Hotfix
 - Fix update preview when changing image source
 
-### 0.9.0
-#### Feature updates
+## [0.9.0] - 2024-09-01
+
+### Added
 - Adding option to change display name length
 - Add local search
 - Tweaking dimensions
@@ -158,8 +199,9 @@
 - Update functions and paths for mac compatibility
 - Move mock data to app UI folder
 
-### 0.8.0
-#### Feature updates
+## [0.8.0] - 2024-08-01
+
+### Added
 - Add search shortcut helper text
 - Fix loading spinner visual bug
 - Adjusting layout for search pane
@@ -171,60 +213,64 @@
 - Add sound effect for cta image
 - Remove performance setting from settings page
   
-#### Engineering updates
+### Engineering updates
 - Handle empty production file edge case
   
-### 0.7.0
-#### Feature updates
+## [0.7.0] - 2024-07-01
+
+### Added
 - Adds image rotation
 - Adds redownload option for image resource
 - Adds regenerate preview
 - Adds placeholder logo
   
-#### Engineering updates
+### Engineering updates
 - Adds additional sets for local mock
 
-### 0.6.0
-#### Feature updates
+## [0.6.0] - 2024-06-01
+
+### Added
 - Adds resource details setting
   
-#### Engineering updates
+### Engineering updates
 - Fixes staging bug where previous source image was staged
 
-### 0.5.0
-#### Feature updates
+## [0.5.0] - 2024-05-01
+
+### Added
 - Adds contextual menu for images.
 - Adds search base and leader shortcuts.
 
-#### Engineering updates
+### Engineering updates
 - Fixes staging bug where prior staged resources were not removed.
 - Creates asset provider.
 
-### 0.4.1
+## [0.4.1] - 2024-04-01
+
 #### Hotfix
 - Fixes configuration path.
 
-### 0.4.0
+## [0.4.0] - 2024-03-01
 
-#### Feature updates
+### Added
 - Removes contextual search and card context.
 - Adds Settings pane.
 - Adds additional image source configuration.
 
-#### Engineering updates
+### Engineering updates
 - Abstracts and adds image source protocol.
 - Removes CardSearchFlow.
   
-### 0.3.0
+## [0.3.0] - 2024-02-01
 
-#### Feature updates
+### Added
 - Adds search by type filter.
 - Adds contextual search for row.
 - Adds persistent settings.
 - Add color to stage and unstage buttons.
 - Add menu option to navigate to image location.
 
-#### Engineering updates
+### Engineering updates
 - Modularized SWUDB client.
 - Modularized image cacher and deployment objects.
 - Refactors `TradingCard` to be primary object.
@@ -233,9 +279,9 @@
 - Moves persistent image storage to `Pictures` directory.
 - Changed build to be single file exe.
 
-### 0.2.0
+## [0.2.0] - 2024-01-01
 
-#### Feature updates
+### Added
 - Reprograms designation to: `R4-MG`.
 - Adds performance mode 🚗💨.
 - Adds keyboard shortcuts for:
@@ -248,7 +294,7 @@
 - Updates UI layouts and improves responsiveness.
 - Improves UX.
 
-#### Engineering updates
+### Engineering updates
 - Refactors project to split core functionality from UI functionality.
 - Implements async call for:
   - Search
@@ -256,5 +302,5 @@
 - Adds observer/subscriber.
 - Adds configuration.
 
-### 0.1.0
+## [0.1.0] - 2023-12-01
 - MVP

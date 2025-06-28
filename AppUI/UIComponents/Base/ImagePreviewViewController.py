@@ -1,9 +1,9 @@
-import webbrowser
 from typing import Optional
 
 from PyQt5.QtCore import QPoint, Qt
 from PyQt5.QtGui import QClipboard, QGuiApplication, QPixmap
 from PyQt5.QtWidgets import QAction, QLabel, QMenu, QVBoxLayout, QWidget
+
 from AppCore.Config import Configuration
 from AppCore.ImageResource.ImageResourceProcessorProtocol import *
 from AppCore.Models import LocalCardResource
@@ -13,25 +13,26 @@ from AppCore.Observation.Events import (CacheClearedEvent,
                                         LocalCardResourceFetchEvent,
                                         PublishStatusUpdatedEvent)
 from AppCore.Service.PlatformServiceProvider import *
-from .LoadingSpinner import LoadingSpinner
 from AppUI.AppDependenciesProviding import AppDependenciesProviding
-from PIL import Image
+
+from .LoadingSpinner import LoadingSpinner
 
 MAX_PREVIEW_SIZE = 256
 class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
-                 app_dependency_provider: AppDependenciesProviding, 
+                 app_dependencies_provider: AppDependenciesProviding, 
                  # whether we can manipulate images
                  can_post_process: bool = True):
         super().__init__()
         self._can_post_process = can_post_process
-        self._observation_tower = app_dependency_provider.observation_tower
-        self._configuration_manager = app_dependency_provider.configuration_manager
-        self._asset_provider = app_dependency_provider.asset_provider
-        self._image_resource_processor_provider = app_dependency_provider.image_resource_processor_provider
-        self._platform_service_provider = app_dependency_provider.platform_service_provider
-        self._router = app_dependency_provider.router
-        self._image_resource_deployer = app_dependency_provider.image_resource_deployer
+        self._observation_tower = app_dependencies_provider.observation_tower
+        self._configuration_manager = app_dependencies_provider.configuration_manager
+        self._asset_provider = app_dependencies_provider.asset_provider
+        self._image_resource_processor_provider = app_dependencies_provider.image_resource_processor_provider
+        self._platform_service_provider = app_dependencies_provider.platform_service_provider
+        self._router = app_dependencies_provider.router
+        self._data_source_image_resource_deployer = app_dependencies_provider.data_source_image_resource_deployer
+        self._external_app_dependencies_provider = app_dependencies_provider.external_app_dependencies_provider
         self._local_resource: Optional[LocalCardResource] = None
         
         
@@ -85,7 +86,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
         self._toggle_resource_details_visibility()
         self._sync_image_view_state()
 
-        app_dependency_provider.observation_tower.subscribe_multi(self, [ConfigurationUpdatedEvent, 
+        app_dependencies_provider.observation_tower.subscribe_multi(self, [ConfigurationUpdatedEvent, 
                                                  LocalCardResourceFetchEvent, 
                                                  PublishStatusUpdatedEvent, 
                                                  CacheClearedEvent])
@@ -140,7 +141,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
             
         def open_image_url():
             if self._local_resource is not None and self._local_resource.remote_image_url is not None:
-                webbrowser.open(self._local_resource.remote_image_url)
+                self._router.open_link_to_card_resource(self._local_resource)
             
         def copy_image_url():
             cb = QGuiApplication.clipboard()
@@ -287,7 +288,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
                 self._image_resource_processor
                 self._image_resource_processor.regenerate_resource_preview(self._local_resource)
             elif link == self.LinkKey.REGENERATE_PRODUCTION_FILE:
-                self._image_resource_processor.generate_placeholder(self._local_resource, Image.open(self._asset_provider.image.swu_card_back))
+                self._image_resource_processor.generate_placeholder(self._local_resource, self._external_app_dependencies_provider.card_back_image_path)
                 self._sync_image_view_state()
     
     def _toggle_resource_details_visibility(self):

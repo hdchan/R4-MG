@@ -1,4 +1,3 @@
-from .ImageResourceDeployer import ImageResourceDeployer
 from .ImageResourceProcessor import ImageResourceProcessor
 from .ImageResourceProcessorProtocol import ImageResourceProcessorProtocol
 from .ImageResourceProcessorProvider import ImageResourceProcessorProviding

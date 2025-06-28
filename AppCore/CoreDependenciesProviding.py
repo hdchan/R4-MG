@@ -1,20 +1,25 @@
 from typing import Optional
 
 from AppCore.Config import ConfigurationManager
+from AppCore.DataSource import (DataSourceDraftList,
+                                DataSourceDraftListWindowResourceDeployer,
+                                DataSourceImageResourceDeployer)
 from AppCore.DataSource.DataSourceCardSearch import (
     DataSourceCardSearch, DataSourceCardSearchClientProviding,
     DataSourceCardSearchDelegate)
 from AppCore.DataSource.DataSourceCustomDirectorySearch import (
     CustomDirectorySearchDataSource, CustomDirectorySearchDataSourceDelegate)
-from AppCore.ImageResource import (ImageResourceDeployer,
-                                   ImageResourceProcessorProviding)
+from AppCore.DataSource.DataSourceRecentPublished import \
+    DataSourceRecentPublished
+from AppCore.ImageResource import ImageResourceProcessorProviding
 from AppCore.Observation.ObservationTower import ObservationTower
-from AppCore.Service import PlatformServiceProvider, StringFormatter
+from AppCore.Service import (DataSerializer, PlatformServiceProvider,
+                             StringFormatter)
 
 
 class CoreDependenciesProviding:
     @property
-    def image_resource_deployer(self) -> ImageResourceDeployer:
+    def data_source_image_resource_deployer(self) -> DataSourceImageResourceDeployer:
          raise Exception
 
     @property
@@ -37,6 +42,10 @@ class CoreDependenciesProviding:
     def string_formatter(self) -> StringFormatter:
         raise Exception
     
+    @property
+    def data_serializer(self) -> DataSerializer:
+        raise Exception
+    
     def new_instance_card_search_data_source(self, 
                                              delegate: DataSourceCardSearchDelegate, 
                                              search_client_provider: DataSourceCardSearchClientProviding,
@@ -45,4 +54,16 @@ class CoreDependenciesProviding:
     
     def new_instance_custom_directory_search_data_source(self, 
                                                          delegate: CustomDirectorySearchDataSourceDelegate) -> CustomDirectorySearchDataSource:
+        raise Exception
+    
+    @property
+    def data_source_draft_list(self) -> DataSourceDraftList:
+        raise Exception
+    
+    @property
+    def data_source_recent_published(self) -> DataSourceRecentPublished:
+        raise Exception
+    
+    @property
+    def data_source_draft_list_window_resource_deployer(self) -> DataSourceDraftListWindowResourceDeployer:
         raise Exception

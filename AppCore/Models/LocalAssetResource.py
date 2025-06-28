@@ -4,13 +4,13 @@ from pathlib import Path
 from typing import Optional
 
 
-class LocalAssetResource:
+class LocalAssetResource():
     def __init__(self, 
                  asset_dir: str,
                  file_name: str,
                  file_extension: str,
                  display_name: str,
-                 remote_url: Optional[str] = None):
+                 remote_url: Optional[str] = None): # Can this be moved out?
         self.asset_dir = asset_dir
         self.file_name = file_name
         self.display_name = display_name

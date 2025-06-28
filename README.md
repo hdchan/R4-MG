@@ -1,34 +1,67 @@
-# R4-MG
-Image asset loader for streaming the SWU TCG.
 
-See [change log](./AppUI/Assets/Text/CHANGELOG.md) for feature updates.
+# R4-MG
+
+**R4-MG** is an image asset loader and dashboard for streaming the Star Wars Unlimited TCG. It provides card search, preview, and production features for streamers, with integration for OBS and local asset management.
+
+## Features
+
+- Card search and preview
+- Staging and production folders for stream assets
+- OBS integration for live updates
+- Locally managed sets and cache
+- Keyboard shortcuts for fast workflow
+- Custom directory search
+- Configurable UI and behavior
+
+See the [Changelog](./AppUI/Assets/Text/CHANGELOG.md) for recent updates.
+
+## Requirements
+
+- Windows OS
+- Python 3.9+
+- PyQt5
+- See `requirements.txt` for all dependencies
 
 ## Installation
-1. Download the [latest release build](https://github.com/hdchan/R4-MG/releases)
-2. Extract `R4-MG`.
-3. Open `R4-MG.exe`
 
-## How to use
+1. Download the [latest release build](https://github.com/hdchan/R4-MG/releases)
+2. Extract the `R4-MG` folder.
+3. Run `R4-MG.exe` or launch with Python:  
+	`python app_ui.py`
+
+## Usage
 
 ### Folders
-Two folders will get generated during usage:
-- cache - this stores all the cards you've previewed from your search.
-- production - this stores the cards that you intend to use to show on your stream. OBS should make use of the files that are stored here.
+
+- `cache/` — stores previewed cards from searches
+- `production/` — stores cards for streaming; OBS should use files from here
 
 ### Dashboard
 
-We can search for cards on the left side, and stage them to their respective files. Once ready, pressing on "Production" will copy the staged cards over to the `production` folder.
-
-The list on the right hand side is populated with any `.png` files that are stored in the `production` folder. You can either drag your own `.png` file into the `production` folder and `File > Refresh` the list so it'll detect the newly added file, or add generate a new one to use in the `File > New` menu.
+- Search for cards, stage them, and send to production
+- The right panel lists `.png` files in `production/`
+- Drag your own `.png` files into `production/` and refresh to use them
 
 ![Dashboard](./resources/dashboard.png)
 
-### Usage with OBS
+### OBS Integration
 
-We can source image files on our stream from the `production` folder, and they'll be updated simultaneously when sending staged cards to the `production` folder.
+- Source images from the `production/` folder in OBS
+- Images update automatically when staged cards are sent to production
 
 ![OBS](./resources/obs.png)
 
+### Keyboard Shortcuts
+
+See [Keyboard Shortcuts](./AppUI/Assets/Text/shortcuts.md) for a full list.
+
+## Contributing
+
+Pull requests and issues are welcome! Please see the code style and contribution guidelines in the repo.
+
+## License
+
+This project is licensed under the MIT License.
 
 ## Attributions
 

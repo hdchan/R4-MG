@@ -1,51 +1,37 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
+from AppCore.Models import TradingCard
+from ..SWUTradingCard import SWUTradingCard
+class StarWarsUnlimitedTradingCard(SWUTradingCard):
+    @classmethod
+    def from_trading_card(cls, trading_card: TradingCard) -> 'StarWarsUnlimitedTradingCard':
+        return StarWarsUnlimitedTradingCard.from_swudb_response(trading_card.json)
 
-from AppCore.Models.CardAspect import CardAspect
-from AppCore.Models.TradingCard import TradingCard
-
-
-class StarWarsUnlimitedTradingCard(TradingCard):
     @classmethod
     def from_swudb_response(cls, json: Dict[str, Any]):
-        obj = cls.__new__(cls)
-        metadata: Dict[str, Any] = {}
+        back_art = json['attributes']['artBack']['data']
+        back_art_url = None
+        if back_art is not None:
+            back_art_url = back_art['attributes']['formats']['card']['url']
         attributes = json['attributes']
-        super(StarWarsUnlimitedTradingCard, obj).__init__(
+        metadata: Dict[str, Any] = {}
+        variants: List[str] = []
+        if attributes['showcase']:
+            variants.append('showcase')
+        if attributes['hyperspace']:
+            variants.append('hyperspace')
+        return cls(
             name=attributes['title'],
             set=attributes['expansion']['data']['attributes']['code'],
             type=attributes['type']['data']['attributes']['value'],
             number=f'{attributes["cardNumber"]:03}',
+            cost=str(attributes.get("cost")),
+            power=str(attributes.get("power")),
+            hp=str(attributes.get("hp")),
             json=json,
-            metadata=metadata
+            metadata=metadata,
+            aspects=list(map(lambda x: str(x['attributes']['name']), json['attributes']['aspects']['data'])),
+            subtitle=attributes['subtitle'],
+            front_art_url=attributes['artFront']['data']['attributes']['formats']['card']['url'],
+            back_art_url=back_art_url,
+            variants=variants
         )
-        return obj
-    
-    @property
-    def friendly_display_name_detailed(self) -> str:
-        display_name = self.friendly_display_name
-        
-        if self.json['attributes']['showcase']:
-            display_name += ' 💜'
-        elif self.json['attributes']['hyperspace']:
-            display_name += ' 💙'
-        
-        emojisList: List[str] = []
-        for a in self.json['attributes']['aspects']['data']:
-            emoji = CardAspect(a['attributes']['name']).emoji
-            emojisList.append(emoji)
-        
-        emojis = ''.join(emojisList)
-        display_name += f' {emojis}'
-        
-        return display_name
-    
-    @property
-    def front_art_url(self) -> str:
-        return self.json['attributes']['artFront']['data']['attributes']['formats']['card']['url']
-    
-    @property
-    def back_art_url(self) -> Optional[str]:
-        back_art = self.json['attributes']['artBack']['data']
-        if back_art is None:
-            return None
-        return back_art['attributes']['formats']['card']['url']

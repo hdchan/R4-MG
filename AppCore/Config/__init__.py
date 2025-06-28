@@ -1,2 +1,2 @@
 from .ConfigurationManager import ConfigurationManager
-from .Configuration import Configuration
+from .Configuration import Configuration, MutableConfiguration
