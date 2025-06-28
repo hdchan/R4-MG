@@ -287,7 +287,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
                 self._image_resource_processor
                 self._image_resource_processor.regenerate_resource_preview(self._local_resource)
             elif link == self.LinkKey.REGENERATE_PRODUCTION_FILE:
-                self._image_resource_processor.generate_placeholder(self._local_resource, Image.open(self._asset_provider.image.swu_card_back))
+                self._image_resource_processor.generate_placeholder(self._local_resource, self._asset_provider.image.swu_card_back)
                 self._sync_image_view_state()
     
     def _toggle_resource_details_visibility(self):

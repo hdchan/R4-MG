@@ -1,4 +1,5 @@
 from AppCore.Models import LocalCardResource
+from typing import Optional
 from PIL import Image
 
 class ImageResourceProcessorProtocol:
@@ -14,7 +15,7 @@ class ImageResourceProcessorProtocol:
     def down_scale_image(self, original_img: Image.Image, max_size: float) -> Image.Image:
         return NotImplemented
 
-    def generate_placeholder(self, local_resource: LocalCardResource, placeholder_image: Image.Image) -> None:
+    def generate_placeholder(self, local_resource: LocalCardResource, placeholder_image_path: Optional[str]) -> None:
         raise Exception
     
 class ImageResourceProcessorProviding:

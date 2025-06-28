@@ -16,7 +16,7 @@ class AddImageCTAViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
                  app_dependencies_provider: AppDependenciesProviding):
         super().__init__()
-        
+        self._asset_provider = app_dependencies_provider.asset_provider
         self._observation_tower = app_dependencies_provider.observation_tower
         self._observation_tower.subscribe(self, CardSearchEvent)
         
@@ -92,7 +92,7 @@ class AddImageCTAViewController(QWidget, TransmissionReceiverProtocol):
         layout.addWidget(QWidget())
     
     def _cta_clicked(self):
-        self._router.prompt_generate_new_file()
+        self._router.prompt_generate_new_file(self._asset_provider.image.swu_card_back)
             
     def _showContextMenu(self, pos: QPoint):
         menu = QMenu(self)

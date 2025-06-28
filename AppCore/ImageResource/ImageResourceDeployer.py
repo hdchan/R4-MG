@@ -174,14 +174,14 @@ class ImageResourceDeployer:
             self._observation_tower.notify(failed_event)
             raise Exception("Failed to publish. Please redownload resources and retry.")
         
-    def generate_new_file(self, file_name: str, image: Image.Image):
+    def generate_new_file(self, file_name: str, placeholder_image_path: Optional[str]):
         local_resource = ProductionLocalCardResource(image_dir=self._configuration.production_dir_path,
                                                      image_preview_dir=self._configuration.production_preview_dir_path,
                                                      file_name=file_name,
                                                      display_name=file_name,
                                                      display_name_short=file_name,
                                                      display_name_detailed=file_name)
-        self._image_resource_processor.generate_placeholder(local_resource, image)
+        self._image_resource_processor.generate_placeholder(local_resource, placeholder_image_path)
 
     def _notify_publish_status_changed_if_needed(self):
         if self._can_publish_state != self.can_publish_staged_resources:

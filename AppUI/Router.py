@@ -1,7 +1,6 @@
 import webbrowser
 from typing import Dict, Optional
 
-from PIL import Image
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QInputDialog, QMessageBox, QWidget
 
@@ -27,7 +26,7 @@ class Router:
         self._platform_service_provider = platform_service_provider
         self._views: Dict[str, Optional[QWidget]] = {}
 
-        menu_action_coordinator.bind_new_file(self.prompt_generate_new_file)
+        menu_action_coordinator.bind_new_file(self._prompt_generate_new_file)
         menu_action_coordinator.bind_open_settings_page(self.open_settings_page)
         menu_action_coordinator.bind_open_about_page(self.open_about_page)
         menu_action_coordinator.bind_unstage_all_staging_resources(self.confirm_unstage_all_resources)
@@ -36,12 +35,14 @@ class Router:
         menu_action_coordinator.bind_open_shortcuts_page(self.open_shortcuts_page)
         menu_action_coordinator.bind_open_manage_deck_list_page(self.open_manage_deck_list_page)
         
+    def _prompt_generate_new_file(self):
+        self.prompt_generate_new_file() # TODO: move this to component provider?
 
-    def prompt_generate_new_file(self):
+    def prompt_generate_new_file(self, placeholder_image_path: Optional[str] = None):
         file_name, ok = QInputDialog.getText(None, 'Create new image file', 'Enter file name:')
         if ok:
             try:
-                self._image_resource_deployer.generate_new_file(file_name, Image.open(self._asset_provider.image.swu_card_back))
+                self._image_resource_deployer.generate_new_file(file_name, placeholder_image_path)
                 self._image_resource_deployer.load_production_resources()
             except Exception as error:
                 self.show_error(error)
