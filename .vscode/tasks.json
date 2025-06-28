@@ -2,11 +2,58 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "deploy",
+            "label": "archive",
             "type": "shell",
             "command": "pyinstaller",
             "args": [
                 "app_ui.spec"
+            ]
+        },
+        {
+            "label": "remove dist folder",
+            "type": "shell",
+            "command": "rd",
+            "args": [
+                "/s",
+                "/q",
+                ".\\dist",
+                "2>nul"
+            ]
+        },
+        {
+            "label": "remove build folder",
+            "type": "shell",
+            "command": "rd",
+            "args": [
+                "/s",
+                "/q",
+                ".\\build",
+                "2>nul"
+            ]
+        },
+        {
+            "label": "make dist folder",
+            "type": "shell",
+            "command": "mkdir",
+            "args": [
+                ".\\dist"
+            ]
+        },
+        {
+            "label": "make build folder",
+            "type": "shell",
+            "command": "mkdir",
+            "args": [
+                ".\\build"
+            ]
+        },
+        {
+            "label": "deploy",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "remove dist folder",
+                "remove build folder",
+                "archive"
             ]
         },
         {

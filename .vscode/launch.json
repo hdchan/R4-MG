@@ -12,7 +12,7 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Build, Deploy and Run",
+            "name": "Build & Distribute",
             "type": "debugpy",
             "request": "launch",
             "program": "print('run')",
@@ -21,7 +21,7 @@
             "postDebugTask": "open build" 
         },
         {
-            "name": "Run",
+            "name": "Run Debug",
             "type": "debugpy",
             "request": "launch",
             "program": "./app_ui.py",

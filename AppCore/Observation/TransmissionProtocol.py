@@ -6,8 +6,6 @@ class TransmissionProtocol:
     def __init__(self):
         self._predecessor: Optional['TransmissionProtocol'] = None
         self.date_time = datetime.datetime.now()
-        # timestamp = now.timestamp()
-        # self.timestamp = timestamp
         
     @property
     def predecessor(self) -> Optional['TransmissionProtocol']:
