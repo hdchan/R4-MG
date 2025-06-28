@@ -1,20 +1,22 @@
 import copy
-import re
+from datetime import datetime
 from functools import reduce
 from typing import List, Optional
-from urllib.parse import urlparse
-from AppCore.Config import Configuration, ConfigurationManager
+
+from AppCore.Config import Configuration
+from AppCore.CoreDependenciesInternalProviding import \
+    CoreDependenciesInternalProviding
 from AppCore.DataSource.DataSourceCardSearchClientProtocol import *
 from AppCore.DataSource.DataSourceRecentSearch import DataSourceRecentSearch
 from AppCore.ImageResource.ImageResourceProcessorProtocol import *
 from AppCore.Models import LocalCardResource, SearchConfiguration, TradingCard
+from AppCore.Models.CardResourceProvider import CardResourceProvider
 from AppCore.Models.LocalCardResource import LocalCardResource
 from AppCore.Models.TradingCard import TradingCard
 from AppCore.Observation import *
 from AppCore.Observation.Events import (CardSearchEvent,
                                         LocalCardResourceSelectedEvent)
-from AppCore.Service import StringFormatter
-from datetime import datetime
+
 
 class DataSourceCardSearchDelegate:
     def ds_started_search_with_result(self,
@@ -42,97 +44,6 @@ INITIAL_PAGE_COUNT = 0
 
 class DataSourceCardSearch:
     
-    class CardResourceProvider:
-        def __init__(self, 
-                    trading_card: TradingCard,
-                    configuration_manager: ConfigurationManager):
-            self._trading_card = trading_card
-            self._configuration_manager = configuration_manager
-            self._show_front: bool = True
-        
-        @property
-        def trading_card(self) -> TradingCard:
-            return self._trading_card
-        
-        @property
-        def is_flippable(self) -> bool:
-            return self._trading_card.back_art_url is not None
-
-        def flip(self):
-            if self.is_flippable:
-                self._show_front = not self._show_front
-        
-        @property
-        def local_resource(self) -> LocalCardResource:
-            if self._show_front:
-                return self.front_local_resource
-            else:
-                if self.back_local_resource is None:
-                    return self.front_local_resource
-                else:
-                    return self.back_local_resource
-        
-        @property
-        def front_local_resource(self) -> LocalCardResource:
-            return LocalCardResource(image_dir=self._image_path,
-                                    image_preview_dir=self._image_preview_dir, 
-                                    file_name=self._file_name_front,
-                                    display_name=self._trading_card.friendly_display_name,
-                                    display_name_short=self._trading_card.friendly_display_name_short,
-                                    display_name_detailed=self._trading_card.friendly_display_name_detailed,
-                                    remote_image_url=self._front_art_remote_image_url)
-        
-        @property
-        def back_local_resource(self) -> Optional[LocalCardResource]:
-            back_art_url = self._trading_card.back_art_url
-            if back_art_url is None or self._file_name_back is None:
-                return None
-            return LocalCardResource(image_dir=self._image_path,
-                                    image_preview_dir=self._image_preview_dir, 
-                                    file_name=self._file_name_back,
-                                    display_name=self._trading_card.friendly_display_name + ' (back)',
-                                    display_name_short=self._trading_card.friendly_display_name_short + ' (back)',
-                                    display_name_detailed=self._trading_card.friendly_display_name_detailed + ' (back)',
-                                    remote_image_url=back_art_url)
-        
-        @property
-        def _front_art_remote_image_url(self) -> str:
-            return self._trading_card.front_art_url
-        
-        @property
-        def _file_name_front(self) -> str:
-            return self.replace_non_alphanumeric(self._trading_card.front_art_url, "_")
-            
-        
-        @property
-        def _file_name_back(self) -> Optional[str]:
-            if self._trading_card.back_art_url is not None:
-                return self.replace_non_alphanumeric(self._trading_card.back_art_url, "_")
-            return None
-        
-        @property
-        def _image_path(self) -> str:
-            domain = urlparse(self._trading_card.front_art_url).netloc
-            return f'{self._configuration_manager.configuration.cache_card_search_dir_path}{domain}/'
-        
-        @property
-        def _image_preview_dir(self) -> str:
-            domain = urlparse(self._trading_card.front_art_url).netloc
-            return f'{self._configuration_manager.configuration.cache_card_search_preview_dir_path}{domain}/'
-        
-        def replace_non_alphanumeric(self, text: str, replacement: str = '') -> str:
-            """Replaces non-alphanumeric characters in a string with a specified replacement.
-
-            Args:
-                text: The input string.
-                replacement: The string to replace non-alphanumeric characters with.
-                Defaults to an empty string.
-
-            Returns:
-                The modified string with non-alphanumeric characters replaced.
-            """
-            return re.sub(r'[^a-zA-Z0-9]', replacement, text)
-    
     class DataSourceCardSearchConfiguration:
         def __init__(self, 
                      identifier: Optional[str] = None,
@@ -140,22 +51,18 @@ class DataSourceCardSearch:
             self.identifier = identifier
             self.page_size = page_size if page_size is not None else 20
 
-    def __init__(self, 
-                 observation_tower: ObservationTower,
-                 configuration_manager: ConfigurationManager,
-                 image_resource_processor_provider: ImageResourceProcessorProviding,
+    def __init__(self,
+                 core_dependencies_internal_provider: CoreDependenciesInternalProviding,
                  search_client_provider: DataSourceCardSearchClientProviding, 
-                 string_formatter: StringFormatter,
                  ds_configuration: Optional[DataSourceCardSearchConfiguration] = None):
-        self._observation_tower = observation_tower
+        self._observation_tower = core_dependencies_internal_provider.observation_tower
         self._search_client_provider = search_client_provider
-        self._configuration_manager = configuration_manager
-        self._image_resource_processor_provider = image_resource_processor_provider
+        self._configuration_manager = core_dependencies_internal_provider.configuration_manager
+        self._image_resource_processor_provider = core_dependencies_internal_provider.image_resource_processor_provider
         self._ds_configuration = ds_configuration if ds_configuration is not None else self.DataSourceCardSearchConfiguration()
         
         self._search_history_ds = DataSourceRecentSearch(self._ds_configuration.identifier,
-                                                         configuration_manager, 
-                                                         string_formatter)
+                                                         core_dependencies_internal_provider)
 
         self.delegate: Optional[DataSourceCardSearchDelegate] = None
 
@@ -165,7 +72,7 @@ class DataSourceCardSearch:
         # stateful variables
         self._selected_index: Optional[int] = None
         self._selected_resource: Optional[LocalCardResource] = None
-        self._paginated_trading_card_providers: List[List[DataSourceCardSearch.CardResourceProvider]] = []
+        self._paginated_trading_card_providers: List[List[CardResourceProvider]] = []
         self._is_loading = False
     
     @property
@@ -225,7 +132,7 @@ class DataSourceCardSearch:
     
     
     @property
-    def current_card_search_resource(self) -> Optional[LocalCardResource]:
+    def current_selected_card_search_resource(self) -> Optional[LocalCardResource]:
         if self._selected_resource is not None:
             return copy.deepcopy(self._selected_resource)
         return None
@@ -265,7 +172,7 @@ class DataSourceCardSearch:
                     self._paginated_trading_card_providers.append([])
                 
                 def create_trading_card_resource(trading_card: TradingCard):
-                    return self.CardResourceProvider(trading_card, 
+                    return CardResourceProvider(trading_card, 
                                                 self._configuration_manager)
                 card_providers = list(map(create_trading_card_resource, response.trading_card_list))
                 
@@ -322,8 +229,8 @@ class DataSourceCardSearch:
             if error is None and response is not None:
                 
                 def create_trading_card_resource(trading_card: TradingCard):
-                    return self.CardResourceProvider(trading_card,
-                                                     self._configuration_manager)
+                    return CardResourceProvider(trading_card,
+                                                self._configuration_manager)
                 card_providers = list(map(create_trading_card_resource, response.trading_card_list))
                 
                 self._paginated_trading_card_providers[response.page - 1] = card_providers
@@ -358,7 +265,7 @@ class DataSourceCardSearch:
     def select_card_resource_for_card_selection(self, index: int):
         if index < len(self._trading_card_providers):
             self._selected_index = index
-            self._retrieve_card_resource_for_card_selection(index)
+            self._retrieve_card_resource_for_card_selection(index) # TODO: add separate out this logic to be parameterized?
 
     def flip_current_previewed_card(self):
         if self._selected_index is not None and self.current_previewed_trading_card_is_flippable:

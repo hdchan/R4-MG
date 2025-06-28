@@ -11,21 +11,18 @@ from AppCore.DataSource.DataSourceCardSearchClientProtocol import (
     DataSourceCardSearchClientSearchResult)
 from AppCore.DataSource.DataSourceLocallyManagedSets import \
     DataSourceLocallyManagedSetsClientProtocol
-from AppCore.Models import (CardType, PaginationConfiguration,
-                            SearchConfiguration, TradingCard)
-from AppCore.Observation import ObservationTower
-from AppCore.Service.ModelEncoder import ModelEncoder
+from AppCore.Models import (PaginationConfiguration, SearchConfiguration,
+                            TradingCard)
 
+from ..CardType import CardType
 from ..SWUCardSearchConfiguration import SWUCardSearchConfiguration
-from .SWUTradingCard import SWUTradingCard
+from .SWUDBTradingCard import SWUDBTradingCard
 
 
 class SWUDBLocalCardRetrieverClient(DataSourceCardSearchClientProtocol):
-    def __init__(self, 
-                 observation_tower: ObservationTower,
+    def __init__(self,
                  local_fetcher: DataFetcherLocal, 
                  local_managed_sets: DataSourceLocallyManagedSets):
-        self._observation_tower = observation_tower
         self._local_fetcher = local_fetcher
         self._local_managed_sets = local_managed_sets
         
@@ -92,10 +89,6 @@ class SWUDBLocalSetRetrieverClient(DataSourceLocallyManagedSetsClientProtocol):
             raise Exception
         cards = loaded_json['data']
         for card in cards:
-            swu_card = SWUTradingCard.from_swudb_response(card)
+            swu_card = SWUDBTradingCard.from_swudb_response(card)
             result_list.append(swu_card)
         return result_list
-    
-    def save_asset(self, file: TextIOWrapper, data: Any):
-        json_data = json.load(data)
-        json.dump(json_data, file, cls=ModelEncoder)

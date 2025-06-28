@@ -2,15 +2,15 @@ import copy
 import os
 from typing import Any, List, Optional, Tuple
 
-from AppCore.Config import Configuration, ConfigurationManager
+from AppCore.Config import Configuration
+from AppCore.CoreDependenciesInternalProviding import \
+    CoreDependenciesInternalProviding
 from AppCore.DataFetcher import DataFetcherLocal
 from AppCore.Models import LocalCardResource, SearchConfiguration
 from AppCore.Models.LocalCardResource import LocalCardResource
 from AppCore.Observation.Events import (CardSearchEvent,
                                         LocalCardResourceSelectedEvent)
-from AppCore.Observation import ObservationTower
-from AppCore.Service import PlatformServiceProvider
-from AppCore.ImageResource import ImageResourceProcessorProviding
+
 PNG_EXTENSION = 'png' # TODO: allow for other image formats
 
 class CustomDirectorySearchDataSourceDelegate:
@@ -61,15 +61,12 @@ class CustomDirectorySearchDataSource:
         
         
     def __init__(self,
-                 configuration_manager: ConfigurationManager,
-                 platform_service_provider: PlatformServiceProvider,
-                 observation_tower: ObservationTower,
-                 image_resource_processor_provider: ImageResourceProcessorProviding):
-        self._configuration_manager = configuration_manager
+                 core_dependencies_internal_provider: CoreDependenciesInternalProviding):
+        self._configuration_manager = core_dependencies_internal_provider.configuration_manager
         self._local_networker = DataFetcherLocal(self._configuration_manager)
-        self._platform_service_provider = platform_service_provider
-        self._observation_tower = observation_tower
-        self._image_resource_processor_provider = image_resource_processor_provider
+        self._platform_service_provider = core_dependencies_internal_provider.platform_service_provider
+        self._observation_tower = core_dependencies_internal_provider.observation_tower
+        self._image_resource_processor_provider = core_dependencies_internal_provider.image_resource_processor_provider
         
         self._trading_card_providers: List[CustomDirectorySearchDataSource.CardResourceProvider] = []
         

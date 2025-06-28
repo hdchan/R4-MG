@@ -4,9 +4,9 @@ from urllib.request import Request
 
 from AppCore.DataSource import DataSourceCardSearchClientSearchResponse
 from AppCore.Models import PaginationConfiguration, TradingCard
-from AppCore.Models.CardType import CardType
+from AppUI.Clients.CardType import CardType
 from AppCore.DataFetcher import DataFetcherRemoteRequestProtocol
-from AppUI.Assets import AssetProvider
+from ..Assets import AssetProvider
 
 from ..SWUCardSearchConfiguration import SWUCardSearchConfiguration
 from .StarWarsUnlimitedTradingCard import StarWarsUnlimitedTradingCard

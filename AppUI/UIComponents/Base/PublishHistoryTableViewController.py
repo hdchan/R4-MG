@@ -7,17 +7,16 @@ from AppUI.AppDependenciesProviding import AppDependenciesProviding
 
 from ..Base.ImagePreviewViewController import ImagePreviewViewController
 
-# TODO: deprecate
 class PublishHistoryTableViewController(QWidget, TransmissionReceiverProtocol, DataSourceRecentPublishedDelegate):
     def __init__(self, 
-                 app_dependency_provider: AppDependenciesProviding, 
+                 app_dependencies_provider: AppDependenciesProviding, 
                  recent_published_data_source: DataSourceRecentPublished, 
                  image_preview_view: ImagePreviewViewController):
         super().__init__()
         self._image_preview_view = image_preview_view
-        self._observation_tower = app_dependency_provider.observation_tower
+        self._observation_tower = app_dependencies_provider.observation_tower
         self._recent_published_data_source = recent_published_data_source
-        self._string_formatter = app_dependency_provider.string_formatter
+        self._string_formatter = app_dependencies_provider.string_formatter
         recent_published_data_source.delegate = self
         
         history_layout = QVBoxLayout()

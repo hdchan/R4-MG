@@ -3,7 +3,7 @@ from enum import Enum
 from AppCore.Models import SearchConfiguration
 
 from ..TransmissionProtocol import TransmissionProtocol
-
+from typing import Optional
 
 class CardSearchEvent(TransmissionProtocol):
     class EventType(int, Enum):
@@ -17,8 +17,10 @@ class CardSearchEvent(TransmissionProtocol):
     def __init__(self, 
                  event_type: EventType,
                  source_type: SourceType,
-                 search_configuration: SearchConfiguration):
+                 search_configuration: SearchConfiguration, 
+                 client: Optional[object] = None):
         super().__init__()
         self.event_type = event_type
         self.source_type = source_type
         self.search_configuration = search_configuration
+        # self.client = client # TODO might need weak ref?

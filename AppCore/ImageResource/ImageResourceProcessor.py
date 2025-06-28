@@ -117,13 +117,19 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol, ImageResourceProces
         preview_img.thumbnail((downscaled_size, downscaled_size), Image.Resampling.BICUBIC)
         return preview_img
     
-    def generate_placeholder(self, local_resource: LocalCardResource, placeholder_image: Image.Image): 
+    def generate_placeholder(self, local_resource: LocalCardResource, placeholder_image_path: Optional[str]): 
         existing_file = Path(local_resource.image_path)
         if existing_file.is_file():
             raise Exception(f"File already exists: {local_resource.file_name_with_ext}")
         
         Path(local_resource.image_dir).mkdir(parents=True, exist_ok=True)
-        img = placeholder_image or Image.new("RGB", (1, 1))
+        
+        img = Image.new("RGB", (1, 1))
+        if placeholder_image_path is not None:
+            try:
+                img = Image.open(placeholder_image_path)
+            except:
+                pass
         img.save(local_resource.image_path, "PNG")
         
         Path(local_resource.image_preview_dir).mkdir(parents=True, exist_ok=True)

@@ -1,54 +1,53 @@
 import webbrowser
 from typing import Dict, Optional
 
-from PIL import Image
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QInputDialog, QMessageBox, QWidget
 
-from AppCore.ImageResource.ImageResourceDeployer import ImageResourceDeployer
-from AppCore.Models import LocalAssetResource
-from AppCore.Service.PlatformServiceProvider import PlatformServiceProvider
-
-from .Assets import AssetProvider
-from .ComponentProvider import ComponentProviding
-from .Coordinators.MenuActionCoordinator import MenuActionCoordinator
+from AppCore.CoreDependenciesInternalProviding import \
+    CoreDependenciesInternalProviding
+from AppCore.DataSource.DataSourceImageResourceDeployer import DataSourceImageResourceDeployer
+from AppCore.Models import LocalAssetResource, LocalCardResource, LocalResourceDraftListWindow
+from AppUI.ScreenWidgetProviding import ScreenWidgetProviding
 
 
 class Router:
-    def __init__(self, 
-                 image_resource_deployer: ImageResourceDeployer, 
-                 asset_provider: AssetProvider, 
-                 menu_action_coordinator: MenuActionCoordinator, 
-                 component_provider: ComponentProviding, 
-                 platform_service_provider: PlatformServiceProvider):
-        self._image_resource_deployer = image_resource_deployer
-        self._asset_provider = asset_provider
+    def __init__(self,
+                 core_dependencies_internal_provider: CoreDependenciesInternalProviding, 
+                 data_source_image_resource_deployer: DataSourceImageResourceDeployer, 
+                 component_provider: ScreenWidgetProviding):
+        self._data_source_image_resource_deployer = data_source_image_resource_deployer
         self._component_provider = component_provider
-        self._platform_service_provider = platform_service_provider
+        self._platform_service_provider = core_dependencies_internal_provider.platform_service_provider
+        self._data_source_draft_list = core_dependencies_internal_provider.data_source_draft_list
         self._views: Dict[str, Optional[QWidget]] = {}
+    
+    def close_all_child_views(self):
+        for v in self._views.values():
+            if v is not None:
+                v.close()
+        self._views = {}
 
-        menu_action_coordinator.bind_new_file(self.prompt_generate_new_file)
-        menu_action_coordinator.bind_open_settings_page(self.open_settings_page)
-        menu_action_coordinator.bind_open_about_page(self.open_about_page)
-        menu_action_coordinator.bind_unstage_all_staging_resources(self.confirm_unstage_all_resources)
-        menu_action_coordinator.bind_clear_cache_dir(self.confirm_clear_cache)
-        menu_action_coordinator.bind_open_update_page(self.open_update_page)
-        menu_action_coordinator.bind_open_shortcuts_page(self.open_shortcuts_page)
-        menu_action_coordinator.bind_open_manage_deck_list_page(self.open_manage_deck_list_page)
-        
-
-    def prompt_generate_new_file(self):
+    def prompt_generate_new_file_with_placeholder(self, placeholder_image_path: Optional[str]):
         file_name, ok = QInputDialog.getText(None, 'Create new image file', 'Enter file name:')
         if ok:
             try:
-                self._image_resource_deployer.generate_new_file(file_name, Image.open(self._asset_provider.image.swu_card_back))
-                self._image_resource_deployer.load_production_resources()
+                self._data_source_image_resource_deployer.generate_new_file(file_name, placeholder_image_path)
+                self._data_source_image_resource_deployer.load_production_resources()
             except Exception as error:
                 self.show_error(error)
-
+                
+    def prompt_rename_draft_list_pack(self, pack_index: int):
+        pack_name, ok = QInputDialog.getText(None, 'Rename', 'Enter pack name:')
+        if ok:
+            self._data_source_draft_list.update_pack_name(pack_index, pack_name)
+            
+    def prompt_text_input(self, title: str, description: str) -> tuple[str, Optional[bool]]:
+        return QInputDialog.getText(None, title, description)
+    
     def confirm_unstage_all_resources(self):
         if self.prompt_accept("Unstage all staged resources", "Are you sure you want to unstage all staged resources?"):
-            self._image_resource_deployer.unstage_all_resources()
+            self._data_source_image_resource_deployer.unstage_all_resources()
 
     def confirm_clear_cache(self):
         if self.prompt_accept("Clear cache", "Are you sure you want to clear the cache?"):
@@ -66,6 +65,14 @@ class Router:
     def open_settings_page(self):
         view = self._component_provider.settings_view
         self._open_view("settings", view)
+        
+    def open_app_settings_page(self):
+        view = self._component_provider.app_settings_view
+        self._open_view("app_settings", view)
+        
+    def open_draft_list_settings_page(self, parent: Optional[QWidget]):
+        view = self._component_provider.draft_list_settings_view(parent)
+        self._open_view("draft_list_settings", view)
 
     def open_about_page(self):
         view = self._component_provider.about_view
@@ -82,6 +89,10 @@ class Router:
     def open_locally_managed_deck_preview(self, resource: LocalAssetResource):        
         view = self._component_provider.locally_managed_deck_preview_view(resource)
         self._open_view(resource.asset_path, view)
+    
+    def open_draft_list_standalone_view(self, resource: LocalResourceDraftListWindow):
+        view = self._component_provider.draft_list_standalone_view(resource)
+        self._open_view(f'{resource.asset_path}', view)
     
     def _open_view(self, object_name: str, view: QWidget):
         def remove_ref():
@@ -110,6 +121,10 @@ class Router:
         msgBox.setWindowTitle("Error")
         msgBox.setStandardButtons(QMessageBox.StandardButton.Ok)
         msgBox.exec()
-        
+    
+    def open_link_to_card_resource(self, local_resource: LocalCardResource):
+        if local_resource.remote_image_url is not None:
+            webbrowser.open(local_resource.remote_image_url)
+    
     def open_update_page(self):
         webbrowser.open("https://github.com/hdchan/R4-MG/releases/latest")

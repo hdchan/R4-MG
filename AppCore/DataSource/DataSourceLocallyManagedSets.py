@@ -2,7 +2,7 @@ import os
 import re
 from io import TextIOWrapper
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 from urllib import request
 
 from PyQt5.QtCore import QObject, QRunnable, QThreadPool, pyqtSignal
@@ -11,14 +11,12 @@ from AppCore.Config import *
 from AppCore.Models import LocalAssetResource, TradingCard
 from AppCore.Observation import ObservationTower
 from AppCore.Observation.Events import LocalAssetResourceFetchEvent
+from AppCore.Service import DataSerializer
 
 
 class DataSourceLocallyManagedSetsClientProtocol:
     def parse_asset(self, file: TextIOWrapper) -> List[TradingCard]:
         return NotImplemented
-    
-    def save_asset(self, file: TextIOWrapper, data: Any) -> None:
-        raise Exception
     
     def remote_url(self, deck_identifier: str) -> str:
         return  NotImplemented
@@ -43,9 +41,11 @@ class DataSourceLocallyManagedSets:
     def __init__(self, 
                  configuration_manager: ConfigurationManager,
                  observation_tower: ObservationTower,
+                 data_serializer: DataSerializer,
                  client: DataSourceLocallyManagedSetsClientProtocol):
         self._configuration_manager = configuration_manager
         self._observation_tower = observation_tower
+        self._data_serializer = data_serializer
         self._client = client
         self.pool = QThreadPool()
         self._hashed_cached_card_list: Dict[str, List[TradingCard]] = {}
@@ -136,7 +136,7 @@ class DataSourceLocallyManagedSets:
             self._invalidate_cached_card_list()
             
         
-        worker = StoreAssetWorker(resource, self._client)
+        worker = StoreAssetWorker(resource, self._client, self._data_serializer)
         worker.signals.finished.connect(finished)
         self.pool.start(worker)
     
@@ -200,11 +200,13 @@ class WorkerSignals(QObject):
 
 class StoreAssetWorker(QRunnable):
     def __init__(self, 
-                 resource: LocalAssetResource, 
-                 client: DataSourceLocallyManagedSetsClientProtocol):
+                 resource: LocalAssetResource,
+                 client: DataSourceLocallyManagedSetsClientProtocol, 
+                 data_serializer: DataSerializer):
         super(StoreAssetWorker, self).__init__()
         self.resource = resource
         self.client = client
+        self.data_serializer = data_serializer
         self.signals = WorkerSignals()
 
     def run(self):
@@ -212,12 +214,9 @@ class StoreAssetWorker(QRunnable):
             try:
                 req = request.Request(self.resource.remote_url)
                 buf = request.urlopen(req)
-                Path(self.resource.asset_dir).mkdir(parents=True, exist_ok=True)
-                my_file = Path(self.resource.asset_path)
                 # TODO: if exists, then create backup and create new file?
-                with open(my_file, "w") as f:
-                    self.client.save_asset(f, buf)
-                    self.signals.finished.emit((self.resource, None))
+                self.data_serializer.save_buffer_data(self.resource.asset_path, buf)
+                self.signals.finished.emit((self.resource, None))
             except Exception as error:
                 self.signals.finished.emit((self.resource, error))
         else:

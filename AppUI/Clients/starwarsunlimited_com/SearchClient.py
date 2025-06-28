@@ -3,14 +3,15 @@ from AppCore.DataSource.DataSourceCardSearchClientProtocol import (DataSourceCar
                                             )
 from AppCore.DataFetcher import DataFetcherRemote
 from AppCore.Models import PaginationConfiguration, SearchConfiguration
-from AppUI.Assets import AssetProvider
+from ..Assets import AssetProvider
 from ..SWUCardSearchConfiguration import SWUCardSearchConfiguration
 from .SearchRequest import SearchRequest
 
 
 class SearchClient(DataSourceCardSearchClientProtocol):
 
-    def __init__(self, networker: DataFetcherRemote, asset_provider: AssetProvider):
+    def __init__(self, networker: DataFetcherRemote, 
+                 asset_provider: AssetProvider):
         self._networker = networker
         self._asset_provider = asset_provider
 

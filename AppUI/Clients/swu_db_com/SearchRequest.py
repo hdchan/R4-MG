@@ -6,10 +6,9 @@ from AppCore.Models import TradingCard
 from AppCore.DataFetcher import DataFetcherRemoteRequestProtocol
 from AppCore.DataSource import DataSourceCardSearchClientSearchResponse
 
-from AppCore.Models.CardAspect import CardAspect
-from AppCore.Models.CardType import CardType
+from AppUI.Clients.CardType import CardType
 from ..SWUCardSearchConfiguration import SWUCardSearchConfiguration
-from .SWUTradingCard import SWUTradingCard
+from .SWUDBTradingCard import SWUDBTradingCard
 
 # https://api.swu-db.com/cards/search?q=type:leader%20name:luke
 class SearchRequest(DataFetcherRemoteRequestProtocol[DataSourceCardSearchClientSearchResponse]):
@@ -32,10 +31,6 @@ class SearchRequest(DataFetcherRemoteRequestProtocol[DataSourceCardSearchClientS
                 params.append(f'name:{self.search_configuration.card_name}')
             if self.search_configuration.card_type is not CardType.UNSPECIFIED:
                 params.append(f'type:{self.search_configuration.card_type.value}')
-                
-            # card_aspect_query_str = self.card_aspect_query_string(self.search_configuration.card_aspects)
-            # if card_aspect_query_str is not None:
-            #     params.append(f'a:{card_aspect_query_str}')
             
             if len(params) == 0:
                 return None
@@ -49,25 +44,6 @@ class SearchRequest(DataFetcherRemoteRequestProtocol[DataSourceCardSearchClientS
         def response(self, json: Dict[str, Any]) -> DataSourceCardSearchClientSearchResponse:
             result_list: List[TradingCard] = []
             for i in json['data']:
-                swu_card = SWUTradingCard.from_swudb_response(i)
+                swu_card = SWUDBTradingCard.from_swudb_response(i)
                 result_list.append(swu_card)
             return DataSourceCardSearchClientSearchResponse(result_list)
-        
-        @staticmethod
-        def _aspect_query_mapping() -> Dict['CardAspect', str]:
-            return {
-                CardAspect.VIGILANCE: "B",
-                CardAspect.COMMAND: "G",
-                CardAspect.AGGRESSION: "R",
-                CardAspect.CUNNING: "Y",
-                CardAspect.HEROISM: "W",
-                CardAspect.VILLAINY: "K"
-            }
-        
-        def card_aspect_query_string(self, card_aspects: List[CardAspect]) -> Optional[str]:
-            if len(card_aspects) > 0:
-                result = ""
-                for a in card_aspects:
-                    result += self._aspect_query_mapping()[a]
-                return result
-            return None

@@ -9,10 +9,10 @@ from PyQt5.QtCore import QStandardPaths
 3. Create getter
 4. Create setter
 """
-class Configuration:
+class Configuration():
     
     APP_NAME = 'R4-MG'
-    APP_VERSION = '0.18.0'
+    APP_VERSION = '0.19.0-beta'
     SETTINGS_VERSION = '1.0'
     
     class Toggles:
@@ -26,8 +26,6 @@ class Configuration:
             CUSTOM_DIRECTORY_SEARCH_PATH = 'custom_directory_search_path'
 
             IMAGE_CACHE_LIFE_IN_DAYS = 'image_cache_life_in_days'
-            SEARCH_HISTORY_CACHE_LIFE_IN_DAYS = 'search_history_cache_life_in_days' # TODO: deprecated
-            PUBLISH_HISTORY_CACHE_LIFE_IN_DAYS = 'publish_history_cache_life_in_days' # TODO: deprecated
 
             HIDE_IMAGE_PREVIEW = 'hide_image_preview'
             IMAGE_PREVIEW_SCALE = 'image_preview_scale'
@@ -45,7 +43,11 @@ class Configuration:
             
             DEPLOYMENT_LIST_SORT_CRITERIA = 'deployment_list_sort_criteria'
             DEPLOYMENT_LIST_IS_DESCENDING_ORDER = 'deployment_list_is_descending_order'
-
+            
+            DRAFT_LIST_STYLES = 'draft_list_styles'
+            DRAFT_LIST_ADD_CARD_MODE = 'draft_list_add_card_mode'
+            DRAFT_LIST_ADD_CARD_DEPLOYMENT_DESTINATION = 'draft_list_add_card_deployment_destination'
+            
             IS_MOCK_DATA = 'is_mock_data'
             IS_DELAY_NETWORK_MODE = 'is_delay_network_mode'
         
@@ -53,14 +55,6 @@ class Configuration:
             NEVER = -1
             ALWAYS = 0
             DEFAULT = NEVER
-
-        class SearchHistoryCacheLifeInDays(int, Enum):
-            MIN = 0
-            DEFAULT = 14
-        
-        class PublishHistoryCacheLifeInDays(int, Enum):
-            MIN = 0
-            DEFAULT = 14
 
         class CardTitleDetail(int, Enum):
             NORMAL = 0
@@ -81,6 +75,12 @@ class Configuration:
             CUSTOM = 99
             DEFAULT = FILE_NAME
             
+        class DraftListAddCardMode(int, Enum):
+            OFF = 0
+            STAGE = 1
+            STAGE_AND_PUBLISH = 2
+            DEFAULT = OFF
+            
     class Keys:
         TOGGLES = 'toggles'
         SETTINGS = 'settings'
@@ -98,8 +98,6 @@ class Configuration:
                 Configuration.Settings.Keys.CUSTOM_DIRECTORY_SEARCH_PATH: None,
 
                 Configuration.Settings.Keys.IMAGE_CACHE_LIFE_IN_DAYS: Configuration.Settings.ImageCacheLifeInDays.DEFAULT.value,
-                Configuration.Settings.Keys.SEARCH_HISTORY_CACHE_LIFE_IN_DAYS: Configuration.Settings.SearchHistoryCacheLifeInDays.DEFAULT.value,
-                Configuration.Settings.Keys.PUBLISH_HISTORY_CACHE_LIFE_IN_DAYS: Configuration.Settings.PublishHistoryCacheLifeInDays.DEFAULT.value,
 
                 Configuration.Settings.Keys.HIDE_IMAGE_PREVIEW: False,
                 Configuration.Settings.Keys.IMAGE_PREVIEW_SCALE: 1.0,
@@ -116,6 +114,10 @@ class Configuration:
                 
                 Configuration.Settings.Keys.DEPLOYMENT_LIST_SORT_CRITERIA: Configuration.Settings.DeploymentListSortCriteria.DEFAULT.value,
                 Configuration.Settings.Keys.DEPLOYMENT_LIST_IS_DESCENDING_ORDER: False, 
+                
+                Configuration.Settings.Keys.DRAFT_LIST_STYLES: None,
+                Configuration.Settings.Keys.DRAFT_LIST_ADD_CARD_MODE: Configuration.Settings.DraftListAddCardMode.OFF,
+                Configuration.Settings.Keys.DRAFT_LIST_ADD_CARD_DEPLOYMENT_DESTINATION: None,
                 
                 Configuration.Settings.Keys.IS_MOCK_DATA: False,
                 Configuration.Settings.Keys.IS_DELAY_NETWORK_MODE: False
@@ -167,6 +169,12 @@ class Configuration:
     def _toggles(self) -> Dict[str, Any]:
         return self._get_with_default(self.Keys.TOGGLES)
     
+    # MARK: - Generic config
+    def configuration_for_key(self, key: str) -> Optional[Dict[str, Any]]:
+        return self._get_with_default_settings(key)
+    
+    
+        
 
     # MARK: - User settings
     @property
@@ -231,15 +239,14 @@ class Configuration:
     @property
     def image_cache_life_in_days(self) -> int:
         return self._get_with_default_settings(self.Settings.Keys.IMAGE_CACHE_LIFE_IN_DAYS)
-    
-    @property
-    def search_history_cache_life_in_days(self) -> int:
-        return self._get_with_default_settings(self.Settings.Keys.SEARCH_HISTORY_CACHE_LIFE_IN_DAYS)
-    
-    @property
-    def publish_history_cache_life_in_days(self) -> int:
-        return self._get_with_default_settings(self.Settings.Keys.PUBLISH_HISTORY_CACHE_LIFE_IN_DAYS)
 
+    @property
+    def draft_list_add_card_mode(self) -> Settings.DraftListAddCardMode:
+        return self._get_with_default_settings(self.Settings.Keys.DRAFT_LIST_ADD_CARD_MODE)
+    
+    @property
+    def draft_list_add_card_deployment_destination(self) -> Optional[str]:
+        return self._get_with_default_settings(self.Settings.Keys.DRAFT_LIST_ADD_CARD_DEPLOYMENT_DESTINATION)
 
     # MARK: - Developer settings
     @property
@@ -293,11 +300,15 @@ class Configuration:
     def _picture_dir_path(self) -> str:
         # always points to picture dir
         # append app name
-        return f'{QStandardPaths.writableLocation(QStandardPaths.StandardLocation.PicturesLocation)}/{self.app_path_name}'
+        return f'{QStandardPaths.writableLocation(QStandardPaths.StandardLocation.PicturesLocation)}/{self.app_path_name}/'
 
     @property
     def production_dir_path(self) -> str:
-        return f'{self._picture_dir_path}/production/'
+        return f'{self._picture_dir_path}production/'
+    
+    @property
+    def draft_list_windows_dir_path(self) -> str:
+        return f'{self._picture_dir_path}draft_list_windows/'
     
     @property
     def production_preview_dir_path(self) -> str:
@@ -307,11 +318,11 @@ class Configuration:
     
     @property
     def cache_dir_path(self) -> str:
-        return f'{QStandardPaths.writableLocation(QStandardPaths.StandardLocation.CacheLocation)}'
+        return f'{QStandardPaths.writableLocation(QStandardPaths.StandardLocation.CacheLocation)}/'
     
     @property
     def cache_card_search_dir_path(self) -> str:
-        return f'{self.cache_dir_path}/card_search/' 
+        return f'{self.cache_dir_path}card_search/' 
     
     @property
     def cache_card_search_preview_dir_path(self) -> str:
@@ -319,7 +330,7 @@ class Configuration:
     
     @property
     def cache_history_dir_path(self) -> str:
-        return f'{self.cache_dir_path}/history/'
+        return f'{self.cache_dir_path}history/'
     
     # MARK: - Helpers
     '''
@@ -399,13 +410,16 @@ class MutableConfiguration(Configuration):
 
     def set_image_cache_life_in_days(self, value: int):
         self._settings[self.Settings.Keys.IMAGE_CACHE_LIFE_IN_DAYS] = value
-
-    def set_search_history_cache_life_in_days(self, value: int):
-        self._settings[self.Settings.Keys.SEARCH_HISTORY_CACHE_LIFE_IN_DAYS] = value
-
-    def set_publish_history_cache_life_in_days(self, value: int):
-        self._settings[self.Settings.Keys.PUBLISH_HISTORY_CACHE_LIFE_IN_DAYS] = value
-        
+    
+    def set_draft_list_add_card_mode(self, value: Configuration.Settings.DraftListAddCardMode):
+        self._settings[self.Settings.Keys.DRAFT_LIST_ADD_CARD_MODE] = value.value
+    
+    def set_draft_list_add_card_deployment_destination(self, value: Optional[str]):
+        self._settings[self.Settings.Keys.DRAFT_LIST_ADD_CARD_DEPLOYMENT_DESTINATION] = value
+    
+    def set_configuration_for_key(self, key: str, value: Dict[str, Any]):
+        self._settings[key] = value
+    
     # MARK: - Developer settings
     def set_is_mock_data(self, value: bool):
         self._settings[self.Settings.Keys.IS_MOCK_DATA] = value

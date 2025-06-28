@@ -1,7 +1,6 @@
 from typing import Any, Dict
 
-
-class SearchConfiguration:
+class SearchConfiguration():
     def __init__(self):
         self.card_name: str = ""
         self.metadata: Dict[str, Any] = {}
