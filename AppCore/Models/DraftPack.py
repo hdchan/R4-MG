@@ -1,5 +1,5 @@
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from uuid import UUID, uuid4
 
 from AppCore.Config import *
@@ -11,40 +11,58 @@ class DraftPack():
         class Keys:
             DRAFT_LIST = 'draft_list'
             PACK_NAME = 'pack_name'
+            PACK_IDENTIFIER = 'pack_identifier'
         
-        
-        def __init__(self, 
-                     pack_name: str):
-            self._draft_list: List[LocalCardResource] = []
+        def __init__(self,
+                     pack_name: str, 
+                     draft_list: List[LocalCardResource], 
+                     pack_identifier: UUID):
+            self._draft_list: List[LocalCardResource] = draft_list
             self._pack_name = pack_name
-            self._pack_identifier = pack_name
+            self._pack_identifier = pack_identifier
         
-        def to_data(self) -> Dict[str, Any]:
-            return {
-                self.Keys.DRAFT_LIST: self._draft_list,
-                self.Keys.PACK_NAME: self._pack_name,
-            }
-
         def __eq__(self, other):  # type: ignore
             if not isinstance(other, DraftPack):
                 # don't attempt to compare against unrelated types
                 return NotImplemented
 
             return self._pack_identifier == other._pack_identifier
-    
+        
+        def to_data(self) -> Dict[str, Any]:
+            return {
+                self.Keys.DRAFT_LIST: self._draft_list,
+                self.Keys.PACK_NAME: self._pack_name,
+                self.Keys.PACK_IDENTIFIER: str(self._pack_identifier)
+            }
+
+        @classmethod
+        def new_draft_pack(cls, pack_name: str):
+            return cls(
+                pack_name=pack_name,
+                draft_list=[],
+                # constructing uuid in default init value can cause collisions
+                # not sure why so creating a class method and injecting here
+                pack_identifier=uuid4() 
+            )
+
         @classmethod
         def from_json(cls, json: Dict[str, Any]):
-            obj = cls.__new__(cls)
-            obj._draft_list = []
+            draft_list: List[LocalCardResource] = []
             for resource_json in json[DraftPack.Keys.DRAFT_LIST]:
-                obj._draft_list.append(LocalCardResource.from_json(resource_json))
-            obj._pack_name = json[DraftPack.Keys.PACK_NAME]
-            obj._pack_identifier = obj._pack_name
-            return obj
+                draft_list.append(LocalCardResource.from_json(resource_json))
+            pack_identifier = uuid4()
+            retrieved_identifier_string: Optional[str] = json.get(DraftPack.Keys.PACK_IDENTIFIER, None)
+            if retrieved_identifier_string is not None:
+                pack_identifier = UUID(retrieved_identifier_string)
+            return cls(
+                pack_name=json[DraftPack.Keys.PACK_NAME],
+                draft_list=draft_list,
+                pack_identifier=pack_identifier
+            )
         
         @property
         def pack_identifier(self) -> str:
-            return self._pack_identifier
+            return str(self._pack_identifier)
         
         @property
         def draft_list(self) -> List[LocalCardResource]:

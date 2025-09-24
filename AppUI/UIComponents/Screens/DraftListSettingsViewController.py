@@ -1,12 +1,15 @@
-from typing import Callable, Optional
+from typing import Callable
+
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QFileDialog, QLabel, QWidget, QSpacerItem, QSizePolicy
+from PyQt5.QtWidgets import QFileDialog, QLabel, QWidget
+
 from AppCore.Config import Configuration
 from AppCore.Observation import TransmissionReceiverProtocol
 from AppUI.AppDependenciesProviding import AppDependenciesProviding
-from PyQtUI import (HorizontalBoxLayout, HorizontalLabeledInputRow,
+from PyQtUI import (BoldLabel, ComboBox, GridLayout, HeaderLabel,
+                    HorizontalBoxLayout, HorizontalLabeledInputRow,
                     LineEditInt, LineEditText, PushButton, ScrollArea,
-                    VerticalBoxLayout, VerticalGroupBox, CheckBox, BoldLabel, GridLayout, HeaderLabel, ComboBox)
+                    VerticalBoxLayout, VerticalGroupBox)
 
 from ...Models.DraftListStyleSheet import DraftListStyleSheet
 
@@ -57,8 +60,7 @@ class CellStyleWrapper(VerticalGroupBox):
 
 class DraftListSettingsViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
-                 app_dependencies_provider: AppDependenciesProviding,
-                 parent: Optional[QWidget] = None):
+                 app_dependencies_provider: AppDependenciesProviding):
         super().__init__()
         self._app_dependencies_provider = app_dependencies_provider
         self._configuration_manager = app_dependencies_provider.configuration_manager
@@ -76,15 +78,94 @@ class DraftListSettingsViewController(QWidget, TransmissionReceiverProtocol):
         self._container_background_image_label = QLabel()
         self._cell_font_label = QLabel()
         self._cell_header_font_label = QLabel()
-        self._reset_styles_checkbox = CheckBox(self._reset_styles_checked)
         self._add_card_mode_combo_box = ComboBox([
                             "Off",
                             "Stage",
                             "Stage & Publish"
                         ])
-        # self._add_card_mode_combo_box.currentIndexChanged.connect(self._add_card_mode_changed)
         self._add_card_mode_combo_box.setCurrentIndex(self._configuration_manager.configuration.draft_list_add_card_mode)
         
+        self._container_padding_left = LineEditInt(
+                                           triggered_fn=self._stylesheet.set_container_padding_left)
+        self._container_padding_top = LineEditInt(
+                                          triggered_fn=self._stylesheet.set_container_padding_top)
+        self._container_padding_right = LineEditInt(
+                                            triggered_fn=self._stylesheet.set_container_padding_right)
+        self._container_padding_bottom = LineEditInt(
+                                             triggered_fn=self._stylesheet.set_container_padding_bottom)
+        
+        self._cell_header_padding_left = LineEditInt(
+                                              triggered_fn=self._stylesheet.set_cell_header_padding_left)
+        self._cell_header_padding_top = LineEditInt(
+                                             triggered_fn=self._stylesheet.set_cell_header_padding_top)
+        self._cell_header_padding_right = LineEditInt(
+                                               triggered_fn=self._stylesheet.set_cell_header_padding_right)
+        self._cell_header_padding_bottom = LineEditInt(
+                                                triggered_fn=self._stylesheet.set_cell_header_padding_bottom)
+        
+        self._cell_padding_left = LineEditInt(
+                                       triggered_fn=self._stylesheet.set_cell_padding_left)
+        self._cell_padding_top = LineEditInt(
+                                      triggered_fn=self._stylesheet.set_cell_padding_top)
+        self._cell_padding_right = LineEditInt(
+                                        triggered_fn=self._stylesheet.set_cell_padding_right)
+        self._cell_padding_bottom = LineEditInt(
+                                         triggered_fn=self._stylesheet.set_cell_padding_bottom)
+
+        # Container styling
+        self._container_background_color = LineEditText(
+            triggered_fn=self._stylesheet.set_container_background_color
+            )
+
+        # Cell header styling
+        self._cell_header_background_color = LineEditText(
+            triggered_fn=self._stylesheet.set_cell_header_background_color
+            )
+        self._cell_header_spacing = LineEditInt(
+            triggered_fn=self._stylesheet.set_cell_header_spacing
+            )
+        self._cell_header_font_size = LineEditInt(
+            triggered_fn=self._stylesheet.set_cell_header_font_size
+            )
+        self._cell_header_font_color = LineEditText(
+            triggered_fn=self._stylesheet.set_cell_header_font_color
+            )
+
+        # Cell styling
+        self._cell_spacing = LineEditInt(
+            triggered_fn=self._stylesheet.set_cell_spacing
+            )
+        self._cell_content_spacing = LineEditInt(
+            triggered_fn=self._stylesheet.set_cell_content_spacing
+            )
+        self._cell_font_size = LineEditInt(
+            triggered_fn=self._stylesheet.set_cell_font_size
+            )
+        self._cell_aspect_image_size = LineEditInt(
+            triggered_fn=self._stylesheet.set_cell_aspect_image_size
+            )
+
+        # Cell background styling
+        self._cell_background_color = LineEditText(
+            triggered_fn=self._stylesheet.set_cell_background_color
+            )
+        self._cell_font_color = LineEditText(
+            triggered_fn=self._stylesheet.set_cell_font_color
+            )
+        
+        self._cell_padding_left = LineEditInt(
+            triggered_fn=self._stylesheet.set_cell_padding_left
+            )
+        self._cell_padding_top = LineEditInt( 
+            triggered_fn=self._stylesheet.set_cell_padding_top
+            )
+        self._cell_padding_right = LineEditInt(
+            triggered_fn=self._stylesheet.set_cell_padding_right
+            )
+        self._cell_padding_bottom = LineEditInt(
+            triggered_fn=self._stylesheet.set_cell_padding_bottom
+            )
+
         VerticalBoxLayout([
             ScrollArea(
                 VerticalBoxLayout([
@@ -97,55 +178,16 @@ class DraftListSettingsViewController(QWidget, TransmissionReceiverProtocol):
                         VerticalGroupBox([
                             BoldLabel("Padding"),
                             GridLayout([
-                                (
-                                    HorizontalLabeledInputRow(
-                                        "Left",
-                                        LineEditInt(
-                                            self._stylesheet.container_padding_left, 
-                                            self._stylesheet.set_container_padding_left
-                                            )
-                                        ),
-                                    (1, 0)
-                                ),
-                                (
-                                    HorizontalLabeledInputRow(
-                                        "Top",
-                                        LineEditInt(
-                                            self._stylesheet.container_padding_top, 
-                                            self._stylesheet.set_container_padding_top
-                                            )
-                                        ),
-                                    (0, 1)
-                                ),
-                                (
-                                    HorizontalLabeledInputRow(
-                                        "Right",
-                                        LineEditInt(
-                                            self._stylesheet.container_padding_right, 
-                                            self._stylesheet.set_container_padding_right
-                                            )
-                                        ),
-                                    (1, 2)
-                                ),
-                                (
-                                    HorizontalLabeledInputRow(
-                                        "Bottom",
-                                        LineEditInt(
-                                            self._stylesheet.container_padding_bottom, 
-                                            self._stylesheet.set_container_padding_bottom
-                                            )
-                                        ),
-                                    (2, 1)
-                                )
+                                (HorizontalLabeledInputRow("Left", self._container_padding_left), (1, 0)),
+                                (HorizontalLabeledInputRow("Top", self._container_padding_top), (0, 1)),
+                                (HorizontalLabeledInputRow("Right", self._container_padding_right), (1, 2)),
+                                (HorizontalLabeledInputRow("Bottom", self._container_padding_bottom), (2, 1))
                                 ]),
                             ]),
                         
                             HorizontalLabeledInputRow(
                                 "Background Color",
-                                LineEditText(
-                                    self._stylesheet.container_background_color, 
-                                    self._stylesheet.set_container_background_color
-                                    )
+                                self._container_background_color
                                 ),
                             
                         ]),
@@ -156,46 +198,10 @@ class DraftListSettingsViewController(QWidget, TransmissionReceiverProtocol):
                         VerticalGroupBox([
                             BoldLabel("Padding"),
                             GridLayout([
-                                (
-                                    HorizontalLabeledInputRow(
-                                        "Left",
-                                        LineEditInt(
-                                            self._stylesheet.cell_header_padding_left, 
-                                            self._stylesheet.set_cell_header_padding_left
-                                            )
-                                        ),
-                                    (1, 0)
-                                ),
-                                (
-                                    HorizontalLabeledInputRow(
-                                        "Top",
-                                        LineEditInt(
-                                            self._stylesheet.cell_header_padding_top, 
-                                            self._stylesheet.set_cell_header_padding_top
-                                            )
-                                        ),
-                                    (0, 1)
-                                ),
-                                (
-                                    HorizontalLabeledInputRow(
-                                        "Right",
-                                        LineEditInt(
-                                            self._stylesheet.cell_header_padding_right, 
-                                            self._stylesheet.set_cell_header_padding_right
-                                            )
-                                        ),
-                                    (1, 2)
-                                ),
-                                (
-                                    HorizontalLabeledInputRow(
-                                        "Bottom",
-                                        LineEditInt(
-                                            self._stylesheet.cell_header_padding_bottom, 
-                                            self._stylesheet.set_cell_header_padding_bottom
-                                            )
-                                        ),
-                                    (2, 1)
-                                )
+                                (HorizontalLabeledInputRow("Left", self._cell_header_padding_left), (1, 0)),
+                                (HorizontalLabeledInputRow("Top", self._cell_header_padding_top), (0, 1)),
+                                (HorizontalLabeledInputRow("Right", self._cell_header_padding_right), (1, 2)),
+                                (HorizontalLabeledInputRow("Bottom", self._cell_header_padding_bottom), (2, 1))
                                 ]),
                             
                             
@@ -203,35 +209,23 @@ class DraftListSettingsViewController(QWidget, TransmissionReceiverProtocol):
                         
                             HorizontalLabeledInputRow(
                                     "Background color",
-                                    LineEditText(
-                                        self._stylesheet.cell_header_background_color, 
-                                        self._stylesheet.set_cell_header_background_color
-                                        )
+                                    self._cell_header_background_color
                                     ),
                         
                             HorizontalLabeledInputRow(
                                 "Spacing",
-                                LineEditInt(
-                                    self._stylesheet.cell_header_spacing, 
-                                    self._stylesheet.set_cell_header_spacing
-                                    )
+                                self._cell_header_spacing
                                 ),
                             
                         VerticalGroupBox([
                             BoldLabel("Text"),
                             HorizontalLabeledInputRow(
                                 "Font size",
-                                LineEditInt(
-                                    self._stylesheet.cell_header_font_size, 
-                                    self._stylesheet.set_cell_header_font_size
-                                    )
+                                self._cell_header_font_size
                                 ),
                             HorizontalLabeledInputRow(
                                 "Font color",
-                                LineEditText(
-                                    self._stylesheet.cell_header_font_color, 
-                                    self._stylesheet.set_cell_header_font_color
-                                    )
+                                self._cell_header_font_color
                                 ),
                             VerticalGroupBox([
                         
@@ -256,46 +250,10 @@ class DraftListSettingsViewController(QWidget, TransmissionReceiverProtocol):
                         VerticalGroupBox([
                             BoldLabel("Padding"),
                             GridLayout([
-                                (
-                                    HorizontalLabeledInputRow(
-                                        "Left",
-                                        LineEditInt(
-                                            self._stylesheet.cell_padding_left, 
-                                            self._stylesheet.set_cell_padding_left
-                                            )
-                                        ),
-                                    (1, 0)
-                                ),
-                                (
-                                    HorizontalLabeledInputRow(
-                                        "Top",
-                                        LineEditInt(
-                                            self._stylesheet.cell_padding_top, 
-                                            self._stylesheet.set_cell_padding_top
-                                            )
-                                        ),
-                                    (0, 1)
-                                ),
-                                (
-                                    HorizontalLabeledInputRow(
-                                        "Right",
-                                        LineEditInt(
-                                            self._stylesheet.cell_padding_right, 
-                                            self._stylesheet.set_cell_padding_right
-                                            )
-                                        ),
-                                    (1, 2)
-                                ),
-                                (
-                                    HorizontalLabeledInputRow(
-                                        "Bottom",
-                                        LineEditInt(
-                                            self._stylesheet.cell_padding_bottom, 
-                                            self._stylesheet.set_cell_padding_bottom
-                                            )
-                                        ),
-                                    (2, 1)
-                                )
+                                (HorizontalLabeledInputRow("Left", self._cell_padding_left), (1, 0)),
+                                (HorizontalLabeledInputRow("Top", self._cell_padding_top), (0, 1)),
+                                (HorizontalLabeledInputRow("Right", self._cell_padding_right), (1, 2)),
+                                (HorizontalLabeledInputRow("Bottom", self._cell_padding_bottom), (2, 1))
                                 ]),
                             
                             
@@ -305,36 +263,24 @@ class DraftListSettingsViewController(QWidget, TransmissionReceiverProtocol):
                             HorizontalBoxLayout([
                                 HorizontalLabeledInputRow(
                                     "Spacing",
-                                    LineEditInt(
-                                        self._stylesheet.cell_spacing, 
-                                        self._stylesheet.set_cell_spacing
-                                        )
+                                    self._cell_spacing
                                     ),
                                 
                                 HorizontalLabeledInputRow(
                                     "Content spacing",
-                                    LineEditInt(
-                                        self._stylesheet.cell_content_spacing, 
-                                        self._stylesheet.set_cell_content_spacing
-                                        )
+                                    self._cell_content_spacing
                                     ),
                                 ]),
                             
                             HorizontalBoxLayout([
                                 HorizontalLabeledInputRow(
                                     "Font size",
-                                    LineEditInt(
-                                        self._stylesheet.cell_font_size, 
-                                        self._stylesheet.set_cell_font_size
-                                        )
+                                    self._cell_font_size
                                     ),
                                 
                                 HorizontalLabeledInputRow(
                                     "Aspect image size",
-                                    LineEditInt(
-                                        self._stylesheet.cell_aspect_image_size, 
-                                        self._stylesheet.set_cell_aspect_image_size
-                                        )
+                                    self._cell_aspect_image_size
                                     ), 
                                 ]),
                             ]),
@@ -358,13 +304,12 @@ class DraftListSettingsViewController(QWidget, TransmissionReceiverProtocol):
                     self._cell_configuration_list,
                     PushButton("Add Cell Interval", self._add_new_cell_configuration)
                 ])),
-            
-                HorizontalBoxLayout([
-                    QLabel("Reset styles"),
-                    self._reset_styles_checkbox,
-                ]).add_spacer(QSpacerItem(0, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)),
                 
                 HorizontalBoxLayout([
+                    PushButton(
+                        "Reset", 
+                        self._reset_styles
+                        ),
                     PushButton(
                         "Apply", 
                         self._save_settings
@@ -380,7 +325,7 @@ class DraftListSettingsViewController(QWidget, TransmissionReceiverProtocol):
         self._sync_ui()
     
     def _load_cell_interval_configuration(self):
-        self._cell_configuration_list.replace_widgets([HeaderLabel("Cell Items - Intervals")])
+        self._cell_configuration_list.replace_all_widgets([HeaderLabel("Cell Items - Intervals")])
         for current_index in range(self._stylesheet.cell_interval_count):
             self._cell_configuration_list.add_widgets([
                 CellStyleWrapper(current_index,
@@ -400,9 +345,47 @@ class DraftListSettingsViewController(QWidget, TransmissionReceiverProtocol):
         self._sync_ui()
     
     def _sync_ui(self):
+        # Container padding
+        self._container_padding_left.set_value(self._stylesheet.container_padding_left)
+        self._container_padding_top.set_value(self._stylesheet.container_padding_top)
+        self._container_padding_right.set_value(self._stylesheet.container_padding_right)
+        self._container_padding_bottom.set_value(self._stylesheet.container_padding_bottom)
+        
+        # Container styling
+        self._container_background_color.set_value(self._stylesheet.container_background_color)
+        
+        # Header cell padding
+        self._cell_header_padding_left.set_value(self._stylesheet.cell_header_padding_left)
+        self._cell_header_padding_top.set_value(self._stylesheet.cell_header_padding_top)
+        self._cell_header_padding_right.set_value(self._stylesheet.cell_header_padding_right)
+        self._cell_header_padding_bottom.set_value(self._stylesheet.cell_header_padding_bottom)
+        
+        # Header cell styling
+        self._cell_header_background_color.set_value(self._stylesheet.cell_header_background_color)
+        self._cell_header_spacing.set_value(self._stylesheet.cell_header_spacing)
+        self._cell_header_font_size.set_value(self._stylesheet.cell_header_font_size)
+        self._cell_header_font_color.set_value(self._stylesheet.cell_header_font_color)
+        
+        # Cell padding
+        self._cell_padding_left.set_value(self._stylesheet.cell_padding_left)
+        self._cell_padding_top.set_value(self._stylesheet.cell_padding_top)
+        self._cell_padding_right.set_value(self._stylesheet.cell_padding_right)
+        self._cell_padding_bottom.set_value(self._stylesheet.cell_padding_bottom)
+        
+        # Cell styling
+        self._cell_spacing.set_value(self._stylesheet.cell_spacing)
+        self._cell_content_spacing.set_value(self._stylesheet.cell_content_spacing)
+        self._cell_font_size.set_value(self._stylesheet.cell_font_size)
+        self._cell_aspect_image_size.set_value(self._stylesheet.cell_aspect_image_size)
+        self._cell_background_color.set_value(self._stylesheet.cell_background_color)
+        self._cell_font_color.set_value(self._stylesheet.cell_font_color)
+
+        # Labels
         self._container_background_image_label.setText(self._stylesheet.container_background_image_path if self._stylesheet.container_background_image_path is not None else "No image selected")
         self._cell_font_label.setText(self._stylesheet.cell_font_path if self._stylesheet.cell_font_path is not None else "No font selected")
         self._cell_header_font_label.setText(self._stylesheet.cell_header_font_path if self._stylesheet.cell_header_font_path is not None else "No font selected")
+        
+        # Cell interval configuration
         self._load_cell_interval_configuration()
     
     def _edit_background_image(self):
@@ -448,24 +431,13 @@ class DraftListSettingsViewController(QWidget, TransmissionReceiverProtocol):
     def _reset_styles(self):
         if self._router.prompt_accept("Reset styles?", "Are you sure you want to reset styles?"):
             self._stylesheet = DraftListStyleSheet.default_style()
-            self._mutable_app_ui_configuration.set_draft_list_styles(self._stylesheet)
-            self._app_ui_configuration_manager.save_configuration(self._mutable_app_ui_configuration)
-            self.close()
+            self._sync_ui()
     
     def _save_and_close(self):
-        if self._reset_styles_checkbox.checkState() == Qt.CheckState.Checked:
-            self._reset_styles()
-            return
         self._save_settings()
         self.close()
     
     def _save_settings(self):
-        if self._reset_styles_checkbox.checkState() == Qt.CheckState.Checked:
-            self._reset_styles()
-            return
         self._mutable_app_ui_configuration.set_draft_list_styles(self._stylesheet)
+        self._mutable_app_ui_configuration.core_mutable_configuration.set_draft_list_add_card_mode(Configuration.Settings.DraftListAddCardMode(self._add_card_mode_combo_box.currentIndex()))
         self._app_ui_configuration_manager.save_configuration(self._mutable_app_ui_configuration)
-        
-        new_config = self._configuration_manager.mutable_configuration()
-        new_config.set_draft_list_add_card_mode(Configuration.Settings.DraftListAddCardMode(self._add_card_mode_combo_box.currentIndex()))
-        self._configuration_manager.save_configuration(new_config)

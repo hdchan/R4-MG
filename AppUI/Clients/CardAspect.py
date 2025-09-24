@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Dict, Optional
 
-from AppUI.Assets import AssetProvider
+from AppUI.Clients.Assets import AssetProvider
 
 
 class CardAspect(str, Enum):

@@ -33,17 +33,14 @@ class DraftListWindowDeployerViewController(QWidget, TransmissionReceiverProtoco
         self._cell_container = HorizontalBoxLayout()
         self._cell_container.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
         VerticalBoxLayout([
-            ScrollArea(
-                self._cell_container
-                ),
-            PushButton(
-                "Add window",
-                self._add_new_window
-                )
+            ScrollArea(self._cell_container),
+            PushButton("Add window", self._add_new_window)
         ]).set_to_layout(self)
     
     def _add_new_window(self):
-        window_name, _ = self._router.prompt_text_input("Create new window instance", "Window name")
+        window_name, ok = self._router.prompt_text_input("Create new window instance", "Window name")
+        if not ok:
+            return
         try:
             self._data_source_draft_list_window_resource_deployer.create_new_window(window_name)
         except Exception as error:
@@ -55,7 +52,7 @@ class DraftListWindowDeployerViewController(QWidget, TransmissionReceiverProtoco
         widgets: List[QWidget] = []
         for w in windows_resource:
             cell = VerticalBoxLayout([
-                QLabel(w.file_name),
+                QLabel(w.window_configuration.window_name),
                 DraftListTablePackPreviewContainerViewController(
                     self._app_dependencies_provider,
                     DraftListTablePackPreviewContainerViewController.VCConfiguration(True),
@@ -69,7 +66,7 @@ class DraftListWindowDeployerViewController(QWidget, TransmissionReceiverProtoco
             ])
             widgets.append(cell)
         
-        self._cell_container.replace_widgets(widgets)
+        self._cell_container.replace_all_widgets(widgets)
         
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
         if type(event) is DraftListWindowResourceLoadEvent:

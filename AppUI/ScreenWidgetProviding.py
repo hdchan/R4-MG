@@ -1,4 +1,3 @@
-from typing import Optional
 
 from PyQt5.QtWidgets import QWidget
 
@@ -30,7 +29,7 @@ class ScreenWidgetProviding:
         return NotImplemented
     
     
-    def draft_list_settings_view(self, parent: Optional[QWidget]) -> QWidget:
+    def draft_list_settings_view(self) -> QWidget:
         return NotImplemented
     
     def draft_list_standalone_view(self, resource: LocalResourceDraftListWindow) -> QWidget:

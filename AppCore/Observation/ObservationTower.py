@@ -38,7 +38,7 @@ class ObservationTower:
                 except:
                     pass
                 
-        self._debug_log()
+        self._debug_log(event)
 
     def subscribe(self, subscriber: TransmissionReceiverProtocol, eventType: Type[TransmissionProtocol]):
         if eventType not in self._subscribers:
@@ -49,11 +49,11 @@ class ObservationTower:
         for e in eventTypes:
             self.subscribe(subscriber, e)
             
-    def _debug_log(self):
+    def _debug_log(self, current_event):
         subscribers = self.subscribers
         result: Dict[Type[TransmissionProtocol], int] = {}
         for key in subscribers.keys():
             result[key] = len(subscribers[key])
         res =  max(result, key=result.get)
-        text = f'{res} {result[res]})'
+        text = f'{current_event.__class__} {res} {result[res]})'
         print(text)

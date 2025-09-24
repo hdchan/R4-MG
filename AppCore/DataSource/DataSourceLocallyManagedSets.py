@@ -56,7 +56,7 @@ class DataSourceLocallyManagedSets:
     
     @property
     def _asset_dir_path(self) -> str:
-        return self._configuration.assets_dir_path
+        return self._configuration.locally_managed_sets_dir_path
     
     @property
     def _flat_mapped_hashed_cached_card_list(self) -> List[TradingCard]:

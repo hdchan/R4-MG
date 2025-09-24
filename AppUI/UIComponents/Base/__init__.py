@@ -4,9 +4,10 @@ from .PublishHistoryTableViewController import PublishHistoryTableViewController
 from .ImagePreviewLocalResourceDataSourceDecorator import ImagePreviewLocalResourceDataSourceDecorator
 from .CustomDirectorySearchTableViewController import CustomDirectorySearchTableViewController
 from .MenuBarComponentProvider import MenuBarScreenWidgetProvider, ConfigurationCheckableActionMenuItem, AppUIConfigurationCheckableActionMenuItem, AppUIConfigurationLabel
-from ..Base.CardSearchPreviewViewController import *
-from ..Base.ImageDeploymentViewController import *
-from ..Base.ImageDeploymentListViewController import *
-from ..Base.CardSearchPreviewViewController import CardSearchPreviewViewController
-from ..Base.SearchTableComboViewController import SearchTableComboViewController, SearchTableComboViewControllerDelegate
-from ..Base.SearchTableViewController import SearchTableViewController
+from .CardSearchPreviewViewController import *
+from .ImageDeploymentViewController import *
+from .ImageDeploymentListViewController import *
+from .CardSearchPreviewViewController import CardSearchPreviewViewController
+from .SearchTableComboViewController import SearchTableComboViewController, SearchTableComboViewControllerDelegate
+from .SearchTableViewController import SearchTableViewController
+from .AppWindow import AppWindow

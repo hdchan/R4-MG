@@ -12,7 +12,7 @@ from PyQt5.QtCore import QStandardPaths
 class Configuration():
     
     APP_NAME = 'R4-MG'
-    APP_VERSION = '0.19.0-beta'
+    APP_VERSION = '0.19.0'
     SETTINGS_VERSION = '1.0'
     
     class Toggles:
@@ -34,9 +34,6 @@ class Configuration():
             IS_DEPLOYMENT_LIST_HORIZONTAL = 'is_deployment_list_horizontal'
 
             CARD_TITLE_DETAIL = 'card_title_preference'
-
-            WINDOW_HEIGHT = 'w_height'
-            WINDOW_WIDTH = 'w_width'
             
             RESIZE_PROD_IMAGES = 'resize_prod_images'
             RESIZE_PROD_IMAGES_MAX_SIZE = 'resize_prod_images_max_size'
@@ -85,6 +82,13 @@ class Configuration():
         TOGGLES = 'toggles'
         SETTINGS = 'settings'
     
+    def __eq__(self, other):  # type: ignore
+        if not isinstance(other, Configuration):
+            # don't attempt to compare against unrelated types
+            return NotImplemented
+
+        return self._underlying_json == other._underlying_json
+    
     @classmethod
     def default(cls):
         obj = cls.__new__(cls)
@@ -105,9 +109,7 @@ class Configuration():
                 Configuration.Settings.Keys.HIDE_DEPLOYMENT_CELL_CONTROLS: False,
                 Configuration.Settings.Keys.CARD_TITLE_DETAIL: Configuration.Settings.CardTitleDetail.DEFAULT.value,
                 Configuration.Settings.Keys.IS_DEPLOYMENT_LIST_HORIZONTAL: False,
-                
-                Configuration.Settings.Keys.WINDOW_HEIGHT: None,
-                Configuration.Settings.Keys.WINDOW_WIDTH: None,
+
                 
                 Configuration.Settings.Keys.RESIZE_PROD_IMAGES: False,
                 Configuration.Settings.Keys.RESIZE_PROD_IMAGES_MAX_SIZE: 256,
@@ -170,7 +172,7 @@ class Configuration():
         return self._get_with_default(self.Keys.TOGGLES)
     
     # MARK: - Generic config
-    def configuration_for_key(self, key: str) -> Optional[Dict[str, Any]]:
+    def configuration_for_key(self, key: str) -> Optional[Any]:
         return self._get_with_default_settings(key)
     
     
@@ -212,13 +214,6 @@ class Configuration():
     @property 
     def show_resource_details(self) -> bool:
         return self._get_with_default_settings(self.Settings.Keys.SHOW_RESOURCE_DETAILS)
-    
-    @property
-    def window_size(self) -> Optional[Tuple[int, int]]:
-        if (self._get_with_default_settings(self.Settings.Keys.WINDOW_HEIGHT) is not None and 
-            self._get_with_default_settings(self.Settings.Keys.WINDOW_WIDTH) is not None):
-            return (self._get_with_default_settings(self.Settings.Keys.WINDOW_HEIGHT), self._get_with_default_settings(self.Settings.Keys.WINDOW_WIDTH))
-        return None
     
     @property
     def resize_prod_images(self) -> bool:
@@ -276,10 +271,6 @@ class Configuration():
         # will point to app name folder
         return QStandardPaths.writableLocation(QStandardPaths.StandardLocation.AppLocalDataLocation)
     
-    @property
-    def assets_dir_path(self) -> str:
-        return f'{self._app_data_dir_path}/assets/'
-    
     # MARK: - Config
     @property
     def _config_dir_path(self) -> str:
@@ -307,15 +298,29 @@ class Configuration():
         return f'{self._picture_dir_path}production/'
     
     @property
-    def draft_list_windows_dir_path(self) -> str:
-        return f'{self._picture_dir_path}draft_list_windows/'
-    
-    @property
     def production_preview_dir_path(self) -> str:
         return f'{self.production_dir_path}preview/'
     
-    # MARK: - Cache
+    # MARK: - Assets
+    @property
+    def assets_dir_path(self) -> str:
+        return f'{self._app_data_dir_path}/assets/'
     
+    # TODO: move decks to dedicated folder
+    
+    @property
+    def locally_managed_sets_dir_path(self) -> str:
+        return f'{self.assets_dir_path}locally_managed_sets/'
+    
+    @property
+    def draft_list_windows_dir_path(self) -> str:
+        return f'{self.assets_dir_path}draft_list_windows/'
+    
+    @property
+    def draft_lists_dir_path(self) -> str:
+        return f'{self.assets_dir_path}draft_lists/'
+    
+    # MARK: - Cache
     @property
     def cache_dir_path(self) -> str:
         return f'{QStandardPaths.writableLocation(QStandardPaths.StandardLocation.CacheLocation)}/'
@@ -348,7 +353,11 @@ class Configuration():
             default = default[p]
             traversed.append(p)
         if key not in under:
-            under[key] = default[key]
+            if key not in default:
+                under[key] = None
+            else:
+                under[key] = default[key]
+            
         return under[key]
     
     def _get_with_default_settings(self, key: str) -> Any:
@@ -384,14 +393,6 @@ class MutableConfiguration(Configuration):
     def set_is_deployment_list_horizontal(self, value: bool):
         self._settings[self.Settings.Keys.IS_DEPLOYMENT_LIST_HORIZONTAL] = value
         
-    def set_window_size(self, size: Tuple[int, int]):
-        self._settings[self.Settings.Keys.WINDOW_HEIGHT] = size[0]
-        self._settings[self.Settings.Keys.WINDOW_WIDTH] = size[1]
-
-    def reset_window_size(self):
-        self._settings[self.Settings.Keys.WINDOW_HEIGHT] = None
-        self._settings[self.Settings.Keys.WINDOW_WIDTH] = None
-        
     def set_resize_prod_images(self, value: bool):
         self._settings[self.Settings.Keys.RESIZE_PROD_IMAGES] = value
         
@@ -417,7 +418,7 @@ class MutableConfiguration(Configuration):
     def set_draft_list_add_card_deployment_destination(self, value: Optional[str]):
         self._settings[self.Settings.Keys.DRAFT_LIST_ADD_CARD_DEPLOYMENT_DESTINATION] = value
     
-    def set_configuration_for_key(self, key: str, value: Dict[str, Any]):
+    def set_configuration_for_key(self, key: str, value: Any):
         self._settings[key] = value
     
     # MARK: - Developer settings

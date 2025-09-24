@@ -65,6 +65,9 @@ class ConfigurationManager(TransmissionReceiverProtocol):
     
 
     def _notify_configuration_changed(self, old_configuration: Configuration):
+        if self.configuration == old_configuration:
+            # prevents unnecessary calls
+            return
         self._observation_tower.notify(ConfigurationUpdatedEvent(self.configuration, old_configuration))
         self._write_configuration_changes()
 

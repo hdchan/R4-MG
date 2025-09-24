@@ -9,26 +9,12 @@ a = Analysis(
         ('AppUI\\Assets\\Text\\CHANGELOG.md', 'AppUI\\Assets\\Text'),
         ('AppUI\\Assets\\Text\\shortcuts.md', 'AppUI\\Assets\\Text'),
 
-        ('AppUI\\Assets\\Data\\shd.json', 'AppUI\\Assets\\Data'),
-        ('AppUI\\Assets\\Data\\sor.json', 'AppUI\\Assets\\Data'),
-        ('AppUI\\Assets\\Data\\twi.json', 'AppUI\\Assets\\Data'),
-        ('AppUI\\Assets\\Data\\jtl.json', 'AppUI\\Assets\\Data'),
-        ('AppUI\\Assets\\Data\\lof.json', 'AppUI\\Assets\\Data'),
-        ('AppUI\\Assets\\Data\\starwarsunlimited_com_filters.json', 'AppUI\\Assets\\Data'),
-
         ('AppUI\\Assets\\Images\\logo.png', 'AppUI\\Assets\\Images'),
         ('AppUI\\Assets\\Images\\SWH_Logo_Black_preview.png', 'AppUI\\Assets\\Images'),
         ('AppUI\\Assets\\Images\\cardback.png', 'AppUI\\Assets\\Images'),
         ('AppUI\\Assets\\Images\\r4-head.png', 'AppUI\\Assets\\Images'),
         ('AppUI\\Assets\\Images\\large_spark_of_rebellion_starfield_c4fdfaa6a7.png', 'AppUI\\Assets\\Images'),
         ('AppUI\\Assets\\Images\\set-identifier-example.png', 'AppUI\\Assets\\Images'),
-
-        ('AppUI\\Assets\\Images\\Aspects\\SWH_Aspects_Aggression_100.png', 'AppUI\\Assets\\Images'),
-        ('AppUI\\Assets\\Images\\Aspects\\SWH_Aspects_Command_100.png', 'AppUI\\Assets\\Images'),
-        ('AppUI\\Assets\\Images\\Aspects\\SWH_Aspects_Cunning_100.png', 'AppUI\\Assets\\Images'),
-        ('AppUI\\Assets\\Images\\Aspects\\SWH_Aspects_Heroism_100.png', 'AppUI\\Assets\\Images'),
-        ('AppUI\\Assets\\Images\\Aspects\\SWH_Aspects_Vigilance_100.png', 'AppUI\\Assets\\Images'),
-        ('AppUI\\Assets\\Images\\Aspects\\SWH_Aspects_Villainy_100.png', 'AppUI\\Assets\\Images'),
 
         ('AppUI\\Clients\\Assets', 'AppUI\\Clients\\Assets')
     ],

@@ -186,11 +186,6 @@ class ImageDeploymentMenuBar(QMenuBar):
         self._is_deployment_list_horizontal.setCheckable(True)
         self._is_deployment_list_horizontal.setChecked(self._configuration.is_deployment_list_horizontal)
         self._view_menu.addAction(self._is_deployment_list_horizontal) # type: ignore
-    
-        # MARK: - ## Window size
-        self._reset_window_size = QAction('Reset window size')
-        self._reset_window_size.triggered.connect(self.did_toggle_reset_window_size)
-        self._view_menu.addAction(self._reset_window_size) # type: ignore
 
         # MARK: - Tools
         self._tool_menu = QMenu("&Tools")
@@ -388,13 +383,6 @@ class ImageDeploymentMenuBar(QMenuBar):
         new_config = self._configuration_manager.mutable_configuration()
         new_config.set_is_deployment_list_horizontal(is_horizontal)
         self._configuration_manager.save_configuration(new_config)
-
-    def did_toggle_reset_window_size(self):
-        new_config = self._configuration_manager.mutable_configuration()
-        new_config.reset_window_size()
-        self._configuration_manager.save_configuration(new_config)
-    
-    
 
     def did_open_production_dir(self):
         self._platform_service.open_file(self._configuration.picture_dir_path)

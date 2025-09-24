@@ -50,7 +50,8 @@ class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesIntern
         
         self._data_source_draft_list_window_resource_deployer = DataSourceDraftListWindowResourceDeployer(self._configuration_manager, 
                                                                                                           self._observation_tower, 
-                                                                                                          self._data_source_draft_list)
+                                                                                                          self._data_source_draft_list, 
+                                                                                                          self._data_serializer)
         
         atexit.register(self._cleanup)
     

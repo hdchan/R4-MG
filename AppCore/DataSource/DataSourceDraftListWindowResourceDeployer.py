@@ -1,19 +1,21 @@
 import copy
-import io
 import os
 from pathlib import Path
-from typing import List
-
-import yaml
+from typing import List, Optional
 
 from AppCore.Config import Configuration, ConfigurationManager
 from AppCore.Models import (DraftListWindowConfiguration,
                             LocalResourceDraftListWindow)
-from AppCore.Observation import ObservationTower, TransmissionProtocol, TransmissionReceiverProtocol
-from AppCore.Observation.Events import DraftListWindowResourceLoadEvent, DraftListWindowResourceUpdatedEvent, DraftListUpdatedEvent
+from AppCore.Observation import (ObservationTower, TransmissionProtocol,
+                                 TransmissionReceiverProtocol)
+from AppCore.Observation.Events import (DraftListUpdatedEvent,
+                                        DraftListWindowResourceLoadEvent,
+                                        DraftListWindowResourceUpdatedEvent)
+from AppCore.Service.DataSerializer import DataSerializer
+
 from .DataSourceDraftList import DataSourceDraftList
 
-YAML_EXTENSION = 'yaml'
+JSON_EXTENSION = 'json'
 
 
 
@@ -21,10 +23,12 @@ class DataSourceDraftListWindowResourceDeployer(TransmissionReceiverProtocol):
     def __init__(self, 
                  configuration_manager: ConfigurationManager, 
                  observation_tower: ObservationTower, 
-                 data_source_draft_list: DataSourceDraftList):
+                 data_source_draft_list: DataSourceDraftList, 
+                 data_serializer: DataSerializer):
         self._configuration_manager = configuration_manager
         self._observation_tower = observation_tower
         self._data_source_draft_list = data_source_draft_list
+        self._data_serializer = data_serializer
         self._draft_list_windows: List[LocalResourceDraftListWindow] = []
         self._observation_tower.subscribe(self, DraftListUpdatedEvent)
         self.load_resources()
@@ -35,7 +39,7 @@ class DataSourceDraftListWindowResourceDeployer(TransmissionReceiverProtocol):
     
     @property
     def draft_list_windows(self) -> List[LocalResourceDraftListWindow]:
-        return copy.deepcopy(self._draft_list_windows)
+        return sorted(copy.deepcopy(self._draft_list_windows), key=lambda x: x.created_date)
     
     def load_resources(self):
         start_event = DraftListWindowResourceLoadEvent(DraftListWindowResourceLoadEvent.EventType.STARTED)
@@ -47,22 +51,19 @@ class DataSourceDraftListWindowResourceDeployer(TransmissionReceiverProtocol):
         file_list = os.listdir(self._configuration.draft_list_windows_dir_path)
         for file_name_with_ext in file_list[:]:
             file_path = Path(file_name_with_ext)
-            if file_path.suffix == f'.{YAML_EXTENSION}':
-                with open(f'{self._configuration.draft_list_windows_dir_path}/{file_name_with_ext}', 'r') as stream:
-                    window_config_json = yaml.safe_load(stream)
-                    window_config = DraftListWindowConfiguration.from_json(window_config_json)
-                    draft_pack = self._data_source_draft_list.pack_for_draft_pack_name(window_config.draft_pack_name)
-                    if draft_pack is None:
-                        window_config.draft_pack_name = None
-                    # update file to have a None for pack name if it does not exist
-                    updated_data = window_config.to_data()
-                    with io.open(f'{self._configuration.draft_list_windows_dir_path}/{file_name_with_ext}', 'w', encoding='utf8') as outfile:
-                        yaml.dump(updated_data, outfile, default_flow_style=False, allow_unicode=True)
-                    resource = LocalResourceDraftListWindow(file_path.stem, 
-                                                            window_config, 
-                                                            self._configuration.draft_list_windows_dir_path, 
-                                                            draft_pack)
-                    self._draft_list_windows.append(resource)
+            if file_path.suffix == f'.{JSON_EXTENSION}':
+                loaded_json = self._data_serializer.load(f'{self._configuration.draft_list_windows_dir_path}/{file_name_with_ext}')
+                if loaded_json is None:
+                    continue
+                window_config = DraftListWindowConfiguration.from_json(loaded_json)
+                draft_pack = self._data_source_draft_list.pack_for_draft_pack_identifier(window_config.draft_pack_identifier)
+                if draft_pack is None:
+                    window_config.draft_pack_identifier = None
+                resource = LocalResourceDraftListWindow(file_path.stem, 
+                                                        window_config, 
+                                                        self._configuration.draft_list_windows_dir_path, 
+                                                        draft_pack)
+                self._draft_list_windows.append(resource)
                     
         end_event = DraftListWindowResourceLoadEvent(DraftListWindowResourceLoadEvent.EventType.FINISHED)
         end_event.predecessor = start_event
@@ -70,14 +71,13 @@ class DataSourceDraftListWindowResourceDeployer(TransmissionReceiverProtocol):
         
     def create_new_window(self, window_name: str):
         self._generate_dir_if_needed()
-        new_window_configuration = DraftListWindowConfiguration.default_window()
-        resource = LocalResourceDraftListWindow(window_name, new_window_configuration, self._configuration.draft_list_windows_dir_path, None)
-        path_to_file = Path(resource.asset_path)
-        if path_to_file.is_file():
-            raise Exception(f"Window already exists: {window_name}")
+        new_window_configuration = DraftListWindowConfiguration.default_window(window_name)
+        resource = LocalResourceDraftListWindow(new_window_configuration.window_identifier, 
+                                                new_window_configuration, 
+                                                self._configuration.draft_list_windows_dir_path, 
+                                                None)
         data = new_window_configuration.to_data()
-        with io.open(resource.asset_path, 'w', encoding='utf8') as outfile:
-            yaml.dump(data, outfile, default_flow_style=False, allow_unicode=True)
+        self._data_serializer.save_json_data(resource.asset_path, data)
             
         self._draft_list_windows.append(resource)
         # reload resources?
@@ -119,12 +119,29 @@ class DataSourceDraftListWindowResourceDeployer(TransmissionReceiverProtocol):
     #     self._observation_tower.notify(event)
     
     def unbind_draft_pack_name(self, resource: LocalResourceDraftListWindow):
-        old_config = resource.window_configuration
-        new_config = DraftListWindowConfiguration(old_config.window_height, old_config.window_width, None)
-        self.update_window_configuration(resource, new_config)
+        self.update_window_draft_pack(resource, None)
         
     
-    def update_window_configuration(self, resource: LocalResourceDraftListWindow, new_configuration: DraftListWindowConfiguration):
+    def update_window_dimension(self, resource: LocalResourceDraftListWindow, width: Optional[int], height: Optional[int]):
+        old_config = copy.deepcopy(resource.window_configuration)
+        new_width = old_config.window_width
+        new_height = old_config.window_height
+        if width is not None:
+            new_width = width
+        if height is not None:
+            new_height = height
+        new_config = old_config
+        new_config.window_width = new_width
+        new_config.window_height = new_height
+        self._update_window_configuration(resource, new_config)
+        
+    def update_window_draft_pack(self, resource: LocalResourceDraftListWindow, draft_pack_identifier: Optional[str]):
+        old_config = copy.deepcopy(resource.window_configuration)
+        new_config = old_config
+        new_config.draft_pack_identifier = draft_pack_identifier
+        self._update_window_configuration(resource, new_config)
+    
+    def _update_window_configuration(self, resource: LocalResourceDraftListWindow, new_configuration: DraftListWindowConfiguration):
         found_resources: List[LocalResourceDraftListWindow] = list(filter(lambda x: x == resource, self._draft_list_windows))
         if len(found_resources) == 0:
             raise Exception(f"Window {resource.file_name} does not exist")
@@ -140,8 +157,7 @@ class DataSourceDraftListWindowResourceDeployer(TransmissionReceiverProtocol):
         path_to_file = Path(resource.asset_path)
         if path_to_file.is_file():
             data = new_configuration.to_data()
-            with io.open(resource.asset_path, 'w', encoding='utf8') as outfile:
-                yaml.dump(data, outfile, default_flow_style=False, allow_unicode=True)
+            self._data_serializer.save_json_data(resource.asset_path, data)
             
             event = DraftListWindowResourceUpdatedEvent(copy.deepcopy(updated_resource), old_resource)
             
