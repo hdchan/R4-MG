@@ -12,3 +12,4 @@ from .LocalAssetResourceFetchEvent import LocalAssetResourceFetchEvent
 from .DraftListUpdatedEvent import DraftListUpdatedEvent
 from .DraftListWindowResourceLoadEvent import DraftListWindowResourceLoadEvent
 from .DraftListWindowResourceUpdatedEvent import DraftListWindowResourceUpdatedEvent
+from .DraftPackUpdatedEvent import DraftPackUpdatedEvent

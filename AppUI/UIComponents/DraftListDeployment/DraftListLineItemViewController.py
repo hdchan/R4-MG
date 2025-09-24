@@ -6,8 +6,7 @@ from PyQt5.QtGui import QContextMenuEvent
 from PyQt5.QtWidgets import QAction, QMenu, QWidget, QVBoxLayout, QLabel
 
 from AppCore.DataSource import LocalResourceDataSourceProviding
-from AppCore.Models.LocalCardResource import LocalCardResource
-from AppCore.Models.TradingCard import TradingCard
+from AppCore.Models import LocalCardResource, TradingCard, DraftPack
 from AppUI.AppDependenciesProviding import AppDependenciesProviding
 
 from AppUI.Models.DraftListStyleSheet import DraftListStyleSheet
@@ -26,8 +25,8 @@ class DraftListLineItemViewController(QWidget):
                  local_resource: LocalCardResource, # Able to access resource without checking optional trading card
                  data_source_local_resource_provider: Optional[LocalResourceDataSourceProviding],
                  pack_index: int, 
-                 card_index: int, 
-                 is_staging_view: bool):
+                 draft_pack: DraftPack,
+                 card_index: int):
         super().__init__()
         self._stylesheet = stylesheet
         self._asset_provider = app_dependencies_provider.asset_provider
@@ -38,6 +37,7 @@ class DraftListLineItemViewController(QWidget):
         self._trading_card = trading_card
         self._local_resource = local_resource
         self._pack_index = pack_index
+        self._draft_pack = draft_pack
         self._card_index = card_index
         self._external_app_dependencies_provider = app_dependencies_provider.external_app_dependencies_provider
         self._delegate: Optional[ReferenceType[DraftListLineItemViewControllerDelegate]] = None

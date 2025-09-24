@@ -70,8 +70,8 @@ class Router:
         view = self._component_provider.app_settings_view
         self._open_view("app_settings", view)
         
-    def open_draft_list_settings_page(self, parent: Optional[QWidget]):
-        view = self._component_provider.draft_list_settings_view(parent)
+    def open_draft_list_settings_page(self):
+        view = self._component_provider.draft_list_settings_view()
         self._open_view("draft_list_settings", view)
 
     def open_about_page(self):

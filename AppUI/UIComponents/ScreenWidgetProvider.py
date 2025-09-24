@@ -50,8 +50,8 @@ class ScreenWidgetProvider(ScreenWidgetProviding):
     def locally_managed_deck_preview_view(self, resource: LocalAssetResource) -> QWidget:
         return LocallyManagedSetPreviewViewController(self._app_dependencies_provider, resource)
     
-    def draft_list_settings_view(self, parent: Optional[QWidget]) -> QWidget:
-        return DraftListSettingsViewController(self._app_dependencies_provider, parent)
+    def draft_list_settings_view(self) -> QWidget:
+        return DraftListSettingsViewController(self._app_dependencies_provider)
     
     def draft_list_standalone_view(self, resource: LocalResourceDraftListWindow) -> QWidget:
         return DraftListTablePackPreviewContainerStandAloneViewController(self._app_dependencies_provider, resource)

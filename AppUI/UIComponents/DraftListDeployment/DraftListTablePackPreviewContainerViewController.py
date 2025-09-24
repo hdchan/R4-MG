@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QWidget
 from AppCore.Models import LocalResourceDraftListWindow
 from AppCore.Observation import (TransmissionProtocol,
                                  TransmissionReceiverProtocol)
-from AppCore.Observation.Events import DraftListWindowResourceUpdatedEvent, DraftListUpdatedEvent
+from AppCore.Observation.Events import DraftListWindowResourceUpdatedEvent, DraftPackUpdatedEvent
 from AppUI.AppDependenciesProviding import AppDependenciesProviding
 from PyQtUI import VerticalBoxLayout
 
@@ -14,9 +14,9 @@ from .DraftListTablePackPreviewViewController import (
     DraftListTablePackPreviewViewControllerDelegate)
 
 
-class DraftListTablePackPreviewContainerViewController(QWidget, 
-                                                    DraftListTablePackPreviewViewControllerDelegate, 
-                                                    TransmissionReceiverProtocol):
+class DraftListTablePackPreviewContainerViewController(QWidget,
+                                                       DraftListTablePackPreviewViewControllerDelegate,
+                                                       TransmissionReceiverProtocol):
     
     class VCConfiguration:
         def __init__(self, is_staging: bool):
@@ -35,11 +35,11 @@ class DraftListTablePackPreviewContainerViewController(QWidget,
         self._vc_configuration = vc_configuration
         
         self._resource = resource
-        self._draft_pack = self._data_source_draft_list.pack_for_draft_pack_name(resource.window_configuration.draft_pack_name)
+        self._draft_pack = self._data_source_draft_list.pack_for_draft_pack_identifier(resource.window_configuration.draft_pack_identifier)
         
         self._setup_view()
     
-        app_dependencies_provider.observation_tower.subscribe_multi(self, [DraftListWindowResourceUpdatedEvent, DraftListUpdatedEvent])
+        app_dependencies_provider.observation_tower.subscribe_multi(self, [DraftListWindowResourceUpdatedEvent, DraftPackUpdatedEvent])
     
     def _setup_view(self):
         self._pack_preview = DraftListTablePackPreviewViewController(self._app_dependencies_provider, None)
@@ -47,7 +47,7 @@ class DraftListTablePackPreviewContainerViewController(QWidget,
         VerticalBoxLayout([
             self._pack_preview
         ]) \
-            .set_content_margins(0, 0, 0, 0) \
+            .set_uniform_content_margins(0) \
                 .set_to_layout(self)
         self._sync_ui()
     
@@ -61,6 +61,10 @@ class DraftListTablePackPreviewContainerViewController(QWidget,
             # TODO: logic should be moved to data source
             self._data_source_draft_list_window_resource_deployer.unbind_draft_pack_name(self._resource)
         return index
+    
+    @property
+    def dlp_pack_identifier(self) -> Optional[str]:
+        return self._resource.window_configuration.draft_pack_identifier
     
     @property
     def dlp_is_staging_view(self) -> bool:
@@ -79,7 +83,7 @@ class DraftListTablePackPreviewContainerViewController(QWidget,
         if type(event) == DraftListWindowResourceUpdatedEvent:
             if self._resource == event.old_resource:
                 self._resource = event.new_resource
-                self._draft_pack = self._data_source_draft_list.pack_for_draft_pack_name(event.new_resource.window_configuration.draft_pack_name)
+                self._draft_pack = self._data_source_draft_list.pack_for_draft_pack_identifier(event.new_resource.window_configuration.draft_pack_identifier)
             self._sync_ui()
-        if type(event) == DraftListUpdatedEvent:
+        if type(event) == DraftPackUpdatedEvent:
             self._sync_ui()

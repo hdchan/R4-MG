@@ -27,6 +27,9 @@ class ShortcutActionCoordinator:
 
     def bind_search_base(self, fn: Callable[[], None], parent: QWidget):
         QShortcut(QKeySequence(Qt.Modifier.SHIFT + Qt.Key.Key_Return), parent).activated.connect(fn)
+        
+    def bind_add_card_to_draft_list(self, fn: Callable[[], None], parent: QWidget):
+        QShortcut(QKeySequence(Qt.Modifier.CTRL + Qt.Key.Key_D), parent).activated.connect(fn)
 
     @property
     def _key_pad(self) -> List[Qt.Key]:

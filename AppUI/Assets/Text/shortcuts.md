@@ -14,6 +14,10 @@
 - `ALT+<NUM>` - Unstage card in slot
 - `CTRL+P` - Publish ALL staged resources
 
+### Draft List
+
+-`CTRL+D` - Adds currently previewed card to currently view draft list
+
 ## Emojis
 *Cards may have their details represented by the following emojis.*
 

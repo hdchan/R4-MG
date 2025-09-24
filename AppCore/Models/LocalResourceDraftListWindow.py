@@ -1,58 +1,81 @@
 
 import copy
 from typing import Any, Dict, Optional
+from uuid import UUID, uuid4
 
 from AppCore.Models import LocalAssetResource
 
 from .DraftPack import DraftPack
 
-YAML_EXTENSION = 'yaml'
-
 class DraftListWindowConfiguration:
     def __init__(self, 
-                 window_height: int, 
+                 window_name: str,
+                 window_identifier: UUID,
+                 window_height: int,
                  window_width: int,
-                 draft_pack_name: Optional[str] = None):
+                 draft_pack_identifier: Optional[str] = None):
         super().__init__()
         self.window_height = window_height
         self.window_width = window_width
-        self.draft_pack_name = draft_pack_name
+        self.window_name = window_name
+        self._window_identifier = window_identifier
+        self._draft_pack_identifier = draft_pack_identifier
     
     def __eq__(self, other):  # type: ignore
         if not isinstance(other, DraftListWindowConfiguration):
             # don't attempt to compare against unrelated types
             return NotImplemented
 
-        return self.window_height == other.window_height and \
-            self.window_width == other.window_width and \
-                self.draft_pack_name == other.draft_pack_name
+        return self._window_identifier == other._window_identifier
+    
+    @property
+    def window_identifier(self) -> str:
+        return str(self._window_identifier)
+    
+    @property
+    def draft_pack_identifier(self) -> Optional[str]:
+        return self._draft_pack_identifier
+    
+    @draft_pack_identifier.setter
+    def draft_pack_identifier(self, value: Optional[str]):
+        self._draft_pack_identifier = value
     
     class Keys:
             WINDOW_HEIGHT = 'window_height'
             WINDOW_WIDTH = 'window_width'
-            DRAFT_PACK_NAME = 'draft_pack_name'
+            DRAFT_PACK_IDENTIFIER = 'draft_pack_identifier'
+            WINDOW_IDENTIFIER = 'window_identifier'
+            WINDOW_NAME = 'window_name'
     
     def to_data(self) -> Dict[str, Any]:
         return {
             self.Keys.WINDOW_HEIGHT: self.window_height,
             self.Keys.WINDOW_WIDTH: self.window_width,
-            self.Keys.DRAFT_PACK_NAME: self.draft_pack_name
+            self.Keys.DRAFT_PACK_IDENTIFIER: self._draft_pack_identifier,
+            self.Keys.WINDOW_IDENTIFIER: str(self.window_identifier),
+            self.Keys.WINDOW_NAME: self.window_name
         }
     
     @classmethod
     def from_json(cls, json: Dict[str, Any]):
         default = DraftListWindowConfiguration.default_window()
         return cls(
+            window_name=json[cls.Keys.WINDOW_NAME],
+            window_identifier=UUID(json[cls.Keys.WINDOW_IDENTIFIER]),
             window_height=json.get(cls.Keys.WINDOW_HEIGHT, default.window_height),
             window_width=json.get(cls.Keys.WINDOW_WIDTH, default.window_width),
-            draft_pack_name=json.get(cls.Keys.DRAFT_PACK_NAME, None)
+            draft_pack_identifier=json.get(cls.Keys.DRAFT_PACK_IDENTIFIER, None),
         )
     
     @classmethod
-    def default_window(cls):
+    def default_window(cls, window_name: str = ""):
+        if not window_name:
+            window_name = "New Window"
         return cls(
+            window_name=window_name,
+            window_identifier=uuid4(),
             window_height=500,
-            window_width=300,
+            window_width=300
         )
 
 class LocalResourceDraftListWindow(LocalAssetResource):
@@ -63,7 +86,7 @@ class LocalResourceDraftListWindow(LocalAssetResource):
                  draft_pack: Optional[DraftPack]):
         super().__init__(asset_dir=asset_dir, 
                          file_name=window_name, 
-                         file_extension=YAML_EXTENSION, 
+                         file_extension='json', 
                          display_name=window_name)
         self._window_configuration = window_configuration
         self.draft_pack = draft_pack
