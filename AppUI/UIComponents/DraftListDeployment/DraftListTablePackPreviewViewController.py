@@ -18,7 +18,7 @@ from .DraftListLineItemHeaderViewController import \
 from .DraftListLineItemViewController import (
     DraftListLineItemViewController, DraftListLineItemViewControllerDelegate)
 
-
+from PyQtUI import VerticalBoxLayout
 class DraftListTablePackPreviewViewControllerDelegate:    
     @property
     def dlp_pack_identifier(self) -> Optional[str]:
