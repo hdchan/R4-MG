@@ -298,6 +298,9 @@ class DraftListStyleSheet():
                 return self.interval_cell_styles[index - 1]
         return None
     
+    def remove_all_interval_cell_styles(self):
+        self.interval_cell_styles = []
+    
     def add_interval_cell_style(self):
         self.interval_cell_styles.append(DraftListCellStyleSheet.default_style())
 

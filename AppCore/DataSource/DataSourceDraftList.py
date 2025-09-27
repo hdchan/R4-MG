@@ -92,6 +92,19 @@ class DataSourceDraftList:
                 self.create_new_pack()
             
             self._save_and_notify_draft_pack_update()
+            
+    def move_pack_left(self, pack_index: int):
+        if pack_index >= 0 and pack_index < len(self._packs):
+            self._swap_pack_positions(pack_index, pack_index - 1)
+    
+    def move_pack_right(self, pack_index: int):
+        if pack_index >= 0 and pack_index < len(self._packs):
+            self._swap_pack_positions(pack_index, pack_index + 1)
+        
+    def _swap_pack_positions(self, pi1: int, pi2: int):
+        if pi1 >= 0 and pi1 < len(self._packs) and pi2 >= 0 and pi2 < len(self._packs):
+            self._packs[pi1], self._packs[pi2] = self._packs[pi2], self._packs[pi1]
+            self._save_and_notify_draft_pack_update()
     
     # MARK: - modify resource order
     def add_resource_to_pack(self, pack_index: int, local_resource: LocalCardResource):

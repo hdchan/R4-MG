@@ -26,7 +26,7 @@ from PyQtUI import VerticalBoxLayout
 
 from .Assets import AssetProvider as InternalAssetProvider
 from .CardAspect import CardAspect
-from .CardSelectionDialog import CardSelectionDialog
+from .DraftListExporterDialog import DraftListExporterDialog
 from .CardType import CardType
 from .ClientProvider import ClientProvider
 from .swu_db_com import SWUDBLocalSetRetrieverClient
@@ -190,7 +190,7 @@ class ExternalAppDependenciesProvider(ExternalAppDependenciesProviding):
             return cell_widget
         
         for a in swu_trading_card.aspects:
-            image_path = a.aspect_image_path(self._internal_asset_provider)
+            image_path = a.aspect_image_path(self._internal_asset_provider, SIZE <= 50)
             if image_path is not None:
                 image = QPixmap()
                 image_view = QLabel()
@@ -268,7 +268,7 @@ class ExternalAppDependenciesProvider(ExternalAppDependenciesProviding):
         
         export_formats = ["swudb.com", "Melee.gg"]
         file_formats = ["swudb.com (*.json)", "Melee.gg (*.txt)"]
-        card_selector = CardSelectionDialog(leaders, bases, main_deck, export_formats)
+        card_selector = DraftListExporterDialog(leaders, bases, main_deck, export_formats)
         result = card_selector.exec()
         if result == QDialog.DialogCode.Rejected:
             return 
@@ -278,7 +278,10 @@ class ExternalAppDependenciesProvider(ExternalAppDependenciesProviding):
         side_board = card_selector.side_board
         selected_format_index = card_selector.export_format_index
         
-        file_name, _ = QFileDialog.getSaveFileName(None, "Save File", "", f"{file_formats[selected_format_index]};;All Files (*)")
+        file_name, ok = QFileDialog.getSaveFileName(None, "Save File", "", f"{file_formats[selected_format_index]};;All Files (*)")
+        
+        if not ok:
+            return
         
         def export_to_mgg():
             def aggregate(card_list: List[SWUTradingCard]) -> List[str]:

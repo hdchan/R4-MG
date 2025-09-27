@@ -29,7 +29,7 @@ class CellObject:
     def trading_card(self) -> SWUTradingCard:
         return self._trading_card
 
-class CardSelectionDialog(QDialog):
+class DraftListExporterDialog(QDialog):
         def __init__(self, 
                      leaders: List[SWUTradingCard],
                      bases: List[SWUTradingCard], 

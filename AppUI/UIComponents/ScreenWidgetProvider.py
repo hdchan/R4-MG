@@ -14,6 +14,7 @@ from .Screens.AboutViewController import AboutViewController
 from .Screens.AppSettingsViewController import AppSettingsViewController
 from .Screens.DraftListSettingsViewController import \
     DraftListSettingsViewController
+from .Screens.SettingsContainerViewController import SettingsContainerViewController
 from .Screens.DraftListTablePackPreviewContainerStandAloneViewController import \
     DraftListTablePackPreviewContainerStandAloneViewController
 from .Screens.LocallyManagedSetPreviewViewController import \
@@ -51,7 +52,7 @@ class ScreenWidgetProvider(ScreenWidgetProviding):
         return LocallyManagedSetPreviewViewController(self._app_dependencies_provider, resource)
     
     def draft_list_settings_view(self) -> QWidget:
-        return DraftListSettingsViewController(self._app_dependencies_provider)
+        return SettingsContainerViewController(self._app_dependencies_provider)
     
     def draft_list_standalone_view(self, resource: LocalResourceDraftListWindow) -> QWidget:
         return DraftListTablePackPreviewContainerStandAloneViewController(self._app_dependencies_provider, resource)

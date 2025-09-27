@@ -113,7 +113,11 @@ class DraftListTabbedPackPreviewViewController(QWidget, TransmissionReceiverProt
         selected_pack = self._tab_widget.currentIndex()
         selected_resource = self._data_source_local_resource_provider.data_source.selected_local_resource
         if selected_resource is not None:
-            self._data_source_draft_list.add_resource_to_pack(selected_pack, selected_resource)
+            try:
+                self._data_source_draft_list.add_resource_to_pack(selected_pack, selected_resource)
+            except Exception as error:
+                self._router.show_error(Exception(error))
+                return
             
             destination_file_name = self._configuration.draft_list_add_card_deployment_destination
             if destination_file_name is None:
@@ -130,8 +134,11 @@ class DraftListTabbedPackPreviewViewController(QWidget, TransmissionReceiverProt
             if add_card_mode == Configuration.Settings.DraftListAddCardMode.STAGE or add_card_mode == Configuration.Settings.DraftListAddCardMode.STAGE_AND_PUBLISH:
                 self._data_source_image_resource_deployer.stage_resource(matching_deployment_resource, selected_resource)
             if add_card_mode == Configuration.Settings.DraftListAddCardMode.STAGE_AND_PUBLISH:
-                self._is_publishing = True
-                self._data_source_image_resource_deployer.publish_staged_resources()
+                try:
+                    self._is_publishing = True
+                    self._data_source_image_resource_deployer.publish_staged_resources()
+                except:
+                    self._router.show_error(Exception("Failed to publish, somethign went wrong"))
                 self._is_publishing = False
     
     # MARK: - Tab bar context menu
@@ -150,14 +157,28 @@ class DraftListTabbedPackPreviewViewController(QWidget, TransmissionReceiverProt
             .add_separator() \
                 .add_action(
                     "Rename",
-                    lambda: self._router.prompt_rename_draft_list_pack(tab_index)
+                    lambda: self._prompt_rename_draft_list_pack(tab_index)
                 ) \
-                    .add_separator() \
-                        .add_action(
-                            f"Delete - {self._data_source_draft_list.pack_name(tab_index)}",
-                            lambda: self._delete_pack(tab_index)
-                        ) \
+                .add_separator() \
+                .add_action(
+                    "Move left",
+                    lambda: self._data_source_draft_list.move_pack_left(tab_index)
+                ) \
+                .add_action(
+                    "Move right",
+                    lambda: self._data_source_draft_list.move_pack_right(tab_index)
+                ) \
+                .add_separator() \
+                .add_action(
+                    f"Delete - {self._data_source_draft_list.pack_name(tab_index)}",
+                    lambda: self._delete_pack(tab_index)
+                ) \
             .exec_menu(self._tab_widget.mapToGlobal(a0))
+    
+    def _prompt_rename_draft_list_pack(self, pack_index: int):
+        pack_name, ok = self._router.prompt_text_input('Rename', 'Enter pack name:')
+        if ok:
+            self._data_source_draft_list.update_pack_name(pack_index, pack_name)
     
     def _delete_pack(self, pack_index: int):
         if self._router.prompt_accept("Delete Pack?", f"Are you sure you want to delete {self._data_source_draft_list.pack_name(pack_index)}"):

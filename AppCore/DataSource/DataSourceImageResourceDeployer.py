@@ -150,9 +150,9 @@ class DataSourceImageResourceDeployer:
         Publishes staged resources. Returns True if success.
         Otherwise returns false.
         """
-        # if self._is_publishing:
-        #     print("Can't publish right now")
-        #     return
+        if self._is_publishing:
+            print("Can't publish right now")
+            return
         
         self._is_publishing = True
         deployment_resources_copy = deepcopy(self._deployment_resources)
@@ -198,7 +198,7 @@ class DataSourceImageResourceDeployer:
             self._observation_tower.notify(failed_event)
             raise Exception("Failed to publish. Please redownload resources and retry.")
         
-        # self._is_publishing = False
+        self._is_publishing = False
         
     def generate_new_file(self, file_name: str, placeholder_image_path: Optional[str]):
         local_resource = ProductionLocalCardResource(image_dir=self._configuration.production_dir_path,

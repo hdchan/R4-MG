@@ -56,8 +56,14 @@ class AssetProvider:
         def aspect_villainy(self) -> str:
             return self._aspect_resource("Villainy")
         
+        def aspect_resource(self, aspect: str, small: bool) -> str:
+            if small:
+                return self._image_path(f'Aspects/SWH_Aspects_{aspect}_50.png')
+            else:
+                return self._image_path(f'Aspects/SWH_Aspects_{aspect}_100.png')
+        
         def _aspect_resource(self, aspect: str) -> str:
-            return self._image_path(f'Aspects/SWH_Aspects_{aspect}_100.png')
+            return self._image_path(f'Aspects/SWH_Aspects_{aspect}_50.png')
         
         def _image_path(self, file_name: str) -> str:
             return os.path.join(APP_DIR, f'Images/{file_name}')
