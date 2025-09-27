@@ -37,10 +37,10 @@ class Router:
             except Exception as error:
                 self.show_error(error)
                 
-    def prompt_rename_draft_list_pack(self, pack_index: int):
-        pack_name, ok = QInputDialog.getText(None, 'Rename', 'Enter pack name:')
-        if ok:
-            self._data_source_draft_list.update_pack_name(pack_index, pack_name)
+    # def prompt_rename_draft_list_pack(self, pack_index: int):
+    #     pack_name, ok = QInputDialog.getText(None, 'Rename', 'Enter pack name:')
+    #     if ok:
+    #         self._data_source_draft_list.update_pack_name(pack_index, pack_name)
             
     def prompt_text_input(self, title: str, description: str) -> tuple[str, Optional[bool]]:
         return QInputDialog.getText(None, title, description)

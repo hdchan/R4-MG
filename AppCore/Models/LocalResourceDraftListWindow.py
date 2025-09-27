@@ -91,6 +91,14 @@ class LocalResourceDraftListWindow(LocalAssetResource):
         self._window_configuration = window_configuration
         self.draft_pack = draft_pack
 
+
+    def __eq__(self, other):  # type: ignore
+        if not isinstance(other, LocalResourceDraftListWindow):
+            # don't attempt to compare against unrelated types
+            return NotImplemented
+
+        return (self.window_configuration.window_identifier == other.window_configuration.window_identifier)
+    
     @property
     def window_configuration(self) -> DraftListWindowConfiguration:
         return copy.deepcopy(self._window_configuration)

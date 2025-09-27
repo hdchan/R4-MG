@@ -3,14 +3,16 @@
 ## [0.19.0] - 2025-09-23
 
 ### Added
+- Enhanced deck export functionality
+  - New card selection dialog for export configuration
+  - Support for leader and base card selection
+  - Sideboard toggle for main deck cards
+  - Multiple export format support
 - Draft list pack preview functionality
   - Header cell styling support for pack previews
-  - Configurable header properties (padding, colors, fonts)
-  - Pack preview tab navigation 
   - Card deployment and publishing workflow
 - New configuration options
   - `DRAFT_LIST_STYLES` for customizing pack preview appearance
-  - `DRAFT_LIST_ADD_CARD_MODE` for card deployment behavior
   - `DRAFT_LIST_ADD_CARD_DEPLOYMENT_DESTINATION` for deployment targets
 
 ### Changed
@@ -18,6 +20,11 @@
   - Moved default values to `default_style` method
   - Added type hints for configuration properties
 - Updated version to 0.19.0-beta
+
+### Breaking Changes
+- Modified set download path in manage set list
+  - **Note**: All sets will need to be redownloaded when upgrading from 0.18.0
+  - This affects locally managed sets and their storage location
 
 ### Removed
 - Deprecated search/publish history caching

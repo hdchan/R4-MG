@@ -27,7 +27,9 @@ class CardAspect(str, Enum):
     def emoji(self) -> str:
         return self._emoji_mapping()[self]
     
-    def aspect_image_path(self, asset_provider: AssetProvider) -> Optional[str]:
+    def aspect_image_path(self, asset_provider: AssetProvider, small: bool) -> Optional[str]:
+        return asset_provider.image.aspect_resource(self.value, small)
+        
         if self == CardAspect.VIGILANCE:
             return asset_provider.image.aspect_vigilance
         if self == CardAspect.COMMAND:

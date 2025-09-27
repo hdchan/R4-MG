@@ -5,20 +5,16 @@ from PyQt5.QtWidgets import (QCheckBox, QGroupBox, QHBoxLayout, QLabel,
                              QWidget, QFileDialog)
 
 from AppCore.Config import Configuration
-from AppCore.Observation import TransmissionProtocol, TransmissionReceiverProtocol
-from AppCore.Observation.Events import ConfigurationUpdatedEvent
 from AppUI.AppDependenciesProviding import AppDependenciesProviding
-
-
-class SettingsViewController(QWidget, TransmissionReceiverProtocol):
+from AppUI.UIComponents import SettingsContainerChildProtocol
+from AppUI.Configuration import MutableAppUIConfiguration
+class SettingsViewController(QWidget, SettingsContainerChildProtocol):
     def __init__(self, 
                  app_dependencies_provider: AppDependenciesProviding):
         super().__init__()
         self._configuration_manager = app_dependencies_provider.configuration_manager
         self._mutable_configuration = self._configuration_manager.mutable_configuration()
         self._observation_tower = app_dependencies_provider.observation_tower
-        
-        self._observation_tower.subscribe(self, ConfigurationUpdatedEvent)
         
         self.setWindowTitle("Settings")
 
@@ -202,8 +198,7 @@ class SettingsViewController(QWidget, TransmissionReceiverProtocol):
     
     def save_settings(self):
         self._configuration_manager.save_configuration(self._mutable_configuration)
-        
-    def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
-        # if type(event) == ConfigurationUpdatedEvent:
-        #     self._sync_ui()
-        pass
+    
+    def will_apply_settings(self, mutable_app_ui_configuration: MutableAppUIConfiguration) -> MutableAppUIConfiguration:
+        mutable_app_ui_configuration.core_mutable_configuration.set_search_source(self._mutable_configuration.search_source)
+        return mutable_app_ui_configuration

@@ -11,3 +11,4 @@ from .CardSearchPreviewViewController import CardSearchPreviewViewController
 from .SearchTableComboViewController import SearchTableComboViewController, SearchTableComboViewControllerDelegate
 from .SearchTableViewController import SearchTableViewController
 from .AppWindow import AppWindow
+from .SettingsContainerChildProtocol import SettingsContainerChildProtocol
