@@ -11,7 +11,7 @@ from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
 from AppCore.Observation.ObservationTower import *
 from AppUI.AppDependenciesProviding import AppDependenciesProviding
 from AppUI.Models.DraftListStyleSheet import DraftListStyleSheet
-from PyQtUI import VerticalBoxLayout, VerticallyExpandingSpacer
+from R4UI import VerticalBoxLayout, R4UIVerticallyExpandingSpacer
 
 from .DraftListLineItemHeaderViewController import \
     DraftListLineItemHeaderViewController
@@ -76,7 +76,7 @@ class DraftListTablePackPreviewViewController(QWidget, TransmissionReceiverProto
         
         self._cells_container_container = VerticalBoxLayout([
             self._cells_container
-        ]).set_uniform_content_margins(0).add_spacer(VerticallyExpandingSpacer())
+        ]).set_uniform_content_margins(0).add_spacer(R4UIVerticallyExpandingSpacer())
         
         self._scroll_view = QScrollArea(self)
         self._scroll_view.setFrameShape(QFrame.Shape.NoFrame)

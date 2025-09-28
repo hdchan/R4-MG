@@ -5,13 +5,14 @@ from PyQt5.QtCore import QPoint, Qt
 from PyQt5.QtWidgets import (QAction, QButtonGroup, QCheckBox, QComboBox,
                              QGroupBox, QLabel, QLineEdit, QMenu, QMenuBar,
                              QPushButton, QRadioButton, QScrollArea,
-                             QSizePolicy, QSpacerItem, QSplitter, QTabWidget,
-                             QWidget)
+                             QSizePolicy, QSpacerItem, QSplitter, QTabWidget, QMainWindow)
 
 from .BoxLayouts import HorizontalBoxLayout, VerticalBoxLayout
+from .R4UIWidget import R4UIWidget
+
 
 T = TypeVar("T")
-class LabeledRadioButton(QWidget):
+class LabeledRadioButton(R4UIWidget):
     def __init__(self, 
                  text: str, 
                  value: T, 
@@ -23,7 +24,7 @@ class LabeledRadioButton(QWidget):
         self.value = value
         HorizontalBoxLayout([
             self._radio_button
-        ]).set_to_layout(self)
+        ]).set_layout_to_widget(self)
         
     def _toggled(self):
         if self._toggled_fn is not None:
@@ -33,7 +34,7 @@ class LabeledRadioButton(QWidget):
     def radio_button(self) -> QRadioButton:
         return self._radio_button
 
-class ButtonGroup(QWidget):
+class ButtonGroup(R4UIWidget):
     def __init__(self, 
                  values: List[tuple[str, T]], 
                  toggled_fn: Optional[Callable[[T], None]] = None):
@@ -50,7 +51,7 @@ class ButtonGroup(QWidget):
         for text, value in values:
             self._buttons.append(LabeledRadioButton(text, value, _selected))
         
-        self._layout = VerticalBoxLayout().set_to_layout(self)
+        self._layout = VerticalBoxLayout().set_layout_to_widget(self)
         for b in self._buttons:
             self._layout.add_widget(b.radio_button)
     
@@ -123,7 +124,7 @@ class HeaderLabel(Label):
         super().__init__(text, point_size=12, is_bold=True)
 class ScrollArea(QScrollArea):
     def __init__(self,
-                 widget: QWidget):
+                 widget: R4UIWidget):
         super().__init__()
         self.setWidgetResizable(True)
         self.setWidget(widget)
@@ -141,7 +142,7 @@ class PushButton(QPushButton):
     def _triggered(self):
         self._triggered_fn()
 
-class ActionMenuItem(QAction):
+class R4UIActionMenuItem(QAction):
     def __init__(self,
                  text: str,
                  triggered_fn: Callable[[], None]):
@@ -169,7 +170,7 @@ class MenuListBuilder(QMenu):
     def add_action(self, 
                    text: str,
                    triggered_fn: Callable[[], None]) -> 'MenuListBuilder':
-        action = ActionMenuItem(text, triggered_fn)
+        action = R4UIActionMenuItem(text, triggered_fn)
         self._items.append(action)
         self.addAction(action) # type: ignore
         return self
@@ -182,17 +183,23 @@ class MenuListBuilder(QMenu):
     def exec_menu(self, point: QPoint):
         self.exec(point)
     
-class MenuBarBuilder(QMenuBar):
+class R4UIMenuBarBuilder(QMenuBar):
     def __init__(self,
                  menus: List[QMenu] = []):
         super().__init__()
         self._menus: List[QMenu] = []
         self.add_menus(menus)
+        self.setNativeMenuBar(False)
     
-    def add_menus(self, menus: List[QMenu]) -> 'MenuBarBuilder':
+    def add_menus(self, menus: List[QMenu]) -> 'R4UIMenuBarBuilder':
         for m in menus:
             self._menus.append(m)
             self.addMenu(m)
+        return self
+    
+    def set_to_window(self, window: QMainWindow) -> 'R4UIMenuBarBuilder':
+        self.setParent(window)
+        window.setMenuBar(self)
         return self
 
 class LineEditInt(QLineEdit):
@@ -246,10 +253,10 @@ class LineEditText(QLineEdit):
             return
         self.setText(value)
 
-class HorizontalLabeledInputRow(QWidget):
+class HorizontalLabeledInputRow(R4UIWidget):
     def __init__(self, 
                  text: str,
-                 input: QWidget, 
+                 input: R4UIWidget, 
                  description: Optional[str] = None):
         super().__init__()
         HorizontalBoxLayout([
@@ -259,17 +266,17 @@ class HorizontalLabeledInputRow(QWidget):
             ]),
             
             input
-        ]).set_to_layout(self)
+        ]).set_layout_to_widget(self)
 
 class VerticalGroupBox(QGroupBox):
-    def __init__(self, initial_widgets: List[QWidget] = []):
+    def __init__(self, initial_widgets: List[R4UIWidget] = []):
         super().__init__()
-        self._layout = VerticalBoxLayout(initial_widgets).set_to_layout(self)
+        self._layout = VerticalBoxLayout(initial_widgets).set_layout_to_widget(self)
     
-    def add_widgets(self, widgets: List[QWidget]):
+    def add_widgets(self, widgets: List[R4UIWidget]):
         self._layout.add_widgets(widgets)
             
-    def replace_all_widgets(self, widgets: List[QWidget]):
+    def replace_all_widgets(self, widgets: List[R4UIWidget]):
         self._layout.replace_all_widgets(widgets)
         
     def set_alignment_top(self) -> 'VerticalGroupBox':
@@ -281,18 +288,18 @@ class VerticalGroupBox(QGroupBox):
         return self
 
 
-class TabWidget(QWidget):
+class TabWidget(R4UIWidget):
     def __init__(self, 
-                 tabs: List[tuple[QWidget, str]] = [], 
+                 tabs: List[tuple[R4UIWidget, str]] = [], 
                  tab_change_fn: Optional[Callable[[int], None]] = None):
         super().__init__()
         self._tab_change_fn = tab_change_fn
         self._tab_widget = QTabWidget()
-        self._layout = VerticalBoxLayout([self._tab_widget]).set_to_layout(self)
-        self._widgets: List[QWidget] = []
+        self._layout = VerticalBoxLayout([self._tab_widget]).set_layout_to_widget(self)
+        self._widgets: List[R4UIWidget] = []
         self.add_tabs(tabs)
         
-    def add_tabs(self, tabs: List[tuple[QWidget, str]]):
+    def add_tabs(self, tabs: List[tuple[R4UIWidget, str]]):
         for t in tabs:
             self._widgets.append(t[0])
             self._tab_widget.addTab(t[0], t[1])
@@ -301,46 +308,46 @@ class TabWidget(QWidget):
         if self._tab_change_fn is not None:
             self._tab_change_fn(index)
         
-    def set_to_layout(self, layout: QWidget) -> 'TabWidget':
+    def set_layout_to_widget(self, layout: R4UIWidget) -> 'TabWidget':
         layout.setLayout(self.layout())
         return self
     
 class Splitter(QSplitter):
     def __init__(self, 
                  orientation: Qt.Orientation, 
-                 widgets: List[QWidget]):
+                 widgets: List[R4UIWidget]):
         super().__init__()
         self.setOrientation(orientation)
-        self._widgets: List[QWidget] = []
+        self._widgets: List[R4UIWidget] = []
         self.add_widgets(widgets)
         
-    def add_widgets(self, widgets: List[QWidget]):
+    def add_widgets(self, widgets: List[R4UIWidget]):
         for w in widgets:
             self._widgets.append(w)
             self.addWidget(w)
             
 class HorizontalSplitter(Splitter):
     def __init__(self,
-                 widgets: List[QWidget]):
+                 widgets: List[R4UIWidget]):
         super().__init__(Qt.Orientation.Horizontal, widgets)
         
 class VerticalSplitter(Splitter):
     def __init__(self,
-                 widgets: List[QWidget]):
+                 widgets: List[R4UIWidget]):
         super().__init__(Qt.Orientation.Vertical, widgets)
 
 
-class Spacer(QSpacerItem):
+class R4UISpacer(QSpacerItem):
     def __init__(self, width: int, height: int, h_policy: QSizePolicy.Policy, v_policy: QSizePolicy.Policy):
         super().__init__(width, height, h_policy, v_policy)
         pass
 
-class VerticallyExpandingSpacer(Spacer):
+class R4UIVerticallyExpandingSpacer(R4UISpacer):
     def __init__(self, width: int = 0, height: int = 0):
         super().__init__(width, height, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         pass
         
-class HorizontallyExpandingSpacer(Spacer):
+class R4UIHorizontallyExpandingSpacer(R4UISpacer):
     def __init__(self, width: int = 0, height: int = 0):
         super().__init__(width, height, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         pass

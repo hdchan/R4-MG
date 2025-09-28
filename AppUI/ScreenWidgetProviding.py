@@ -34,3 +34,9 @@ class ScreenWidgetProviding:
     
     def draft_list_standalone_view(self, resource: LocalResourceDraftListWindow) -> QWidget:
         return NotImplemented
+    
+    def image_deployment_window(self) -> QWidget:
+        return NotImplemented
+    
+    def draft_list_deployment_window(self) -> QWidget:
+        return NotImplemented

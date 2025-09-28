@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QTextEdit, QWidget
 
 from AppUI.AppDependenciesProviding import AppDependenciesProviding
-from PyQtUI import VerticalBoxLayout
+from R4UI import VerticalBoxLayout
 
 
 class ShortcutsViewController(QWidget):
@@ -20,4 +20,4 @@ class ShortcutsViewController(QWidget):
         
         VerticalBoxLayout([
             markdown
-        ]).set_to_layout(self)
+        ]).set_layout_to_widget(self)

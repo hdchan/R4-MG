@@ -7,7 +7,7 @@ from AppCore.Config import Configuration
 from AppUI.AppDependenciesProviding import AppDependenciesProviding
 from AppUI.Configuration import MutableAppUIConfiguration
 from AppUI.UIComponents import SettingsContainerChildProtocol
-from PyQtUI import (BoldLabel, ComboBox, GridLayout, HeaderLabel,
+from R4UI import (BoldLabel, ComboBox, GridLayout, HeaderLabel,
                     HorizontalBoxLayout, HorizontalLabeledInputRow,
                     LineEditInt, LineEditText, PushButton, ScrollArea,
                     VerticalBoxLayout, VerticalGroupBox)
@@ -246,7 +246,7 @@ class DraftListSettingsViewController(QWidget, SettingsContainerChildProtocol):
                     #     ),
                 ])
             
-            ]).set_to_layout(self)
+            ]).set_layout_to_widget(self)
         
         self._sync_ui()
     

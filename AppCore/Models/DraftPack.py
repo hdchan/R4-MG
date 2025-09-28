@@ -21,6 +21,9 @@ class DraftPack():
             self._pack_name = pack_name
             self._pack_identifier = pack_identifier
         
+        # def __hash__(self):
+        #     return hash(self.pack_identifier)
+        
         def __eq__(self, other):  # type: ignore
             if not isinstance(other, DraftPack):
                 # don't attempt to compare against unrelated types

@@ -7,7 +7,7 @@ from AppCore.Observation import (TransmissionProtocol,
                                  TransmissionReceiverProtocol)
 from AppCore.Observation.Events import DraftListWindowResourceUpdatedEvent, DraftPackUpdatedEvent
 from AppUI.AppDependenciesProviding import AppDependenciesProviding
-from PyQtUI import VerticalBoxLayout
+from R4UI import VerticalBoxLayout
 
 from .DraftListTablePackPreviewViewController import (
     DraftListTablePackPreviewViewController,
@@ -48,7 +48,7 @@ class DraftListTablePackPreviewContainerViewController(QWidget,
             self._pack_preview
         ]) \
             .set_uniform_content_margins(0) \
-                .set_to_layout(self)
+                .set_layout_to_widget(self)
         self._sync_ui()
     
     @property

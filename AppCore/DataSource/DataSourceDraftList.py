@@ -30,6 +30,10 @@ class DataSourceDraftList:
         return copy.deepcopy(self._packs)
     
     @property
+    def draft_pack_flat_list(self) -> List[LocalCardResource]:
+        return [item for sublist in self.draft_packs for item in sublist.draft_list]
+    
+    @property
     def pack_list_count(self) -> int:
         return len(self._packs)
     
