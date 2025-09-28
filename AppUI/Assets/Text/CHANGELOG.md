@@ -8,18 +8,20 @@
   - Support for leader and base card selection
   - Sideboard toggle for main deck cards
   - Multiple export format support
-- Draft list pack preview functionality
+- Draft list improvements
+  - Optional image preview panel
   - Header cell styling support for pack previews
   - Card deployment and publishing workflow
+  - Configurable preview visibility
 - New configuration options
   - `DRAFT_LIST_STYLES` for customizing pack preview appearance
   - `DRAFT_LIST_ADD_CARD_DEPLOYMENT_DESTINATION` for deployment targets
+  - `IS_DRAFT_LIST_IMAGE_PREVIEW_ENABLED` for toggling preview panel
 
 ### Changed
 - Reorganized configuration structure
   - Moved default values to `default_style` method
   - Added type hints for configuration properties
-- Updated version to 0.19.0-beta
 
 ### Breaking Changes
 - Modified set download path in manage set list

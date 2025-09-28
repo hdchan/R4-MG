@@ -3,12 +3,12 @@ from PyQt5.QtWidgets import QWidget
 
 from AppUI.AppDependenciesProviding import AppDependenciesProviding
 from AppUI.UIComponents import ImagePreviewLocalResourceDataSourceDecorator
-from PyQtUI import VerticalBoxLayout, HorizontalSplitter
+from R4UI import VerticalBoxLayout, HorizontalSplitter, VerticalSplitter
 
 from ..Base.SearchTableViewController import SearchTableViewController
 from .DraftListTabbedPackPreviewViewController import DraftListTabbedPackPreviewViewController
 from .DraftListWindowDeployerViewController import DraftListWindowDeployerViewController
-
+from .DraftListImagePreviewViewController import DraftListImagePreviewViewController
 class DraftListDeployerSearchComboViewController(QWidget):
     def __init__(self, app_dependencies_provider: AppDependenciesProviding):
         super().__init__()
@@ -21,8 +21,7 @@ class DraftListDeployerSearchComboViewController(QWidget):
         image_preview_view = ImagePreviewLocalResourceDataSourceDecorator(self._app_dependencies_provider)
         search_table = SearchTableViewController(self._app_dependencies_provider, configuration, image_preview_view)
         
-        VerticalBoxLayout([
-            HorizontalSplitter([
+        the_view = HorizontalSplitter([
                 VerticalBoxLayout([
                     image_preview_view,
                     search_table
@@ -35,4 +34,14 @@ class DraftListDeployerSearchComboViewController(QWidget):
                 
                 DraftListWindowDeployerViewController(self._app_dependencies_provider)
                 ])
-        ]).set_to_layout(self)
+        
+        if self._app_dependencies_provider.configuration_manager.configuration.is_draft_list_image_preview_enabled:
+            the_view = VerticalSplitter([
+                the_view,
+                DraftListImagePreviewViewController(self._app_dependencies_provider)
+                ])
+            
+        
+        VerticalBoxLayout([
+            the_view
+        ]).set_layout_to_widget(self)

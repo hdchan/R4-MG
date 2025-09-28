@@ -29,8 +29,10 @@ class MainAssembly:
                                                                   self._asset_provider, 
                                                                   self._external_app_dependencies_provider)
         
-        self._start_main_program()
-        self._start_other_program()
+        # self._start_main_program()
+        self._app_dependencies_provider.router.open_image_deployment_view()
+        # self._start_other_program()
+        self._app_dependencies_provider.router.open_draft_list_deployment_view()
         
         self.app.exec()
     

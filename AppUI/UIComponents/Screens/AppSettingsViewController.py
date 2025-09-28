@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget
 
 from AppUI.AppDependenciesProviding import AppDependenciesProviding
-from PyQtUI import TabWidget
+from R4UI import TabWidget
 from .SettingsViewController import SettingsViewController
 from .DraftListSettingsViewController import DraftListSettingsViewController
 class AppSettingsViewController(QWidget):
@@ -16,4 +16,4 @@ class AppSettingsViewController(QWidget):
         TabWidget([
             (SettingsViewController(self._app_dependencies_provider), "Image Deployer"),
             # (DraftListSettingsViewController(self._app_dependencies_provider), "Draft List Settings")
-        ]).set_to_layout(self)
+        ]).set_layout_to_widget(self)

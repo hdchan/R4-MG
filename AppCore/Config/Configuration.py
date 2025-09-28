@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 from PyQt5.QtCore import QStandardPaths
 
@@ -18,6 +18,7 @@ class Configuration():
     class Toggles:
         class Keys:
             DEVELOPER_MODE = 'developer_mode'
+            DRAFT_LIST_IMAGE_PREVIEW = 'draft_list_image_preview'
 
     class Settings:
         class Keys:
@@ -94,7 +95,8 @@ class Configuration():
         obj = cls.__new__(cls)
         underlying_json: Dict[str, Any] = {
             Configuration.Keys.TOGGLES: {
-                Configuration.Toggles.Keys.DEVELOPER_MODE: False
+                Configuration.Toggles.Keys.DEVELOPER_MODE: False,
+                Configuration.Toggles.Keys.DRAFT_LIST_IMAGE_PREVIEW: False
             },
             Configuration.Keys.SETTINGS: {
                 Configuration.Settings.Keys.SEARCH_SOURCE: Configuration.Settings.SearchSource.DEFAULT.value,
@@ -242,6 +244,11 @@ class Configuration():
     @property
     def draft_list_add_card_deployment_destination(self) -> Optional[str]:
         return self._get_with_default_settings(self.Settings.Keys.DRAFT_LIST_ADD_CARD_DEPLOYMENT_DESTINATION)
+
+    # MARK: - Toggles
+    @property
+    def is_draft_list_image_preview_enabled(self) -> bool:
+        return self._get_with_default_toggles(self.Toggles.Keys.DRAFT_LIST_IMAGE_PREVIEW)
 
     # MARK: - Developer settings
     @property
@@ -420,6 +427,10 @@ class MutableConfiguration(Configuration):
     
     def set_configuration_for_key(self, key: str, value: Any):
         self._settings[key] = value
+    
+    # MARK: - Toggles
+    def set_is_draft_list_image_preview_enabled(self, value: bool):
+        self._toggles[self.Toggles.Keys.DRAFT_LIST_IMAGE_PREVIEW] = value
     
     # MARK: - Developer settings
     def set_is_mock_data(self, value: bool):

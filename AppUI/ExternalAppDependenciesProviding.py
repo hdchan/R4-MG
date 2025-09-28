@@ -10,7 +10,7 @@ from AppCore.DataSource.DataSourceLocallyManagedSets import \
 from AppCore.Models import DraftPack, LocalCardResource, TradingCard
 from AppUI.ExternalAppDependenciesProviding import *
 from AppUI.Models import DraftListStyleSheet
-
+from AppCore.DataSource import DataSourceDraftList
 
 class ExternalAppDependenciesProviding:
     
@@ -52,3 +52,6 @@ class ExternalAppDependenciesProviding:
                             unaggregated_list: List[LocalCardResource], 
                             aggregate_list: bool) -> Optional[List[LocalCardResource]]:
         return None
+    
+    def provide_draft_list_image_preview_widget(self, draft_list_data_source: DataSourceDraftList) -> QWidget:
+        raise Exception

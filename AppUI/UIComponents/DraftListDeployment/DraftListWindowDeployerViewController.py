@@ -6,7 +6,7 @@ from AppCore.Observation import (TransmissionProtocol,
                                  TransmissionReceiverProtocol)
 from AppCore.Observation.Events import DraftListWindowResourceLoadEvent
 from AppUI.AppDependenciesProviding import AppDependenciesProviding
-from PyQtUI import (HorizontalBoxLayout, PushButton, ScrollArea,
+from R4UI import (HorizontalBoxLayout, PushButton, ScrollArea,
                     VerticalBoxLayout)
 
 from .DraftListTablePackPreviewContainerViewController import \
@@ -35,7 +35,7 @@ class DraftListWindowDeployerViewController(QWidget, TransmissionReceiverProtoco
         VerticalBoxLayout([
             ScrollArea(self._cell_container),
             PushButton("Add window", self._add_new_window)
-        ]).set_to_layout(self)
+        ]).set_layout_to_widget(self)
     
     def _add_new_window(self):
         window_name, ok = self._router.prompt_text_input("Create new window instance", "Window name")

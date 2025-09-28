@@ -12,7 +12,7 @@ from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         ProductionCardResourcesLoadEvent)
 from AppCore.Observation.ObservationTower import *
 from AppUI.AppDependenciesProviding import AppDependenciesProviding
-from PyQtUI import ComboBox, MenuListBuilder, PushButton, VerticalBoxLayout, HorizontalBoxLayout, HorizontallyExpandingSpacer, BoldLabel
+from R4UI import ComboBox, MenuListBuilder, PushButton, VerticalBoxLayout, HorizontalBoxLayout, R4UIHorizontallyExpandingSpacer, BoldLabel
 
 from .DraftListTablePackPreviewViewController import (
     DraftListTablePackPreviewViewController,
@@ -71,7 +71,7 @@ class DraftListTabbedPackPreviewViewController(QWidget, TransmissionReceiverProt
                 self._deployment_destination_selection,
                 ]),
             
-        ]).set_to_layout(self)
+        ]).set_layout_to_widget(self)
         
         if self._data_source_draft_list.pack_list_count == 0:
             self._data_source_draft_list.create_new_pack()
