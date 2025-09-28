@@ -94,6 +94,14 @@ class Router:
         view = self._component_provider.draft_list_standalone_view(resource)
         self._open_view(f'{resource.asset_path}', view)
     
+    def open_image_deployment_view(self):
+        view = self._component_provider.image_deployment_window()
+        self._open_view("image_deployment", view)
+        
+    def open_draft_list_deployment_view(self):
+        view = self._component_provider.draft_list_deployment_window()
+        self._open_view("draft_list_deployment", view)
+    
     def _open_view(self, object_name: str, view: QWidget):
         def remove_ref():
             self._views[object_name] = None

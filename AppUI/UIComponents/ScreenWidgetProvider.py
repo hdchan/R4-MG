@@ -10,16 +10,19 @@ from AppCore.Models import LocalAssetResource, LocalResourceDraftListWindow
 
 from ..AppDependenciesProviding import *
 from ..ScreenWidgetProviding import ScreenWidgetProviding
+from ..UIComponents.DraftListDeployment.MainWindow import MainWindow
+from ..UIComponents.ImageDeployment.Window import Window
 from .Screens.AboutViewController import AboutViewController
 from .Screens.AppSettingsViewController import AppSettingsViewController
 from .Screens.DraftListSettingsViewController import \
     DraftListSettingsViewController
-from .Screens.SettingsContainerViewController import SettingsContainerViewController
 from .Screens.DraftListTablePackPreviewContainerStandAloneViewController import \
     DraftListTablePackPreviewContainerStandAloneViewController
 from .Screens.LocallyManagedSetPreviewViewController import \
     LocallyManagedSetPreviewViewController
 from .Screens.ManageSetListViewController import ManageSetListViewController
+from .Screens.SettingsContainerViewController import \
+    SettingsContainerViewController
 from .Screens.SettingsViewController import SettingsViewController
 from .Screens.ShortcutsViewController import ShortcutsViewController
 
@@ -56,3 +59,9 @@ class ScreenWidgetProvider(ScreenWidgetProviding):
     
     def draft_list_standalone_view(self, resource: LocalResourceDraftListWindow) -> QWidget:
         return DraftListTablePackPreviewContainerStandAloneViewController(self._app_dependencies_provider, resource)
+    
+    def image_deployment_window(self) -> QWidget:
+        return Window(self._app_dependencies_provider)
+    
+    def draft_list_deployment_window(self) -> QWidget:
+        return MainWindow(self._app_dependencies_provider)

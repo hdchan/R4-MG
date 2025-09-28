@@ -55,6 +55,13 @@ class MainWindow(AppWindow):
                             ),
                     ]),
                 
+                MenuListBuilder(
+                    "Windows",[
+                        ActionMenuItem(
+                            "Image Deployer",
+                            self._router.open_image_deployment_view
+                            ),
+                    ]),
                 # MenuListBuilder(
                 #     "Presentation View",[
                 #         AppUIConfigurationCheckableActionMenuItem(

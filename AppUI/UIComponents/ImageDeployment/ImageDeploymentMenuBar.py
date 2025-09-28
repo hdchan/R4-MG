@@ -27,6 +27,7 @@ class ImageDeploymentMenuBar(QMenuBar):
         self.bind_open_shortcuts_page(self._router.open_shortcuts_page)
         self.bind_open_manage_deck_list_page(self._router.open_manage_deck_list_page)
         self.bind_refresh_production_images(self._data_source_image_resource_deployer.load_production_resources)
+        self.bind_open_draft_list_deployer(self._router.open_draft_list_deployment_view)
         
     @property
     def _configuration(self) -> Configuration:
@@ -194,6 +195,13 @@ class ImageDeploymentMenuBar(QMenuBar):
         self._manage_deck_list_action = QAction('Manage set list')
         self._tool_menu.addAction(self._manage_deck_list_action) # type: ignore
         
+        # MARK: - Tools
+        self._windows_menu = QMenu("&Windows")
+        self.addMenu(self._windows_menu)
+        
+        self._draft_list_deployer_action = QAction('Draft List Deployer')
+        self._windows_menu.addAction(self._draft_list_deployer_action) # type: ignore
+        
         # MARK: - About
         self._help_menu = QMenu("&Help")
         self.addMenu(self._help_menu)
@@ -265,6 +273,9 @@ class ImageDeploymentMenuBar(QMenuBar):
         
     def bind_open_manage_deck_list_page(self, fn: Callable[[], None]):
         self._manage_deck_list_action.triggered.connect(fn)
+        
+    def bind_open_draft_list_deployer(self, fn: Callable[[], None]):
+        self._draft_list_deployer_action.triggered.connect(fn)
 
     # MARK: - actions
     def did_toggle_show_resource_details(self, is_on: bool):
