@@ -5,10 +5,9 @@ from PyQt5.QtWidgets import QDialog, QSizePolicy
 from PyQtUI import (HorizontalBoxLayout, PushButton,
                     VerticalBoxLayout, VerticalGroupBox, ButtonGroup, BoldLabel, ScrollArea, VerticallyExpandingSpacer, Label, CheckBox, HorizontallyExpandingSpacer, ComboBox)
 
-from .SWUTradingCard import SWUTradingCard
-
+from .SWUTradingCardModelMapper import SWUTradingCardBackedLocalCardResource
 class CellObject:
-    def __init__(self, trading_card: SWUTradingCard):
+    def __init__(self, trading_card: SWUTradingCardBackedLocalCardResource):
         self._trading_card = trading_card
         self._is_sideboard = False
         
@@ -26,24 +25,24 @@ class CellObject:
         return self._is_sideboard
     
     @property
-    def trading_card(self) -> SWUTradingCard:
+    def trading_card(self) -> SWUTradingCardBackedLocalCardResource:
         return self._trading_card
 
 class DraftListExporterDialog(QDialog):
         def __init__(self, 
-                     leaders: List[SWUTradingCard],
-                     bases: List[SWUTradingCard], 
-                     all_other_cards: List[SWUTradingCard], 
+                     leaders: List[SWUTradingCardBackedLocalCardResource],
+                     bases: List[SWUTradingCardBackedLocalCardResource], 
+                     all_other_cards: List[SWUTradingCardBackedLocalCardResource], 
                      export_formats: List[str]):
             super().__init__()
-            self._selected_leader: SWUTradingCard = leaders[0]
-            self._selected_base: SWUTradingCard = bases[0]
+            self._selected_leader: SWUTradingCardBackedLocalCardResource = leaders[0]
+            self._selected_base: SWUTradingCardBackedLocalCardResource = bases[0]
             
-            def _selected_leader(value: SWUTradingCard) -> None:
+            def _selected_leader(value: SWUTradingCardBackedLocalCardResource) -> None:
                 self._selected_leader = value
                 self._sync_ui()
                 
-            def _selected_base(value: SWUTradingCard) -> None:
+            def _selected_base(value: SWUTradingCardBackedLocalCardResource) -> None:
                 self._selected_base = value
                 self._sync_ui()
             
@@ -55,7 +54,7 @@ class DraftListExporterDialog(QDialog):
             for a in self._main_card_objects:
                 cell = HorizontalBoxLayout([
                     a.check_box,
-                    Label(a.trading_card.name),
+                    Label(a.trading_card.guaranteed_trading_card.name),
                     
                 ]).add_spacer(HorizontallyExpandingSpacer())
                 self._all_other_cards_list.add_widget(cell)
@@ -93,9 +92,9 @@ class DraftListExporterDialog(QDialog):
             
             self._sync_ui()
         
-        def _button_group(self, cards: List[SWUTradingCard], selected_fn: Callable[[SWUTradingCard], None]) -> ButtonGroup:
-            button_group_values: List[tuple[str, SWUTradingCard]] = []
-            button_group_values = list(map(lambda x: (x.name, x), cards))
+        def _button_group(self, cards: List[SWUTradingCardBackedLocalCardResource], selected_fn: Callable[[SWUTradingCardBackedLocalCardResource], None]) -> ButtonGroup:
+            button_group_values: List[tuple[str, SWUTradingCardBackedLocalCardResource]] = []
+            button_group_values = list(map(lambda x: (x.guaranteed_trading_card.name, x), cards))
             
             
             button_group = ButtonGroup(button_group_values, selected_fn)
@@ -107,26 +106,22 @@ class DraftListExporterDialog(QDialog):
             return self._export_format.currentIndex()
         
         @property
-        def selected_leader(self) -> SWUTradingCard:
+        def selected_leader(self) -> SWUTradingCardBackedLocalCardResource:
             return self._selected_leader
         
         @property
-        def selected_base(self) -> SWUTradingCard:
+        def selected_base(self) -> SWUTradingCardBackedLocalCardResource:
             return self._selected_base
         
         @property
-        def main_deck(self) -> List[SWUTradingCard]:
+        def main_deck(self) -> List[SWUTradingCardBackedLocalCardResource]:
             filtered = list(filter(lambda x: x.is_sideboard == False, self._main_card_objects))
             return list(map(lambda x: x.trading_card, filtered))
         
         @property
-        def side_board(self) -> List[SWUTradingCard]:
+        def side_board(self) -> List[SWUTradingCardBackedLocalCardResource]:
             filtered = list(filter(lambda x: x.is_sideboard == True, self._main_card_objects))
             return list(map(lambda x: x.trading_card, filtered))
-        
-        @property
-        def selected_cards(self) -> tuple[SWUTradingCard, SWUTradingCard]:
-            return self._selected_leader, self._selected_base
         
         def _sync_ui(self):
             # self._accept_button.setEnabled(self._selected_value is not None)

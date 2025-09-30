@@ -1,14 +1,10 @@
-
-
 import copy
 import csv
-import json
 from typing import Dict, List, Optional
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QFont, QFontDatabase, QPalette, QPixmap
-from PyQt5.QtWidgets import (QDialog, QHBoxLayout, QLabel, QFileDialog,
-                             QSizePolicy, QWidget)
+from PyQt5.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QWidget
 
 from AppCore.Config import ConfigurationManager
 from AppCore.DataFetcher import *
@@ -26,9 +22,8 @@ from PyQtUI import VerticalBoxLayout
 
 from .Assets import AssetProvider as InternalAssetProvider
 from .CardAspect import CardAspect
-from .DraftListExporterDialog import DraftListExporterDialog
-from .CardType import CardType
 from .ClientProvider import ClientProvider
+from .DraftListExporter import DraftListExporter
 from .swu_db_com import SWUDBLocalSetRetrieverClient
 from .SWUTradingCard import SWUTradingCard
 from .SWUTradingCardModelMapper import SWUTradingCardModelMapper
@@ -45,6 +40,7 @@ class ExternalAppDependenciesProvider(ExternalAppDependenciesProviding):
         self._observation_tower = observation_tower
         self._configuration_manager = configuration_manager
         self._locally_managed_sets_client = SWUDBLocalSetRetrieverClient()
+        self._draft_list_exporter = DraftListExporter()
         self._data_source_card_search_client_provider: Optional[DataSourceCardSearchClientProviding] = None 
     
     # MARK: - Image deployer
@@ -234,127 +230,7 @@ class ExternalAppDependenciesProvider(ExternalAppDependenciesProviding):
         return result
     
     def export_draft_list(self, draft_packs: List[DraftPack], to_path: str, swu_db: bool):
-        # takes only first leader and base
-        flat_list = [item for pack in draft_packs for item in pack.draft_list]
-        
-        non_empty_trading_cards: List[SWUTradingCard] = []
-        no_trading_card_resources: List[LocalCardResource] = []
-        
-        leaders: List[SWUTradingCard] = []
-        bases: List[SWUTradingCard] = []
-        main_deck: List[SWUTradingCard] = []
-        
-        for r in flat_list:
-            t = r.trading_card
-            if t is None:
-                no_trading_card_resources.append(r)
-                continue
-            swu_t = SWUTradingCardModelMapper.from_trading_card(t)
-            if swu_t is None:
-                continue
-            non_empty_trading_cards.append(swu_t)
-            
-            if swu_t.card_type == CardType.LEADER:
-                leaders.append(swu_t)
-            elif swu_t.card_type == CardType.BASE:
-                bases.append(swu_t)
-            else:
-                main_deck.append(swu_t)
-        
-        if len(leaders) == 0:
-            raise Exception("No leader card")
-        if len(bases) == 0:
-            raise Exception("No base card")
-        
-        export_formats = ["swudb.com", "Melee.gg"]
-        file_formats = ["swudb.com (*.json)", "Melee.gg (*.txt)"]
-        card_selector = DraftListExporterDialog(leaders, bases, main_deck, export_formats)
-        result = card_selector.exec()
-        if result == QDialog.DialogCode.Rejected:
-            return 
-        selected_leader = card_selector.selected_leader
-        selected_base = card_selector.selected_base
-        main_deck = card_selector.main_deck
-        side_board = card_selector.side_board
-        selected_format_index = card_selector.export_format_index
-        
-        file_name, ok = QFileDialog.getSaveFileName(None, "Save File", "", f"{file_formats[selected_format_index]};;All Files (*)")
-        
-        if not ok:
-            return
-        
-        def export_to_mgg():
-            def aggregate(card_list: List[SWUTradingCard]) -> List[str]:
-                deck_counter: Dict[str, int] = {}
-                for m in card_list:
-                    hash_array: List[str] = [m.name]
-                    if m.subtitle is not None:
-                        hash_array.append(m.subtitle)
-                    hash = " | ".join(hash_array)
-                    
-                    if hash not in deck_counter:
-                        deck_counter[hash] = 0
-                    deck_counter[hash] += 1
-                
-                deck_result: List[str] = []
-                for m in deck_counter.keys():
-                    deck_result.append(f'{deck_counter[m]} {m}\n')
-                return deck_result
-            
-            result: List[str] = [
-                "Leader\n",
-                f"1 {selected_leader.name} | {selected_leader.subtitle}\n",
-                "\n",
-                "Base\n",
-                f"1 {selected_base.name}\n", # no subtitle
-                "\n",
-                "MainDeck\n"] + aggregate(main_deck) + [
-                "\n",
-                "Sideboard\n"] + aggregate(side_board) + [
-            ]
-            
-            with open(f'{file_name}', 'w') as f:
-                for r in result:
-                    f.write(r)
-        
-        def export_to_swudb():
-            def aggregate(card_list: List[SWUTradingCard]) -> List[Dict[str, Any]]:
-                deck_counter: Dict[str, int] = {}
-                for m in card_list:
-                    hash = f'{m.set}_{m.number}'
-                    if hash not in deck_counter:
-                        deck_counter[hash] = 0
-                        
-                    deck_counter[hash] += 1
-                
-                deck_result: List[Dict[str, Any]] = []
-                for m in deck_counter.keys():
-                    deck_result.append({
-                        "id": m,
-                        "count": deck_counter[m]
-                    })
-                return deck_result
-            
-            result: Dict[str, Any] = {
-                "leader": {
-                    "id": f'{selected_leader.set}_{selected_leader.number}',
-                    "count": 1
-                },
-                "base": {
-                    "id": f'{selected_base.set}_{selected_base.number}',
-                    "count": 1
-                },
-                "deck": aggregate(main_deck),
-                "sideboard": aggregate(side_board)
-            }
-            
-            with open(f'{file_name}', 'w') as f:
-                f.write(json.dumps(result, indent=4))
-        
-        if export_formats[selected_format_index] == "swudb.com":
-            export_to_swudb()
-        elif export_formats[selected_format_index] ==  "Melee.gg":
-            export_to_mgg()
+        self._draft_list_exporter.export_draft_list(draft_packs, to_path, swu_db)
             
     def export_draft_list_csv(self, draft_packs: List[DraftPack], to_path: str):
         # flat_list = [item for pack in draft_packs for item in pack.draft_list]
