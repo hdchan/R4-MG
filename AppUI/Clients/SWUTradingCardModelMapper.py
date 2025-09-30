@@ -16,7 +16,7 @@ class SWUTradingCardBackedLocalCardResource(LocalCardResource):
                  display_name_short: str,
                  display_name_detailed: str,
                  remote_image_url: str,
-                 trading_card: SWUDBTradingCard):
+                 trading_card: SWUTradingCard):
         super().__init__(image_dir=image_dir, 
                          image_preview_dir=image_preview_dir, 
                          file_name=file_name, 
@@ -28,7 +28,7 @@ class SWUTradingCardBackedLocalCardResource(LocalCardResource):
         self._guaranteed_trading_card = trading_card
         
     @property
-    def guaranteed_trading_card(self) -> SWUDBTradingCard:
+    def guaranteed_trading_card(self) -> SWUTradingCard:
         return self._guaranteed_trading_card
         
 class SWUTradingCardModelMapper:

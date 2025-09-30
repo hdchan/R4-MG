@@ -23,7 +23,7 @@ from PyQtUI import VerticalBoxLayout
 from .Assets import AssetProvider as InternalAssetProvider
 from .CardAspect import CardAspect
 from .ClientProvider import ClientProvider
-from .DraftListExporter import DraftListExporter
+from .Exporter.DraftListExporter import DraftListExporter
 from .swu_db_com import SWUDBLocalSetRetrieverClient
 from .SWUTradingCard import SWUTradingCard
 from .SWUTradingCardModelMapper import SWUTradingCardModelMapper
