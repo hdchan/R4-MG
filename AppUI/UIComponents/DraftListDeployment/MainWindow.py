@@ -25,17 +25,9 @@ class MainWindow(AppWindow):
                     "File",
                     [
                         ActionMenuItem(
-                            "Export to SWUDB",
+                            "Export",
                             self._export_to_swudb
                             ),
-                        # ActionMenuItem(
-                        #     "Export to MeleeGG",
-                        #     lambda: self._external_app_dependencies_provider.export_draft_list(self._data_source_draft_list.draft_packs, self._configuration_manager.configuration.picture_dir_path, False)
-                        #     ),
-                        # ActionMenuItem(
-                        #     "Export to CSV",
-                        #     lambda: self._external_app_dependencies_provider.export_draft_list_csv(self._data_source_draft_list.draft_packs, self._configuration_manager.configuration.picture_dir_path)
-                        #     ),
                         ActionMenuItem(
                             "Settings",
                             lambda: app_dependencies_provider.router.open_draft_list_settings_page()

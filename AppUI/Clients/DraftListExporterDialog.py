@@ -1,21 +1,24 @@
-from typing import List, Callable, TypeVar, Generic
+from typing import Callable, Generic, List, TypeVar
 
 from PyQt5.QtWidgets import QDialog, QSizePolicy
 
-from PyQtUI import (HorizontalBoxLayout, PushButton,
-                    VerticalBoxLayout, VerticalGroupBox, ButtonGroup, BoldLabel, ScrollArea, VerticallyExpandingSpacer, Label, CheckBox, HorizontallyExpandingSpacer, ComboBox)
+from PyQtUI import (BoldLabel, ButtonGroup, CheckBox, ComboBox,
+                    HorizontalBoxLayout, HorizontallyExpandingSpacer, Label,
+                    PushButton, ScrollArea, VerticalBoxLayout,
+                    VerticalGroupBox, VerticallyExpandingSpacer)
 
-from .SWUTradingCardModelMapper import SWUTradingCardBackedLocalCardResource
 from .Exporter.ExportFormattable import ExportFormattable
+from .SWUTradingCardModelMapper import SWUTradingCardBackedLocalCardResource
+
 T = TypeVar("T")
 
 class CellObject(Generic[T]):
     def __init__(self, o: T):
         self._o: T = o
-        self._is_sideboard = False
+        self._is_checked = False
         
         def _checked(checked: bool):
-            self._is_sideboard = checked
+            self._is_checked = checked
         
         self._check_box = CheckBox(_checked)
     
@@ -24,8 +27,8 @@ class CellObject(Generic[T]):
         return self._check_box
     
     @property
-    def is_sideboard(self) -> bool:
-        return self._is_sideboard
+    def is_checked(self) -> bool:
+        return self._is_checked
     
     @property
     def object(self) -> T:
@@ -41,7 +44,6 @@ class DraftListExporterDialog(QDialog):
             self._selected_leader: SWUTradingCardBackedLocalCardResource = leaders[0]
             self._selected_base: SWUTradingCardBackedLocalCardResource = bases[0]
             self._exporters = exporters
-            # self._selected_exporter_index = 0
             
             def _selected_leader(value: SWUTradingCardBackedLocalCardResource) -> None:
                 self._selected_leader = value
@@ -125,14 +127,13 @@ class DraftListExporterDialog(QDialog):
         
         @property
         def main_deck(self) -> List[SWUTradingCardBackedLocalCardResource]:
-            filtered = list(filter(lambda x: x.is_sideboard == False, self._main_card_objects))
+            filtered = list(filter(lambda x: x.is_checked == False, self._main_card_objects))
             return list(map(lambda x: x.object, filtered))
         
         @property
         def side_board(self) -> List[SWUTradingCardBackedLocalCardResource]:
-            filtered = list(filter(lambda x: x.is_sideboard == True, self._main_card_objects))
+            filtered = list(filter(lambda x: x.is_checked == True, self._main_card_objects))
             return list(map(lambda x: x.object, filtered))
         
         def _sync_ui(self):
-            # self._accept_button.setEnabled(self._selected_value is not None)
             pass

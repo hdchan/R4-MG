@@ -184,3 +184,38 @@ class CSVExporter(ExportFormattable):
         with open(f'{file_path}', 'w', newline='') as csv_file:
             csv_writer = csv.writer(csv_file)
             csv_writer.writerows(data)
+            
+class TextSummaryExporter(ExportFormattable):
+    @property
+    def file_format(self) -> str:
+        return "Text summary (*.txt)"
+    
+    @property
+    def format_name(self) -> str:
+        return "Text summary"
+    
+    def export(self, 
+               file_path: str,
+               raw_draft_packs: List[DraftPack], 
+               selected_leader: SWUTradingCardBackedLocalCardResource, 
+               selected_base: SWUTradingCardBackedLocalCardResource, 
+               main_deck: List[SWUTradingCardBackedLocalCardResource], 
+               side_board: List[SWUTradingCardBackedLocalCardResource]) -> None:
+        pass
+class VisualizedCardsExporter(ExportFormattable):
+    @property
+    def file_format(self) -> str:
+        return "Image (*.png)"
+    
+    @property
+    def format_name(self) -> str:
+        return "Image"
+    
+    def export(self, 
+               file_path: str,
+               raw_draft_packs: List[DraftPack], 
+               selected_leader: SWUTradingCardBackedLocalCardResource, 
+               selected_base: SWUTradingCardBackedLocalCardResource, 
+               main_deck: List[SWUTradingCardBackedLocalCardResource], 
+               side_board: List[SWUTradingCardBackedLocalCardResource]) -> None:
+        pass
