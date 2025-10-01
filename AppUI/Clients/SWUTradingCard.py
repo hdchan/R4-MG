@@ -63,7 +63,7 @@ class SWUTradingCard(TradingCard):
     @property
     def aspects(self) -> List[CardAspect]:
         aspects = self.metadata['aspects']
-        return sorted(list(map(lambda x: CardAspect(x.lower()), aspects)))
+        return sorted(list(map(lambda x: CardAspect(x.lower()), aspects)), key=lambda x: x.rank)
     
     @property
     def variants(self) -> List[CardVariant]:
