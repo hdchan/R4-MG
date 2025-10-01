@@ -1,5 +1,4 @@
 import copy
-import csv
 from typing import Dict, List, Optional
 
 from PyQt5.QtCore import Qt
@@ -18,7 +17,7 @@ from AppUI.Assets import AssetProvider
 from AppUI.ExternalAppDependenciesProviding import \
     ExternalAppDependenciesProviding
 from AppUI.Models import DraftListStyleSheet
-from PyQtUI import VerticalBoxLayout
+from .UIComponents.DraftListItemHeader import DraftListItemHeader
 
 from .Assets import AssetProvider as InternalAssetProvider
 from AppCore.DataSource import DataSourceDraftList
@@ -71,52 +70,7 @@ class ExternalAppDependenciesProvider(ExternalAppDependenciesProviding):
     def draft_list_item_header(self,
                                stylesheet: DraftListStyleSheet, 
                                text: str) -> Optional[QWidget]:
-        horizontal_layout = QHBoxLayout()
-        cell_widget = QWidget()
-        cell_widget.setLayout(horizontal_layout)
-        
-        horizontal_layout.setSpacing(stylesheet.cell_header_spacing) # needs its own
-        horizontal_layout.setContentsMargins(stylesheet.cell_header_padding_left, 
-                                            stylesheet.cell_header_padding_top, 
-                                            stylesheet.cell_header_padding_right, 
-                                            stylesheet.cell_header_padding_bottom)
-        
-        palette = cell_widget.palette()
-        
-        palette.setColor(QPalette.ColorRole.Background, QColor(stylesheet.cell_header_background_color))
-        
-        cell_widget.setLayout(horizontal_layout)
-        cell_widget.setAutoFillBackground(True)
-        cell_widget.setPalette(palette)
-        
-        palette = QPalette()
-        palette.setColor(QPalette.ColorRole.Foreground, QColor(stylesheet.cell_header_font_color))
-            
-            
-        label = QLabel()
-        label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
-        label.setPalette(palette)
-        label.setText(text)
-        
-        custom_font_path = stylesheet.cell_header_font_path
-        if custom_font_path is not None:
-            font_id = QFontDatabase.addApplicationFont(custom_font_path)
-            font_families = QFontDatabase.applicationFontFamilies(font_id)
-            custom_font = QFont(font_families[0], stylesheet.cell_header_font_size)
-            label.setFont(custom_font)
-        else:
-            current_font = label.font()
-            current_font.setPointSize(stylesheet.cell_header_font_size)
-            label.setFont(current_font)
-        
-        horizontal_layout.addWidget(label, 1)
-        
-        container_widget = QWidget()
-        VerticalBoxLayout([
-            cell_widget
-        ]).set_uniform_content_margins(0).set_layout_to_widget(container_widget)
-        container_widget.setContentsMargins(0, 0, 0, stylesheet.cell_header_spacing)
-        return container_widget
+        return DraftListItemHeader(stylesheet, text)
     
     def draft_list_item_cell(self, 
                              trading_card: TradingCard, 
