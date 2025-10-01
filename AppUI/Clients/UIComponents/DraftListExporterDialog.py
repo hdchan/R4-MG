@@ -7,8 +7,8 @@ from PyQtUI import (BoldLabel, ButtonGroup, CheckBox, ComboBox,
                     PushButton, ScrollArea, VerticalBoxLayout,
                     VerticalGroupBox, VerticallyExpandingSpacer)
 
-from .Exporter.ExportFormattable import ExportFormattable
-from .SWUTradingCardModelMapper import SWUTradingCardBackedLocalCardResource
+from ..Exporter.ExportFormattable import ExportFormattable
+from ..Models.SWUTradingCardModelMapper import SWUTradingCardBackedLocalCardResource
 
 T = TypeVar("T")
 

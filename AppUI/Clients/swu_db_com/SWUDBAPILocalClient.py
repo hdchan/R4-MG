@@ -12,8 +12,8 @@ from AppCore.Models import (PaginationConfiguration, SearchConfiguration,
                             TradingCard)
 from ..Assets import AssetProvider
 
-from ..CardType import CardType
-from ..SWUCardSearchConfiguration import SWUCardSearchConfiguration
+from ..Models.CardType import CardType
+from ..Models.SWUCardSearchConfiguration import SWUCardSearchConfiguration
 from .SWUDBTradingCard import SWUDBTradingCard
 
 CardListData = List[Dict[str, Any]]

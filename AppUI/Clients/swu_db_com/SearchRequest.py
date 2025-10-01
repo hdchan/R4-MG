@@ -6,8 +6,8 @@ from AppCore.Models import TradingCard
 from AppCore.DataFetcher import DataFetcherRemoteRequestProtocol
 from AppCore.DataSource import DataSourceCardSearchClientSearchResponse
 
-from AppUI.Clients.CardType import CardType
-from ..SWUCardSearchConfiguration import SWUCardSearchConfiguration
+from AppUI.Clients.Models.CardType import CardType
+from ..Models.SWUCardSearchConfiguration import SWUCardSearchConfiguration
 from .SWUDBTradingCard import SWUDBTradingCard
 
 # https://api.swu-db.com/cards/search?q=type:leader%20name:luke

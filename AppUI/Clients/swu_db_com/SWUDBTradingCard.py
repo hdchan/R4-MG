@@ -1,6 +1,6 @@
 from typing import Any, Dict
 from AppCore.Models import TradingCard
-from ..SWUTradingCard import SWUTradingCard
+from ..Models.SWUTradingCard import SWUTradingCard
 from typing import Optional, List
 class SWUDBTradingCard(SWUTradingCard):
     @classmethod

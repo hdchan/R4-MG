@@ -2,9 +2,9 @@ from typing import Optional
 
 from AppCore.Models import TradingCard, LocalCardResource
 
-from .starwarsunlimited_com.StarWarsUnlimitedTradingCard import \
+from ..starwarsunlimited_com.StarWarsUnlimitedTradingCard import \
     StarWarsUnlimitedTradingCard
-from .swu_db_com.SWUDBTradingCard import SWUDBTradingCard
+from ..swu_db_com.SWUDBTradingCard import SWUDBTradingCard
 from .SWUTradingCard import SWUTradingCard
 
 class SWUTradingCardBackedLocalCardResource(LocalCardResource):

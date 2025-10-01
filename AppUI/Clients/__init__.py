@@ -1,3 +1,3 @@
-from .SWUCardSearchConfiguration import SWUCardSearchConfiguration
+from .Models.SWUCardSearchConfiguration import SWUCardSearchConfiguration
 from .ClientProvider import ClientProvider
-from .CardType import CardType
+from .Models.CardType import CardType

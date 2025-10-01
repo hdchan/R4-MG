@@ -25,8 +25,8 @@ from AppCore.DataSource import DataSourceDraftList
 from .ClientProvider import ClientProvider
 from .Exporter.DraftListExporter import DraftListExporter
 from .swu_db_com import SWUDBLocalSetRetrieverClient
-from .SWUTradingCard import SWUTradingCard
-from .SWUTradingCardModelMapper import SWUTradingCardModelMapper
+from .Models.SWUTradingCard import SWUTradingCard
+from .Models.SWUTradingCardModelMapper import SWUTradingCardModelMapper
 
 
 class ExternalAppDependenciesProvider(ExternalAppDependenciesProviding):

@@ -4,7 +4,7 @@ from AppCore.DataSource import DataSourceDraftList
 from AppCore.Observation import *
 from AppCore.Observation.Events import LocalAssetResourceFetchEvent
 from PyQtUI import HorizontalBoxLayout, VerticalBoxLayout
-
+from PyQt5.QtWidgets import QLabel
 
 class DraftListImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
@@ -15,10 +15,10 @@ class DraftListImagePreviewViewController(QWidget, TransmissionReceiverProtocol)
         
         self._observation_tower.subscribe_multi(self, [LocalAssetResourceFetchEvent])
         
-        
+        self._image_view = QLabel()
 
         HorizontalBoxLayout([
-            
+            self._image_view
             ]).set_layout_to_widget(self)
     
     def _sync_ui(self):

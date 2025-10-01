@@ -6,9 +6,9 @@ from PyQt5.QtWidgets import QDialog, QFileDialog
 from AppCore.DataFetcher import *
 from AppCore.Models import DraftPack, LocalCardResource
 
-from ..CardType import CardType
-from ..DraftListExporterDialog import DraftListExporterDialog
-from ..SWUTradingCardModelMapper import (SWUTradingCardBackedLocalCardResource,
+from ..Models.CardType import CardType
+from ..UIComponents.DraftListExporterDialog import DraftListExporterDialog
+from ..Models.SWUTradingCardModelMapper import (SWUTradingCardBackedLocalCardResource,
                                          SWUTradingCardModelMapper)
 from .ExportFormattable import (CSVExporter, ExportFormattable, MGGExporter,
                                 SWUDBDotCOMExporter, VisualizedCardsExporter)

@@ -1,6 +1,6 @@
 from typing import Any, Dict, List
 from AppCore.Models import TradingCard
-from ..SWUTradingCard import SWUTradingCard
+from ..Models.SWUTradingCard import SWUTradingCard
 class StarWarsUnlimitedTradingCard(SWUTradingCard):
     @classmethod
     def from_trading_card(cls, trading_card: TradingCard) -> 'StarWarsUnlimitedTradingCard':

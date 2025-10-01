@@ -7,8 +7,8 @@ from PIL.ImageFile import ImageFile
 
 from AppCore.Models import DraftPack
 
-from ..CardAspect import CardAspect
-from ..SWUTradingCardModelMapper import (SWUTradingCardBackedLocalCardResource,
+from ..Models.CardAspect import CardAspect
+from ..Models.SWUTradingCardModelMapper import (SWUTradingCardBackedLocalCardResource,
                                          SWUTradingCardModelMapper)
 
 

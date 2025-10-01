@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QDialog, QWidget
 from PyQtUI import (HorizontalBoxLayout, LabeledRadioButton, PushButton,
                     VerticalBoxLayout, VerticalGroupBox, ButtonGroup)
 
-from .SWUTradingCard import SWUTradingCard
+from ..Models.SWUTradingCard import SWUTradingCard
 
 
 class CardSelectionDialog(QDialog):
