@@ -49,7 +49,7 @@ class DraftListWindowConfigViewController(QWidget, TransmissionReceiverProtocol)
             
             PushButton("Update window dimensions", self._save_window_dimensions),
             
-        ]).set_to_layout(self)
+        ]).set_layout_to_widget(self)
         
         self._reset_pack_list_combo_box()
     

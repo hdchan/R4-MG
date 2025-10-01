@@ -21,7 +21,7 @@ from AppUI.Models import DraftListStyleSheet
 from PyQtUI import VerticalBoxLayout
 
 from .Assets import AssetProvider as InternalAssetProvider
-from .CardAspect import CardAspect
+from AppCore.DataSource import DataSourceDraftList
 from .ClientProvider import ClientProvider
 from .Exporter.DraftListExporter import DraftListExporter
 from .swu_db_com import SWUDBLocalSetRetrieverClient
@@ -114,7 +114,7 @@ class ExternalAppDependenciesProvider(ExternalAppDependenciesProviding):
         container_widget = QWidget()
         VerticalBoxLayout([
             cell_widget
-        ]).set_uniform_content_margins(0).set_to_layout(container_widget)
+        ]).set_uniform_content_margins(0).set_layout_to_widget(container_widget)
         container_widget.setContentsMargins(0, 0, 0, stylesheet.cell_header_spacing)
         return container_widget
     
@@ -231,3 +231,6 @@ class ExternalAppDependenciesProvider(ExternalAppDependenciesProviding):
     
     def export_draft_list(self, draft_packs: List[DraftPack], to_path: str, swu_db: bool):
         self._draft_list_exporter.export_draft_list(draft_packs, to_path, swu_db)
+        
+    def provide_draft_list_image_preview_widget(self, draft_list_data_source: DataSourceDraftList) -> QWidget:
+        return QWidget()

@@ -3,12 +3,12 @@ from PyQt5.QtWidgets import QWidget
 
 from AppUI.AppDependenciesProviding import AppDependenciesProviding
 from AppUI.UIComponents import ImagePreviewLocalResourceDataSourceDecorator
-from PyQtUI import VerticalBoxLayout, HorizontalSplitter
+from PyQtUI import VerticalBoxLayout, HorizontalSplitter, VerticalSplitter
 
 from ..Base.SearchTableViewController import SearchTableViewController
 from .DraftListTabbedPackPreviewViewController import DraftListTabbedPackPreviewViewController
 from .DraftListWindowDeployerViewController import DraftListWindowDeployerViewController
-
+from .DraftListImagePreviewViewController import DraftListImagePreviewViewController
 class DraftListDeployerSearchComboViewController(QWidget):
     def __init__(self, app_dependencies_provider: AppDependenciesProviding):
         super().__init__()
@@ -22,17 +22,22 @@ class DraftListDeployerSearchComboViewController(QWidget):
         search_table = SearchTableViewController(self._app_dependencies_provider, configuration, image_preview_view)
         
         VerticalBoxLayout([
-            HorizontalSplitter([
-                VerticalBoxLayout([
-                    image_preview_view,
-                    search_table
+            VerticalSplitter([
+                HorizontalSplitter([
+                    VerticalBoxLayout([
+                        image_preview_view,
+                        search_table
+                    ]),
+                    
+                    DraftListTabbedPackPreviewViewController(
+                        self._app_dependencies_provider, 
+                        data_source_local_resource_provider=search_table
+                        ),
+                    
+                    DraftListWindowDeployerViewController(self._app_dependencies_provider)
+                    ]),
+                
+                DraftListImagePreviewViewController(self._app_dependencies_provider)
+                
                 ]),
-                
-                DraftListTabbedPackPreviewViewController(
-                    self._app_dependencies_provider, 
-                    data_source_local_resource_provider=search_table
-                    ),
-                
-                DraftListWindowDeployerViewController(self._app_dependencies_provider)
-                ])
-        ]).set_to_layout(self)
+        ]).set_layout_to_widget(self)

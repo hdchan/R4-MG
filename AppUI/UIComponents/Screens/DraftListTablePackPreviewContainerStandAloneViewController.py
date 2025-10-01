@@ -29,7 +29,7 @@ class DraftListTablePackPreviewContainerStandAloneViewController(QWidget, Transm
             DraftListTablePackPreviewContainerViewController(self._app_dependencies_provider, config, self._resource)
             ]) \
                 .set_uniform_content_margins(0) \
-                    .set_to_layout(self)
+                    .set_layout_to_widget(self)
                     
         self._sync_ui()
     

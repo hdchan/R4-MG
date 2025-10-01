@@ -246,7 +246,7 @@ class DraftListSettingsViewController(QWidget, SettingsContainerChildProtocol):
                     #     ),
                 ])
             
-            ]).set_to_layout(self)
+            ]).set_layout_to_widget(self)
         
         self._sync_ui()
     

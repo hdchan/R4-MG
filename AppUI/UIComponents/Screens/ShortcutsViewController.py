@@ -20,4 +20,4 @@ class ShortcutsViewController(QWidget):
         
         VerticalBoxLayout([
             markdown
-        ]).set_to_layout(self)
+        ]).set_layout_to_widget(self)

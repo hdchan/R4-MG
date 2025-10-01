@@ -23,7 +23,7 @@ class LabeledRadioButton(QWidget):
         self.value = value
         HorizontalBoxLayout([
             self._radio_button
-        ]).set_to_layout(self)
+        ]).set_layout_to_widget(self)
         
     def _toggled(self):
         if self._toggled_fn is not None:
@@ -50,7 +50,7 @@ class ButtonGroup(QWidget):
         for text, value in values:
             self._buttons.append(LabeledRadioButton(text, value, _selected))
         
-        self._layout = VerticalBoxLayout().set_to_layout(self)
+        self._layout = VerticalBoxLayout().set_layout_to_widget(self)
         for b in self._buttons:
             self._layout.add_widget(b.radio_button)
     
@@ -259,12 +259,12 @@ class HorizontalLabeledInputRow(QWidget):
             ]),
             
             input
-        ]).set_to_layout(self)
+        ]).set_layout_to_widget(self)
 
 class VerticalGroupBox(QGroupBox):
     def __init__(self, initial_widgets: List[QWidget] = []):
         super().__init__()
-        self._layout = VerticalBoxLayout(initial_widgets).set_to_layout(self)
+        self._layout = VerticalBoxLayout(initial_widgets).set_layout_to_widget(self)
     
     def add_widgets(self, widgets: List[QWidget]):
         self._layout.add_widgets(widgets)
@@ -288,7 +288,7 @@ class TabWidget(QWidget):
         super().__init__()
         self._tab_change_fn = tab_change_fn
         self._tab_widget = QTabWidget()
-        self._layout = VerticalBoxLayout([self._tab_widget]).set_to_layout(self)
+        self._layout = VerticalBoxLayout([self._tab_widget]).set_layout_to_widget(self)
         self._widgets: List[QWidget] = []
         self.add_tabs(tabs)
         
@@ -301,7 +301,7 @@ class TabWidget(QWidget):
         if self._tab_change_fn is not None:
             self._tab_change_fn(index)
         
-    def set_to_layout(self, layout: QWidget) -> 'TabWidget':
+    def set_layout_to_widget(self, layout: QWidget) -> 'TabWidget':
         layout.setLayout(self.layout())
         return self
     

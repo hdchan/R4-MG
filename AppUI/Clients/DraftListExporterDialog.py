@@ -96,7 +96,7 @@ class DraftListExporterDialog(QDialog):
                     PushButton("Cancel", self.reject),
                     self._accept_button
                 ])
-            ]).set_to_layout(self)
+            ]).set_layout_to_widget(self)
             
             self._sync_ui()
         

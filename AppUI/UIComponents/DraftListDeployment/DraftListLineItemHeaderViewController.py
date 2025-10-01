@@ -30,4 +30,4 @@ class DraftListLineItemHeaderViewController(QWidget):
         
         VerticalBoxLayout([
             element
-            ]).set_uniform_content_margins(0).set_to_layout(self)
+            ]).set_uniform_content_margins(0).set_layout_to_widget(self)

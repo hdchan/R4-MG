@@ -33,7 +33,7 @@ class BoxLayout(QWidget):
         self._layout.addSpacerItem(spacer_item)
         return self
         
-    def set_to_layout(self, layout: QWidget) -> 'BoxLayout':
+    def set_layout_to_widget(self, layout: QWidget) -> 'BoxLayout':
         layout.setLayout(self.layout())
         return self
     
@@ -134,7 +134,7 @@ class GridLayout(QWidget):
         self._clear_widgets()
         self.add_widgets(widgets)
         
-    def set_to_layout(self, layout: QWidget) -> 'GridLayout':
+    def set_layout_to_widget(self, layout: QWidget) -> 'GridLayout':
         layout.setLayout(self.layout())
         return self
     

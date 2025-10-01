@@ -71,7 +71,7 @@ class DraftListTabbedPackPreviewViewController(QWidget, TransmissionReceiverProt
                 self._deployment_destination_selection,
                 ]),
             
-        ]).set_to_layout(self)
+        ]).set_layout_to_widget(self)
         
         if self._data_source_draft_list.pack_list_count == 0:
             self._data_source_draft_list.create_new_pack()

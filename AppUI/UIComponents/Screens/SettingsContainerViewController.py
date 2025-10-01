@@ -26,7 +26,7 @@ class SettingsContainerViewController(QWidget):
                 PushButton("Apply", self._apply),
                 PushButton("Save && Close", self._save_and_close)
             ])
-        ]).set_to_layout(self)
+        ]).set_layout_to_widget(self)
         
     def _apply(self):
         current_mutable_configuration_instance = self._app_ui_configuration_manager.mutable_configuration()

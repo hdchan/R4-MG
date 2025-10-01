@@ -48,7 +48,7 @@ class DraftListTablePackPreviewContainerViewController(QWidget,
             self._pack_preview
         ]) \
             .set_uniform_content_margins(0) \
-                .set_to_layout(self)
+                .set_layout_to_widget(self)
         self._sync_ui()
     
     @property
