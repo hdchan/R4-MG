@@ -1,8 +1,9 @@
 import csv
 import json
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from PIL import Image
+from PIL.ImageFile import ImageFile
 
 from AppCore.Models import DraftPack
 
@@ -221,15 +222,33 @@ class VisualizedCardsExporter(ExportFormattable):
                main_deck: List[SWUTradingCardBackedLocalCardResource], 
                side_board: List[SWUTradingCardBackedLocalCardResource]) -> None:
         image_paths = list(map(lambda x: x.asset_path, main_deck))
-        image = self.combine_images_grid(image_paths, 5)
-        image.save(file_path)
-            
-    def combine_images_grid(self, image_paths, columns, spacing=0):
+        
+        leader_and_base_image = self.combine_leader_and_base(selected_leader, selected_base)
+        main_deck_image = self.combine_images_grid(image_paths, 6)
+        if leader_and_base_image is None or main_deck_image is None:
+            raise Exception("Something went wrong")
+
+        combined_image = Image.new('RGBA', (main_deck_image.width + leader_and_base_image.width, max(main_deck_image.height, leader_and_base_image.height)), (255, 255, 255, 0))
+        
+        combined_image.paste(leader_and_base_image, (0, 0))
+        combined_image.paste(main_deck_image, (leader_and_base_image.width, 0))
+        
+        combined_image.save(file_path)
+    
+    def combine_leader_and_base(self, leader_resource: SWUTradingCardBackedLocalCardResource, base_resource: SWUTradingCardBackedLocalCardResource) -> Optional[Image.Image]:
+        return self.combine_images_grid([leader_resource.asset_path, base_resource.asset_path], 1)
+    
+    def combine_images_grid(self, image_paths: List[str], columns: int, spacing: int = 0) -> Optional[Image.Image]:
         if not image_paths:
             return None
-
+        
         # Open all images and get their dimensions
         images = [Image.open(path) for path in image_paths]
+        return self.combine_images_grid_with_images(images, columns, spacing)
+    
+    def combine_images_grid_with_images(self, images: List[ImageFile], columns: int, spacing: int = 0) -> Optional[Image.Image]:
+        if not images:
+            return None
         
         # Calculate max width and height for individual images (for consistent sizing)
         max_width = max(img.width for img in images)
