@@ -2,6 +2,8 @@ import csv
 import json
 from typing import Any, Dict, List
 
+from PIL import Image
+
 from AppCore.Models import DraftPack
 
 from ..CardAspect import CardAspect
@@ -218,4 +220,47 @@ class VisualizedCardsExporter(ExportFormattable):
                selected_base: SWUTradingCardBackedLocalCardResource, 
                main_deck: List[SWUTradingCardBackedLocalCardResource], 
                side_board: List[SWUTradingCardBackedLocalCardResource]) -> None:
-        pass
+        image_paths = list(map(lambda x: x.asset_path, main_deck))
+        image = self.combine_images_grid(image_paths, 5)
+        image.save(file_path)
+            
+    def combine_images_grid(self, image_paths, columns, spacing=0):
+        if not image_paths:
+            return None
+
+        # Open all images and get their dimensions
+        images = [Image.open(path) for path in image_paths]
+        
+        # Calculate max width and height for individual images (for consistent sizing)
+        max_width = max(img.width for img in images)
+        max_height = max(img.height for img in images)
+
+        # Calculate the number of rows needed
+        rows = (len(images) + columns - 1) // columns
+
+        # Calculate the dimensions of the final combined image
+        background_width = max_width * columns + spacing * (columns - 1)
+        background_height = max_height * rows + spacing * (rows - 1)
+
+        # Create a new blank image for the background
+        combined_image = Image.new('RGBA', (background_width, background_height), (255, 255, 255, 0)) # White background
+
+        x_offset = 0
+        y_offset = 0
+
+        for i, img in enumerate(images):
+            # Calculate position for the current image
+            col_index = i % columns
+            row_index = i // columns
+
+            x_offset = col_index * (max_width + spacing)
+            y_offset = row_index * (max_height + spacing)
+
+            # Paste the image onto the background, centering if needed
+            # (adjust x_offset and y_offset to center if images are smaller than max_width/height)
+            paste_x = x_offset + (max_width - img.width) // 2
+            paste_y = y_offset + (max_height - img.height) // 2
+            
+            combined_image.paste(img, (paste_x, paste_y))
+
+        return combined_image

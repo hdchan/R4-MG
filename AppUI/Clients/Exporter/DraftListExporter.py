@@ -11,7 +11,7 @@ from ..DraftListExporterDialog import DraftListExporterDialog
 from ..SWUTradingCardModelMapper import (SWUTradingCardBackedLocalCardResource,
                                          SWUTradingCardModelMapper)
 from .ExportFormattable import (CSVExporter, ExportFormattable, MGGExporter,
-                                SWUDBDotCOMExporter)
+                                SWUDBDotCOMExporter, VisualizedCardsExporter)
 
 
 class DraftListExporter:
@@ -46,7 +46,12 @@ class DraftListExporter:
         if len(bases) == 0:
             raise Exception("No base card")
         
-        exporters: List[ExportFormattable] = [SWUDBDotCOMExporter(), MGGExporter(), CSVExporter()]
+        exporters: List[ExportFormattable] = [
+            SWUDBDotCOMExporter(), 
+            MGGExporter(), 
+            CSVExporter(),
+            VisualizedCardsExporter()
+            ]
         
         card_selector = DraftListExporterDialog(leaders, 
                                                 bases, 
