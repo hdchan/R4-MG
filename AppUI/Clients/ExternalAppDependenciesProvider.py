@@ -1,13 +1,12 @@
 import copy
 from typing import Dict, List, Optional
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor, QFont, QFontDatabase, QPalette, QPixmap
-from PyQt5.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QWidget
+from PyQt5.QtWidgets import QWidget
 
 from AppCore.Config import ConfigurationManager
 from AppCore.DataFetcher import *
 from AppCore.DataSource import (DataSourceCardSearchClientProviding,
+                                DataSourceDraftList,
                                 DataSourceLocallyManagedSets)
 from AppCore.DataSource.DataSourceLocallyManagedSets import \
     DataSourceLocallyManagedSetsClientProtocol
@@ -17,16 +16,15 @@ from AppUI.Assets import AssetProvider
 from AppUI.ExternalAppDependenciesProviding import \
     ExternalAppDependenciesProviding
 from AppUI.Models import DraftListStyleSheet
-from .UIComponents.DraftListItemHeader import DraftListItemHeader
 
 from .Assets import AssetProvider as InternalAssetProvider
-from AppCore.DataSource import DataSourceDraftList
 from .ClientProvider import ClientProvider
 from .Exporter.DraftListExporter import DraftListExporter
-from .swu_db_com import SWUDBLocalSetRetrieverClient
 from .Models.SWUTradingCard import SWUTradingCard
-from .Models.SWUTradingCardModelMapper import SWUTradingCardModelMapper
+from .swu_db_com import SWUDBLocalSetRetrieverClient
 from .UIComponents.DraftListItemCell import DraftListItemCell
+from .UIComponents.DraftListItemHeader import DraftListItemHeader
+from .UIComponents.DraftListImagePreviewViewController import DraftListImagePreviewViewController
 
 class ExternalAppDependenciesProvider(ExternalAppDependenciesProviding):
     
@@ -115,4 +113,4 @@ class ExternalAppDependenciesProvider(ExternalAppDependenciesProviding):
         self._draft_list_exporter.export_draft_list(draft_packs, to_path, swu_db)
         
     def provide_draft_list_image_preview_widget(self, draft_list_data_source: DataSourceDraftList) -> QWidget:
-        return QWidget()
+        return DraftListImagePreviewViewController(self._observation_tower, draft_list_data_source)

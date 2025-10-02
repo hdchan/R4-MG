@@ -65,8 +65,8 @@ class DraftListExporterDialog(QDialog):
                     
                 ]).add_spacer(HorizontallyExpandingSpacer())
                 self._all_other_cards_list.add_widget(cell)
+                
             self._all_other_cards_list.add_spacer(VerticallyExpandingSpacer())
-            
             
             self._export_format = ComboBox(list(map(lambda x: x.format_name, self._exporters)))
             
@@ -103,7 +103,6 @@ class DraftListExporterDialog(QDialog):
         def _button_group(self, cards: List[SWUTradingCardBackedLocalCardResource], selected_fn: Callable[[SWUTradingCardBackedLocalCardResource], None]) -> ButtonGroup:
             button_group_values: List[tuple[str, SWUTradingCardBackedLocalCardResource]] = []
             button_group_values = list(map(lambda x: (x.guaranteed_trading_card.name, x), cards))
-            
             
             button_group = ButtonGroup(button_group_values, selected_fn)
             button_group.set_checked(0)

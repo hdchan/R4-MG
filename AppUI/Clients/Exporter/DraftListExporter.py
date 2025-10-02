@@ -10,36 +10,18 @@ from ..Models.CardType import CardType
 from ..UIComponents.DraftListExporterDialog import DraftListExporterDialog
 from ..Models.SWUTradingCardModelMapper import (SWUTradingCardBackedLocalCardResource,
                                          SWUTradingCardModelMapper)
+from ..Models.ParsedDraftList import ParsedDraftList
 from .ExportFormattable import (CSVExporter, ExportFormattable, MGGExporter,
                                 SWUDBDotCOMExporter, VisualizedCardsExporter)
 
 
 class DraftListExporter:
     def export_draft_list(self, draft_packs: List[DraftPack], to_path: str, swu_db: bool):
-        # takes only first leader and base
-        flat_list = [item for pack in draft_packs for item in pack.draft_list]
+        parsed_draft_list = ParsedDraftList(draft_packs)
         
-        non_empty_trading_cards: List[SWUTradingCardBackedLocalCardResource] = []
-        no_trading_card_resources: List[LocalCardResource] = [] # send warning?
-        
-        leaders: List[SWUTradingCardBackedLocalCardResource] = []
-        bases: List[SWUTradingCardBackedLocalCardResource] = []
-        main_deck: List[SWUTradingCardBackedLocalCardResource] = []
-        
-        for r in flat_list:
-            swu_backed_resource = SWUTradingCardModelMapper.from_card_resource(r)
-            if swu_backed_resource is None:
-                no_trading_card_resources.append(r)
-                continue
-            
-            non_empty_trading_cards.append(swu_backed_resource)
-            
-            if swu_backed_resource.guaranteed_trading_card.card_type == CardType.LEADER:
-                leaders.append(swu_backed_resource)
-            elif swu_backed_resource.guaranteed_trading_card.card_type == CardType.BASE:
-                bases.append(swu_backed_resource)
-            else:
-                main_deck.append(swu_backed_resource)
+        leaders = parsed_draft_list.leaders
+        bases = parsed_draft_list.bases
+        main_deck = parsed_draft_list.main_deck
         
         if len(leaders) == 0:
             raise Exception("No leader card")
@@ -66,7 +48,10 @@ class DraftListExporter:
         side_board = card_selector.side_board
         selected_exporter = card_selector.selected_exporter
         
-        file_path, ok = QFileDialog.getSaveFileName(None, "Save File", "", f"{selected_exporter.file_format};;All Files (*)")
+        file_path, ok = QFileDialog.getSaveFileName(None, 
+                                                    "Save File", 
+                                                    "", 
+                                                    f"{selected_exporter.file_format};;All Files (*)")
         
         if not ok:
             return
