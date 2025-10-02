@@ -1,6 +1,6 @@
 from typing import List
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QGridLayout, QHBoxLayout, QSpacerItem,
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import (QGridLayout, QHBoxLayout, QSpacerItem,
                              QVBoxLayout, QWidget, QBoxLayout)
 
 class BoxLayout(QWidget):

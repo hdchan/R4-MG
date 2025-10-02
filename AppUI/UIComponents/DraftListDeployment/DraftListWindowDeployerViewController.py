@@ -1,6 +1,6 @@
 from typing import List
 
-from PyQt5.QtWidgets import QLabel, QSizePolicy, QWidget
+from PyQt6.QtWidgets import QLabel, QSizePolicy, QWidget
 
 from AppCore.Observation import (TransmissionProtocol,
                                  TransmissionReceiverProtocol)

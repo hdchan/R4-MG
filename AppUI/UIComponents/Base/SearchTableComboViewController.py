@@ -1,8 +1,8 @@
 from typing import List, Optional
 
-from PyQt5.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QLineEdit,
+from PyQt6.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QLineEdit,
                              QListWidget, QPushButton, QVBoxLayout, QWidget)
-from PyQt5 import QtGui, QtWidgets
+from PyQt6 import QtGui, QtWidgets
 from .LoadingSpinner import LoadingSpinner
 
 
@@ -69,23 +69,23 @@ class ComboBox(QComboBox):
     def paintEvent(self, event):
         
         painter = QtWidgets.QStylePainter(self)
-        painter.setPen(self.palette().color(QtGui.QPalette.Text))
+        painter.setPen(self.palette().color(QtGui.QPalette.ColorRole.Text))
 
         # draw the combobox frame, focusrect and selected etc.
         opt = QtWidgets.QStyleOptionComboBox()
         self.initStyleOption(opt)
-        painter.drawComplexControl(QtWidgets.QStyle.CC_ComboBox, opt)
+        painter.drawComplexControl(QtWidgets.QStyle.ComplexControl.CC_ComboBox, opt)
 
         if self.currentIndex() < 0:
             opt.palette.setBrush(
-                QtGui.QPalette.ButtonText,
-                opt.palette.brush(QtGui.QPalette.ButtonText).color().lighter(),
+                QtGui.QPalette.ColorRole.ButtonText,
+                opt.palette.brush(QtGui.QPalette.ColorRole.ButtonText).color().lighter(),
             )
             if self.placeholderText():
                 opt.currentText = self.placeholderText()
 
         # draw the icon and text
-        painter.drawControl(QtWidgets.QStyle.CE_ComboBoxLabel, opt)
+        painter.drawControl(QtWidgets.QStyle.ControlElement.CE_ComboBoxLabel, opt)
 
     # https://forum.qt.io/topic/105012/qcombobox-specify-width-less-than-content/11?_=1750960881253
     def showPopup(self):

@@ -1,5 +1,5 @@
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication
+from PyQt6.QtGui import QIcon
+from PyQt6.QtWidgets import QApplication
 from AppUI.Clients.ExternalAppDependenciesProvider import ExternalAppDependenciesProvider
 from AppCore.Config import Configuration, ConfigurationManager
 from AppUI.UIComponents.ImageDeployment.Window import Window

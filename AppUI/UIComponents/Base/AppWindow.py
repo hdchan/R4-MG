@@ -1,9 +1,9 @@
 
 from typing import Optional
 
-from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QCloseEvent, QKeyEvent, QResizeEvent
-from PyQt5.QtWidgets import QDesktopWidget, QMainWindow, QWidget
+from PyQt6.QtCore import QTimer
+from PyQt6.QtGui import QCloseEvent, QKeyEvent, QResizeEvent, QGuiApplication
+from PyQt6.QtWidgets import QMainWindow, QWidget
 
 from AppCore.Observation.TransmissionReceiverProtocol import \
     TransmissionReceiverProtocol
@@ -49,7 +49,7 @@ class AppWindow(QMainWindow, TransmissionReceiverProtocol):
         self.setGeometry(0, 0, width, height)
 
         qtRectangle = self.frameGeometry()
-        centerPoint = QDesktopWidget().availableGeometry().center()
+        centerPoint = QGuiApplication.primaryScreen().availableGeometry().center()
         qtRectangle.moveCenter(centerPoint)
         self.move(qtRectangle.topLeft())
         

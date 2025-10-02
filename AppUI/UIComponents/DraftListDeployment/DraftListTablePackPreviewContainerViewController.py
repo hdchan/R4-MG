@@ -1,6 +1,6 @@
 from typing import Optional
 
-from PyQt5.QtWidgets import QWidget
+from PyQt6.QtWidgets import QWidget
 
 from AppCore.Models import LocalResourceDraftListWindow
 from AppCore.Observation import (TransmissionProtocol,

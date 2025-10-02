@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from urllib import request
 
-from PyQt5.QtCore import QObject, QRunnable, QThreadPool, pyqtSignal
+from PyQt6.QtCore import QObject, QRunnable, QThreadPool, pyqtSignal
 
 from AppCore.Config import *
 from AppCore.Models import LocalAssetResource, TradingCard

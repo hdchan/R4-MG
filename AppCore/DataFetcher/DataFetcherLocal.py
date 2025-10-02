@@ -1,7 +1,7 @@
 import time
 from typing import Any, Callable, Dict, TypeVar
 
-from PyQt5.QtCore import QObject, QRunnable, QThreadPool, pyqtSignal
+from PyQt6.QtCore import QObject, QRunnable, QThreadPool, pyqtSignal
 
 from AppCore.Config import ConfigurationManager
 

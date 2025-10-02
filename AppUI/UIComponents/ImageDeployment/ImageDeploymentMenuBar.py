@@ -1,6 +1,6 @@
 from typing import Callable
-
-from PyQt5.QtWidgets import QAction, QMenu, QMenuBar
+from PyQt6.QtGui import QAction
+from PyQt6.QtWidgets import QMenu, QMenuBar
 
 from AppCore.Config.ConfigurationManager import *
 from AppCore.Service import PlatformServiceProtocol

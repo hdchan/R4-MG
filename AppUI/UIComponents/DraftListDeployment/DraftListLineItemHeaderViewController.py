@@ -1,5 +1,5 @@
 
-from PyQt5.QtWidgets import  QWidget, QLabel
+from PyQt6.QtWidgets import  QWidget, QLabel
 
 from AppUI.AppDependenciesProviding import AppDependenciesProviding
 

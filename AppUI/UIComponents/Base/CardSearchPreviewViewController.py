@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QSizePolicy, QTabWidget, QVBoxLayout, QWidget
+from PyQt6.QtWidgets import QSizePolicy, QTabWidget, QVBoxLayout, QWidget
 
 from AppCore.ImageResource.ImageResourceProcessorProtocol import *
 from AppCore.Observation import *

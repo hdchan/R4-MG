@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from PyQt5.QtWidgets import QDialog, QWidget
+from PyQt6.QtWidgets import QDialog, QWidget
 
 from PyQtUI import (HorizontalBoxLayout, LabeledRadioButton, PushButton,
                     VerticalBoxLayout, VerticalGroupBox, ButtonGroup)

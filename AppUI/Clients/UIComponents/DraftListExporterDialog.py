@@ -1,6 +1,6 @@
 from typing import Callable, Generic, List, TypeVar
 
-from PyQt5.QtWidgets import QDialog, QSizePolicy
+from PyQt6.QtWidgets import QDialog, QSizePolicy
 
 from PyQtUI import (BoldLabel, ButtonGroup, CheckBox, ComboBox,
                     HorizontalBoxLayout, HorizontallyExpandingSpacer, Label,

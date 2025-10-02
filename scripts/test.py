@@ -1,7 +1,7 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout
-from PyQt5.QtCore import QPropertyAnimation, QRect, QPoint, pyqtProperty, QSize, Qt, QEasingCurve
-from PyQt5.QtGui import QPainter, QColor, QBrush, QPen, QLinearGradient
+from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout
+from PyQt6.QtCore import QPropertyAnimation, QRect, QPoint, pyqtProperty, QSize, Qt, QEasingCurve
+from PyQt6.QtGui import QPainter, QColor, QBrush, QPen, QLinearGradient
 import math
 
 

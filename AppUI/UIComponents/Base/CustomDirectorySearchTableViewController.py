@@ -1,6 +1,6 @@
 from typing import Optional
 
-from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QLineEdit, QListWidget,
+from PyQt6.QtWidgets import (QHBoxLayout, QLabel, QLineEdit, QListWidget,
                              QPushButton, QVBoxLayout, QWidget)
 
 from AppCore.Config import Configuration

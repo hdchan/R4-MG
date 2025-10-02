@@ -1,8 +1,9 @@
 
 from typing import Any, Callable, List, Optional, TypeVar
 
-from PyQt5.QtCore import QPoint, Qt
-from PyQt5.QtWidgets import (QAction, QButtonGroup, QCheckBox, QComboBox,
+from PyQt6.QtCore import QPoint, Qt
+from PyQt6.QtGui import QAction
+from PyQt6.QtWidgets import (QButtonGroup, QCheckBox, QComboBox,
                              QGroupBox, QLabel, QLineEdit, QMenu, QMenuBar,
                              QPushButton, QRadioButton, QScrollArea,
                              QSizePolicy, QSpacerItem, QSplitter, QTabWidget,

@@ -1,6 +1,6 @@
 from PIL.ImageQt import ImageQt
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QLabel, QWidget
+from PyQt6.QtGui import QPixmap
+from PyQt6.QtWidgets import QLabel, QWidget
 
 from AppCore.DataSource import DataSourceDraftList
 from AppCore.Observation import *

@@ -1,7 +1,7 @@
 import copy
 from typing import Dict, List, Optional
 
-from PyQt5.QtWidgets import QWidget
+from PyQt6.QtWidgets import QWidget
 
 from AppCore.Config import ConfigurationManager
 from AppCore.DataFetcher import *

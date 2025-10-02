@@ -1,6 +1,6 @@
 from typing import Callable
-
-from PyQt5.QtWidgets import QAction, QLabel
+from PyQt6.QtGui import QAction
+from PyQt6.QtWidgets import QLabel
 
 from AppCore.Config.ConfigurationManager import *
 from AppUI.AppDependenciesProviding import AppDependenciesProviding

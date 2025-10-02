@@ -1,8 +1,8 @@
 from typing import Optional
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QBrush, QColor, QPalette, QPixmap, QResizeEvent
-from PyQt5.QtWidgets import (QFrame, QScrollArea, QSizePolicy, QSpacerItem,
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QBrush, QColor, QPalette, QPixmap, QResizeEvent
+from PyQt6.QtWidgets import (QFrame, QScrollArea, QSizePolicy, QSpacerItem,
                              QVBoxLayout, QWidget)
 
 from AppCore.DataSource import LocalResourceDataSourceProviding
@@ -170,7 +170,7 @@ class DraftListTablePackPreviewViewController(QWidget, TransmissionReceiverProto
                 )
             palette.setBrush(QPalette.ColorRole.Window, QBrush(scaled_pixmap))
         else:
-            palette.setColor(QPalette.ColorRole.Background, QColor(stylesheet.container_background_color)) # Set background color
+            palette.setColor(QPalette.ColorRole.Base, QColor(stylesheet.container_background_color)) # Set background color
             
         self.setAutoFillBackground(True) # Enable background filling
         self.setPalette(palette)

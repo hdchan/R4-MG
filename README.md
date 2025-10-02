@@ -19,7 +19,7 @@ See the [Changelog](./AppUI/Assets/Text/CHANGELOG.md) for recent updates.
 
 - Windows OS
 - Python 3.9+
-- PyQt5
+- PyQt6
 - See `requirements.txt` for all dependencies
 
 ## Installation
@@ -66,4 +66,4 @@ This project is licensed under the MIT License.
 ## Attributions
 
 - [SWU-DB.com](https://www.swu-db.com/api)
-- [PyQt5](https://www.riverbankcomputing.com/static/Docs/PyQt5/)
+- [PyQt6](https://www.riverbankcomputing.com/static/Docs/PyQt6/)

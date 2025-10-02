@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QListWidget, QVBoxLayout, QWidget, QListWidgetItem
+from PyQt6.QtWidgets import QListWidget, QVBoxLayout, QWidget, QListWidgetItem
 
 from AppCore.DataSource.DataSourceRecentPublished import *
 from AppCore.Observation import *

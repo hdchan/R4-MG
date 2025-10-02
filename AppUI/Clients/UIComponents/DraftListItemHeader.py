@@ -1,6 +1,6 @@
 
-from PyQt5.QtGui import QColor, QFont, QFontDatabase, QPalette
-from PyQt5.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QWidget
+from PyQt6.QtGui import QColor, QFont, QFontDatabase, QPalette
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QWidget
 from AppUI.Models import DraftListStyleSheet
 from PyQtUI import VerticalBoxLayout
 
@@ -26,14 +26,14 @@ class DraftListItemHeader(QWidget):
         
         palette = cell_widget.palette()
         
-        palette.setColor(QPalette.ColorRole.Background, QColor(self._stylesheet.cell_header_background_color))
+        palette.setColor(QPalette.ColorRole.Base, QColor(self._stylesheet.cell_header_background_color))
         
         cell_widget.setLayout(horizontal_layout)
         cell_widget.setAutoFillBackground(True)
         cell_widget.setPalette(palette)
         
         palette = QPalette()
-        palette.setColor(QPalette.ColorRole.Foreground, QColor(self._stylesheet.cell_header_font_color))
+        palette.setColor(QPalette.ColorRole.Text, QColor(self._stylesheet.cell_header_font_color))
             
             
         label = QLabel()

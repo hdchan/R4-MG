@@ -4,7 +4,7 @@ from functools import partial
 from typing import Any, Dict, Optional, Tuple, TypeVar, Callable
 from urllib.request import Request, urlopen
 
-from PyQt5.QtCore import QObject, QThread, pyqtSignal
+from PyQt6.QtCore import QObject, QThread, pyqtSignal
 
 from AppCore.Config import ConfigurationManager
 

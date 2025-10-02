@@ -1,6 +1,6 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIntValidator
-from PyQt5.QtWidgets import (QCheckBox, QGroupBox, QHBoxLayout, QLabel,
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QIntValidator
+from PyQt6.QtWidgets import (QCheckBox, QGroupBox, QHBoxLayout, QLabel,
                              QLineEdit, QPushButton, QRadioButton, QVBoxLayout,
                              QWidget, QFileDialog)
 

@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Callable, Optional, Set, Tuple
 
 from PIL import Image, ImageDraw
-from PyQt5.QtCore import QMutex, QObject, QRunnable, QThreadPool, pyqtSignal
+from PyQt6.QtCore import QMutex, QObject, QRunnable, QThreadPool, pyqtSignal
 
 from AppCore.ImageFetcher.ImageFetcherProvider import ImageFetcherProviding
 from AppCore.Models import LocalCardResource

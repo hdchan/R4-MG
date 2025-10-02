@@ -1,10 +1,10 @@
 import math
 import sys
 
-from PyQt5.QtCore import (QEasingCurve, QPoint, QPropertyAnimation, QRect,
+from PyQt6.QtCore import (QEasingCurve, QPoint, QPropertyAnimation, QRect,
                           QSize, Qt, pyqtProperty)
-from PyQt5.QtGui import QBrush, QColor, QLinearGradient, QPainter, QPen
-from PyQt5.QtWidgets import QApplication, QPushButton, QVBoxLayout, QWidget
+from PyQt6.QtGui import QBrush, QColor, QLinearGradient, QPainter, QPen
+from PyQt6.QtWidgets import QApplication, QPushButton, QVBoxLayout, QWidget
 
 
 class LoadingSpinnerDisc(QWidget):
@@ -40,7 +40,7 @@ class LoadingSpinnerDisc(QWidget):
     def paintEvent(self, event):
         
         circle_painter = QPainter(self)
-        circle_painter.setRenderHint(QPainter.Antialiasing)
+        circle_painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         window_w = circle_painter.device().width()
         window_h = circle_painter.device().height()
@@ -53,7 +53,7 @@ class LoadingSpinnerDisc(QWidget):
         min_d = min(disc_w, disc_h)
         t = min_d * 0.005
         
-        pen = QPen(QColor('#000'), t, cap=Qt.FlatCap)
+        pen = QPen(QColor('#000'), t, cap=Qt.PenCapStyle.FlatCap)
         circle_painter.setPen(pen)
         
         gradient = QLinearGradient(disc_orig_x, disc_orig_y, disc_w, disc_h)
@@ -94,7 +94,7 @@ class LoadingSpinnerDisc(QWidget):
 
         arc_painter = QPainter(self)
         arc_painter.setPen(pen)
-        arc_painter.setRenderHint(QPainter.Antialiasing)
+        arc_painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         for i in range(0, 60):
             if i > 35 and i < 55:
                 continue

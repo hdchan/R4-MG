@@ -1,7 +1,7 @@
 
 from typing import List
 
-from PyQt5.QtWidgets import QDialog, QFileDialog
+from PyQt6.QtWidgets import QDialog, QFileDialog
 
 from AppCore.DataFetcher import *
 from AppCore.Models import DraftPack, LocalCardResource

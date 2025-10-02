@@ -1,7 +1,7 @@
 
 from typing import List, Optional
 
-from PyQt5.QtWidgets import QWidget
+from PyQt6.QtWidgets import QWidget
 
 from AppCore.DataSource import (DataSourceCardSearchClientProviding,
                                 DataSourceLocallyManagedSets)

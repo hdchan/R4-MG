@@ -2,8 +2,8 @@ import weakref
 from typing import List, Optional
 from weakref import ReferenceType
 
-from PyQt5.QtGui import QContextMenuEvent
-from PyQt5.QtWidgets import QAction, QMenu, QWidget, QVBoxLayout, QLabel
+from PyQt6.QtGui import QContextMenuEvent, QAction
+from PyQt6.QtWidgets import QMenu, QWidget, QVBoxLayout, QLabel
 
 from AppCore.DataSource import LocalResourceDataSourceProviding
 from AppCore.Models import LocalCardResource, TradingCard, DraftPack

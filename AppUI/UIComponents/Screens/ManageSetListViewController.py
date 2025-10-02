@@ -1,6 +1,6 @@
 from typing import Optional, Tuple
-from PyQt5.QtGui import QPixmap, QValidator
-from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QLineEdit, QPushButton,
+from PyQt6.QtGui import QPixmap, QValidator
+from PyQt6.QtWidgets import (QHBoxLayout, QLabel, QLineEdit, QPushButton,
                              QScrollArea, QSizePolicy, QVBoxLayout, QWidget)
 
 from AppCore.Models import LocalAssetResource

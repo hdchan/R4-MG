@@ -1,7 +1,7 @@
 
 from typing import Optional
 
-from PyQt5.QtGui import QCloseEvent
+from PyQt6.QtGui import QCloseEvent
 
 from AppUI.AppDependenciesProviding import AppDependenciesProviding
 from AppUI.UIComponents.Base import AppWindow

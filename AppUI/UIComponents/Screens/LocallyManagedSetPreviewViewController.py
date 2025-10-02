@@ -1,6 +1,6 @@
 from typing import List, Optional, Any
 
-from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
+from PyQt6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 
 from AppCore.Config import Configuration
 from AppCore.DataSource.DataSourceCardSearch import (

@@ -1,7 +1,7 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout
-from PyQt5.QtCore import QPropertyAnimation, QRect, QPoint, pyqtProperty, QSize, Qt, QEasingCurve
-from PyQt5.QtGui import QPainter, QColor, QBrush, QPen, QLinearGradient
+from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout
+from PyQt6.QtCore import QPropertyAnimation, QRect, QPoint, pyqtProperty, QSize, Qt, QEasingCurve
+from PyQt6.QtGui import QPainter, QColor, QBrush, QPen, QLinearGradient
 import math
 class MyWidget(QWidget):
     def __init__(self):
@@ -84,7 +84,7 @@ class MyWidget(QWidget):
 
         arc_painter = QPainter(self)
         arc_painter.setPen(pen)
-        arc_painter.setRenderHint(QPainter.Antialiasing)
+        arc_painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         for i in range(0, 60):
             if i > 35 and i < 55:
                 continue

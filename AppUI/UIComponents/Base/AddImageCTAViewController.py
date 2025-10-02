@@ -1,9 +1,9 @@
 import urllib.parse
 
-from PyQt5.QtCore import QPoint, Qt, QUrl
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtMultimedia import QSoundEffect
-from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QMenu, QPushButton,
+from PyQt6.QtCore import QPoint, Qt, QUrl
+from PyQt6.QtGui import QPixmap, QAction
+from PyQt6.QtMultimedia import QSoundEffect
+from PyQt6.QtWidgets import (QHBoxLayout, QLabel, QMenu, QPushButton,
                              QVBoxLayout, QWidget)
 from AppCore.Observation.Events import CardSearchEvent
 from AppCore.Observation import *

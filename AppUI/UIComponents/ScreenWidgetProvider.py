@@ -1,5 +1,5 @@
 
-from PyQt5.QtWidgets import QWidget
+from PyQt6.QtWidgets import QWidget
 
 from AppCore.DataFetcher import *
 from AppCore.DataSource.DataSourceCardSearch import *

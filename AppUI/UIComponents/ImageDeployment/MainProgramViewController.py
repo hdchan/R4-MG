@@ -1,5 +1,5 @@
-from PyQt5 import QtCore
-from PyQt5.QtWidgets import QHBoxLayout, QSplitter, QWidget
+from PyQt6 import QtCore
+from PyQt6.QtWidgets import QHBoxLayout, QSplitter, QWidget
 
 from AppUI.AppDependenciesProviding import AppDependenciesProviding
 from AppUI.UIComponents import (CardSearchPreviewViewController,

@@ -1,8 +1,8 @@
 from typing import Optional
 from urllib.error import HTTPError
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QLabel, QVBoxLayout, QWidget
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QLabel, QVBoxLayout, QWidget
 
 from AppCore.Config import Configuration
 from AppCore.DataSource import (DataSourceSelectedLocalCardResourceProtocol,

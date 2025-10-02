@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QTextEdit, QWidget
+from PyQt6.QtWidgets import QTextEdit, QWidget
 
 from AppUI.AppDependenciesProviding import AppDependenciesProviding
 from PyQtUI import VerticalBoxLayout

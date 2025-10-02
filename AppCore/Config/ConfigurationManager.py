@@ -9,7 +9,7 @@ from AppCore.Observation.Events import (ApplicationEvent,
                                         ConfigurationUpdatedEvent)
 from AppCore.Observation.ObservationTower import *
 
-# from PyQt5.QtCore import QTimer
+# from PyQt6.QtCore import QTimer
 
 
 class ConfigurationManager(TransmissionReceiverProtocol):
