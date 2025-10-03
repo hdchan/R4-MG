@@ -90,3 +90,14 @@ class SWUTradingCard(TradingCard):
         variants_string = ''.join(list(map(lambda x: x.emoji, self.variants)))
         aspects_string = ''.join(list(map(lambda x: x.emoji, self.aspects)))
         return f'{self.friendly_display_name} {variants_string} {aspects_string}'
+    
+    @property
+    def card_cost(self) -> int:
+        # assumes that there are no cards with non-numeric costs
+        # this is mainly for main deck cards
+        try:
+            if self.cost is None:
+                return 0
+            return int(self.cost)
+        except:
+            return 0
