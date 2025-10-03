@@ -1,11 +1,15 @@
-from typing import Callable
-from typing import List, Optional
+from typing import Callable, List, Optional
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication
+
 SCALE_FACTOR = 1.25
 from PyQt5.QtGui import QContextMenuEvent, QImage
 
+class PhotoViewerDelegate:
+    def export_image(self) -> None:
+        return
 
 class PhotoViewer(QtWidgets.QGraphicsView):
     coordinatesChanged = QtCore.pyqtSignal(QtCore.QPoint)
@@ -28,6 +32,7 @@ class PhotoViewer(QtWidgets.QGraphicsView):
         self.setBackgroundBrush(QtGui.QBrush(QtGui.QColor(255, 255, 255)))
         self.setFrameShape(QtWidgets.QFrame.NoFrame)
         self._clipboard_image: Optional[QImage] = None
+        self.delegate = None
 
     def hasPhoto(self):
         return not self._empty
@@ -40,6 +45,9 @@ class PhotoViewer(QtWidgets.QGraphicsView):
                 self._zoom = 0
             if self.hasPhoto():
                 unity = self.transform().mapRect(QtCore.QRectF(0, 0, 1, 1))
+                # TODO: doesn't go back to above 0 if it gets to 0
+                if unity.width() == 0 or unity.height() == 0:
+                    return
                 self.scale(1 / unity.width(), 1 / unity.height())
                 viewrect = self.viewport().rect()
                 scenerect = self.transform().mapRect(rect)
@@ -120,9 +128,13 @@ class PhotoViewer(QtWidgets.QGraphicsView):
     def contextMenuEvent(self, a0: Optional[QContextMenuEvent]):
         context_menu = QtWidgets.QMenu(self)
         
-        delete_action = QtWidgets.QAction(f"Copy Image", self)
-        delete_action.triggered.connect(self._copy_to_clipboard)
-        context_menu.addAction(delete_action) # type: ignore
+        copy_image = QtWidgets.QAction(f"Copy Image", self)
+        copy_image.triggered.connect(self._copy_to_clipboard)
+        context_menu.addAction(copy_image) # type: ignore
+        
+        export_image = QtWidgets.QAction(f"Export Image", self)
+        export_image.triggered.connect(self.export)
+        context_menu.addAction(export_image) # type: ignore
 
         if a0 is not None:
             context_menu.exec_(a0.globalPos())
@@ -132,69 +144,6 @@ class PhotoViewer(QtWidgets.QGraphicsView):
         # clipboard.setImage(self._clipboard_image)
         clipboard.setPixmap(self._photo.pixmap())
         
-class PhotoViewerWindow(QtWidgets.QWidget):
-    def __init__(self, initial_colum_size: int, text_changed_fn: Callable[[int], None]):
-        super().__init__()
-        # self.setGeometry(500, 300, 800, 600)
-        self._text_changed_fn = text_changed_fn
-        self.viewer = PhotoViewer(self)
-        self.viewer.coordinatesChanged.connect(self.handleCoords)
-        self.labelCoords = QtWidgets.QLabel(self)
-        self.labelCoords.setAlignment(
-            QtCore.Qt.AlignRight | QtCore.Qt.AlignCenter)
-        # self.buttonOpen = QtWidgets.QPushButton(self)
-        # self.buttonOpen.setText('Open Image')
-        # self.buttonOpen.clicked.connect(self.handleOpen)
-        # self.buttonPin = QtWidgets.QPushButton(self)
-        # self.buttonPin.setText('Pin Zoom')
-        # self.buttonPin.setCheckable(True)
-        # self.buttonPin.toggled.connect(self.viewer.setZoomPinned)
-        self._column_edit = QtWidgets.QLineEdit()
-        validator = QtGui.QIntValidator(self) 
-        self._column_edit.setText(str(initial_colum_size))
-        self._column_edit.setValidator(validator)
-        # self._column_edit.textChanged.connect(self._text_changed)
-        
-        self._update_button = QtWidgets.QPushButton(self)
-        self._update_button.setText("Update columns")
-        self._update_button.clicked.connect(self._text_changed)
-        
-        layout = QtWidgets.QGridLayout(self)
-        layout.addWidget(self.viewer, 0, 0, 1, 3)
-        layout.addWidget(self._column_edit)
-        layout.addWidget(self._update_button)
-        # layout.addWidget(self.buttonOpen, 1, 0, 1, 1)
-        # layout.addWidget(self.buttonPin, 1, 1, 1, 1)
-        layout.addWidget(self.labelCoords, 1, 2, 1, 1)
-        layout.setColumnStretch(2, 2)
-        self._path = None
-
-    def _text_changed(self):
-        try:
-            value = self._column_edit.text()
-            int_value = int(value)
-            self._text_changed_fn(int_value)
-        except:
-            pass
-
-    def handleCoords(self, point):
-        if not point.isNull():
-            self.labelCoords.setText(f'{point.x()}, {point.y()}')
-        else:
-            self.labelCoords.clear()
-
-    # def handleOpen(self):
-    #     if (start := self._path) is None:
-    #         start = QtCore.QStandardPaths.standardLocations(
-    #             QtCore.QStandardPaths.PicturesLocation)[0]
-    #     if path := QtWidgets.QFileDialog.getOpenFileName(
-    #         self, 'Open Image', start)[0]:
-    #         self.labelCoords.clear()
-    #         if not (pixmap := QtGui.QPixmap(path)).isNull():
-    #             self.viewer.setPhoto(pixmap)
-    #             self._path = path
-    #         else:
-    #             QtWidgets.QMessageBox.warning(self, 'Error',
-    #                 f'<br>Could not load image file:<br>'
-    #                 f'<br><b>{path}</b><br>'
-    #                 )
+    def export(self):
+        if self.delegate is not None:
+            self.delegate.export_image()

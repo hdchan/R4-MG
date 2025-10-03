@@ -16,6 +16,7 @@
 - [ ] sorting by card cost/aspect and their card count (and or visual representation of sorted cards)
 - [ ] information/text represtation for the casters (draft pool)
 - [ ] visual representation (final deck, may not need)
+- [ ] import cards from melee.gg/swu-db.com
 ## Image deployment
 - [ ] auto populate data from melee.gg such as leader and player names
 # Misc
