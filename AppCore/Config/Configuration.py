@@ -12,7 +12,7 @@ from PyQt5.QtCore import QStandardPaths
 class Configuration():
     
     APP_NAME = 'R4-MG'
-    APP_VERSION = '0.19.0'
+    APP_VERSION = '0.20.0'
     SETTINGS_VERSION = '1.0'
     
     class Toggles:
@@ -62,7 +62,7 @@ class Configuration():
 
         class SearchSource(int, Enum):
             SWUDBAPI = 0
-            LOCAL = 1
+            LOCAL = 1 # NOTE: keep but dont reuse
             STARWARSUNLIMITED_FFG = 2
             LOCALLY_MANAGED_DECKS = 3
             DEFAULT = SWUDBAPI
@@ -201,8 +201,7 @@ class Configuration():
     def custom_directory_search_path(self) -> Optional[str]:
         value: Optional[str] = self._get_with_default_settings(self.Settings.Keys.CUSTOM_DIRECTORY_SEARCH_PATH)
         if value is not None and not value.isspace():
-            return f'{self._get_with_default_settings(self.Settings.Keys.CUSTOM_DIRECTORY_SEARCH_PATH)}/' # needs trailing slash
-        
+            return f'{self._get_with_default_settings(self.Settings.Keys.CUSTOM_DIRECTORY_SEARCH_PATH)}'
         return None
     
     @property

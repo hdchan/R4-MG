@@ -3,21 +3,21 @@ from typing import List, Optional
 from weakref import ReferenceType
 
 from PyQt5.QtGui import QContextMenuEvent
-from PyQt5.QtWidgets import QAction, QMenu, QWidget, QVBoxLayout, QLabel
+from PyQt5.QtWidgets import QAction, QMenu, QVBoxLayout, QLabel
 
 from AppCore.DataSource import LocalResourceDataSourceProviding
 from AppCore.Models import LocalCardResource, TradingCard, DraftPack
 from AppUI.AppDependenciesProviding import AppDependenciesProviding
 
 from AppUI.Models.DraftListStyleSheet import DraftListStyleSheet
-
+from R4UI import R4UIWidget
 
 class DraftListLineItemViewControllerDelegate:
     @property
     def dlli_can_edit(self) -> bool:
         return True
 
-class DraftListLineItemViewController(QWidget):
+class DraftListLineItemViewController(R4UIWidget):
     def __init__(self, 
                  app_dependencies_provider: AppDependenciesProviding,
                  stylesheet: DraftListStyleSheet, # TODO: move style sheet to client side
@@ -26,7 +26,8 @@ class DraftListLineItemViewController(QWidget):
                  data_source_local_resource_provider: Optional[LocalResourceDataSourceProviding],
                  pack_index: int, 
                  draft_pack: DraftPack,
-                 card_index: int):
+                 card_index: int, 
+                 is_presentation: bool):
         super().__init__()
         self._stylesheet = stylesheet
         self._asset_provider = app_dependencies_provider.asset_provider
@@ -36,6 +37,7 @@ class DraftListLineItemViewController(QWidget):
         self._router = app_dependencies_provider.router
         self._trading_card = trading_card
         self._local_resource = local_resource
+        self._is_presentation = is_presentation
         self._pack_index = pack_index
         self._draft_pack = draft_pack
         self._card_index = card_index
@@ -47,16 +49,25 @@ class DraftListLineItemViewController(QWidget):
     def set_delegate(self, delegate: DraftListLineItemViewControllerDelegate):
         self._delegate = weakref.ref(delegate)
     
+    @property
+    def _can_edit(self) -> bool:
+        if self._delegate is not None:
+            delegate = self._delegate()
+            if delegate is not None:
+                return delegate.dlli_can_edit
+        return False
+
     def _setup_view(self):
         container_layout = QVBoxLayout()
         self.setLayout(container_layout)
         # TODO: set transparent?
         container_layout.setContentsMargins(0, 0, 0, 0)
-        
-        external_list_item = self._external_app_dependencies_provider.draft_list_item_cell(self._trading_card, 
-                                                                                           self._pack_index, 
-                                                                                           self._card_index, 
-                                                                                           self._stylesheet)
+
+        external_list_item = self._external_app_dependencies_provider.draft_list_item_cell(local_card_resource=self._local_resource,
+                                                                                           pack_index=self._pack_index, 
+                                                                                           card_index=self._card_index, 
+                                                                                           stylesheet=self._stylesheet, 
+                                                                                           is_presentation=self._is_presentation)
         
         if external_list_item is not None:
             container_layout.addWidget(external_list_item)
@@ -68,15 +79,31 @@ class DraftListLineItemViewController(QWidget):
         
     def contextMenuEvent(self, a0: Optional[QContextMenuEvent]):
         
-        if self._delegate is not None:
-            delegate = self._delegate()
-            if delegate is not None:
-                if not delegate.dlli_can_edit:
-                    return
+        if self._can_edit == False:
+            return
         
-        trading_card = self._trading_card
+        # dynamically retrieves trading card from source
+        local_resource = self._data_source_draft_list.resource_at_index(self._pack_index, self._card_index)
+        if local_resource is None:
+            return
+        trading_card = local_resource.trading_card
+        if trading_card is None:
+            return
         
         context_menu = QMenu(self)
+
+        SIDEBOARD_KEY = 'is_sideboard' # TODO: move this to external provider
+        # Tags lower level LocalCardResource object with metadata
+        if SIDEBOARD_KEY in local_resource.metadata and local_resource.metadata[SIDEBOARD_KEY]:
+            sideboard_action = QAction(f"Remove from sideboard - {trading_card.name}", self)
+            sideboard_action.triggered.connect(lambda: self._data_source_draft_list.mark_resource_as_sideboard(self._pack_index, self._card_index, SIDEBOARD_KEY, False))
+            context_menu.addAction(sideboard_action) # type: ignore
+        else:
+            sideboard_action = QAction(f"Add to sideboard - {trading_card.name}", self)
+            sideboard_action.triggered.connect(lambda: self._data_source_draft_list.mark_resource_as_sideboard(self._pack_index, self._card_index, SIDEBOARD_KEY, True))
+            context_menu.addAction(sideboard_action) # type: ignore
+
+        context_menu.addSeparator()
 
         delete_action = QAction(f"Delete - {trading_card.name}", self)
         delete_action.triggered.connect(lambda: self._delete_card(trading_card))

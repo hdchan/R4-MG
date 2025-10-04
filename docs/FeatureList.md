@@ -11,12 +11,13 @@
 - [x] Alternating colors for rows (styling)
 - [x] Stacking multiple cards
 - [x] melee gg/swudb export (but need to figure out leader/base)
-- [ ] checkout https://github.com/facit/decklister
-### Draft list summary
-- [ ] sorting by card cost/aspect and their card count (and or visual representation of sorted cards)
-- [ ] information/text represtation for the casters (draft pool)
-- [ ] visual representation (final deck, may not need)
+- [x] checkout https://github.com/facit/decklister
+### Visual image
+- [x] sorting by card cost/aspect and their card count (and or visual representation of sorted cards)
+- [x] information/text represtation for the casters (draft pool)
 - [ ] import cards from melee.gg/swu-db.com
+- [ ] sideboard functionality with toggle
+
 ## Image deployment
 - [ ] auto populate data from melee.gg such as leader and player names
 # Misc

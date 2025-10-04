@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QBoxLayout, QGridLayout, QHBoxLayout, QSpacerItem,
@@ -10,12 +10,12 @@ from .R4UIWidget import R4UIWidget
 class BoxLayout(R4UIWidget):
     def __init__(self, 
                  layout: QBoxLayout,  
-                 widgets: List[R4UIWidget] = []):
+                 widgets: List[R4UIWidget] = [], weights: List[Optional[int]] = []):
         super().__init__()
         self._widgets: List[R4UIWidget] = []
         self._layout = layout
         self.setLayout(self._layout)
-        self.add_widgets(widgets)
+        self.add_widgets(widgets, weights)
     
     def set_alignment_for_all_widgets(self, alignment: Qt.AlignmentFlag) -> 'BoxLayout':
         for w in self._widgets:
@@ -25,13 +25,19 @@ class BoxLayout(R4UIWidget):
     def set_alignment_top(self) -> 'BoxLayout':
         return self.set_alignment_for_all_widgets(Qt.AlignmentFlag.AlignTop)
     
-    def add_widgets(self, widgets: List[R4UIWidget]):
-        for w in widgets:
-            self.add_widget(w)
-            
-    def add_widget(self, widget: R4UIWidget):
+    def add_widgets(self, widgets: List[R4UIWidget], weights: List[Optional[int]] = []):
+        for i, w in enumerate(widgets):
+            if i < len(weights):
+                self.add_widget(w, weight=weights[i])
+            else:
+                self.add_widget(w)
+
+    def add_widget(self, widget: R4UIWidget, weight: Optional[int] = None):
         self._widgets.append(widget)
-        self._layout.addWidget(widget)
+        if weight is not None:
+            self._layout.addWidget(widget, weight)
+        else:
+            self._layout.addWidget(widget)
     
     def add_spacer(self, spacer_item: QSpacerItem) -> 'BoxLayout':
         self._layout.addSpacerItem(spacer_item)
@@ -101,14 +107,14 @@ class BoxLayout(R4UIWidget):
         self._layout.insertItem(index_2, item_1)
 
 class HorizontalBoxLayout(BoxLayout):
-    def __init__(self, widgets: List[R4UIWidget] = []):
-        super().__init__(QHBoxLayout(), widgets)
+    def __init__(self, widgets: List[R4UIWidget] = [], weights: List[Optional[int]] = []):
+        super().__init__(QHBoxLayout(), widgets, weights)
         pass
     
             
 class VerticalBoxLayout(BoxLayout):
-    def __init__(self, widgets: List[R4UIWidget] = []):
-        super().__init__(QVBoxLayout(), widgets)
+    def __init__(self, widgets: List[R4UIWidget] = [], weights: List[Optional[int]] = []):
+        super().__init__(QVBoxLayout(), widgets, weights)
         pass
 
 class GridLayout(R4UIWidget):

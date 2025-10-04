@@ -12,20 +12,14 @@ from ..AppDependenciesProviding import *
 from ..ScreenWidgetProviding import ScreenWidgetProviding
 from ..UIComponents.DraftListDeployment.MainWindow import MainWindow
 from ..UIComponents.ImageDeployment.Window import Window
-from .Screens.AboutViewController import AboutViewController
-from .Screens.AppSettingsViewController import AppSettingsViewController
-from .Screens.DraftListSettingsViewController import \
-    DraftListSettingsViewController
+from .Screens.Settings.AppSettingsViewController import AppSettingsViewController
 from .Screens.DraftListTablePackPreviewContainerStandAloneViewController import \
     DraftListTablePackPreviewContainerStandAloneViewController
 from .Screens.LocallyManagedSetPreviewViewController import \
     LocallyManagedSetPreviewViewController
 from .Screens.ManageSetListViewController import ManageSetListViewController
-from .Screens.SettingsContainerViewController import \
-    SettingsContainerViewController
-from .Screens.SettingsViewController import SettingsViewController
 from .Screens.ShortcutsViewController import ShortcutsViewController
-
+from .DraftListDeployment.DraftListImagePreviewViewController import DraftListImagePreviewViewController
 
 class ScreenWidgetProvider(ScreenWidgetProviding):
     def __init__(self, app_dependencies_provider: AppDependenciesProviding):
@@ -33,11 +27,7 @@ class ScreenWidgetProvider(ScreenWidgetProviding):
         
     @property
     def about_view(self) -> QWidget:
-        return AboutViewController(self._app_dependencies_provider)
-    
-    @property
-    def settings_view(self) -> QWidget:
-        return SettingsViewController(self._app_dependencies_provider)
+        return self._app_dependencies_provider.external_app_dependencies_provider.provide_about_view_controller()
     
     @property
     def app_settings_view(self) -> QWidget:
@@ -54,9 +44,6 @@ class ScreenWidgetProvider(ScreenWidgetProviding):
     def locally_managed_deck_preview_view(self, resource: LocalAssetResource) -> QWidget:
         return LocallyManagedSetPreviewViewController(self._app_dependencies_provider, resource)
     
-    def draft_list_settings_view(self) -> QWidget:
-        return SettingsContainerViewController(self._app_dependencies_provider)
-    
     def draft_list_standalone_view(self, resource: LocalResourceDraftListWindow) -> QWidget:
         return DraftListTablePackPreviewContainerStandAloneViewController(self._app_dependencies_provider, resource)
     
@@ -65,3 +52,6 @@ class ScreenWidgetProvider(ScreenWidgetProviding):
     
     def draft_list_deployment_window(self) -> QWidget:
         return MainWindow(self._app_dependencies_provider)
+    
+    def draft_list_image_preview_view(self) -> QWidget:
+        return DraftListImagePreviewViewController(self._app_dependencies_provider)

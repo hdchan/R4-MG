@@ -10,7 +10,11 @@ from .TransmissionReceiverProtocol import TransmissionReceiverProtocol
 class ObservationTower:
 
     def __init__(self):
+         self._is_debug = False
          self._subscribers: Dict[Type[TransmissionProtocol], List[ReferenceType[TransmissionReceiverProtocol]]] = {}
+
+    def set_debug(self, is_debug: bool):
+        self._is_debug = is_debug
 
     @property
     def subscribers(self) -> Dict[Type[TransmissionProtocol], List[ReferenceType[TransmissionReceiverProtocol]]]:
@@ -37,8 +41,8 @@ class ObservationTower:
                     s().handle_observation_tower_event(event) # type: ignore
                 except:
                     pass
-                
-        self._debug_log(event)
+        if self._is_debug:
+            self._debug_log(event)
 
     def subscribe(self, subscriber: TransmissionReceiverProtocol, eventType: Type[TransmissionProtocol]):
         if eventType not in self._subscribers:
@@ -49,7 +53,7 @@ class ObservationTower:
         for e in eventTypes:
             self.subscribe(subscriber, e)
             
-    def _debug_log(self, current_event):
+    def _debug_log(self, current_event: TransmissionProtocol):
         subscribers = self.subscribers
         result: Dict[Type[TransmissionProtocol], int] = {}
         for key in subscribers.keys():

@@ -9,14 +9,15 @@ from AppCore.Observation.Events import (DraftListWindowResourceUpdatedEvent,
                                         DraftPackUpdatedEvent)
 from AppUI.AppDependenciesProviding import AppDependenciesProviding
 from R4UI import (HorizontalBoxLayout, HorizontalLabeledInputRow,
-                    LineEditInt, ObjectComboBox, PushButton, VerticalBoxLayout)
-
+                    LineEditInt, ObjectComboBox, PushButton, VerticalBoxLayout, Label)
+from .DraftListTablePackPreviewContainerViewController import DraftListTablePackPreviewContainerViewController
 
 class DraftListWindowConfigViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self,
                  app_dependencies_provider: AppDependenciesProviding, 
                  resource: LocalResourceDraftListWindow):
         super().__init__()
+        self._app_dependencies_provider = app_dependencies_provider
         self._data_source_draft_list = app_dependencies_provider.data_source_draft_list
         self._data_source_draft_list_window_resource_deployer = app_dependencies_provider.data_source_draft_list_window_resource_deployer
         self._resource = resource
@@ -34,20 +35,31 @@ class DraftListWindowConfigViewController(QWidget, TransmissionReceiverProtocol)
         self._width_input = LineEditInt(self._resource.window_configuration.window_width)
         
         VerticalBoxLayout([
-            self._pack_list_combo_box,
+            HorizontalBoxLayout([
+                Label(self._resource.window_configuration.window_name),
+                PushButton("Spawn", self._spawn_window),
+                PushButton("Delete", self._delete_window, tooltip="Delete"),
+            ], weights=[1]),
+            
+            DraftListTablePackPreviewContainerViewController(
+                self._app_dependencies_provider,
+                DraftListTablePackPreviewContainerViewController.VCConfiguration(is_staging=True, 
+                                                                                 is_presentation=True),
+                self._resource
+                ),
+
+            HorizontalBoxLayout([
+                Label("Assigned draft pack:"),
+                self._pack_list_combo_box,
+            ], [1, 3]),
             
             HorizontalBoxLayout([
-                PushButton("Spawn window", self._spawn_window),
-                PushButton("Delete", self._delete_window),
-                ]),
+                HorizontalLabeledInputRow("W", self._width_input).set_uniform_content_margins(0),
+                HorizontalLabeledInputRow("H", self._height_input).set_uniform_content_margins(0),
+                PushButton("Update dimensions", self._save_window_dimensions)
+                ]).set_uniform_content_margins(0),
             
             
-            HorizontalBoxLayout([
-                HorizontalLabeledInputRow("Width", self._width_input),
-                HorizontalLabeledInputRow("Height", self._height_input),
-                ]),
-            
-            PushButton("Update window dimensions", self._save_window_dimensions),
             
         ]).set_layout_to_widget(self)
         

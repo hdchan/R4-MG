@@ -12,7 +12,7 @@ from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         ProductionCardResourcesLoadEvent)
 from AppCore.Observation.ObservationTower import *
 from AppUI.AppDependenciesProviding import AppDependenciesProviding
-from R4UI import ComboBox, MenuListBuilder, PushButton, VerticalBoxLayout, HorizontalBoxLayout, R4UIHorizontallyExpandingSpacer, BoldLabel
+from R4UI import ComboBox, R4UIMenuListBuilder, PushButton, VerticalBoxLayout, HorizontalBoxLayout, R4UIActionMenuItem, BoldLabel
 
 from .DraftListTablePackPreviewViewController import (
     DraftListTablePackPreviewViewController,
@@ -26,6 +26,10 @@ class DraftListTabbedPackPreviewViewControllerDraftListTablePackPreviewViewContr
     @property
     def dlp_pack_identifier(self) -> Optional[str]:
         return self._pack_identifier
+    
+    @property
+    def dlp_is_presentation(self) -> bool:
+        return False
 
 
 class DraftListTabbedPackPreviewViewController(QWidget, TransmissionReceiverProtocol):
@@ -153,26 +157,14 @@ class DraftListTabbedPackPreviewViewController(QWidget, TransmissionReceiverProt
         if tab_bar is not None:
             tab_index = tab_bar.tabAt(a0)
         
-        MenuListBuilder() \
+        R4UIMenuListBuilder() \
             .add_separator() \
-                .add_action(
-                    "Rename",
-                    lambda: self._prompt_rename_draft_list_pack(tab_index)
-                ) \
-                .add_separator() \
-                .add_action(
-                    "Move left",
-                    lambda: self._data_source_draft_list.move_pack_left(tab_index)
-                ) \
-                .add_action(
-                    "Move right",
-                    lambda: self._data_source_draft_list.move_pack_right(tab_index)
-                ) \
-                .add_separator() \
-                .add_action(
-                    f"Delete - {self._data_source_draft_list.pack_name(tab_index)}",
-                    lambda: self._delete_pack(tab_index)
-                ) \
+            .add_actions([
+                R4UIActionMenuItem("Rename", lambda: self._prompt_rename_draft_list_pack(tab_index)),
+                R4UIActionMenuItem("Move left", lambda: self._data_source_draft_list.move_pack_left(tab_index)),
+                R4UIActionMenuItem("Move right", lambda: self._data_source_draft_list.move_pack_right(tab_index)),
+                R4UIActionMenuItem(f"Delete - {self._data_source_draft_list.pack_name(tab_index)}", lambda: self._delete_pack(tab_index)),
+            ]) \
             .exec_menu(self._tab_widget.mapToGlobal(a0))
     
     def _prompt_rename_draft_list_pack(self, pack_index: int):
@@ -201,8 +193,6 @@ class DraftListTabbedPackPreviewViewController(QWidget, TransmissionReceiverProt
             delegate = DraftListTabbedPackPreviewViewControllerDraftListTablePackPreviewViewControllerDelegate(pack.pack_identifier)
             view_controller.delegate = delegate
             self._tab_widget.addTab(view_controller, pack.pack_name)
-            # view_controller._sync_ui()
-            
         self._tab_widget.addTab(QWidget(), "+")
         if self._selected_tab >= len(self._data_source_draft_list.pack_names):
             self._tab_widget.setCurrentIndex(self._selected_tab - 1)

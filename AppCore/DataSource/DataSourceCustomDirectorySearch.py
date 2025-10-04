@@ -89,7 +89,7 @@ class CustomDirectorySearchDataSource:
     
     @property
     def _directory_path(self) -> Optional[str]:
-        return self._configuration.custom_directory_search_path
+        return f'{self._configuration.custom_directory_search_path}/' # NOTE: we can't put trailing slash in configuration, otherwise it will append when reading
     
     def open_directory_path(self):
         if self._directory_path is not None:

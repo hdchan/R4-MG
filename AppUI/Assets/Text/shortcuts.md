@@ -16,21 +16,4 @@
 
 ### Draft List
 
--`CTRL+D` - Adds currently previewed card to currently view draft list
-
-## Emojis
-*Cards may have their details represented by the following emojis.*
-
-### Card Aspect
-🔵 - Vigilance\
-🟢 - Command\
-🔴 - Aggression\
-🟡 - Cunning\
-⚪ - Heroism\
-⚫ - Villainy
-
-### Card Variant
-💙 - Hyperspace\
-💜 - Showcase\
-🖤 - Prestige\
-⭐ - Foil
+- `CTRL+D` - Adds currently previewed card to currently view draft list

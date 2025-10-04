@@ -1,5 +1,5 @@
 
-from typing import Any, Callable, List, Optional, TypeVar
+from typing import Any, Callable, List, Optional, TypeVar, Generic
 
 from PyQt5.QtCore import QPoint, Qt
 from PyQt5.QtWidgets import (QAction, QButtonGroup, QCheckBox, QComboBox,
@@ -12,16 +12,18 @@ from .R4UIWidget import R4UIWidget
 
 
 T = TypeVar("T")
-class LabeledRadioButton(R4UIWidget):
+class LabeledRadioButton(R4UIWidget, Generic[T]):
     def __init__(self, 
                  text: str, 
                  value: T, 
-                 toggled_fn: Optional[Callable[[T], None]] = None):
+                 toggled_fn: Optional[Callable[[T], None]] = None, 
+                 is_checked: bool = False):
         super().__init__()
         self._radio_button = QRadioButton(text)
         self._radio_button.toggled.connect(self._toggled)
         self._toggled_fn = toggled_fn
         self.value = value
+        self._radio_button.setChecked(is_checked)
         HorizontalBoxLayout([
             self._radio_button
         ]).set_layout_to_widget(self)
@@ -33,15 +35,19 @@ class LabeledRadioButton(R4UIWidget):
     @property
     def radio_button(self) -> QRadioButton:
         return self._radio_button
+    
+    def set_checked(self, checked: bool) -> QRadioButton:
+        self._radio_button.setChecked(checked)
+        return self
 
-class ButtonGroup(R4UIWidget):
+class R4UIButtonGroup(R4UIWidget, Generic[T]):
     def __init__(self, 
                  values: List[tuple[str, T]], 
                  toggled_fn: Optional[Callable[[T], None]] = None):
         super().__init__()
         self._toggled_fn = toggled_fn
         self._button_group = QButtonGroup(self)
-        self._buttons: List[LabeledRadioButton] = []
+        self._buttons: List[LabeledRadioButton[T]] = []
         self._selected_value: T
         
         def _selected(value: T):
@@ -55,21 +61,31 @@ class ButtonGroup(R4UIWidget):
         for b in self._buttons:
             self._layout.add_widget(b.radio_button)
     
-    def set_checked(self, index: int):
+    def set_checked_index(self, index: int) -> 'R4UIButtonGroup[T]':
         self._buttons[index].radio_button.setChecked(True)
+        return self
+    
+    def set_object_checked(self, o: T) -> 'R4UIButtonGroup[T]':
+        found = list(filter(lambda x: x.value == o, self._buttons))
+        if len(found) > 0:
+            found[0].set_checked(True)
+        return self
     
     def _toggled(self):
         if self._toggled_fn is not None:
             self._toggled_fn(self._selected_value)
             
-    def set_alignment_top(self) -> 'ButtonGroup':
+    def set_alignment_top(self) -> 'R4UIButtonGroup[T]':
         self._layout.set_alignment_top()
         return self
 
-class CheckBox(QCheckBox):
-    def __init__(self, checked_fn: Callable[[bool], None]):
+class R4UICheckBox(QCheckBox):
+    def __init__(self, 
+                 checked_fn: Callable[[bool], None], 
+                 is_checked: bool = False):
         super().__init__()
         self._checked_fn = checked_fn
+        self.setChecked(is_checked)
         self.stateChanged.connect(self._checked)
         
     def _checked(self, state: Qt.CheckState):
@@ -112,6 +128,9 @@ class Label(QLabel):
         font.setBold(is_bold)
         font.setPointSize(point_size)
         self.setFont(font)
+
+    def set_text(self, text: str):
+        self.setText(text)
         
 class BoldLabel(Label):
     def __init__(self, 
@@ -132,12 +151,13 @@ class ScrollArea(QScrollArea):
 class PushButton(QPushButton):
     def __init__(self, 
                  text: Optional[str], 
-                 triggered_fn: Callable[[], None]):
+                 triggered_fn: Callable[[], None], 
+                 tooltip: Optional[str] = None):
         super().__init__()
         self._triggered_fn = triggered_fn
         self.setText(text)
         self.clicked.connect(self._triggered)
-        
+        self.setToolTip(tooltip)
         
     def _triggered(self):
         self._triggered_fn()
@@ -153,50 +173,58 @@ class R4UIActionMenuItem(QAction):
     def _triggered(self):
         self._triggered_fn()
         
-class MenuListBuilder(QMenu):
+class R4UIMenuListBuilder(QMenu):
     def __init__(self, 
                  text: Optional[str] = None, 
                  actions: List[QAction] = []):
         super().__init__(text)
         self._items: List[QAction] = []
+        self._menus: List[QMenu] = []
         self.add_actions(actions)
     
-    def add_actions(self, actions: List[QAction]) -> 'MenuListBuilder':
+    def add_actions(self, actions: List[QAction]) -> 'R4UIMenuListBuilder':
         for a in actions:
-            self._items.append(a)
-            self.addAction(a) # type: ignore
+            self.add_action(a)
         return self
     
-    def add_action(self, 
-                   text: str,
-                   triggered_fn: Callable[[], None]) -> 'MenuListBuilder':
-        action = R4UIActionMenuItem(text, triggered_fn)
+    def add_action(self, action: QAction) -> 'R4UIMenuListBuilder':
         self._items.append(action)
         self.addAction(action) # type: ignore
         return self
     
-    def add_separator(self) -> 'MenuListBuilder':
+    def add_separator(self) -> 'R4UIMenuListBuilder':
         self.addSeparator()
         return self
     
+    def add_menus(self, menus: List[QMenu]) -> 'R4UIMenuListBuilder':
+        for m in menus:
+            self.addMenu(m)
+            self._menus.append(m)
+        return self
     
     def exec_menu(self, point: QPoint):
         self.exec(point)
     
 class R4UIMenuBarBuilder(QMenuBar):
     def __init__(self,
-                 menus: List[QMenu] = []):
+                 menus: List[Optional[QMenu]] = []):
         super().__init__()
         self._menus: List[QMenu] = []
         self.add_menus(menus)
         self.setNativeMenuBar(False)
     
-    def add_menus(self, menus: List[QMenu]) -> 'R4UIMenuBarBuilder':
+    def add_menus(self, menus: List[Optional[QMenu]]) -> 'R4UIMenuBarBuilder':
         for m in menus:
+            if m is None:
+                continue
             self._menus.append(m)
             self.addMenu(m)
         return self
     
+    def add_separator(self) -> 'R4UIMenuBarBuilder':
+        self.addSeparator()
+        return self
+
     def set_to_window(self, window: QMainWindow) -> 'R4UIMenuBarBuilder':
         self.setParent(window)
         window.setMenuBar(self)
@@ -259,11 +287,31 @@ class HorizontalLabeledInputRow(R4UIWidget):
                  input: R4UIWidget, 
                  description: Optional[str] = None):
         super().__init__()
-        HorizontalBoxLayout([
+        self._layout = HorizontalBoxLayout([
             VerticalBoxLayout([
                Label(text),
             #    Label("descriptions are there to be for the benefit of us")
-            ]),
+            ]).set_uniform_content_margins(0),
+            
+            input
+        ]).set_layout_to_widget(self)
+
+    def set_uniform_content_margins(self, margin: int) -> 'HorizontalLabeledInputRow':
+        return self.set_content_margins(margin, margin, margin, margin)
+    
+    def set_content_margins(self, left: int, top: int, right: int, bottom: int) -> 'HorizontalLabeledInputRow':
+        self._layout.setContentsMargins(left, top, right, bottom)
+        return self
+
+class VerticalLabeledInputRow(R4UIWidget):
+    def __init__(self, 
+                 text: str,
+                 input: R4UIWidget, 
+                 description: Optional[str] = None):
+        super().__init__()
+        VerticalBoxLayout([
+               Label(text),
+            #    Label("descriptions are there to be for the benefit of us")
             
             input
         ]).set_layout_to_widget(self)
@@ -288,7 +336,7 @@ class VerticalGroupBox(QGroupBox):
         return self
 
 
-class TabWidget(R4UIWidget):
+class R4UITabWidget(R4UIWidget):
     def __init__(self, 
                  tabs: List[tuple[R4UIWidget, str]] = [], 
                  tab_change_fn: Optional[Callable[[int], None]] = None):
@@ -308,7 +356,7 @@ class TabWidget(R4UIWidget):
         if self._tab_change_fn is not None:
             self._tab_change_fn(index)
         
-    def set_layout_to_widget(self, layout: R4UIWidget) -> 'TabWidget':
+    def set_layout_to_widget(self, layout: R4UIWidget) -> 'R4UITabWidget':
         layout.setLayout(self.layout())
         return self
     

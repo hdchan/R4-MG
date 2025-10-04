@@ -24,7 +24,8 @@ class DraftListTablePackPreviewContainerStandAloneViewController(QWidget, Transm
         
     def _setup_view(self):
         self.setContentsMargins(0, 0, 0, 0)
-        config = DraftListTablePackPreviewContainerViewController.VCConfiguration(False)
+        config = DraftListTablePackPreviewContainerViewController.VCConfiguration(is_staging=False, 
+                                                                                  is_presentation=True)
         VerticalBoxLayout([
             DraftListTablePackPreviewContainerViewController(self._app_dependencies_provider, config, self._resource)
             ]) \

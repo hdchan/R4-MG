@@ -4,22 +4,15 @@ from typing import Dict, Optional
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QInputDialog, QMessageBox, QWidget
 
-from AppCore.CoreDependenciesInternalProviding import \
-    CoreDependenciesInternalProviding
-from AppCore.DataSource.DataSourceImageResourceDeployer import DataSourceImageResourceDeployer
-from AppCore.Models import LocalAssetResource, LocalCardResource, LocalResourceDraftListWindow
+from AppCore.Models import (LocalAssetResource, LocalCardResource,
+                            LocalResourceDraftListWindow)
 from AppUI.ScreenWidgetProviding import ScreenWidgetProviding
 
 
 class Router:
-    def __init__(self,
-                 core_dependencies_internal_provider: CoreDependenciesInternalProviding, 
-                 data_source_image_resource_deployer: DataSourceImageResourceDeployer, 
+    def __init__(self, 
                  component_provider: ScreenWidgetProviding):
-        self._data_source_image_resource_deployer = data_source_image_resource_deployer
         self._component_provider = component_provider
-        self._platform_service_provider = core_dependencies_internal_provider.platform_service_provider
-        self._data_source_draft_list = core_dependencies_internal_provider.data_source_draft_list
         self._views: Dict[str, Optional[QWidget]] = {}
     
     def close_all_child_views(self):
@@ -27,31 +20,9 @@ class Router:
             if v is not None:
                 v.close()
         self._views = {}
-
-    def prompt_generate_new_file_with_placeholder(self, placeholder_image_path: Optional[str]):
-        file_name, ok = QInputDialog.getText(None, 'Create new image file', 'Enter file name:')
-        if ok:
-            try:
-                self._data_source_image_resource_deployer.generate_new_file(file_name, placeholder_image_path)
-                self._data_source_image_resource_deployer.load_production_resources()
-            except Exception as error:
-                self.show_error(error)
-                
-    # def prompt_rename_draft_list_pack(self, pack_index: int):
-    #     pack_name, ok = QInputDialog.getText(None, 'Rename', 'Enter pack name:')
-    #     if ok:
-    #         self._data_source_draft_list.update_pack_name(pack_index, pack_name)
             
     def prompt_text_input(self, title: str, description: str) -> tuple[str, Optional[bool]]:
         return QInputDialog.getText(None, title, description)
-    
-    def confirm_unstage_all_resources(self):
-        if self.prompt_accept("Unstage all staged resources", "Are you sure you want to unstage all staged resources?"):
-            self._data_source_image_resource_deployer.unstage_all_resources()
-
-    def confirm_clear_cache(self):
-        if self.prompt_accept("Clear cache", "Are you sure you want to clear the cache?"):
-            self._platform_service_provider.platform_service.clear_cache()
     
     def prompt_accept(self, title: str, message: str) -> bool:
         dlg = QMessageBox()
@@ -61,18 +32,10 @@ class Router:
         dlg.setIcon(QMessageBox.Icon.Question)
         button = dlg.exec()
         return button == QMessageBox.StandardButton.Yes
-
-    def open_settings_page(self):
-        view = self._component_provider.settings_view
-        self._open_view("settings", view)
         
     def open_app_settings_page(self):
         view = self._component_provider.app_settings_view
         self._open_view("app_settings", view)
-        
-    def open_draft_list_settings_page(self):
-        view = self._component_provider.draft_list_settings_view()
-        self._open_view("draft_list_settings", view)
 
     def open_about_page(self):
         view = self._component_provider.about_view
@@ -101,6 +64,10 @@ class Router:
     def open_draft_list_deployment_view(self):
         view = self._component_provider.draft_list_deployment_window()
         self._open_view("draft_list_deployment", view)
+        
+    def open_draft_list_image_preview_view(self):
+        view = self._component_provider.draft_list_image_preview_view()
+        self._open_view("draft_list_image_preview", view)
     
     def _open_view(self, object_name: str, view: QWidget):
         def remove_ref():

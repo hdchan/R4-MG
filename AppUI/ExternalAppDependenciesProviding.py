@@ -4,13 +4,16 @@ from typing import List, Optional
 from PyQt5.QtWidgets import QWidget
 
 from AppCore.DataSource import (DataSourceCardSearchClientProviding,
+                                DataSourceDraftList,
+                                DataSourceImageResourceDeployer,
                                 DataSourceLocallyManagedSets)
 from AppCore.DataSource.DataSourceLocallyManagedSets import \
     DataSourceLocallyManagedSetsClientProtocol
 from AppCore.Models import DraftPack, LocalCardResource, TradingCard
 from AppUI.ExternalAppDependenciesProviding import *
 from AppUI.Models import DraftListStyleSheet
-from AppCore.DataSource import DataSourceDraftList
+from R4UI import R4UIWidget
+from AppUI.Router import Router
 
 class ExternalAppDependenciesProviding:
     
@@ -19,8 +22,26 @@ class ExternalAppDependenciesProviding:
     def card_back_image_path(self) -> str:
         return ""
     
+    @property
+    def logo_path(self) -> str:
+        return ""
+    
+    @property
+    def image_preview_logo_path(self) -> str:
+        return ""
+    
+    def provide_about_view_controller(self) -> R4UIWidget:
+        raise Exception
+    
+    def provide_additional_quick_guide(self) -> Optional[R4UIWidget]:
+        return None
+    
     # MARK: - Draft List
-    # Required
+    def provide_image_deployer_banner_cta(self, 
+                                          data_source_image_resource_deployer: DataSourceImageResourceDeployer, 
+                                          router: Router) -> Optional[R4UIWidget]:
+        return None
+
     @property
     def locally_managed_sets_client(self) -> DataSourceLocallyManagedSetsClientProtocol:
         raise Exception
@@ -31,10 +52,11 @@ class ExternalAppDependenciesProviding:
     
     # Optional
     def draft_list_item_cell(self, 
-                             trading_card: TradingCard,
+                             local_card_resource: LocalCardResource,
                              pack_index: int, 
                              card_index: int, 
-                             stylesheet: DraftListStyleSheet) -> Optional[QWidget]:
+                             stylesheet: DraftListStyleSheet, 
+                             is_presentation: bool) -> Optional[QWidget]:
         return None
     
     def draft_list_item_header(self,

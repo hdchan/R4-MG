@@ -1,6 +1,6 @@
 from typing import List
 
-from PyQt5.QtWidgets import QLabel, QSizePolicy, QWidget
+from PyQt5.QtWidgets import QSizePolicy, QWidget
 
 from AppCore.Observation import (TransmissionProtocol,
                                  TransmissionReceiverProtocol)
@@ -14,7 +14,7 @@ from .DraftListTablePackPreviewContainerViewController import \
 from .DraftListWindowConfigViewController import \
     DraftListWindowConfigViewController
 
-
+from R4UI import R4UIWidget
 class DraftListWindowDeployerViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
                  app_dependencies_provider: AppDependenciesProviding):
@@ -49,22 +49,9 @@ class DraftListWindowDeployerViewController(QWidget, TransmissionReceiverProtoco
     def _sync_ui(self):
         windows_resource = self._data_source_draft_list_window_resource_deployer.draft_list_windows
         
-        widgets: List[QWidget] = []
+        widgets: List[R4UIWidget] = []
         for w in windows_resource:
-            cell = VerticalBoxLayout([
-                QLabel(w.window_configuration.window_name),
-                DraftListTablePackPreviewContainerViewController(
-                    self._app_dependencies_provider,
-                    DraftListTablePackPreviewContainerViewController.VCConfiguration(True),
-                    w
-                    ),
-                
-                DraftListWindowConfigViewController(
-                    self._app_dependencies_provider, 
-                    w
-                    )
-            ])
-            widgets.append(cell)
+            widgets.append(DraftListWindowConfigViewController(self._app_dependencies_provider, w))
         
         self._cell_container.replace_all_widgets(widgets)
         

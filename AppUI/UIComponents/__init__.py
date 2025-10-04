@@ -1,2 +1,2 @@
 from .Base import *
-from .AppMenuBarBuilder import AppMenuBarBuilder
+from .Menu.AppMenuBarBuilder import AppMenuBarBuilder

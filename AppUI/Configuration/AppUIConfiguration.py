@@ -1,10 +1,10 @@
 
 import copy
-from typing import Optional
+from typing import Optional, Dict
 
 from AppCore.Config import (Configuration, ConfigurationManager,
                             MutableConfiguration)
-from AppUI.Models import DraftListStyleSheet
+from AppUI.Models import DraftListStyleSheet, WindowDimensions
 
 
 class AppUIConfiguration():
@@ -15,8 +15,7 @@ class AppUIConfiguration():
         
     class Keys:
         DRAFT_LIST_STYLES = 'draft_list_styles'
-        WINDOW_WIDTH_PREFIX = 'window_width_'
-        WINDOW_HEIGHT_PREFIX = 'window_height_'
+        WINDOW_DIMENSIONS = 'window_dimensions'
     
     @property
     def core_configuration(self) -> Configuration:
@@ -33,21 +32,19 @@ class AppUIConfiguration():
             return DraftListStyleSheet.from_json(draft_styles_json)
         return DraftListStyleSheet.default_style()
     
-    
-    def window_size(self, window_config_identifier: str) -> Optional[tuple[int, int]]:
-        width = self._configuration.configuration_for_key(f'{self.Keys.WINDOW_WIDTH_PREFIX}{window_config_identifier}')
-        height = self._configuration.configuration_for_key(f'{self.Keys.WINDOW_HEIGHT_PREFIX}{window_config_identifier}')
-        if width is None or height is None:
-            return None
-        return width, height
+    @property
+    def window_dimensions(self) -> WindowDimensions:
+        json = self._configuration.configuration_for_key(self.Keys.WINDOW_DIMENSIONS)
+        if json is not None:
+            return WindowDimensions.from_json(json)
+        return WindowDimensions.default()
     
 class MutableAppUIConfiguration(AppUIConfiguration):
     def set_draft_list_styles(self, value: DraftListStyleSheet):
         self._configuration.set_configuration_for_key(self.Keys.DRAFT_LIST_STYLES, value.to_data())
         
-    def set_window_size(self, window_config_identifier: str, width: int, height: int):
-        self._configuration.set_configuration_for_key(f'{self.Keys.WINDOW_WIDTH_PREFIX}{window_config_identifier}', width)
-        self._configuration.set_configuration_for_key(f'{self.Keys.WINDOW_HEIGHT_PREFIX}{window_config_identifier}', height)
+    def set_window_dimensions(self, value: WindowDimensions):
+        self._configuration.set_configuration_for_key(self.Keys.WINDOW_DIMENSIONS, value.to_data())
 
 class AppUIConfigurationManager:
     def __init__(self, configuration_manager: ConfigurationManager):

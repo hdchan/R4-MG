@@ -16,7 +16,6 @@ from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         PublishStatusUpdatedEvent)
 from AppUI.AppDependenciesProviding import AppDependenciesProviding
 
-from . import AddImageCTAViewController
 from .LoadingSpinner import LoadingSpinner
 from ..Base import ImageDeploymentViewController
 
@@ -31,6 +30,7 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
         self._data_source_image_resource_deployer = app_dependencies_provider.data_source_image_resource_deployer
         self._local_resource_data_source_provider = local_resource_data_source_provider
         self._router = app_dependencies_provider.router
+        self._external_app_dependencies_provider = app_dependencies_provider.external_app_dependencies_provider
 
         self._setup_view()
 
@@ -61,9 +61,10 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
         cells_container_layout.addWidget(deployment_cells_widget)
         
         
-        add_image_cta = AddImageCTAViewController(self._app_dependencies_provider)
-        self.add_image_cta = add_image_cta
-        cells_container_layout.addWidget(add_image_cta)
+        image_deployer_banner_cta = self._external_app_dependencies_provider.provide_image_deployer_banner_cta(self._data_source_image_resource_deployer, self._router)
+        if image_deployer_banner_cta is not None:
+            self.add_image_cta = image_deployer_banner_cta
+            cells_container_layout.addWidget(image_deployer_banner_cta)
         
         
         self.scroll_view = QScrollArea(self)
