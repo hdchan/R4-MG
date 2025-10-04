@@ -4,7 +4,7 @@ from uuid import UUID, uuid4
 
 from AppCore.Config import *
 from AppCore.Models import LocalCardResource
-
+import copy
 
 class DraftPack():
         
@@ -79,6 +79,14 @@ class DraftPack():
         def pack_name(self, value: str):
             self._pack_name = value
         
+        def resource_at_index(self, resource_index: int) -> Optional[LocalCardResource]:
+            if resource_index >= 0 and resource_index < len(self._draft_list):
+                return copy.deepcopy(self._draft_list[resource_index])
+
+        def mark_resource_as_sideboard(self, resource_index: int, key: str, value: Any):
+            if resource_index >= 0 and resource_index < len(self._draft_list):
+                self._draft_list[resource_index].set_resource_metadata(key, value)
+
         def clear_draft_list(self):
             self._draft_list = []
         

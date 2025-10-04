@@ -1,6 +1,6 @@
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication
-from AppUI.Clients.ExternalAppDependenciesProvider import ExternalAppDependenciesProvider
+from Clients.ExternalAppDependenciesProvider import ExternalAppDependenciesProvider
 from AppCore.Config import Configuration, ConfigurationManager
 from AppUI.UIComponents.ImageDeployment.Window import Window
 from AppCore.Observation import ObservationTower
@@ -15,12 +15,12 @@ class MainAssembly:
         # Ensure this is set before config manager writes out to settings file
         self.app.setApplicationName(Configuration.APP_NAME)
         self._asset_provider = AssetProvider()
-        self.app.setWindowIcon(QIcon(self._asset_provider.image.logo_path))
         self._style_app()
         # https://www.pythonguis.com/tutorials/packaging-pyqt5-pyside2-applications-windows-pyinstaller/#setting-an-application-icon
         # https://stackoverflow.com/a/35865441
         self._observation_tower = ObservationTower()
         self._configuration_manager = ConfigurationManager(self._observation_tower)
+        self._observation_tower.set_debug(self._configuration_manager.configuration.is_developer_mode)
         self._external_app_dependencies_provider = ExternalAppDependenciesProvider(self._observation_tower, 
                                                                                    self._configuration_manager,
                                                                                    self._asset_provider)
@@ -29,10 +29,12 @@ class MainAssembly:
                                                                   self._asset_provider, 
                                                                   self._external_app_dependencies_provider)
         
-        # self._start_main_program()
         self._app_dependencies_provider.router.open_image_deployment_view()
-        # self._start_other_program()
         self._app_dependencies_provider.router.open_draft_list_deployment_view()
+        if self._configuration_manager.configuration.is_draft_list_image_preview_enabled:
+            self._app_dependencies_provider.router.open_draft_list_image_preview_view()
+        
+        self.app.setWindowIcon(QIcon(self._external_app_dependencies_provider.logo_path))
         
         self.app.exec()
     

@@ -19,8 +19,9 @@ class DraftListTablePackPreviewContainerViewController(QWidget,
                                                        TransmissionReceiverProtocol):
     
     class VCConfiguration:
-        def __init__(self, is_staging: bool):
+        def __init__(self, is_staging: bool, is_presentation: bool):
             self.is_staging = is_staging
+            self.is_presentation = is_presentation
     
     def __init__(self, 
                  app_dependencies_provider: AppDependenciesProviding,
@@ -69,6 +70,10 @@ class DraftListTablePackPreviewContainerViewController(QWidget,
     @property
     def dlp_is_staging_view(self) -> bool:
         return self._vc_configuration.is_staging
+    
+    @property
+    def dlp_is_presentation(self) -> bool:
+        return self._vc_configuration.is_presentation
     
     def _sync_ui(self):
         if self._vc_configuration.is_staging == False:

@@ -121,12 +121,6 @@ class ManageSetListViewController(QWidget, TransmissionReceiverProtocol):
             helper_text.setText("Enter set identifier below to save and download a deck to use for locally managed set search. These identifiers can be found on the bottom right of a card within its set.")
             v_layout.addWidget(helper_text)
             
-            image_example = QLabel()
-            image = QPixmap()
-            image.load(self._asset_provider.image.set_identifier_example)
-            image_example.setPixmap(image)
-            v_layout.addWidget(image_example)
-            
             h_layout = QHBoxLayout()
             h_layout_widget = QWidget()
             h_layout_widget.setLayout(h_layout)

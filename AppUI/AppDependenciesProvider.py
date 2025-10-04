@@ -36,9 +36,7 @@ class AppDependenciesProvider(CoreDependenciesProvider, AppDependenciesProviding
             client_provider = external_app_dependencies_provider.data_source_card_search_client_provider(self._local_managed_sets_data_source)
             self._search_client_provider = client_provider
             
-            self._router = Router(self,
-                                  self._data_source_image_resource_deployer,
-                                  ScreenWidgetProvider(self))
+            self._router = Router(ScreenWidgetProvider(self))
 
         @property
         def router(self) -> Router:

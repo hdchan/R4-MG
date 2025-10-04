@@ -19,13 +19,17 @@ from .DraftListLineItemViewController import (
     DraftListLineItemViewController, DraftListLineItemViewControllerDelegate)
 
 
-class DraftListTablePackPreviewViewControllerDelegate:    
+class DraftListTablePackPreviewViewControllerDelegate:
     @property
     def dlp_pack_identifier(self) -> Optional[str]:
         return None
     
     @property
     def dlp_is_staging_view(self) -> bool:
+        return True
+    
+    @property
+    def dlp_is_presentation(self) -> bool:
         return True
 
 class DraftListTablePackPreviewViewController(QWidget, TransmissionReceiverProtocol, DraftListLineItemViewControllerDelegate):
@@ -134,7 +138,8 @@ class DraftListTablePackPreviewViewController(QWidget, TransmissionReceiverProto
                                                             self._data_source_local_resource_provider,
                                                             pack_index,
                                                             draft_pack,
-                                                            card_index)
+                                                            card_index, 
+                                                            self.is_presentation)
                 line_item.set_delegate(self)
                 self._cells_container.add_widget(line_item)
             
@@ -180,6 +185,12 @@ class DraftListTablePackPreviewViewController(QWidget, TransmissionReceiverProto
     def dlli_can_edit(self) -> bool:
         if self.delegate is not None:
             return self.delegate.dlp_is_staging_view
+        return True
+    
+    @property
+    def is_presentation(self) -> bool:
+        if self.delegate is not None:
+            return self.delegate.dlp_is_presentation
         return True
     
     def sync_ui(self):

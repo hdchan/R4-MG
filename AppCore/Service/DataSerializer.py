@@ -19,6 +19,8 @@ class DataSerializer:
     def save_buffer_data(self, file_path: str, buffer_data: Any):
         self.save_json_data(file_path, json.load(buffer_data))
     
+    # TODO: need to be able to traverse through data structure to automatically encode and decode nested objects
+
     def save_json_data(self, file_path: str, json_data: Any):
         # Ensure parent dir is created
         Path(Path(file_path).parent).mkdir(parents=True, exist_ok=True)

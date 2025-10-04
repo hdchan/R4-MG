@@ -13,7 +13,7 @@ from AppCore.Observation import *
 from AppCore.Observation.Events import (CardSearchEvent,
                                         ConfigurationUpdatedEvent,
                                         LocalCardResourceFetchEvent)
-from AppUI.Clients import SWUCardSearchConfiguration, CardType
+from Clients import SWUCardSearchConfiguration, CardType
 from AppUI.AppDependenciesProviding import \
     AppDependenciesProviding
 from AppUI.Observation.Events import KeyboardEvent

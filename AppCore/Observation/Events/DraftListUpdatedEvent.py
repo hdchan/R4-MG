@@ -24,6 +24,11 @@ class DraftListUpdatedEvent(TransmissionProtocol):
         def __init__(self, index: int, local_resource: LocalCardResource):
             self.index = index
             self.local_resource = local_resource
+
+    class UpdateResource(EventType):
+        # TODO: pass updated card?
+        def __init__(self, index: int):
+            self.index = index
     
     def __init__(self, draft_pack: DraftPack, event_type: EventType):
         super().__init__()

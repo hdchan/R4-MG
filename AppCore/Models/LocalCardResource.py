@@ -23,7 +23,8 @@ class LocalCardResource(LocalAssetResource):
                  display_name_detailed: str,
                  remote_image_url: Optional[str] = None, 
                  can_generate_placeholder: bool = False, 
-                 trading_card: Optional[TradingCard] = None):
+                 trading_card: Optional[TradingCard] = None, 
+                 metadata: Dict[str, Any] = {}):
         super().__init__(asset_dir=image_dir, 
                          file_name=file_name, 
                          file_extension=PNG_EXTENSION, 
@@ -34,6 +35,7 @@ class LocalCardResource(LocalAssetResource):
         self.display_name_detailed = display_name_detailed
         self._can_generate_placeholder = can_generate_placeholder
         self.trading_card = trading_card
+        self.metadata = metadata
 
         assert(self.image_dir is not None)
         assert(self.image_preview_dir is not None)
@@ -55,6 +57,7 @@ class LocalCardResource(LocalAssetResource):
         REMOTE_IMAGE_URL = 'remote_image_url'
         FILE_EXTENSION = 'file_extension'
         TRADING_CARD = 'trading_card'
+        METADATA = 'metadata'
 
     def to_data(self) -> Dict[str, Any]:
         return {
@@ -67,6 +70,7 @@ class LocalCardResource(LocalAssetResource):
             self.Keys.REMOTE_IMAGE_URL: self.remote_image_url,
             self.Keys.FILE_EXTENSION: self.file_extension,
             self.Keys.TRADING_CARD: self.trading_card,
+            self.Keys.METADATA: self.metadata
         }
     
     @classmethod
@@ -86,7 +90,11 @@ class LocalCardResource(LocalAssetResource):
         if trading_card_json is not None:
             # TODO: can we do this inside parser?
             obj.trading_card = TradingCard.from_json(trading_card_json)
+        obj.metadata = json.get(LocalCardResource.Keys.METADATA, {})
         return obj
+
+    def set_resource_metadata(self, key: str, value: Any):
+        self.metadata[key] = value
 
     @property
     def image_dir(self) -> str:

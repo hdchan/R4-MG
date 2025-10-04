@@ -215,7 +215,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
                 self._image_view.setText('[Placeholder]')
             else:
                 image = QPixmap()
-                success = image.load(self._asset_provider.image.swu_logo_black_path)
+                success = image.load(self._external_app_dependencies_provider.image_preview_logo_path)
                 if success:
                     # TODO: consolidate with image logic below
                     image_width = image.size().width()

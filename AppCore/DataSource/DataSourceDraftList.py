@@ -1,5 +1,5 @@
 import copy
-from typing import List, Optional
+from typing import List, Optional, Any
 
 from AppCore.Config import *
 from AppCore.Models import DraftPack, LocalCardResource
@@ -24,11 +24,16 @@ class DataSourceDraftList:
         if loaded is not None:
             for pack_json in loaded:
                 self._packs.append(DraftPack.from_json(pack_json))
-    
+
+    def resource_at_index(self, pack_index: int, resource_index: int) -> Optional[LocalCardResource]:
+        if pack_index >= 0 and pack_index < len(self._packs):
+                pack = self._packs[pack_index]
+                return pack.resource_at_index(resource_index)
+
     @property
     def draft_packs(self) -> List[DraftPack]:
         return copy.deepcopy(self._packs)
-    
+
     @property
     def draft_pack_flat_list(self) -> List[LocalCardResource]:
         return [item for sublist in self.draft_packs for item in sublist.draft_list]
@@ -150,6 +155,11 @@ class DataSourceDraftList:
             event_type = DraftListUpdatedEvent.InsertedResource(index=resource_index + 1, local_resource=copy.deepcopy(local_resource))
             self._save_and_notify_draft_list_update(self._packs[pack_index], event_type)
     
+    def mark_resource_as_sideboard(self, pack_index: int, resource_index: int, key: str, value: Any):
+        if pack_index >= 0 and pack_index < len(self._packs):
+            self._packs[pack_index].mark_resource_as_sideboard(resource_index, key, value)
+            event_type = DraftListUpdatedEvent.UpdateResource(resource_index)
+            self._save_and_notify_draft_list_update(self._packs[pack_index], event_type)
     
     def _save_and_notify_draft_pack_update(self):
         self._data_serializer.save_json_data(self._file_path, self._packs)
