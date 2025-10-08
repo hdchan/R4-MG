@@ -12,7 +12,7 @@ from PyQt5.QtCore import QStandardPaths
 class Configuration():
     
     APP_NAME = 'R4-MG'
-    APP_VERSION = '0.20.0'
+    APP_VERSION = '0.20.1'
     SETTINGS_VERSION = '1.0'
     
     class Toggles:
@@ -120,7 +120,7 @@ class Configuration():
                 Configuration.Settings.Keys.DEPLOYMENT_LIST_IS_DESCENDING_ORDER: False, 
                 
                 Configuration.Settings.Keys.DRAFT_LIST_STYLES: None,
-                Configuration.Settings.Keys.DRAFT_LIST_ADD_CARD_MODE: Configuration.Settings.DraftListAddCardMode.OFF,
+                Configuration.Settings.Keys.DRAFT_LIST_ADD_CARD_MODE: Configuration.Settings.DraftListAddCardMode.OFF.value,
                 Configuration.Settings.Keys.DRAFT_LIST_ADD_CARD_DEPLOYMENT_DESTINATION: None,
                 
                 Configuration.Settings.Keys.IS_MOCK_DATA: False,
