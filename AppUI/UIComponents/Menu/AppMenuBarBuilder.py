@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QMainWindow
-
+from typing import Optional
 from AppCore.Config.ConfigurationManager import *
 from AppCore.Service.PlatformServiceProvider import PlatformServiceProtocol
 from AppUI.AppDependenciesProviding import AppDependenciesProviding

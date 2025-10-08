@@ -1,5 +1,5 @@
 
-from typing import List
+from typing import List, Optional
 
 from PyQt5.QtCore import  Qt
 from PyQt5.QtWidgets import (QSplitter)
@@ -9,23 +9,32 @@ from .R4UIWidget import R4UIWidget
 class Splitter(QSplitter):
     def __init__(self, 
                  orientation: Qt.Orientation, 
-                 widgets: List[R4UIWidget]):
+                 widgets: List[R4UIWidget], 
+                 weights: List[Optional[int]] = []):
         super().__init__()
         self.setOrientation(orientation)
         self._widgets: List[R4UIWidget] = []
-        self.add_widgets(widgets)
+        self.add_widgets(widgets, weights)
         
-    def add_widgets(self, widgets: List[R4UIWidget]):
-        for w in widgets:
+    def add_widgets(self, 
+                    widgets: List[R4UIWidget], 
+                    weights: List[Optional[int]]):
+        for i, w in enumerate(widgets):
             self._widgets.append(w)
             self.addWidget(w)
+            if i < len(weights):
+                weight = weights[i]
+                if weight is not None:
+                    self.setStretchFactor(i, weight)
             
 class HorizontalSplitter(Splitter):
     def __init__(self,
-                 widgets: List[R4UIWidget]):
-        super().__init__(Qt.Orientation.Horizontal, widgets)
+                 widgets: List[R4UIWidget], 
+                 weights: List[Optional[int]] = []):
+        super().__init__(Qt.Orientation.Horizontal, widgets, weights)
         
 class VerticalSplitter(Splitter):
     def __init__(self,
-                 widgets: List[R4UIWidget]):
-        super().__init__(Qt.Orientation.Vertical, widgets)
+                 widgets: List[R4UIWidget],
+                 weights: List[Optional[int]] = []):
+        super().__init__(Qt.Orientation.Vertical, widgets, weights)

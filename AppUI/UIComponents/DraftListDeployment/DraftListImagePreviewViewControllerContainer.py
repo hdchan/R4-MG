@@ -4,7 +4,7 @@ from AppUI.AppDependenciesProviding import AppDependenciesProviding
 from R4UI import VerticalBoxLayout
 
 
-class DraftListImagePreviewViewController(QWidget):
+class DraftListImagePreviewViewControllerContainer(QWidget):
     def __init__(self, app_dependencies_provider: AppDependenciesProviding):
         super().__init__()
         self._data_source_draft_list = app_dependencies_provider.data_source_draft_list

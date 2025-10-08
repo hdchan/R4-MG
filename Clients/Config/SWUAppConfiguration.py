@@ -1,0 +1,55 @@
+
+import copy
+
+from AppCore.Config import (Configuration, ConfigurationManager,
+                            MutableConfiguration)
+from ..Models.DeckListImageGeneratorStyles import DeckListImageGeneratorStyles
+
+
+class SWUAppConfiguration():
+    
+    def __init__(self, configuration: MutableConfiguration):
+        super().__init__()
+        self._configuration = configuration
+        
+    class Keys:
+        DECK_LIST_IMAGE_GENERATOR_STYLES = 'deck_list_image_generator_styles'
+    
+    @property
+    def core_configuration(self) -> Configuration:
+        return self._configuration
+    
+    @property
+    def core_mutable_configuration(self) -> MutableConfiguration:
+        return self._configuration
+    
+    @property
+    def deck_list_image_generator_styles(self) -> DeckListImageGeneratorStyles:
+        styles_json = self._configuration.configuration_for_key(self.Keys.DECK_LIST_IMAGE_GENERATOR_STYLES)
+        if styles_json is not None:
+            return DeckListImageGeneratorStyles.from_json(styles_json)
+        return DeckListImageGeneratorStyles.default_style()
+    
+
+class MutableSWUConfiguration(SWUAppConfiguration):
+    def set_deck_list_image_generator_styles(self, value: DeckListImageGeneratorStyles):
+        self._configuration.set_configuration_for_key(self.Keys.DECK_LIST_IMAGE_GENERATOR_STYLES, value.to_data())
+
+
+class SWUAppConfigurationManager:
+    def __init__(self, configuration_manager: ConfigurationManager):
+        super().__init__()
+        self._configuration_manager = configuration_manager
+    
+    @property
+    def configuration(self) -> SWUAppConfiguration:
+        return self.mutable_configuration()
+    
+    def mutable_configuration(self) -> MutableSWUConfiguration:
+        return MutableSWUConfiguration(copy.deepcopy(self._configuration_manager.mutable_configuration()))
+    
+    def save_configuration(self, new_configuration: MutableSWUConfiguration):
+        print('saving app SWUApp configuration')
+        self._configuration_manager.save_configuration(new_configuration.core_mutable_configuration)
+
+    

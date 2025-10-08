@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.21.0
+### Added
+- Panel for updating draft list image generator styles
+
+## 0.20.1
+### Hotfix
+- Fixed crash where configuration was saving incorrect value
+
 ## 0.20.0
 ### Added
 - Unifying menu refactors

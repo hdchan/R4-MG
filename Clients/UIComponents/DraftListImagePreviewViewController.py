@@ -5,7 +5,7 @@ from typing import Optional, Set, Tuple, Hashable
 
 from PyQt5.QtCore import QMutex, QObject, QRunnable, QThreadPool, QTimer, pyqtSignal
 from PyQt5.QtGui import QImage, QPixmap
-from PyQt5.QtWidgets import QFileDialog, QWidget
+from PyQt5.QtWidgets import QFileDialog
 
 from AppCore.DataSource import DataSourceDraftList
 from AppCore.Observation import ObservationTower, TransmissionReceiverProtocol, TransmissionProtocol
@@ -18,25 +18,153 @@ from AppUI.UIComponents.Base.LoadingSpinner import LoadingSpinner
 from R4UI import (
     HorizontalBoxLayout,
     ObjectComboBox,
-    R4UIHorizontallyExpandingSpacer,
     VerticalBoxLayout,
     HorizontalLabeledInputRow,
-    R4UICheckBox
+    R4UICheckBox,
+    R4UIWidget,
+    R4UIVerticallyExpandingSpacer,
+    LineEditInt,
+    LineEditFloat,
+    HorizontalSplitter
 )
-
+from ..Config.SWUAppConfiguration import SWUAppConfigurationManager
 from ..Models.ParsedDeckList import ParsedDeckList, ParsedDeckListProviding
 from ..Utility.DraftListImageGenerator import DraftListImageGenerator
 from .PhotoViewer import PhotoViewer
 
+class DraftListImagePreviewInspectorPanelViewControllerDelegate:
+    def option_did_update(self):
+        pass
 
-class DraftListImagePreviewViewController(QWidget, TransmissionReceiverProtocol, ParsedDeckListProviding):
+class DraftListImagePreviewInspectorPanelViewController(R4UIWidget):
+    def __init__(self, 
+                 image_generator: DraftListImageGenerator, 
+                 delegate: DraftListImagePreviewInspectorPanelViewControllerDelegate, 
+                 configuration_manager: SWUAppConfigurationManager):
+        super().__init__()
+        self._image_generator = image_generator
+        self._configuration_manager = configuration_manager
+        self.delegate: Optional[DraftListImagePreviewInspectorPanelViewControllerDelegate] = delegate
+        self._deck_list_image_generator_styles = configuration_manager.configuration.deck_list_image_generator_styles
+
+        self._save_async_timer = QTimer()
+        self._save_async_timer.setSingleShot(True)
+        self._save_async_timer.timeout.connect(self._save_config_and_notify)
+        self.debounce_time = 1000
+
+        self._setup_view()
+
+    def _option_changed(self, val: int):
+        self._image_generator.set_option(self._option_dropdown.currentData())
+        self._notify_delegate()
+    
+
+    def _start_save_timer(self):
+        self._save_async_timer.stop()
+        self._save_async_timer.start(self.debounce_time)
+
+    def _save_config_and_notify(self):
+        deck_list_styles = self._configuration_manager.configuration.deck_list_image_generator_styles
+        
+        deck_list_styles.sideboard_left_spacing_relative_to_main_deck = self._deck_list_image_generator_styles.sideboard_left_spacing_relative_to_main_deck
+        deck_list_styles.main_deck_column_spacing = self._deck_list_image_generator_styles.main_deck_column_spacing
+        deck_list_styles.main_deck_row_spacing = self._deck_list_image_generator_styles.main_deck_row_spacing
+        deck_list_styles.leader_base_spacing_between = self._deck_list_image_generator_styles.leader_base_spacing_between
+        deck_list_styles.leader_base_spacing_left_relative_to_main_deck = self._deck_list_image_generator_styles.leader_base_spacing_left_relative_to_main_deck
+        deck_list_styles.stacked_card_reveal_percentage = self._deck_list_image_generator_styles.stacked_card_reveal_percentage
+        deck_list_styles.is_sideboard_enabled = self._deck_list_image_generator_styles.is_sideboard_enabled
+        deck_list_styles.is_sorted_alphabetically = self._deck_list_image_generator_styles.is_sorted_alphabetically
+
+        mutable_configuration = self._configuration_manager.mutable_configuration()
+        mutable_configuration.set_deck_list_image_generator_styles(deck_list_styles)
+        self._configuration_manager.save_configuration(mutable_configuration)
+        self._notify_delegate()
+
+    def _notify_delegate(self):
+        if self.delegate is not None:
+            self.delegate.option_did_update()
+
+
+    def _sideboard_left_spacing_relative_to_main_deck_updated(self, val: int):
+        self._deck_list_image_generator_styles.sideboard_left_spacing_relative_to_main_deck = val
+        self._start_save_timer()
+
+    def _main_deck_column_spacing_updated(self, val: int):
+        self._deck_list_image_generator_styles.main_deck_column_spacing = val
+        self._start_save_timer()
+
+    def _main_deck_row_spacing_updated(self, val: int):
+        self._deck_list_image_generator_styles.main_deck_row_spacing = val
+        self._start_save_timer()
+
+    def _leader_base_spacing_between_updated(self, val: int):
+        self._deck_list_image_generator_styles.leader_base_spacing_between = val
+        self._start_save_timer()
+
+    def _leader_base_spacing_left_relative_to_main_deck_updated(self, val: int):
+        self._deck_list_image_generator_styles.leader_base_spacing_left_relative_to_main_deck = val
+        self._start_save_timer()
+
+    def _sideboard_box_changed(self, val: bool):
+        self._deck_list_image_generator_styles.is_sideboard_enabled = val
+        self._start_save_timer()
+
+    def _alphabetical_box_changed(self, val: bool):
+        self._deck_list_image_generator_styles.is_sorted_alphabetically = val
+        self._start_save_timer()
+
+    def _stacked_card_reveal_percentage_updated(self, val: float):
+        self._deck_list_image_generator_styles.stacked_card_reveal_percentage = val
+        self._start_save_timer()
+
+    def _setup_view(self):
+        self._option_dropdown = ObjectComboBox([
+                    (DraftListImageGenerator.Option.COST_CURVE_LEADER_BASE_VERTICAL.value, DraftListImageGenerator.Option.COST_CURVE_LEADER_BASE_VERTICAL),
+
+                    (DraftListImageGenerator.Option.COST_CURVE_LEADER_BASE_HORIZONTAL.value, DraftListImageGenerator.Option.COST_CURVE_LEADER_BASE_HORIZONTAL),
+                ])
+        self._option_dropdown.currentIndexChanged.connect(self._option_changed)
+
+        VerticalBoxLayout([
+            self._option_dropdown,
+            HorizontalLabeledInputRow("Show sideboard", R4UICheckBox(self._sideboard_box_changed, self._deck_list_image_generator_styles.is_sideboard_enabled)),
+            HorizontalLabeledInputRow("Sort alphabetically", R4UICheckBox(self._alphabetical_box_changed, self._deck_list_image_generator_styles.is_sorted_alphabetically)),
+
+            HorizontalLabeledInputRow("Sideboard spacing left relative to main deck", 
+                                      LineEditInt(self._deck_list_image_generator_styles.sideboard_left_spacing_relative_to_main_deck, 
+                                                  self._sideboard_left_spacing_relative_to_main_deck_updated)),
+
+            HorizontalLabeledInputRow("Main deck column spacing", 
+                                      LineEditInt(self._deck_list_image_generator_styles.main_deck_column_spacing, 
+                                                  self._main_deck_column_spacing_updated)),
+
+            HorizontalLabeledInputRow("Main deck row spacing", 
+                                      LineEditInt(self._deck_list_image_generator_styles.main_deck_row_spacing, 
+                                                  self._main_deck_row_spacing_updated)),
+
+            HorizontalLabeledInputRow("Leader Base spacing between", 
+                                      LineEditInt(self._deck_list_image_generator_styles.leader_base_spacing_between, 
+                                                  self._leader_base_spacing_between_updated)),
+
+            HorizontalLabeledInputRow("Leader Base spacing left relative to main deck", 
+                                      LineEditInt(self._deck_list_image_generator_styles.leader_base_spacing_left_relative_to_main_deck, 
+                                                  self._leader_base_spacing_left_relative_to_main_deck_updated)),
+
+            HorizontalLabeledInputRow("Stacked card reveal percentage", 
+                                      LineEditFloat(self._deck_list_image_generator_styles.stacked_card_reveal_percentage, 
+                                                  self._stacked_card_reveal_percentage_updated)),
+        ]).set_layout_to_widget(self).add_spacer(R4UIVerticallyExpandingSpacer())
+
+class DraftListImagePreviewViewController(R4UIWidget, TransmissionReceiverProtocol, ParsedDeckListProviding, DraftListImagePreviewInspectorPanelViewControllerDelegate):
     def __init__(self, 
                  observation_tower: ObservationTower,
-                 draft_list_data_source: DataSourceDraftList):
+                 draft_list_data_source: DataSourceDraftList, 
+                 configuration_manager: SWUAppConfigurationManager):
         super().__init__()
         self._observation_tower = observation_tower
         self._draft_list_data_source = draft_list_data_source
-        self._image_generator: DraftListImageGenerator = DraftListImageGenerator(self)
+        self._configuration_manager = configuration_manager
+        self._image_generator: DraftListImageGenerator = DraftListImageGenerator(self, configuration_manager)
         self.pool = QThreadPool()
         self.mutex = QMutex()
         self.working_resources: Set[Hashable] = set()
@@ -53,43 +181,29 @@ class DraftListImagePreviewViewController(QWidget, TransmissionReceiverProtocol,
                                                        DraftListUpdatedEvent, 
                                                        DraftPackUpdatedEvent])
     
-    def _option_changed(self, val: int):
-        self._image_generator.set_option(self._option_dropdown.currentData())
-        self._start_generate_image()
-
-    def _sideboard_box_changed(self, val: bool):
-        self._image_generator.set_is_sideboard_enabled(val)
-        self._start_generate_image()
-
-    def _alphabetical_box_changed(self, val: bool):
-        self._image_generator.set_is_alphabetical(val)
+    # MARK: - DraftListImagePreviewInspectorPanelViewControllerDelegate
+    def option_did_update(self):
         self._start_generate_image()
 
     def _setup_view(self):
-        self.setMinimumSize(500, 400)
+        # TODO: remove after converting to window
+        self.setMinimumSize(1300, 500)
+
         self._image_view = PhotoViewer(self)
         self._loading_spinner = LoadingSpinner(self._image_view)
         self._image_view.delegate = self
         
-        self._option_dropdown = ObjectComboBox([
-                    (DraftListImageGenerator.Option.COST_CURVE_LEADER_BASE_VERTICAL.value, DraftListImageGenerator.Option.COST_CURVE_LEADER_BASE_VERTICAL),
-
-                    (DraftListImageGenerator.Option.COST_CURVE_LEADER_BASE_HORIZONTAL.value, DraftListImageGenerator.Option.COST_CURVE_LEADER_BASE_HORIZONTAL),
-                ])
-        self._option_dropdown.currentIndexChanged.connect(self._option_changed)
-        
-        VerticalBoxLayout([
-            HorizontalBoxLayout([
-                self._option_dropdown,
-                HorizontalLabeledInputRow("Show sideboard", R4UICheckBox(self._sideboard_box_changed, self._image_generator.is_sideboard_enabled)),
-                HorizontalLabeledInputRow("Sort alphabetically", R4UICheckBox(self._alphabetical_box_changed, self._image_generator.is_alphabetical))
-                ]) \
-                .set_uniform_content_margins(0) \
-                .add_spacer(R4UIHorizontallyExpandingSpacer()),
-            self._image_view,
-            ]) \
+        HorizontalBoxLayout([
+            HorizontalSplitter([
+                self._image_view,
+                DraftListImagePreviewInspectorPanelViewController(self._image_generator,
+                                                                  self,
+                                                                  self._configuration_manager)
+            ], [1, None]),
+            
+        ]) \
         .set_layout_to_widget(self) \
-        .set_uniform_content_margins(0)
+        # .set_uniform_content_margins(0)
         
         self._start_generate_image()
     
