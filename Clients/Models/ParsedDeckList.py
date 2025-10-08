@@ -79,6 +79,7 @@ class ParsedDeckList:
     def main_deck(self) -> List[SWUTradingCardBackedLocalCardResource]:
         return list(filter(lambda x: x.guaranteed_trading_card.card_type != CardType.LEADER and x.guaranteed_trading_card.card_type != CardType.BASE and not x.is_sideboard, self._deep_copy_swu_backed_resources))
     
+    # TODO: alphabetical sideboard?
     @property
     def sideboard(self) -> List[SWUTradingCardBackedLocalCardResource]:
         return list(filter(lambda x: x.guaranteed_trading_card.card_type != CardType.LEADER and x.guaranteed_trading_card.card_type != CardType.BASE and x.is_sideboard, self._deep_copy_swu_backed_resources))
