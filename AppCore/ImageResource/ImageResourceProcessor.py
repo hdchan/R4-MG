@@ -39,6 +39,7 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol, ImageResourceProces
     def async_store_local_resource(self, local_resource: LocalCardResource, retry: bool = False):
         # TODO: implement stale cache
         if retry and local_resource.remote_image_url is not None:
+            # We should maybe guard against retry if no internet connection?
             assert(local_resource.remote_image_url is not None) # prevent deletion of resources that don't have any remote URL
             if os.path.exists(local_resource.image_path):
                 Path(local_resource.image_path).unlink()
