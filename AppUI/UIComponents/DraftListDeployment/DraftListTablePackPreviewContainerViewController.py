@@ -6,7 +6,7 @@ from AppCore.Models import LocalResourceDraftListWindow
 from AppCore.Observation import (TransmissionProtocol,
                                  TransmissionReceiverProtocol)
 from AppCore.Observation.Events import DraftListWindowResourceUpdatedEvent, DraftPackUpdatedEvent
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from R4UI import VerticalBoxLayout
 
 from .DraftListTablePackPreviewViewController import (
@@ -24,7 +24,7 @@ class DraftListTablePackPreviewContainerViewController(QWidget,
             self.is_presentation = is_presentation
     
     def __init__(self, 
-                 app_dependencies_provider: AppDependenciesProviding,
+                 app_dependencies_provider: AppDependenciesInternalProviding,
                  vc_configuration: VCConfiguration,
                  resource: LocalResourceDraftListWindow):
         super().__init__()

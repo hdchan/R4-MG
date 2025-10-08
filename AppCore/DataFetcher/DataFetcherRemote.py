@@ -6,8 +6,6 @@ from urllib.request import Request, urlopen
 
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 
-from AppCore.Config import ConfigurationManager
-
 from .DataFetcherRemoteRequestProtocol import DataFetcherRemoteRequestProtocol
 
 T = TypeVar("T")
@@ -16,9 +14,13 @@ DataFetcherRemoteCallback = Callable[[Tuple[Optional[T], Optional[Exception]]], 
 
 class DataFetcherRemote:
 
+    class Configuration:
+        def __init__(self, network_delay_duration: int = 0):
+            self.network_delay_duration = network_delay_duration
+
     def __init__(self, 
-                 configuration_manager: ConfigurationManager):
-        self.configuration_manager = configuration_manager
+                 configuration: 'DataFetcherRemote.Configuration' = Configuration()):
+        self._configuration = configuration
 
     class ClientWorker(QObject):
         finished = pyqtSignal()
@@ -48,7 +50,7 @@ class DataFetcherRemote:
                 #             break
                 #         buf.write(chunk)
                 # json_response = json.loads(buf.getvalue())
-                print(request.full_url)
+                # print(request.full_url)
                 print(request.headers)
                 buf = urlopen(request)
                 json_response = json.load(buf)
@@ -71,7 +73,7 @@ class DataFetcherRemote:
                 callback((None, error))
             
         thread = QThread()
-        worker = self.ClientWorker(self.configuration_manager.configuration.network_delay_duration)
+        worker = self.ClientWorker(self._configuration.network_delay_duration)
         worker.moveToThread(thread)
         thread.started.connect(partial(worker.load, request.request()))
         worker.progress_available.connect(progress_available)

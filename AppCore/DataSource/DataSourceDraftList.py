@@ -75,7 +75,7 @@ class DataSourceDraftList:
             p.clear_draft_list()
         self._save_and_notify_draft_pack_update()
         
-    def create_new_pack(self):
+    def create_new_pack(self) -> int:
         starting_counter = len(self._packs) + 1
         name = f"New Pack {starting_counter}"
         while True:
@@ -84,6 +84,13 @@ class DataSourceDraftList:
                 break
             starting_counter += 1
         new_pack = DraftPack.new_draft_pack(name)
+        self._packs.append(new_pack)
+        self._save_and_notify_draft_pack_update()
+        return len(self._packs)
+
+    def create_new_pack_from_list(self, name: str, list: List[LocalCardResource]):
+        new_pack = DraftPack.new_draft_pack(name)
+        new_pack.add_resources(list)
         self._packs.append(new_pack)
         self._save_and_notify_draft_pack_update()
         

@@ -2,7 +2,7 @@
 from PyQt5.QtWidgets import QFileDialog
 
 from AppCore.Config import Configuration
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.Configuration import MutableAppUIConfiguration
 from AppUI.UIComponents import SettingsContainerChildProtocol
 from R4UI import (HorizontalLabeledInputRow, Label, LineEditInt, PushButton,
@@ -12,7 +12,7 @@ from R4UI import (HorizontalLabeledInputRow, Label, LineEditInt, PushButton,
 
 class ImageDeploymentSettingsViewController(SettingsContainerChildProtocol):
     def __init__(self, 
-                 app_dependencies_provider: AppDependenciesProviding):
+                 app_dependencies_provider: AppDependenciesInternalProviding):
         super().__init__()
         self._configuration_manager = app_dependencies_provider.configuration_manager
         self._mutable_configuration = self._configuration_manager.mutable_configuration()

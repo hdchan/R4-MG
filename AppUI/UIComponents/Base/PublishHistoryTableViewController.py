@@ -3,13 +3,13 @@ from PyQt5.QtWidgets import QListWidget, QVBoxLayout, QWidget, QListWidgetItem
 from AppCore.DataSource.DataSourceRecentPublished import *
 from AppCore.Observation import *
 from AppCore.Observation.Events import PublishStagedCardResourcesEvent
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 
 from ..Base.ImagePreviewViewController import ImagePreviewViewController
 
 class PublishHistoryTableViewController(QWidget, TransmissionReceiverProtocol, DataSourceRecentPublishedDelegate):
     def __init__(self, 
-                 app_dependencies_provider: AppDependenciesProviding, 
+                 app_dependencies_provider: AppDependenciesInternalProviding, 
                  recent_published_data_source: DataSourceRecentPublished, 
                  image_preview_view: ImagePreviewViewController):
         super().__init__()

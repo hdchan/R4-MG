@@ -1,7 +1,7 @@
 
 from PyQt5.QtWidgets import  QWidget, QLabel
 
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 
 from AppUI.Models.DraftListStyleSheet import DraftListStyleSheet
 from R4UI import VerticalBoxLayout
@@ -9,7 +9,7 @@ from R4UI import VerticalBoxLayout
 
 class DraftListLineItemHeaderViewController(QWidget):
     def __init__(self, 
-                 app_dependencies_provider: AppDependenciesProviding,
+                 app_dependencies_provider: AppDependenciesInternalProviding,
                  stylesheet: DraftListStyleSheet,
                  text: str,
                  ):

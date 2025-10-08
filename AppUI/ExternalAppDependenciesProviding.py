@@ -4,26 +4,54 @@ from typing import List, Optional
 from PyQt5.QtWidgets import QWidget
 
 from AppCore.DataSource import (DataSourceCardSearchClientProviding,
-                                DataSourceDraftList,
                                 DataSourceImageResourceDeployer,
                                 DataSourceLocallyManagedSets)
 from AppCore.DataSource.DataSourceLocallyManagedSets import \
     DataSourceLocallyManagedSetsClientProtocol
-from AppCore.Models import DraftPack, LocalCardResource, TradingCard
+from AppCore.Models import DraftPack, LocalCardResource, SearchConfiguration
 from AppUI.ExternalAppDependenciesProviding import *
 from AppUI.Models import DraftListStyleSheet
+from AppUI.Router.Router import Router
 from R4UI import R4UIWidget
-from AppUI.Router import Router
+
+class SearchQueryBarViewProviding(R4UIWidget):
+    @property
+    def search_configuration(self) -> SearchConfiguration:
+        raise Exception
+    
+    @property
+    def secondary_search_configuration(self) -> Optional[SearchConfiguration]:
+        return None
+
+    @property
+    def tertiary_search_configuration(self) -> Optional[SearchConfiguration]:
+        return None
+    
+    def did_receive_configuration(self, search_configuration: SearchConfiguration) -> None:
+        return
+    
+    def set_search_focus(self) -> None:
+        return
+    
+    def reset_search(self) -> None:
+        return
+    
+    def set_enabled(self, is_on: bool) -> None:
+        return
 
 class ExternalAppDependenciesProviding:
     
+    @property
+    def logo_path(self) -> str:
+        return ""
+    
+    # MARK: - Card search
+    def provide_card_search_query_view(self) -> Optional[SearchQueryBarViewProviding]:
+        return None
+
     # MARK: - Image deployer
     @property
     def card_back_image_path(self) -> str:
-        return ""
-    
-    @property
-    def logo_path(self) -> str:
         return ""
     
     @property
@@ -50,6 +78,9 @@ class ExternalAppDependenciesProviding:
                                                 local_managed_sets_data_source: DataSourceLocallyManagedSets) -> DataSourceCardSearchClientProviding:
         raise Exception
     
+    def provide_draft_list_image_preview_widget(self) -> QWidget:
+        raise Exception
+    
     # Optional
     def draft_list_item_cell(self, 
                              local_card_resource: LocalCardResource,
@@ -64,10 +95,10 @@ class ExternalAppDependenciesProviding:
                                text: str) -> Optional[QWidget]:
         return None
     
-    def export_draft_list(self, draft_packs: List[DraftPack], to_path: str, swu_db: bool) -> None:
+    def export_draft_list(self) -> None:
         return None
     
-    def export_draft_list_csv(self, draft_packs: List[DraftPack], to_path: str) -> None:
+    def import_draft_list(self) -> None:
         return None
     
     def draft_resource_list(self, 
@@ -75,5 +106,4 @@ class ExternalAppDependenciesProviding:
                             aggregate_list: bool) -> Optional[List[LocalCardResource]]:
         return None
     
-    def provide_draft_list_image_preview_widget(self, draft_list_data_source: DataSourceDraftList) -> QWidget:
-        raise Exception
+    

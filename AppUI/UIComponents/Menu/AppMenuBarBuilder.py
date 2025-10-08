@@ -2,14 +2,14 @@ from PyQt5.QtWidgets import QMainWindow
 from typing import Optional
 from AppCore.Config.ConfigurationManager import *
 from AppCore.Service.PlatformServiceProvider import PlatformServiceProtocol
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.Configuration.AppUIConfiguration import *
 from AppUI.UIComponents import AppUIConfigurationCheckableR4UIActionMenuItem
 from R4UI import R4UIActionMenuItem, R4UIMenuBarBuilder, R4UIMenuListBuilder
 
 
 class AppMenuBarBuilder:
-    def __init__(self, app_dependencies_provider: AppDependenciesProviding):
+    def __init__(self, app_dependencies_provider: AppDependenciesInternalProviding):
         self._app_dependencies_provider = app_dependencies_provider
         self._router = app_dependencies_provider.router
         self._external_app_dependencies_provider = app_dependencies_provider.external_app_dependencies_provider
@@ -69,6 +69,12 @@ class AppMenuBarBuilder:
                 self.image_preview_view_toggle_menu() \
                     .add_separator() \
                     .add_actions([
+                        AppUIConfigurationCheckableR4UIActionMenuItem(
+                            self._app_dependencies_provider,
+                            "Hide image deployment controls", 
+                            lambda x: x.core_configuration.hide_deployment_cell_controls, 
+                            lambda mutable_config, old_config: mutable_config.core_mutable_configuration.set_hide_deployment_cell_controls(not old_config.core_configuration.hide_deployment_cell_controls)
+                            ),
                         AppUIConfigurationCheckableR4UIActionMenuItem(
                             self._app_dependencies_provider,
                             "Horizontal deployment list", 
@@ -192,11 +198,18 @@ class AppMenuBarBuilder:
         
 
     def draft_list_actions_menu(self):
-        def _export_to_swudb():
+        def _export_draft_list():
             try:
-                self._external_app_dependencies_provider.export_draft_list(self._data_source_draft_list.draft_packs, self._core_configuration.picture_dir_path, True)
+                self._external_app_dependencies_provider.export_draft_list()
             except Exception as error:
                 self._router.show_error(error)
+
+        def _import_draft_list():
+            try:
+                self._external_app_dependencies_provider.import_draft_list()
+            except Exception as error:
+                self._router.show_error(error)
+        
         
         def _prompt_keeep_packs_clear_list():
             if self._router.prompt_accept("Clear list BUT keep packs", 
@@ -212,7 +225,9 @@ class AppMenuBarBuilder:
             .add_separator() \
             .add_actions([
                 R4UIActionMenuItem("Export draft list",
-                                    _export_to_swudb),
+                                    _export_draft_list),
+                R4UIActionMenuItem("Import",
+                                    _import_draft_list),
             ]) \
             .add_actions([
                 R4UIActionMenuItem("Clear list BUT keep packs",
@@ -252,6 +267,9 @@ class AppMenuBarBuilder:
 
                 R4UIActionMenuItem("Image deployment directory",
                                    lambda: self._platform_service.open_file(self._core_configuration.picture_dir_path)),
+                
+                R4UIActionMenuItem("Logs directory",
+                                   lambda: self._platform_service.open_file(self._core_configuration.logs_dir_path)),
             ])
 
     def help_menu(self) -> R4UIMenuListBuilder:
@@ -281,7 +299,7 @@ class AppMenuBarBuilder:
                 AppUIConfigurationCheckableR4UIActionMenuItem(
                     self._app_dependencies_provider,
                     "Delay network call", 
-                    lambda x: x.core_configuration.is_mock_data, 
+                    lambda x: x.core_configuration.is_delay_network_mode, 
                     lambda mutable_config, old_config: mutable_config.core_mutable_configuration.set_is_delay_network_mode(not old_config.core_configuration.is_delay_network_mode)
                     ), 
                     ])

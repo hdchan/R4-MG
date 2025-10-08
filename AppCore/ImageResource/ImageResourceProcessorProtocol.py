@@ -1,9 +1,11 @@
 from AppCore.Models import LocalCardResource
-from typing import Optional
+from typing import Optional, List, Callable
 from PIL import Image
-
 class ImageResourceProcessorProtocol:
     def async_store_local_resource(self, local_resource: LocalCardResource, retry: bool = False) -> None:
+        raise Exception
+    
+    def async_store_local_resources_multi(self, local_resources: List[LocalCardResource], completed: Callable[[], None]) -> None:
         raise Exception
     
     def rotate_and_save_resource(self, local_resource: LocalCardResource, angle: float) -> None:

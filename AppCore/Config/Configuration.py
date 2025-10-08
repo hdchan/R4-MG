@@ -12,7 +12,7 @@ from PyQt5.QtCore import QStandardPaths
 class Configuration():
     
     APP_NAME = 'R4-MG'
-    APP_VERSION = '0.21.0'
+    APP_VERSION = '0.22.0'
     SETTINGS_VERSION = '1.0'
     
     class Toggles:
@@ -287,6 +287,13 @@ class Configuration():
     def config_directory(self) -> str:
         return f'{self._config_dir_path}'
     
+    @property
+    def logs_dir_path(self) -> str:
+        return f'{self._config_dir_path}/logs'
+    
+    @property
+    def app_crash_log_path(self) -> str:
+        return f'{self.logs_dir_path}/app_crash.log'
     
     # MARK: - Picture
     @property
@@ -311,8 +318,6 @@ class Configuration():
     @property
     def assets_dir_path(self) -> str:
         return f'{self._app_data_dir_path}/assets/'
-    
-    # TODO: move decks to dedicated folder
     
     @property
     def locally_managed_sets_dir_path(self) -> str:

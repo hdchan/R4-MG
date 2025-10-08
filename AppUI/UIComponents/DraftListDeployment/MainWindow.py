@@ -1,4 +1,4 @@
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.UIComponents import AppWindow, AppMenuBarBuilder
 
 from .DraftListDeployerSearchComboViewController import \
@@ -6,7 +6,7 @@ from .DraftListDeployerSearchComboViewController import \
 
 
 class MainWindow(AppWindow):
-    def __init__(self, app_dependencies_provider: AppDependenciesProviding):
+    def __init__(self, app_dependencies_provider: AppDependenciesInternalProviding):
         super().__init__(app_dependencies_provider=app_dependencies_provider, 
                          central_widget=DraftListDeployerSearchComboViewController(app_dependencies_provider),
                          window_config_identifier="draft_list",

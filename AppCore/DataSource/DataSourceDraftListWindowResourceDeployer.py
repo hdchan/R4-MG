@@ -92,32 +92,6 @@ class DataSourceDraftListWindowResourceDeployer(TransmissionReceiverProtocol):
             del self._draft_list_windows[index]
             self.load_resources()
     
-        # Don't update window name to prevent more complications?
-    # def update_window_name(self, resource: LocalResourceDraftListWindow, name: str):
-    #     found_resources: List[LocalResourceDraftListWindow] = list(filter(lambda x: x == resource, self._draft_list_windows))
-    #     if len(found_resources) == 0:
-    #         raise Exception(f"Window {resource.file_name} does not exist")
-        
-    #     old_resource = found_resources[0]
-    #     old_resource_index = self._draft_list_windows.index(old_resource)
-        
-    #     old_file_name = old_resource.asset_path
-    #     new_file_name = f'{old_resource.asset_dir}/{name}'
-    #     try:
-    #         # Rename the file
-    #         os.rename(old_file_name, new_file_name)
-    #     except FileNotFoundError:
-    #         raise Exception(f"Error: The file '{old_file_name}' was not found.")
-    #     except OSError as e:
-    #         raise Exception(f"Error renaming file: {e}")
-        
-    #     new_resource = LocalResourceDraftListWindow(name, old_resource.window_configuration, old_resource.asset_dir)
-    #     self._draft_list_windows[old_resource_index] = new_resource
-        
-    #     event = DraftListWindowResourceUpdatedEvent(copy.deepcopy(new_resource), old_resource)
-        
-    #     self._observation_tower.notify(event)
-    
     def unbind_draft_pack_name(self, resource: LocalResourceDraftListWindow):
         self.update_window_draft_pack(resource, None)
         

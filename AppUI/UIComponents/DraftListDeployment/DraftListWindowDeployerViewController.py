@@ -5,19 +5,17 @@ from PyQt5.QtWidgets import QSizePolicy, QWidget
 from AppCore.Observation import (TransmissionProtocol,
                                  TransmissionReceiverProtocol)
 from AppCore.Observation.Events import DraftListWindowResourceLoadEvent
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from R4UI import (HorizontalBoxLayout, PushButton, ScrollArea,
                     VerticalBoxLayout)
 
-from .DraftListTablePackPreviewContainerViewController import \
-    DraftListTablePackPreviewContainerViewController
 from .DraftListWindowConfigViewController import \
     DraftListWindowConfigViewController
 
 from R4UI import R4UIWidget
 class DraftListWindowDeployerViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
-                 app_dependencies_provider: AppDependenciesProviding):
+                 app_dependencies_provider: AppDependenciesInternalProviding):
         super().__init__()
         self._app_dependencies_provider = app_dependencies_provider
         self._data_source_draft_list_window_resource_deployer = app_dependencies_provider.data_source_draft_list_window_resource_deployer

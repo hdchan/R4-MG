@@ -4,7 +4,7 @@ from AppCore.ImageResource.ImageResourceProcessorProtocol import *
 from AppCore.Observation import *
 from AppCore.Observation.Events import (CardSearchEvent,
                                         ConfigurationUpdatedEvent)
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 
 from . import (CustomDirectorySearchTableViewController,
                     ImagePreviewViewController,
@@ -20,7 +20,7 @@ class CardSearchPreviewViewController(QWidget, TransmissionReceiverProtocol):
         SEARCH_HISTORY = 3
         
     def __init__(self, 
-                 app_dependencies_provider: AppDependenciesProviding,
+                 app_dependencies_provider: AppDependenciesInternalProviding,
                  image_preview_view: ImagePreviewViewController):
         super().__init__()
         self._observation_tower = app_dependencies_provider.observation_tower

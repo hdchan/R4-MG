@@ -3,12 +3,12 @@ from typing import Callable
 from PyQt5.QtWidgets import QAction, QLabel
 
 from AppCore.Config.ConfigurationManager import *
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.Configuration.AppUIConfiguration import *
 
 # class AppUIConfigurationLabel(QLabel):
 #     def __init__(self, 
-#                  app_dependencies_provider: AppDependenciesProviding,
+#                  app_dependencies_provider: AppDependenciesInternalProviding,
 #                  updated_text_fn: Callable[[AppUIConfiguration], str]):
 #         super().__init__()
 #         app_dependencies_provider.observation_tower.subscribe(self, ConfigurationUpdatedEvent)
@@ -25,7 +25,7 @@ from AppUI.Configuration.AppUIConfiguration import *
 
 class AppUIConfigurationCheckableR4UIActionMenuItem(QAction, TransmissionReceiverProtocol):
     def __init__(self,
-                 app_dependencies_provider: AppDependenciesProviding, 
+                 app_dependencies_provider: AppDependenciesInternalProviding, 
                  text: str,
                  is_checked: Callable[[AppUIConfiguration], bool],
                  triggered_fn: Callable[[MutableAppUIConfiguration, AppUIConfiguration], None]):
@@ -53,7 +53,7 @@ class AppUIConfigurationCheckableR4UIActionMenuItem(QAction, TransmissionReceive
 
 # class ConfigurationCheckableR4UIActionMenuItem(QAction, TransmissionReceiverProtocol):
 #     def __init__(self,
-#                  app_dependencies_provider: AppDependenciesProviding, 
+#                  app_dependencies_provider: AppDependenciesInternalProviding, 
 #                  text: str,
 #                  is_checked: Callable[[Configuration], bool],
 #                  triggered_fn: Callable[[MutableConfiguration, Configuration], None]):

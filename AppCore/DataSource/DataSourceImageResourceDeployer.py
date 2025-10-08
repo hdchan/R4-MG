@@ -150,55 +150,61 @@ class DataSourceImageResourceDeployer:
         Publishes staged resources. Returns True if success.
         Otherwise returns false.
         """
-        if self._is_publishing:
-            print("Can't publish right now")
-            return
+        # if self._is_publishing:
+        #     print("Can't publish right now")
+        #     return
         
         self._is_publishing = True
         deployment_resources_copy = deepcopy(self._deployment_resources)
         initial_event = PublishStagedCardResourcesEvent(PublishStagedCardResourcesEvent.EventType.STARTED, deployment_resources_copy)
         self._observation_tower.notify(initial_event)
-        if self.can_publish_staged_resources: # don't publish resources if one does not work
-            self._generate_directories_if_needed()
-            for r in self._deployment_resources:
-                if r.staged_resource is not None:
-                    # time.sleep(3)
-                    production_dir_path = f'{self._configuration.production_dir_path}{r.production_resource.file_name_with_ext}'
-                    production_preview_dir_path = f'{self._configuration.production_preview_dir_path}{r.production_resource.file_name_with_ext}'
-                    # Resize if needed
-                    if self._configuration.resize_prod_images and not r.staged_resource.is_local_only:
-                        assert(not r.staged_resource.is_local_only) # Don't resize local only resources, assume that these are custom assets
-                        cached_image = Image.open(r.staged_resource.image_path)
-                        downscaled_image = self._image_resource_processor.down_scale_image(cached_image, self._configuration.resize_prod_images_max_size)
-                        downscaled_image.save(production_dir_path)
-                    else:
-                        shutil.copy(r.staged_resource.image_path, production_dir_path)
-                    try:
-                        shutil.copy(r.staged_resource.image_preview_path, production_preview_dir_path) # raises exception can ignore
-                    except:
-                        Path(production_preview_dir_path).unlink() # remove previous preview file
-                        # gets regenerated from reload
-                        # do nothing because preview file is not critical, or maybe can regenerate file
-                        
-            # def finished():
-            self.unstage_all_resources()
-            finished_event = PublishStagedCardResourcesEvent(PublishStagedCardResourcesEvent.EventType.FINISHED, deployment_resources_copy)
-            finished_event.predecessor = initial_event
-            self._observation_tower.notify(finished_event)
+        try:
+            if self.can_publish_staged_resources: # don't publish resources if one does not work
+                self._generate_directories_if_needed()
+                for r in self._deployment_resources:
+                    if r.staged_resource is not None:
+                        # TODO: continue published if exception, and notify about exceptions
+                        production_dir_path = f'{self._configuration.production_dir_path}{r.production_resource.file_name_with_ext}'
+                        production_preview_dir_path = f'{self._configuration.production_preview_dir_path}{r.production_resource.file_name_with_ext}'
+                        # Resize if needed
+                        if self._configuration.resize_prod_images and not r.staged_resource.is_local_only:
+                            assert(not r.staged_resource.is_local_only) # Don't resize local only resources, assume that these are custom assets
+                            cached_image = Image.open(r.staged_resource.image_path)
+                            downscaled_image = self._image_resource_processor.down_scale_image(cached_image, self._configuration.resize_prod_images_max_size)
+                            downscaled_image.save(production_dir_path)
+                        else:
+                            shutil.copy(r.staged_resource.image_path, production_dir_path)
+                        try:
+                            shutil.copy(r.staged_resource.image_preview_path, production_preview_dir_path) # raises exception can ignore
+                        except:
+                            Path(production_preview_dir_path).unlink() # remove previous preview file
+                            # gets regenerated from reload
+                            # do nothing because preview file is not critical, or maybe can regenerate file
+                            
+                self.unstage_all_resources()
+                finished_event = PublishStagedCardResourcesEvent(PublishStagedCardResourcesEvent.EventType.FINISHED, deployment_resources_copy)
+                finished_event.predecessor = initial_event
+                self._observation_tower.notify(finished_event)
+                
+                # NOTE: background thread causing crash when spamming publish from draft list, may need to add state for process of publishing
+                # worker = PublishResourcesWorker(self._deployment_resources, self._configuration_manager, self._image_resource_processor_provider)
+                # worker.signals.finished.connect(finished)
+                # self.pool.start(worker)
+            else:
+                self._notify_publish_status_changed_if_needed()
+                failed_event = PublishStagedCardResourcesEvent(PublishStagedCardResourcesEvent.EventType.FAILED, deployment_resources_copy)
+                failed_event.predecessor = initial_event
+                self._observation_tower.notify(failed_event)
+                self._is_publishing = False
+                raise Exception("Failed to publish. Please redownload resources and retry.")
             
-            # NOTE: background thread causing crash when spamming publish from draft list, may need to add state for process of publishing
-            # worker = PublishResourcesWorker(self._deployment_resources, self._configuration_manager, self._image_resource_processor_provider)
-            # worker.signals.finished.connect(finished)
-            # self.pool.start(worker)
-            
-        else:
+        except Exception as error:
             self._notify_publish_status_changed_if_needed()
             failed_event = PublishStagedCardResourcesEvent(PublishStagedCardResourcesEvent.EventType.FAILED, deployment_resources_copy)
             failed_event.predecessor = initial_event
             self._observation_tower.notify(failed_event)
-            raise Exception("Failed to publish. Please redownload resources and retry.")
-        
-        self._is_publishing = False
+            self._is_publishing = False
+            raise Exception(error)
         
     def generate_new_file(self, file_name: str, placeholder_image_path: Optional[str]):
         local_resource = ProductionLocalCardResource(image_dir=self._configuration.production_dir_path,

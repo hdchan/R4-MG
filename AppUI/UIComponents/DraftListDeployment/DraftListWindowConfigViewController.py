@@ -7,14 +7,14 @@ from AppCore.Observation import (TransmissionProtocol,
                                  TransmissionReceiverProtocol)
 from AppCore.Observation.Events import (DraftListWindowResourceUpdatedEvent,
                                         DraftPackUpdatedEvent)
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from R4UI import (HorizontalBoxLayout, HorizontalLabeledInputRow,
                     LineEditInt, ObjectComboBox, PushButton, VerticalBoxLayout, Label)
 from .DraftListTablePackPreviewContainerViewController import DraftListTablePackPreviewContainerViewController
 
 class DraftListWindowConfigViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self,
-                 app_dependencies_provider: AppDependenciesProviding, 
+                 app_dependencies_provider: AppDependenciesInternalProviding, 
                  resource: LocalResourceDraftListWindow):
         super().__init__()
         self._app_dependencies_provider = app_dependencies_provider

@@ -8,10 +8,12 @@ from AppCore.Config import Configuration
 from AppCore.DataSource import LocalResourceDataSourceProviding
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         DraftPackUpdatedEvent,
+                                        LocalCardResourceFetchEvent,
                                         LocalCardResourceSelectedEvent,
-                                        ProductionCardResourcesLoadEvent)
+                                        ProductionCardResourcesLoadEvent, 
+                                        PublishStagedCardResourcesEvent)
 from AppCore.Observation.ObservationTower import *
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from R4UI import ComboBox, R4UIMenuListBuilder, PushButton, VerticalBoxLayout, HorizontalBoxLayout, R4UIActionMenuItem, BoldLabel
 
 from .DraftListTablePackPreviewViewController import (
@@ -34,7 +36,7 @@ class DraftListTabbedPackPreviewViewControllerDraftListTablePackPreviewViewContr
 
 class DraftListTabbedPackPreviewViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
-                 app_dependencies_provider: AppDependenciesProviding,
+                 app_dependencies_provider: AppDependenciesInternalProviding,
                  data_source_local_resource_provider: LocalResourceDataSourceProviding):
         super().__init__()
         self._app_dependencies_provider = app_dependencies_provider
@@ -48,9 +50,10 @@ class DraftListTabbedPackPreviewViewController(QWidget, TransmissionReceiverProt
         self._setup_view()
         
         app_dependencies_provider.observation_tower.subscribe_multi(self, [DraftPackUpdatedEvent,
+                                                                           LocalCardResourceFetchEvent,
                                                                            LocalCardResourceSelectedEvent,
                                                                            ProductionCardResourcesLoadEvent, 
-                                                                           ConfigurationUpdatedEvent])
+                                                                           ConfigurationUpdatedEvent, PublishStagedCardResourcesEvent])
         
         app_dependencies_provider.shortcut_action_coordinator.bind_add_card_to_draft_list(self._add_resource, self)
         
@@ -112,8 +115,10 @@ class DraftListTabbedPackPreviewViewController(QWidget, TransmissionReceiverProt
         return self._configuration_manager.configuration
     
     def _add_resource(self):
+        # TODO: protect action when staging is enabled
         if self._is_publishing:
             return
+        # print("got through!")
         selected_pack = self._tab_widget.currentIndex()
         selected_resource = self._data_source_local_resource_provider.data_source.selected_local_resource
         if selected_resource is not None:
@@ -141,8 +146,8 @@ class DraftListTabbedPackPreviewViewController(QWidget, TransmissionReceiverProt
                 try:
                     self._is_publishing = True
                     self._data_source_image_resource_deployer.publish_staged_resources()
-                except:
-                    self._router.show_error(Exception("Failed to publish, somethign went wrong"))
+                except Exception as error:
+                    self._router.show_error(error)
                 self._is_publishing = False
     
     # MARK: - Tab bar context menu
@@ -205,11 +210,14 @@ class DraftListTabbedPackPreviewViewController(QWidget, TransmissionReceiverProt
         # TODO: move to view model?
         if add_card_mode == Configuration.Settings.DraftListAddCardMode.OFF or destination_string is None:
             self._add_card_button.setText("Add Card (Ctrl+D)")
+            self._add_card_button.setEnabled(True)
         elif add_card_mode == Configuration.Settings.DraftListAddCardMode.STAGE:
             self._add_card_button.setText(f"Add Card and Stage (Ctrl+D)")
+            self._add_card_button.setEnabled(True)
         elif add_card_mode == Configuration.Settings.DraftListAddCardMode.STAGE_AND_PUBLISH:
             self._add_card_button.setText(f"Add Card and Publish (Ctrl+D)")
-        self._add_card_button.setEnabled(self._data_source_local_resource_provider.data_source.selected_local_resource is not None or self._is_publishing == False)
+            selected_resource = self._data_source_local_resource_provider.data_source.selected_local_resource
+            self._add_card_button.setEnabled(selected_resource is not None and selected_resource.is_ready and self._is_publishing == False)
     
     def _sync_ui(self):
         self._sync_draft_list()
@@ -218,9 +226,18 @@ class DraftListTabbedPackPreviewViewController(QWidget, TransmissionReceiverProt
     # MARK: - TransmissionReceiverProtocol
     
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
+        if type(event) == LocalCardResourceFetchEvent or type(event) == LocalCardResourceSelectedEvent:
+            if event.local_resource == self._data_source_local_resource_provider.data_source.selected_local_resource:
+                self._sync_button()
         if type(event) == DraftPackUpdatedEvent or \
-            type(event) == LocalCardResourceSelectedEvent or \
             type(event) == ConfigurationUpdatedEvent:
+            self._sync_ui()
+        if type(event) == PublishStagedCardResourcesEvent:
+            if event.event_type == PublishStagedCardResourcesEvent.EventType.STARTED:
+                self._is_publishing = True
+            else:
+                self._is_publishing = False
+            # print(self._is_publishing)
             self._sync_ui()
         if type(event) == ProductionCardResourcesLoadEvent:
             self._reset_deployment_destination_selection()

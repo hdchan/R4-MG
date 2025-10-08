@@ -8,15 +8,16 @@ from AppCore.DataSource.DataSourceRecentSearch import *
 from AppCore.ImageResource import *
 from AppUI.Coordinators import ShortcutActionCoordinator
 
-from .AppDependenciesProviding import *
+from .AppDependenciesInternalProviding import AppDependenciesInternalProviding
+from .AppDependenciesProviding import AppDependenciesProviding
 from .Assets import AssetProvider
 from .Configuration.AppUIConfiguration import AppUIConfigurationManager
 from .ExternalAppDependenciesProviding import ExternalAppDependenciesProviding
-from .Router import Router
+from .Router.Router import Router
 from .UIComponents.ScreenWidgetProvider import ScreenWidgetProvider
 
 
-class AppDependenciesProvider(CoreDependenciesProvider, AppDependenciesProviding):
+class AppDependenciesProvider(CoreDependenciesProvider, AppDependenciesProviding, AppDependenciesInternalProviding):
         def __init__(self, 
                      observation_tower: ObservationTower, 
                      configuration_manager: ConfigurationManager, 
@@ -33,10 +34,7 @@ class AppDependenciesProvider(CoreDependenciesProvider, AppDependenciesProviding
                                                                                 self._data_serializer,
                                                                                 client=self._external_app_dependencies_provider.locally_managed_sets_client)
             
-            client_provider = external_app_dependencies_provider.data_source_card_search_client_provider(self._local_managed_sets_data_source)
-            self._search_client_provider = client_provider
-            
-            self._router = Router(ScreenWidgetProvider(self))
+            self._router = Router(ScreenWidgetProvider(self, self))
 
         @property
         def router(self) -> Router:
@@ -52,7 +50,7 @@ class AppDependenciesProvider(CoreDependenciesProvider, AppDependenciesProviding
 
         @property
         def search_client_provider(self) -> DataSourceCardSearchClientProviding:
-            return self._search_client_provider
+            return self.external_app_dependencies_provider.data_source_card_search_client_provider(self._local_managed_sets_data_source)
         
         @property
         def local_managed_sets_data_source(self) -> DataSourceLocallyManagedSets:

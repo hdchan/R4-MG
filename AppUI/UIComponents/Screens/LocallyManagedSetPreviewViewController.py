@@ -10,7 +10,7 @@ from AppCore.DataSource.DataSourceCardSearch import (
     DataSourceCardSearchClientSearchCallback, DataSourceCardSearchDelegate)
 from AppCore.Models import (LocalAssetResource, PaginationConfiguration,
                             SearchConfiguration, LocalCardResource, TradingCard)
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.UIComponents.Base import ImagePreviewViewController
 from AppUI.UIComponents.Base import (
     SearchTableComboViewController, SearchTableComboViewControllerDelegate)
@@ -20,14 +20,14 @@ from AppCore.DataFetcher import DataFetcherLocal
 class LocallyManagedSetPreviewViewController(QWidget, SearchTableComboViewControllerDelegate, DataSourceCardSearchDelegate, DataSourceCardSearchClientProtocol, DataSourceCardSearchClientProviding):
     
     def __init__(self,
-                 app_dependencies_provider: AppDependenciesProviding,
+                 app_dependencies_provider: AppDependenciesInternalProviding,
                  resource: LocalAssetResource):
         super().__init__()
         self.setMinimumSize(800, 600)
         self._resource = resource
         self._card_search_data_source = app_dependencies_provider.new_instance_card_search_data_source(self, self)
         self._local_managed_sets_data_source = app_dependencies_provider.local_managed_sets_data_source
-        self._local_fetcher = DataFetcherLocal(app_dependencies_provider.configuration_manager)
+        self._local_fetcher = DataFetcherLocal(DataFetcherLocal.Configuration(app_dependencies_provider.configuration_manager.configuration.network_delay_duration))
 
         self._selected_resource: Optional[LocalCardResource] = None
         self._card_resources = self._local_managed_sets_data_source.retrieve_set_card_list(resource)
@@ -37,7 +37,7 @@ class LocallyManagedSetPreviewViewController(QWidget, SearchTableComboViewContro
         layout = QHBoxLayout()
         self.setLayout(layout)
         
-        search_table_combo_view = SearchTableComboViewController(self)
+        search_table_combo_view = SearchTableComboViewController(app_dependencies_provider, self)
         layout.addWidget(search_table_combo_view, 7)
         self._search_table_combo_view = search_table_combo_view
         
@@ -59,11 +59,8 @@ class LocallyManagedSetPreviewViewController(QWidget, SearchTableComboViewContro
         self._vc_search() # initial loading
     
     def _vc_search(self):
-        stripped_text = self._search_table_combo_view.card_name_search_bar_text.strip()
-        search_configuration = SearchConfiguration()
-        search_configuration.card_name = stripped_text
-        
-        self._card_search_data_source.search(search_configuration)
+
+        self._card_search_data_source.search(self._search_table_combo_view.search_configuration)
 
     # MARK: - DataSourceCardSearchClientProtocol 
     @property
@@ -89,7 +86,8 @@ class LocallyManagedSetPreviewViewController(QWidget, SearchTableComboViewContro
         result = DataSourceCardSearchClientSearchResponse(filtered_list)
         return (result, None)
     
-    def client(self, setting: Configuration.Settings.SearchSource) -> DataSourceCardSearchClientProtocol:
+    @property
+    def search_client(self) -> DataSourceCardSearchClientProtocol:
         return self
     
     # MARK: - DataSourceCardSearchDelegate
@@ -124,3 +122,7 @@ class LocallyManagedSetPreviewViewController(QWidget, SearchTableComboViewContro
     @property
     def stc_is_flippable(self) -> bool:
         return self._card_search_data_source.current_previewed_trading_card_is_flippable
+    
+    @property
+    def is_only_text_search(self) -> bool:
+        return True

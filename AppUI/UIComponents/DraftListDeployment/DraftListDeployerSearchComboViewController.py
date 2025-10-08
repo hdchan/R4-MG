@@ -1,7 +1,7 @@
 
 from PyQt5.QtWidgets import QWidget
 
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.UIComponents import ImagePreviewLocalResourceDataSourceDecorator
 from R4UI import VerticalBoxLayout, HorizontalSplitter
 
@@ -9,7 +9,7 @@ from ..Base.SearchTableViewController import SearchTableViewController
 from .DraftListTabbedPackPreviewViewController import DraftListTabbedPackPreviewViewController
 from .DraftListWindowDeployerViewController import DraftListWindowDeployerViewController
 class DraftListDeployerSearchComboViewController(QWidget):
-    def __init__(self, app_dependencies_provider: AppDependenciesProviding):
+    def __init__(self, app_dependencies_provider: AppDependenciesInternalProviding):
         super().__init__()
         self._app_dependencies_provider = app_dependencies_provider
         self._setup_view()
@@ -17,6 +17,7 @@ class DraftListDeployerSearchComboViewController(QWidget):
     def _setup_view(self):
         configuration = SearchTableViewController.SearchTableViewControllerConfiguration(is_flip_button_hidden=False)
         
+        # TODO: package
         image_preview_view = ImagePreviewLocalResourceDataSourceDecorator(self._app_dependencies_provider)
         search_table = SearchTableViewController(self._app_dependencies_provider, configuration, image_preview_view)
         

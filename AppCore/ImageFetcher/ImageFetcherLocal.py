@@ -1,20 +1,19 @@
 import platform
 import random
 import time
-from AppCore.Config import ConfigurationManager
 from PIL import Image, ImageDraw, ImageFont
 
 from .ImageFetcherProtocol import *
 
 
 class ImageFetcherLocal(ImageFetcherProtocol):
-    def __init__(self, configuration_manager: ConfigurationManager):
-        self.configuration_manager = configuration_manager
+    def __init__(self):
+        self.network_delay_duration = 0
         
     def fetch(self, local_resource: LocalCardResource) ->Image.Image:
         image_url = local_resource.remote_image_url
         if image_url is not None:
-            time.sleep(self.configuration_manager.configuration.network_delay_duration)
+            time.sleep(self.network_delay_duration)
             file_name = local_resource.display_name
             color_palette = [
                 (255, 179, 186),
