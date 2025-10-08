@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QMenu, QPushButton,
 from AppCore.DataSource import DataSourceImageResourceDeployer
 from AppCore.Observation import *
 from AppCore.Observation.Events import CardSearchEvent
-from AppUI.Router import Router
+from AppUI.Router.Router import Router
 from R4UI import R4UIWidget
 
 from ..Assets import AssetProvider

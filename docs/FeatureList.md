@@ -16,11 +16,12 @@
 - [x] sorting by card cost/aspect and their card count (and or visual representation of sorted cards)
 - [x] information/text represtation for the casters (draft pool)
 - [ ] import cards from melee.gg/swu-db.com
-- [ ] sideboard functionality with toggle
+- [x] sideboard functionality with toggle
 
 ## Image deployment
 - [ ] auto populate data from melee.gg such as leader and player names
 # Misc
+- [ ] Sync via network
 - [ ] auto-complete (not important)
 - [ ] OBS can read text files
 - [ ] Integration with melee GG

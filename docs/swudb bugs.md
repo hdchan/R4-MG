@@ -1,5 +1,6 @@
 ### Incorrect card cost 2025/10/07
 https://api.swu-db.com/cards/jtl/122
+- Fixed 10/8/2025
 ```
 {
             "Set": "JTL",

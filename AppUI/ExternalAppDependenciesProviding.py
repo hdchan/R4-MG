@@ -9,11 +9,12 @@ from AppCore.DataSource import (DataSourceCardSearchClientProviding,
                                 DataSourceLocallyManagedSets)
 from AppCore.DataSource.DataSourceLocallyManagedSets import \
     DataSourceLocallyManagedSetsClientProtocol
-from AppCore.Models import DraftPack, LocalCardResource, TradingCard
+from AppCore.Models import DraftPack, LocalCardResource
 from AppUI.ExternalAppDependenciesProviding import *
 from AppUI.Models import DraftListStyleSheet
+from AppUI.Router.Router import Router
 from R4UI import R4UIWidget
-from AppUI.Router import Router
+
 
 class ExternalAppDependenciesProviding:
     

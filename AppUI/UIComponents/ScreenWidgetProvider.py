@@ -9,7 +9,7 @@ from AppCore.ImageResource import *
 from AppCore.Models import LocalAssetResource, LocalResourceDraftListWindow
 
 from ..AppDependenciesProviding import *
-from ..ScreenWidgetProviding import ScreenWidgetProviding
+from ..Router.ScreenWidgetProviding import ScreenWidgetProviding
 from ..UIComponents.DraftListDeployment.MainWindow import MainWindow
 from ..UIComponents.ImageDeployment.Window import Window
 from .Screens.Settings.AppSettingsViewController import AppSettingsViewController

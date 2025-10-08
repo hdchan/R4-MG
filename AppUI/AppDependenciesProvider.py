@@ -8,11 +8,11 @@ from AppCore.DataSource.DataSourceRecentSearch import *
 from AppCore.ImageResource import *
 from AppUI.Coordinators import ShortcutActionCoordinator
 
-from .AppDependenciesProviding import *
+from .AppDependenciesProviding import AppDependenciesProviding
 from .Assets import AssetProvider
 from .Configuration.AppUIConfiguration import AppUIConfigurationManager
 from .ExternalAppDependenciesProviding import ExternalAppDependenciesProviding
-from .Router import Router
+from .Router.Router import Router
 from .UIComponents.ScreenWidgetProvider import ScreenWidgetProvider
 
 

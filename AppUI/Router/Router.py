@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QInputDialog, QMessageBox, QWidget
 
 from AppCore.Models import (LocalAssetResource, LocalCardResource,
                             LocalResourceDraftListWindow)
-from AppUI.ScreenWidgetProviding import ScreenWidgetProviding
+from AppUI.Router.ScreenWidgetProviding import ScreenWidgetProviding
 
 
 class Router:

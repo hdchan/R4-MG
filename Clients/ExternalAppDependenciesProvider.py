@@ -17,7 +17,7 @@ from AppUI.Assets import AssetProvider
 from AppUI.ExternalAppDependenciesProviding import \
     ExternalAppDependenciesProviding
 from AppUI.Models import DraftListStyleSheet
-from AppUI.Router import Router
+from AppUI.Router.Router import Router
 from R4UI import R4UIWidget, VerticalBoxLayout
 
 from .Assets import AssetProvider as InternalAssetProvider
