@@ -10,7 +10,7 @@ from AppCore.DataSource.DataSourceCardSearch import (
     DataSourceCardSearchClientSearchCallback, DataSourceCardSearchDelegate)
 from AppCore.Models import (LocalAssetResource, PaginationConfiguration,
                             SearchConfiguration, LocalCardResource, TradingCard)
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.UIComponents.Base import ImagePreviewViewController
 from AppUI.UIComponents.Base import (
     SearchTableComboViewController, SearchTableComboViewControllerDelegate)
@@ -20,7 +20,7 @@ from AppCore.DataFetcher import DataFetcherLocal
 class LocallyManagedSetPreviewViewController(QWidget, SearchTableComboViewControllerDelegate, DataSourceCardSearchDelegate, DataSourceCardSearchClientProtocol, DataSourceCardSearchClientProviding):
     
     def __init__(self,
-                 app_dependencies_provider: AppDependenciesProviding,
+                 app_dependencies_provider: AppDependenciesInternalProviding,
                  resource: LocalAssetResource):
         super().__init__()
         self.setMinimumSize(800, 600)

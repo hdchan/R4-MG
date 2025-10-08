@@ -1,4 +1,4 @@
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.Configuration import MutableAppUIConfiguration
 from AppUI.UIComponents import SettingsContainerChildProtocol
 from R4UI import (HorizontalLabeledInputRow, R4UICheckBox, VerticalBoxLayout,
@@ -6,7 +6,7 @@ from R4UI import (HorizontalLabeledInputRow, R4UICheckBox, VerticalBoxLayout,
 
 
 class ToggleSettingsViewController(SettingsContainerChildProtocol):
-    def __init__(self, app_dependencies_provider: AppDependenciesProviding):
+    def __init__(self, app_dependencies_provider: AppDependenciesInternalProviding):
         super().__init__()
 
         self._mutable_configuration = app_dependencies_provider.app_ui_configuration_manager.mutable_configuration()

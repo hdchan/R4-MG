@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QAction, QMenu, QVBoxLayout, QLabel
 
 from AppCore.DataSource import LocalResourceDataSourceProviding
 from AppCore.Models import LocalCardResource, TradingCard, DraftPack
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 
 from AppUI.Models.DraftListStyleSheet import DraftListStyleSheet
 from R4UI import R4UIWidget
@@ -19,7 +19,7 @@ class DraftListLineItemViewControllerDelegate:
 
 class DraftListLineItemViewController(R4UIWidget):
     def __init__(self, 
-                 app_dependencies_provider: AppDependenciesProviding,
+                 app_dependencies_provider: AppDependenciesInternalProviding,
                  stylesheet: DraftListStyleSheet, # TODO: move style sheet to client side
                  trading_card: TradingCard,
                  local_resource: LocalCardResource, # Able to access resource without checking optional trading card

@@ -14,8 +14,8 @@ from AppCore.Observation.Events import (CardSearchEvent,
                                         ConfigurationUpdatedEvent,
                                         LocalCardResourceFetchEvent)
 from Clients import SWUCardSearchConfiguration, CardType
-from AppUI.AppDependenciesProviding import \
-    AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import \
+    AppDependenciesInternalProviding
 from AppUI.Observation.Events import KeyboardEvent
 
 from .ImagePreviewViewController import ImagePreviewViewController
@@ -40,7 +40,7 @@ class SearchTableViewController(QWidget,
             self.search_history_page_size = search_history_page_size
     
     def __init__(self,
-                 app_dependencies_provider: AppDependenciesProviding,
+                 app_dependencies_provider: AppDependenciesInternalProviding,
                  search_table_view_controller_config: SearchTableViewControllerConfiguration = SearchTableViewControllerConfiguration(),
                  image_preview_view: Optional[ImagePreviewViewController] = None):
         super().__init__()

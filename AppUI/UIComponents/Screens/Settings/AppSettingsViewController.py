@@ -1,6 +1,6 @@
 from typing import List, Tuple
 
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.UIComponents.Base.SettingsContainerChildProtocol import *
 from R4UI import (HorizontalBoxLayout, PushButton, R4UITabWidget, R4UIWidget,
                   VerticalBoxLayout)
@@ -11,7 +11,7 @@ from .ToggleSettingsViewController import ToggleSettingsViewController
 
 class AppSettingsViewController(R4UIWidget):
     def __init__(self,
-                 app_dependencies_provider: AppDependenciesProviding):
+                 app_dependencies_provider: AppDependenciesInternalProviding):
         super().__init__()
         self._app_dependencies_provider = app_dependencies_provider
         self._app_ui_configuration_manager = app_dependencies_provider.app_ui_configuration_manager

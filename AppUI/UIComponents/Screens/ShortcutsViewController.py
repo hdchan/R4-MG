@@ -1,12 +1,12 @@
 from PyQt5.QtWidgets import QTextEdit, QWidget
 
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from R4UI import VerticalBoxLayout, R4UITabWidget
 
 
 class ShortcutsViewController(QWidget):
     def __init__(self, 
-                 app_dependencies_provider: AppDependenciesProviding):
+                 app_dependencies_provider: AppDependenciesInternalProviding):
         super().__init__()
         self.setWindowTitle("Quick Guide")
         self.setMinimumSize(400, 400)

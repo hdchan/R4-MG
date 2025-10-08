@@ -1,11 +1,11 @@
 from PyQt5.QtWidgets import QWidget
 
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from R4UI import VerticalBoxLayout
 
 
 class DraftListImagePreviewViewControllerContainer(QWidget):
-    def __init__(self, app_dependencies_provider: AppDependenciesProviding):
+    def __init__(self, app_dependencies_provider: AppDependenciesInternalProviding):
         super().__init__()
         self._data_source_draft_list = app_dependencies_provider.data_source_draft_list
         self._external_app_dependencies_provider = app_dependencies_provider.external_app_dependencies_provider

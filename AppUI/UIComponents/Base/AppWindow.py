@@ -7,14 +7,14 @@ from PyQt5.QtWidgets import QDesktopWidget, QMainWindow, QWidget
 
 from AppCore.Observation.TransmissionReceiverProtocol import \
     TransmissionReceiverProtocol
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.Observation.Events import KeyboardEvent
 from AppUI.Models import WindowDimensions
 
 class AppWindow(QMainWindow, TransmissionReceiverProtocol):
     
     def __init__(self,
-                 app_dependencies_provider: AppDependenciesProviding, 
+                 app_dependencies_provider: AppDependenciesInternalProviding, 
                  central_widget: QWidget, 
                  window_config_identifier: str,
                  default_width: int, 

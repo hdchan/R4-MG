@@ -8,6 +8,7 @@ from AppCore.DataSource.DataSourceRecentSearch import *
 from AppCore.ImageResource import *
 from AppUI.Coordinators import ShortcutActionCoordinator
 
+from .AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from .AppDependenciesProviding import AppDependenciesProviding
 from .Assets import AssetProvider
 from .Configuration.AppUIConfiguration import AppUIConfigurationManager
@@ -16,7 +17,7 @@ from .Router.Router import Router
 from .UIComponents.ScreenWidgetProvider import ScreenWidgetProvider
 
 
-class AppDependenciesProvider(CoreDependenciesProvider, AppDependenciesProviding):
+class AppDependenciesProvider(CoreDependenciesProvider, AppDependenciesProviding, AppDependenciesInternalProviding):
         def __init__(self, 
                      observation_tower: ObservationTower, 
                      configuration_manager: ConfigurationManager, 

@@ -1,7 +1,7 @@
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QHBoxLayout, QSplitter, QWidget
 
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.UIComponents import (CardSearchPreviewViewController,
                                 ImageDeploymentListViewController,
                                 ImagePreviewLocalResourceDataSourceDecorator)
@@ -9,7 +9,7 @@ from AppUI.UIComponents import (CardSearchPreviewViewController,
 
 class MainProgramViewController(QWidget):
     def __init__(self,
-                 app_dependencies_provider: AppDependenciesProviding):
+                 app_dependencies_provider: AppDependenciesInternalProviding):
         super().__init__()
 
         image_preview_view = ImagePreviewLocalResourceDataSourceDecorator(app_dependencies_provider)

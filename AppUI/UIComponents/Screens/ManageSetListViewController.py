@@ -7,7 +7,7 @@ from AppCore.Models import LocalAssetResource
 from AppCore.Observation import (TransmissionProtocol,
                                  TransmissionReceiverProtocol)
 from AppCore.Observation.Events import LocalAssetResourceFetchEvent
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 
 
 class ManageSetListViewController(QWidget, TransmissionReceiverProtocol):
@@ -19,7 +19,7 @@ class ManageSetListViewController(QWidget, TransmissionReceiverProtocol):
     class ListItemViewController(QWidget, TransmissionReceiverProtocol):
         
         def __init__(self, 
-                     app_dependencies_provider: AppDependenciesProviding, 
+                     app_dependencies_provider: AppDependenciesInternalProviding, 
                      resource: LocalAssetResource):
             super().__init__()
             self._set_list_data_source = app_dependencies_provider.local_managed_sets_data_source
@@ -107,7 +107,7 @@ class ManageSetListViewController(QWidget, TransmissionReceiverProtocol):
                 return (QValidator.State.Acceptable, result, len(result))
             
         def __init__(self, 
-                     app_dependencies_provider: AppDependenciesProviding):
+                     app_dependencies_provider: AppDependenciesInternalProviding):
             super().__init__()
             self._set_list_data_source = app_dependencies_provider.local_managed_sets_data_source
             self._asset_provider = app_dependencies_provider.asset_provider
@@ -160,7 +160,7 @@ class ManageSetListViewController(QWidget, TransmissionReceiverProtocol):
             self._sync_save_button()
     
     def __init__(self, 
-                 app_dependencies_provider: AppDependenciesProviding):
+                 app_dependencies_provider: AppDependenciesInternalProviding):
         super().__init__()
         self._set_list_data_source = app_dependencies_provider.local_managed_sets_data_source
         self._configuration_manager = app_dependencies_provider.configuration_manager

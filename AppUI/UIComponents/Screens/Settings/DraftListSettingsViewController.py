@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFileDialog, QLabel
 
 from AppCore.Config import Configuration
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.Configuration import MutableAppUIConfiguration
 from AppUI.UIComponents import SettingsContainerChildProtocol
 from R4UI import (BoldLabel, ComboBox, GridLayout, HeaderLabel,
@@ -61,7 +61,7 @@ class CellStyleWrapper(VerticalGroupBox):
 
 class DraftListSettingsViewController(SettingsContainerChildProtocol):
     def __init__(self, 
-                 app_dependencies_provider: AppDependenciesProviding):
+                 app_dependencies_provider: AppDependenciesInternalProviding):
         super().__init__()
         self._app_ui_configuration_manager = app_dependencies_provider.app_ui_configuration_manager
         self._router = app_dependencies_provider.router

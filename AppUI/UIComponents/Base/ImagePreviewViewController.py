@@ -13,14 +13,14 @@ from AppCore.Observation.Events import (CacheClearedEvent,
                                         LocalCardResourceFetchEvent,
                                         PublishStatusUpdatedEvent)
 from AppCore.Service.PlatformServiceProvider import *
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 
 from .LoadingSpinner import LoadingSpinner
 
 MAX_PREVIEW_SIZE = 256
 class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
-                 app_dependencies_provider: AppDependenciesProviding, 
+                 app_dependencies_provider: AppDependenciesInternalProviding, 
                  # whether we can manipulate images
                  can_post_process: bool = True):
         super().__init__()

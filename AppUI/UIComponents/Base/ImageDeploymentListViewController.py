@@ -14,7 +14,7 @@ from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         ProductionCardResourcesLoadEvent,
                                         PublishStagedCardResourcesEvent,
                                         PublishStatusUpdatedEvent)
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 
 from .LoadingSpinner import LoadingSpinner
 from ..Base import ImageDeploymentViewController
@@ -22,7 +22,7 @@ from ..Base import ImageDeploymentViewController
 
 class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
-                 app_dependencies_provider: AppDependenciesProviding,
+                 app_dependencies_provider: AppDependenciesInternalProviding,
                  local_resource_data_source_provider: LocalResourceDataSourceProviding):
         super().__init__()
         self._app_dependencies_provider = app_dependencies_provider

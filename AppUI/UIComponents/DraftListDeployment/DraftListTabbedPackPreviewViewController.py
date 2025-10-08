@@ -11,7 +11,7 @@ from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         LocalCardResourceSelectedEvent,
                                         ProductionCardResourcesLoadEvent)
 from AppCore.Observation.ObservationTower import *
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from R4UI import ComboBox, R4UIMenuListBuilder, PushButton, VerticalBoxLayout, HorizontalBoxLayout, R4UIActionMenuItem, BoldLabel
 
 from .DraftListTablePackPreviewViewController import (
@@ -34,7 +34,7 @@ class DraftListTabbedPackPreviewViewControllerDraftListTablePackPreviewViewContr
 
 class DraftListTabbedPackPreviewViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
-                 app_dependencies_provider: AppDependenciesProviding,
+                 app_dependencies_provider: AppDependenciesInternalProviding,
                  data_source_local_resource_provider: LocalResourceDataSourceProviding):
         super().__init__()
         self._app_dependencies_provider = app_dependencies_provider

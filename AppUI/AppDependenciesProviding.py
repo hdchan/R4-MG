@@ -1,9 +1,10 @@
 from AppCore.CoreDependenciesProviding import CoreDependenciesProviding
-from AppCore.DataSource import DataSourceCardSearchClientProviding, DataSourceLocallyManagedSets
+from AppCore.DataSource import (DataSourceCardSearchClientProviding)
 
-from .Coordinators import ShortcutActionCoordinator
-from .Router.Router import Router
 from .Configuration.AppUIConfiguration import AppUIConfigurationManager
+from .Router.Router import Router
+
+
 class AppDependenciesProviding(CoreDependenciesProviding):
     
     @property
@@ -11,16 +12,8 @@ class AppDependenciesProviding(CoreDependenciesProviding):
         raise Exception
     
     @property
-    def shortcut_action_coordinator(self) -> ShortcutActionCoordinator:
-        raise Exception
-    
-    @property
     def search_client_provider(self) -> DataSourceCardSearchClientProviding:
         raise Exception
-    
-    # @property
-    # def local_managed_sets_data_source(self) -> DataSourceLocallyManagedSets:
-    #     raise Exception
     
     @property
     def app_ui_configuration_manager(self) -> AppUIConfigurationManager:

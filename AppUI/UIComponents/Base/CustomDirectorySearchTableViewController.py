@@ -11,7 +11,7 @@ from AppCore.Models import LocalCardResource, SearchConfiguration
 from AppCore.Observation import *
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         LocalCardResourceFetchEvent, CardSearchEvent)
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.Observation.Events import KeyboardEvent
 
 from ..Base.ImagePreviewViewController import ImagePreviewViewController
@@ -20,7 +20,7 @@ from .LoadingSpinner import LoadingSpinner
 
 class CustomDirectorySearchTableViewController(QWidget, TransmissionReceiverProtocol, CustomDirectorySearchDataSourceDelegate):
     def __init__(self, 
-                 app_dependencies_provider: AppDependenciesProviding,
+                 app_dependencies_provider: AppDependenciesInternalProviding,
                  image_preview_view: ImagePreviewViewController):
         super().__init__()
         self._image_preview_view = image_preview_view

@@ -8,7 +8,7 @@ from AppCore.DataSource.DataSourceRecentSearch import *
 from AppCore.ImageResource import *
 from AppCore.Models import LocalAssetResource, LocalResourceDraftListWindow
 
-from ..AppDependenciesProviding import *
+from ..AppDependenciesInternalProviding import *
 from ..Router.ScreenWidgetProviding import ScreenWidgetProviding
 from ..UIComponents.DraftListDeployment.MainWindow import MainWindow
 from ..UIComponents.ImageDeployment.Window import Window
@@ -22,7 +22,7 @@ from .Screens.ShortcutsViewController import ShortcutsViewController
 from .DraftListDeployment.DraftListImagePreviewViewControllerContainer import DraftListImagePreviewViewControllerContainer
 
 class ScreenWidgetProvider(ScreenWidgetProviding):
-    def __init__(self, app_dependencies_provider: AppDependenciesProviding):
+    def __init__(self, app_dependencies_provider: AppDependenciesInternalProviding):
         self._app_dependencies_provider = app_dependencies_provider
         
     @property

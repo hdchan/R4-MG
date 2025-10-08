@@ -2,14 +2,14 @@ from PyQt5.QtWidgets import QMainWindow
 from typing import Optional
 from AppCore.Config.ConfigurationManager import *
 from AppCore.Service.PlatformServiceProvider import PlatformServiceProtocol
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.Configuration.AppUIConfiguration import *
 from AppUI.UIComponents import AppUIConfigurationCheckableR4UIActionMenuItem
 from R4UI import R4UIActionMenuItem, R4UIMenuBarBuilder, R4UIMenuListBuilder
 
 
 class AppMenuBarBuilder:
-    def __init__(self, app_dependencies_provider: AppDependenciesProviding):
+    def __init__(self, app_dependencies_provider: AppDependenciesInternalProviding):
         self._app_dependencies_provider = app_dependencies_provider
         self._router = app_dependencies_provider.router
         self._external_app_dependencies_provider = app_dependencies_provider.external_app_dependencies_provider
