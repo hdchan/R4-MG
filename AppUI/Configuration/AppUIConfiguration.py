@@ -1,6 +1,5 @@
 
 import copy
-from typing import Optional, Dict
 
 from AppCore.Config import (Configuration, ConfigurationManager,
                             MutableConfiguration)

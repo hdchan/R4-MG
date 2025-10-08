@@ -32,7 +32,7 @@ from .UIComponents.DraftListImagePreviewViewController import \
 from .UIComponents.DraftListItemCell import DraftListItemCell
 from .UIComponents.DraftListItemHeader import DraftListItemHeader
 from .Models.SWUTradingCardModelMapper import SWUTradingCardModelMapper
-
+from .Config.SWUAppConfiguration import SWUAppConfigurationManager
 class ExternalAppDependenciesProvider(ExternalAppDependenciesProviding):
     
     def __init__(self, 
@@ -43,6 +43,7 @@ class ExternalAppDependenciesProvider(ExternalAppDependenciesProviding):
         self._internal_asset_provider = InternalAssetProvider()
         self._observation_tower = observation_tower
         self._configuration_manager = configuration_manager
+        self._swu_app_configuration_manager = SWUAppConfigurationManager(self._configuration_manager)
         self._locally_managed_sets_client = SWUDBLocalSetRetrieverClient()
         self._draft_list_exporter = DraftListExporter()
         self._data_source_card_search_client_provider: Optional[DataSourceCardSearchClientProviding] = None 
@@ -154,4 +155,6 @@ class ExternalAppDependenciesProvider(ExternalAppDependenciesProviding):
         self._draft_list_exporter.export_draft_list(draft_packs, to_path, swu_db)
         
     def provide_draft_list_image_preview_widget(self, draft_list_data_source: DataSourceDraftList) -> QWidget:
-        return DraftListImagePreviewViewController(self._observation_tower, draft_list_data_source)
+        return DraftListImagePreviewViewController(self._observation_tower, 
+                                                   draft_list_data_source, 
+                                                   self._swu_app_configuration_manager)

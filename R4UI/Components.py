@@ -2,6 +2,7 @@
 from typing import Any, Callable, List, Optional, TypeVar, Generic
 
 from PyQt5.QtCore import QPoint, Qt
+from PyQt5.QtGui import QIntValidator, QDoubleValidator
 from PyQt5.QtWidgets import (QAction, QButtonGroup, QCheckBox, QComboBox,
                              QGroupBox, QLabel, QLineEdit, QMenu, QMenuBar,
                              QPushButton, QRadioButton, QScrollArea,
@@ -230,12 +231,14 @@ class R4UIMenuBarBuilder(QMenuBar):
         window.setMenuBar(self)
         return self
 
+
 class LineEditInt(QLineEdit):
     def __init__(self,
                  int: Optional[int] = None, 
                  triggered_fn: Optional[Callable[[int], None]] = None):
         super().__init__()
         self._triggered_fn = triggered_fn
+        self.setValidator(QIntValidator())
         self.set_value(int)
         self.textChanged.connect(self._triggered)
         
@@ -258,6 +261,37 @@ class LineEditInt(QLineEdit):
         if int is None:
             return
         self.setText(str(int))
+
+class LineEditFloat(QLineEdit):
+    def __init__(self,
+                 int: Optional[float] = None, 
+                 triggered_fn: Optional[Callable[[float], None]] = None):
+        super().__init__()
+        self._triggered_fn = triggered_fn
+        self.setValidator(QDoubleValidator())
+        self.set_value(int)
+        self.textChanged.connect(self._triggered)
+        
+    def _triggered(self, text: str):
+        try:
+            value = float(text)
+            if self._triggered_fn is not None:
+                self._triggered_fn(value)
+        except:
+            pass
+        
+    @property
+    def value(self) -> Optional[float]:
+        try:
+            return float(self.text())
+        except:
+            pass
+        
+    def set_value(self, int: Optional[float]):
+        if int is None:
+            return
+        self.setText(str(int))
+
         
 class LineEditText(QLineEdit):
     def __init__(self,

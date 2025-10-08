@@ -19,7 +19,7 @@ from .Screens.LocallyManagedSetPreviewViewController import \
     LocallyManagedSetPreviewViewController
 from .Screens.ManageSetListViewController import ManageSetListViewController
 from .Screens.ShortcutsViewController import ShortcutsViewController
-from .DraftListDeployment.DraftListImagePreviewViewController import DraftListImagePreviewViewController
+from .DraftListDeployment.DraftListImagePreviewViewControllerContainer import DraftListImagePreviewViewControllerContainer
 
 class ScreenWidgetProvider(ScreenWidgetProviding):
     def __init__(self, app_dependencies_provider: AppDependenciesProviding):
@@ -54,4 +54,4 @@ class ScreenWidgetProvider(ScreenWidgetProviding):
         return MainWindow(self._app_dependencies_provider)
     
     def draft_list_image_preview_view(self) -> QWidget:
-        return DraftListImagePreviewViewController(self._app_dependencies_provider)
+        return DraftListImagePreviewViewControllerContainer(self._app_dependencies_provider)
