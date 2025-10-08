@@ -17,7 +17,6 @@ from AppCore.Observation.Events import (
 from AppUI.UIComponents.Base.LoadingSpinner import LoadingSpinner
 from R4UI import (
     HorizontalBoxLayout,
-    ObjectComboBox,
     VerticalBoxLayout,
     HorizontalLabeledInputRow,
     R4UICheckBox,
@@ -30,6 +29,7 @@ from R4UI import (
 from ..Config.SWUAppConfiguration import SWUAppConfigurationManager
 from ..Models.ParsedDeckList import ParsedDeckList, ParsedDeckListProviding
 from ..Utility.DraftListImageGenerator import DraftListImageGenerator
+from ..Events.DeckListImageGeneratedEvent import DeckListImageGeneratedEvent
 from .PhotoViewer import PhotoViewer
 
 class DraftListImagePreviewInspectorPanelViewControllerDelegate:
@@ -210,15 +210,6 @@ class DraftListImagePreviewViewController(R4UIWidget, TransmissionReceiverProtoc
         self._sync_spinner()
         return True
     
-    def _unlock_resource_and_notify(self, result: Tuple[QPixmap, QImage, Hashable, Optional[Exception]]):
-        pix_map, _, local_resource, _ = result
-        if local_resource in self.working_resources:
-            self.mutex.lock()
-            self.working_resources.remove(local_resource)
-            self.mutex.unlock()
-            self._image_view.setPhoto(pix_map, None)
-            self._sync_spinner()
-    
     def _sync_spinner(self):
         if len(self.working_resources) == 0:
             self._loading_spinner.stop()
@@ -255,16 +246,35 @@ class DraftListImagePreviewViewController(R4UIWidget, TransmissionReceiverProtoc
             self.pool.start(worker)
             
     def _generate_image(self):
-        print("Generating image")
-        local_resource = ParsedDeckList.from_draft_packs(self._draft_list_data_source.draft_packs)
-        if local_resource.has_cards == False:
+        parsed_deck_list = ParsedDeckList.from_draft_packs(self._draft_list_data_source.draft_packs)
+        if parsed_deck_list.has_cards == False:
             self._image_view.setPhoto(None)
             return
-        if self._lock_resource_and_notify(local_resource):
+        
+        start_event = DeckListImageGeneratedEvent(DeckListImageGeneratedEvent.EventType.STARTED, 
+                                                  parsed_deck_list)
+        self._observation_tower.notify(start_event)
+
+        def _unlock_resource_and_notify(result: Tuple[QPixmap, QImage, Hashable, Optional[Exception]]):
+            pix_map, _, local_resource, _ = result
+            if local_resource in self.working_resources:
+                self.mutex.lock()
+                self.working_resources.remove(local_resource)
+                self.mutex.unlock()
+                self._image_view.setPhoto(pix_map, None)
+                self._sync_spinner()
+
+                end_event = DeckListImageGeneratedEvent(DeckListImageGeneratedEvent.EventType.FINISHED, 
+                                                        parsed_deck_list)
+                end_event.predecessor = start_event
+                print(f"Generated image: {end_event.seconds_since_predecessor}")
+                self._observation_tower.notify(end_event)
+
+        if self._lock_resource_and_notify(parsed_deck_list):
             # should lock UI in case another job is added
             worker = Worker(self._image_generator, 
-                            local_resource)
-            worker.signals.finished.connect(self._unlock_resource_and_notify)
+                            parsed_deck_list)
+            worker.signals.finished.connect(_unlock_resource_and_notify)
             self.pool.start(worker)
     
     # MARK: - ParsedDeckListProviding
