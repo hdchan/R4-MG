@@ -1,5 +1,5 @@
 import copy
-from typing import Callable, List, Optional, Set, Dict, Any
+from typing import Callable, List, Set
 
 from AppCore.Models import DraftPack
 
@@ -86,10 +86,21 @@ class ParsedDeckList:
     def main_deck_with_cost(self, cost: int) -> List[SWUTradingCardBackedLocalCardResource]:
         return self._filter_card_with_cost(cost, self.main_deck)
     
-    def all_units_with_cost(self, cost: int) -> List[SWUTradingCardBackedLocalCardResource]:
+    def all_units_with_cost(self, cost: int, is_alphabetical: bool) -> List[SWUTradingCardBackedLocalCardResource]:
         result = list(filter(lambda x: x.guaranteed_trading_card.card_type == CardType.UNIT and not x.is_sideboard, self._deep_copy_swu_backed_resources))
-        return self._filter_card_with_cost(cost, result)
+        result = self._filter_card_with_cost(cost, result)
+        if is_alphabetical:
+            result = sorted(result, key=lambda x: x.guaranteed_trading_card.name)
+        return result
 
-    def all_upgrades_and_events_with_cost(self, cost: int) -> List[SWUTradingCardBackedLocalCardResource]:
+    def all_upgrades_and_events_with_cost(self, cost: int, is_alphabetical: bool) -> List[SWUTradingCardBackedLocalCardResource]:
         result = list(filter(lambda x: (x.guaranteed_trading_card.card_type == CardType.UPGRADE or x.guaranteed_trading_card.card_type == CardType.EVENT) and not x.is_sideboard, self._deep_copy_swu_backed_resources))
-        return self._filter_card_with_cost(cost, result)
+        result = self._filter_card_with_cost(cost, result)
+        if is_alphabetical:
+            result = sorted(result, key=lambda x: x.guaranteed_trading_card.name)
+        return result
+    
+class ParsedDeckListProviding:
+    @property
+    def parsed_deck(self) -> ParsedDeckList:
+        raise Exception
