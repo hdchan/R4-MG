@@ -1,7 +1,7 @@
 from typing import Optional
-
+from PyQt5.QtCore import QSize
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QLineEdit, QListWidget,
-                             QPushButton, QVBoxLayout, QWidget)
+                             QPushButton, QVBoxLayout, QWidget, QSizePolicy)
 
 from AppCore.Config import Configuration
 from AppCore.DataSource.DataSourceCustomDirectorySearch import (
@@ -11,7 +11,7 @@ from AppCore.Models import LocalCardResource, SearchConfiguration
 from AppCore.Observation import *
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         LocalCardResourceFetchEvent, CardSearchEvent)
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.Observation.Events import KeyboardEvent
 
 from ..Base.ImagePreviewViewController import ImagePreviewViewController
@@ -20,7 +20,7 @@ from .LoadingSpinner import LoadingSpinner
 
 class CustomDirectorySearchTableViewController(QWidget, TransmissionReceiverProtocol, CustomDirectorySearchDataSourceDelegate):
     def __init__(self, 
-                 app_dependencies_provider: AppDependenciesProviding,
+                 app_dependencies_provider: AppDependenciesInternalProviding,
                  image_preview_view: ImagePreviewViewController):
         super().__init__()
         self._image_preview_view = image_preview_view
@@ -60,6 +60,9 @@ class CustomDirectorySearchTableViewController(QWidget, TransmissionReceiverProt
         
         
         search_source_label = QLabel()
+        # TODO: need to account for long labels else where
+        search_source_label.setMinimumSize(QSize(1, 1))
+        search_source_label.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Preferred)
         search_source_label.linkActivated.connect(self._handle_link_activated)
         layout.addWidget(search_source_label)
         self.search_source_label = search_source_label
@@ -89,11 +92,14 @@ class CustomDirectorySearchTableViewController(QWidget, TransmissionReceiverProt
                                         ds: CustomDirectorySearchDataSource,
                                         search_configuration: SearchConfiguration,
                                         error: Optional[Exception]):
-        status = "🟢 OK"
-        if error is not None:
-            status = f"🔴 {error}"
-        self._load_list()
-        self._load_source_labels(status_string=status)
+        try:
+            status = "🟢 OK"
+            if error is not None:
+                status = f"🔴 {error}"
+            self._load_list()
+            self._load_source_labels(status_string=status)
+        except Exception as error:
+            print(error)
 
     def ds_did_retrieve_card_resource_for_card_selection(self, 
                                                          ds: CustomDirectorySearchDataSource, 

@@ -9,7 +9,7 @@ from AppCore.DataSource import LocalResourceDataSourceProviding
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         DraftListUpdatedEvent)
 from AppCore.Observation.ObservationTower import *
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.Models.DraftListStyleSheet import DraftListStyleSheet
 from R4UI import VerticalBoxLayout, R4UIVerticallyExpandingSpacer
 
@@ -34,7 +34,7 @@ class DraftListTablePackPreviewViewControllerDelegate:
 
 class DraftListTablePackPreviewViewController(QWidget, TransmissionReceiverProtocol, DraftListLineItemViewControllerDelegate):
     def __init__(self, 
-                 app_dependencies_provider: AppDependenciesProviding, 
+                 app_dependencies_provider: AppDependenciesInternalProviding, 
                  data_source_local_resource_provider: Optional[LocalResourceDataSourceProviding]):
         super().__init__()
         self._app_dependencies_provider = app_dependencies_provider

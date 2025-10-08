@@ -3,14 +3,12 @@ from urllib import request
 
 from PIL import Image
 
-from AppCore.Config import ConfigurationManager
-
 from .ImageFetcherProtocol import *
 
 
 class ImageFetcherRemote(ImageFetcherProtocol):
-    def __init__(self, configuration_manager: ConfigurationManager):
-        self.configuration_manager = configuration_manager
+    def __init__(self):
+        self.network_delay_duration = 0
         
     def fetch(self, local_resource: LocalCardResource) ->Image.Image:
         try:
@@ -30,7 +28,7 @@ class ImageFetcherRemote(ImageFetcherProtocol):
             try:
                 # raise Exception(retry_count)
                 print(f'fetching real image: {image_url}')
-                time.sleep(self.configuration_manager.configuration.network_delay_duration)
+                time.sleep(self.network_delay_duration)
                 # https://stackoverflow.com/questions/41106599/python-3-5-urllib-request-urlopen-progress-bar-available
                 # with request.urlopen(image_url) as response:
                 #     total_size = int(response.headers.get('Content-Length', 0))

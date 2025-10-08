@@ -1,5 +1,6 @@
 ### Incorrect card cost 2025/10/07
 https://api.swu-db.com/cards/jtl/122
+- Fixed 10/8/2025
 ```
 {
             "Set": "JTL",
@@ -25,3 +26,17 @@ https://api.swu-db.com/cards/jtl/122
             "LowPrice": "0.05"
         },
 ```
+
+
+
+https://api.swu-db.com/cards/search?q=name:Adept+ARC170 WORKS
+https://api.swu-db.com/cards/search?q=name:Adept+ARC-170 Does not work
+
+https://api.swu-db.com/cards/search?q=name:2-1B%20Surgical%20Droid works
+https://api.swu-db.com/cards/search?q=name:21B%20Surgical%20Droid does not work
+
+https://api.swu-db.com/cards/search?q=name:AT-TE%20Vanguard works
+https://api.swu-db.com/cards/search?q=name:ATTE%20Vanguard does not work
+
+https://api.swu-db.com/cards/search?q=name:4-LOM does not work
+https://api.swu-db.com/cards/search?q=name:4LOM works

@@ -89,7 +89,7 @@ class DataSourceCardSearch:
     
     @property
     def _api_client(self) -> DataSourceCardSearchClientProtocol:
-        return self._search_client_provider.client(setting=self._configuration.search_source)
+        return self._search_client_provider.search_client
     
     @property
     def _image_resource_processor(self) -> ImageResourceProcessorProtocol:
@@ -106,6 +106,10 @@ class DataSourceCardSearch:
         if len(self._paginated_trading_card_providers) == 1:
             return self._paginated_trading_card_providers[0]
         return reduce(lambda x, y: x + y, self._paginated_trading_card_providers)
+    
+    @property
+    def local_card_resources(self) -> List[LocalCardResource]:
+        return list(map(lambda x: x.local_resource, self._trading_card_providers))
     
     @property
     def has_more_pages(self) -> bool:

@@ -8,13 +8,13 @@ from AppCore.Models import DeploymentCardResource, LocalCardResource
 from AppCore.Observation import TransmissionProtocol
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         DeploymentCardResourceEvent)
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.UIComponents.Base.ImagePreviewViewController import *
 
 
 class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
-                 app_dependencies_provider: AppDependenciesProviding,
+                 app_dependencies_provider: AppDependenciesInternalProviding,
                  deployment_resource: DeploymentCardResource, 
                  local_resource_data_source_provider: LocalResourceDataSourceProviding, 
                  is_horizontal: bool):

@@ -1,11 +1,11 @@
 import os
 from pathlib import Path
-from typing import Callable, Optional, Set, Tuple
-
-from PIL import Image, ImageDraw
+from typing import Callable, Optional, Set, Tuple, List, TypeVar, Generic
+from multiprocessing import Process
+from PIL import Image, ImageDraw, ImageFile
 from PyQt5.QtCore import QMutex, QObject, QRunnable, QThreadPool, pyqtSignal
 
-from AppCore.ImageFetcher.ImageFetcherProvider import ImageFetcherProviding
+from AppCore.ImageFetcher.ImageFetcherProvider import ImageFetcherProviding, ImageFetcherProtocol
 from AppCore.Models import LocalCardResource
 from AppCore.Observation import ObservationTower
 from AppCore.Observation.Events import LocalCardResourceFetchEvent
@@ -22,6 +22,56 @@ ROUNDED_CORDERS_MULTIPLIER_RELATIVE_TO_HEIGHT = ROUNDED_CORNERS / NORMAL_CARD_HE
 ImageDownscaleCallback = Callable[[Image.Image], Image.Image]
 ImageAddCornersCallback = Callable[[Image.Image, int], Image.Image]
 
+T = TypeVar("T")
+
+# hopefully this is safe
+# prevents error being throw when retrieving image from importer
+ImageFile.LOAD_TRUNCATED_IMAGES = True
+
+def _down_scale_image(original_img: Image.Image, max_size: float) -> Image.Image:
+    # TODO: recover from truncated image
+    preview_img = original_img.copy().convert('RGBA')
+    # prevent lower than thumbnail size
+    downscaled_size = max_size
+    if downscaled_size < THUMBNAIL_SIZE:
+        downscaled_size = THUMBNAIL_SIZE
+    preview_img.thumbnail((downscaled_size, downscaled_size), Image.Resampling.BICUBIC)
+    return preview_img
+
+def _add_corners(im: Image.Image, rad: int) -> Image.Image:
+    circle = Image.new('L', (rad * 2, rad * 2), 0)
+    draw = ImageDraw.Draw(circle)
+    draw.ellipse((0, 0, rad * 2 - 1, rad * 2 - 1), fill=255)
+    alpha = Image.new('L', im.size, 255)
+    w, h = im.size
+    alpha.paste(circle.crop((0, 0, rad, rad)), (0, 0))
+    alpha.paste(circle.crop((0, rad, rad, rad * 2)), (0, h - rad))
+    alpha.paste(circle.crop((rad, 0, rad * 2, rad)), (w - rad, 0))
+    alpha.paste(circle.crop((rad, rad, rad * 2, rad * 2)), (w - rad, h - rad))
+    im.putalpha(alpha)
+    return im
+
+# This is placed outside the scope of a class because multiprocessing requires a function to be pickle-able, which is difficult to do for image resource processor
+def _process(resource: LocalCardResource, image_fetcher: ImageFetcherProtocol):
+    Path(resource.image_dir).mkdir(parents=True, exist_ok=True)
+    Path(resource.image_preview_dir).mkdir(parents=True, exist_ok=True)
+    open(resource.image_temp_path, 'a').close() # generate 0kb file before notification
+    if not resource.is_ready:
+        img = image_fetcher.fetch(resource)
+        img_height = min(img.height, img.width)
+        rad = int(img_height * ROUNDED_CORDERS_MULTIPLIER_RELATIVE_TO_HEIGHT)
+        large_img = _add_corners(img.convert('RGB'), rad)
+        large_img.save(resource.image_path)
+        preview_img = _down_scale_image(large_img, THUMBNAIL_SIZE)
+        preview_img.save(resource.image_preview_path)
+    elif not resource.is_preview_ready:
+        with Image.open(resource.image_path) as large_img:
+            preview_img = _down_scale_image(large_img, THUMBNAIL_SIZE)
+            preview_img.save(resource.image_preview_path)
+    if os.path.exists(resource.image_temp_path):
+        # prevent call to deletion from two successive calls
+        Path(resource.image_temp_path).unlink() # unlink before notification
+        
 class ImageResourceProcessor(ImageResourceProcessorProtocol, ImageResourceProcessorProviding):
     def __init__(self,
                  image_fetcher_provider: ImageFetcherProviding,
@@ -35,6 +85,42 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol, ImageResourceProces
     @property
     def image_resource_processor(self) -> 'ImageResourceProcessor':
         return self
+
+    def async_store_local_resources_multi(self, local_resources: List[LocalCardResource], completed: Callable[[], None]) -> None:
+        filtered_resources = list(filter(lambda x: x.is_ready == False or x.is_preview_ready, local_resources)) # only process the ones that we need to
+        self.mutex.lock()
+        for l in filtered_resources:
+            self.working_resources.add(l.image_path)
+        self.mutex.unlock()
+
+        def _finished():
+            self.mutex.lock()
+            for l in filtered_resources:
+                if l.image_path in self.working_resources:
+                    self.working_resources.remove(l.image_path)
+            self.mutex.unlock()
+            completed()
+
+        def _runnable_fn():
+            for r in filtered_resources:
+                _process(r, self.image_fetcher_provider.image_fetcher)
+            
+            # multiprocessing causing multiple windows being spawned on prod build
+            # processes: List[Process] = []
+            # for resource in filtered_resources:
+            #     # _process(resource)
+            #     p = Process(target=_process, args=(resource, self.image_fetcher_provider.image_fetcher))
+            #     processes.append(p)
+            # for p in processes:
+            #     p.start()
+            # for p in processes:
+            #     p.join()
+
+            # return None
+
+        worker = GeneralWorker(_runnable_fn)
+        worker.signals.finished.connect(_finished)
+        self.pool.start(worker)
 
     def async_store_local_resource(self, local_resource: LocalCardResource, retry: bool = False):
         # TODO: implement stale cache
@@ -109,14 +195,7 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol, ImageResourceProces
         return self.down_scale_image(original_img, THUMBNAIL_SIZE)
     
     def down_scale_image(self, original_img: Image.Image, max_size: float) -> Image.Image:
-        # TODO: recover from truncated image
-        preview_img = original_img.copy().convert('RGBA')
-        # prevent lower than thumbnail size
-        downscaled_size = max_size
-        if downscaled_size < THUMBNAIL_SIZE:
-            downscaled_size = THUMBNAIL_SIZE
-        preview_img.thumbnail((downscaled_size, downscaled_size), Image.Resampling.BICUBIC)
-        return preview_img
+        return _down_scale_image(original_img, max_size)
     
     def generate_placeholder(self, local_resource: LocalCardResource, placeholder_image_path: Optional[str]): 
         existing_file = Path(local_resource.image_path)
@@ -138,22 +217,26 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol, ImageResourceProces
         preview_img.save(local_resource.image_preview_path, "PNG")
     
     def _add_corners(self, im: Image.Image, rad: int) -> Image.Image:
-        circle = Image.new('L', (rad * 2, rad * 2), 0)
-        draw = ImageDraw.Draw(circle)
-        draw.ellipse((0, 0, rad * 2 - 1, rad * 2 - 1), fill=255)
-        alpha = Image.new('L', im.size, 255)
-        w, h = im.size
-        alpha.paste(circle.crop((0, 0, rad, rad)), (0, 0))
-        alpha.paste(circle.crop((0, rad, rad, rad * 2)), (0, h - rad))
-        alpha.paste(circle.crop((rad, 0, rad * 2, rad)), (w - rad, 0))
-        alpha.paste(circle.crop((rad, rad, rad * 2, rad * 2)), (w - rad, h - rad))
-        im.putalpha(alpha)
-        return im
+        return _add_corners(im, rad)
 
 # https://www.pythonguis.com/tutorials/multithreading-pyqt-applications-qthreadpool/
 # https://stackoverflow.com/questions/13909195/how-run-two-different-threads-simultaneously-in-pyqt
 class WorkerSignals(QObject):
     finished = pyqtSignal(object)
+    failed = pyqtSignal(Exception)
+
+class GeneralWorker(QRunnable, Generic[T]):
+    def __init__(self, runnable_fn: Callable[[], T]):
+        super().__init__()
+        self._runnable_fn = runnable_fn
+        self.signals = WorkerSignals()
+
+    def run(self):
+        try:
+            result = self._runnable_fn()
+            self.signals.finished.emit(result)
+        except Exception as error:
+            self.signals.failed.emit(error)
 
 class StoreImageWorker(QRunnable):
     def __init__(self, 

@@ -12,6 +12,12 @@ class SearchConfiguration():
 
         return (self.card_name == other.card_name and 
                 self.metadata == other.metadata)
+    
+    def __str__(self):
+        return f"""
+        card_name: {self.card_name},
+        metadata: {self.metadata}
+        """
 
     class Keys:
         CARD_NAME = 'card_name'
@@ -30,3 +36,5 @@ class SearchConfiguration():
         obj.card_name = json[SearchConfiguration.Keys.CARD_NAME]
         obj.metadata = json[SearchConfiguration.Keys.METADATA]
         return obj
+    
+    

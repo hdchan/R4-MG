@@ -1,4 +1,4 @@
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.UIComponents.Base import AppWindow
 
 \
@@ -9,7 +9,7 @@ from .MainProgramViewController import MainProgramViewController
 
 class Window(AppWindow):
     def __init__(self,
-                 app_dependencies_provider: AppDependenciesProviding):
+                 app_dependencies_provider: AppDependenciesInternalProviding):
         super().__init__(app_dependencies_provider=app_dependencies_provider, 
                          central_widget=MainProgramViewController(app_dependencies_provider),
                          window_config_identifier="image_deployer",
