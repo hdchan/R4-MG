@@ -9,7 +9,8 @@ class DeckListImageGeneratorStyles:
                  leader_base_spacing_left_relative_to_main_deck: int, 
                  stacked_card_reveal_percentage: float, 
                  is_sideboard_enabled: bool, 
-                 is_sorted_alphabetically: bool):
+                 is_sorted_alphabetically: bool, 
+                 is_leader_base_on_top: bool):
         self.sideboard_left_spacing_relative_to_main_deck = sideboard_left_spacing_relative_to_main_deck
         self.main_deck_column_spacing = main_deck_column_spacing
         self.main_deck_row_spacing = main_deck_row_spacing
@@ -18,6 +19,7 @@ class DeckListImageGeneratorStyles:
         self.stacked_card_reveal_percentage = stacked_card_reveal_percentage
         self.is_sideboard_enabled = is_sideboard_enabled
         self.is_sorted_alphabetically = is_sorted_alphabetically
+        self.is_leader_base_on_top = is_leader_base_on_top
 
     class Keys: 
         SIDEBOARD_LEFT_SPACING_RELATIVE_TO_MAIN_DECK = 'sideboard_left_spacing_relative_to_main_deck'
@@ -28,6 +30,7 @@ class DeckListImageGeneratorStyles:
         STACKED_CARD_REVEAL_PERCENTAGE = 'stacked_card_reveal_percentage'
         IS_SIDEBOARD_ENABLED = 'is_sideboard_enabled'
         IS_SORTED_ALPHABETICALLY = 'is_sorted_alphabetically'
+        IS_LEADER_BASE_ON_TOP = 'is_leader_base_on_top'
 
     def to_data(self) -> Dict[str, Any]:
         data: Dict[str, Any] = {
@@ -38,7 +41,8 @@ class DeckListImageGeneratorStyles:
             self.Keys.LEADER_BASE_SPACING_LEFT_RELATIVE_TO_MAIN_DECK: self.leader_base_spacing_left_relative_to_main_deck,
             self.Keys.STACKED_CARD_REVEAL_PERCENTAGE: self.stacked_card_reveal_percentage,
             self.Keys.IS_SIDEBOARD_ENABLED: self.is_sideboard_enabled,
-            self.Keys.IS_SORTED_ALPHABETICALLY: self.is_sorted_alphabetically
+            self.Keys.IS_SORTED_ALPHABETICALLY: self.is_sorted_alphabetically,
+            self.Keys.IS_LEADER_BASE_ON_TOP: self.is_leader_base_on_top
         }
         return data
     
@@ -55,6 +59,7 @@ class DeckListImageGeneratorStyles:
             stacked_card_reveal_percentage=json.get(cls.Keys.STACKED_CARD_REVEAL_PERCENTAGE, default.stacked_card_reveal_percentage),
             is_sideboard_enabled=json.get(cls.Keys.IS_SIDEBOARD_ENABLED, default.is_sideboard_enabled),
             is_sorted_alphabetically=json.get(cls.Keys.IS_SORTED_ALPHABETICALLY, default.is_sorted_alphabetically),
+            is_leader_base_on_top=json.get(cls.Keys.IS_LEADER_BASE_ON_TOP, default.is_leader_base_on_top),
         )
     
     @classmethod
@@ -68,4 +73,5 @@ class DeckListImageGeneratorStyles:
             stacked_card_reveal_percentage=0.15,
             is_sideboard_enabled=True,
             is_sorted_alphabetically=False,
+            is_leader_base_on_top=False
         )

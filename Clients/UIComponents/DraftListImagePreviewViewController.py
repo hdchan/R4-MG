@@ -53,10 +53,6 @@ class DraftListImagePreviewInspectorPanelViewController(R4UIWidget):
         self.debounce_time = 1000
 
         self._setup_view()
-
-    def _option_changed(self, val: int):
-        self._image_generator.set_option(self._option_dropdown.currentData())
-        self._notify_delegate()
     
 
     def _start_save_timer(self):
@@ -66,6 +62,7 @@ class DraftListImagePreviewInspectorPanelViewController(R4UIWidget):
     def _save_config_and_notify(self):
         deck_list_styles = self._configuration_manager.configuration.deck_list_image_generator_styles
         
+        deck_list_styles.is_leader_base_on_top = self._deck_list_image_generator_styles.is_leader_base_on_top
         deck_list_styles.sideboard_left_spacing_relative_to_main_deck = self._deck_list_image_generator_styles.sideboard_left_spacing_relative_to_main_deck
         deck_list_styles.main_deck_column_spacing = self._deck_list_image_generator_styles.main_deck_column_spacing
         deck_list_styles.main_deck_row_spacing = self._deck_list_image_generator_styles.main_deck_row_spacing
@@ -75,15 +72,17 @@ class DraftListImagePreviewInspectorPanelViewController(R4UIWidget):
         deck_list_styles.is_sideboard_enabled = self._deck_list_image_generator_styles.is_sideboard_enabled
         deck_list_styles.is_sorted_alphabetically = self._deck_list_image_generator_styles.is_sorted_alphabetically
 
-        mutable_configuration = self._configuration_manager.mutable_configuration()
-        mutable_configuration.set_deck_list_image_generator_styles(deck_list_styles)
-        self._configuration_manager.save_configuration(mutable_configuration)
+        self._configuration_manager.save_deck_list_image_generator_styles(deck_list_styles)
         self._notify_delegate()
 
     def _notify_delegate(self):
         if self.delegate is not None:
             self.delegate.option_did_update()
 
+
+    def _is_leader_base_on_top_updated(self, val: bool):
+        self._deck_list_image_generator_styles.is_leader_base_on_top = val
+        self._start_save_timer()
 
     def _sideboard_left_spacing_relative_to_main_deck_updated(self, val: int):
         self._deck_list_image_generator_styles.sideboard_left_spacing_relative_to_main_deck = val
@@ -118,16 +117,11 @@ class DraftListImagePreviewInspectorPanelViewController(R4UIWidget):
         self._start_save_timer()
 
     def _setup_view(self):
-        self._option_dropdown = ObjectComboBox([
-                    (DraftListImageGenerator.Option.COST_CURVE_LEADER_BASE_VERTICAL.value, DraftListImageGenerator.Option.COST_CURVE_LEADER_BASE_VERTICAL),
-
-                    (DraftListImageGenerator.Option.COST_CURVE_LEADER_BASE_HORIZONTAL.value, DraftListImageGenerator.Option.COST_CURVE_LEADER_BASE_HORIZONTAL),
-                ])
-        self._option_dropdown.currentIndexChanged.connect(self._option_changed)
-
         VerticalBoxLayout([
-            self._option_dropdown,
+            HorizontalLabeledInputRow("Leader and Base on top", R4UICheckBox(self._is_leader_base_on_top_updated, self._deck_list_image_generator_styles.is_leader_base_on_top)),
+
             HorizontalLabeledInputRow("Show sideboard", R4UICheckBox(self._sideboard_box_changed, self._deck_list_image_generator_styles.is_sideboard_enabled)),
+
             HorizontalLabeledInputRow("Sort alphabetically", R4UICheckBox(self._alphabetical_box_changed, self._deck_list_image_generator_styles.is_sorted_alphabetically)),
 
             HorizontalLabeledInputRow("Sideboard spacing left relative to main deck", 

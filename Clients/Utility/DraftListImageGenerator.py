@@ -1,39 +1,36 @@
 
-from typing import List, Optional, Callable, Tuple
-from enum import Enum
+import sys
+from typing import Callable, List, Optional, Tuple
+
 from PIL import Image
 from PIL.ImageFile import ImageFile
-import sys
-from ..Models import SWUTradingCardBackedLocalCardResource, ParsedDeckList, ParsedDeckListProviding, DeckListImageGeneratorStyles
+
 from ..Config.SWUAppConfiguration import SWUAppConfigurationManager
+from ..Models import (DeckListImageGeneratorStyles, ParsedDeckList,
+                      ParsedDeckListProviding,
+                      SWUTradingCardBackedLocalCardResource)
+
 
 class DraftListImageGenerator:
-    class Option(str, Enum):
-        # TODO put it in to config
-        COST_CURVE_LEADER_BASE_HORIZONTAL = "Cost curve - top, horizontal leader/base"
-        COST_CURVE_LEADER_BASE_VERTICAL = "Cost curve - left, vertical leader/base"
     
-    def __init__(self, parsed_deck_provider: ParsedDeckListProviding, 
+    def __init__(self, 
+                 parsed_deck_provider: ParsedDeckListProviding, 
                  configuration_manager: SWUAppConfigurationManager):
         self._configuration_manager = configuration_manager
         self._parsed_deck_list_provider = parsed_deck_provider
-        self._option = self.Option.COST_CURVE_LEADER_BASE_VERTICAL
 
     @property
     def _deck_list_image_generator_styles(self) -> DeckListImageGeneratorStyles:
         return self._configuration_manager.configuration.deck_list_image_generator_styles
-
-    def set_option(self, option: 'DraftListImageGenerator.Option'):
-        self._option = option
 
     @property
     def _parsed_deck_list(self) -> ParsedDeckList:
         return self._parsed_deck_list_provider.parsed_deck
 
     def generate_image(self) -> Optional[Image.Image]:
-        if self._option == DraftListImageGenerator.Option.COST_CURVE_LEADER_BASE_HORIZONTAL:
+        if self._deck_list_image_generator_styles.is_leader_base_on_top:
             return self.generate_cost_curve_with_horizontal_leader_base()
-        if self._option == DraftListImageGenerator.Option.COST_CURVE_LEADER_BASE_VERTICAL:
+        else:
             return self.generate_cost_curve_with_vertical_leader_base()
         
     # MARK: - cost curve

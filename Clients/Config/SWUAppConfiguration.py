@@ -52,4 +52,8 @@ class SWUAppConfigurationManager:
         print('saving app SWUApp configuration')
         self._configuration_manager.save_configuration(new_configuration.core_mutable_configuration)
 
-    
+    # does this save any work?
+    def save_deck_list_image_generator_styles(self, deck_list_styles: DeckListImageGeneratorStyles):
+        mutable_configuration = self.mutable_configuration()
+        mutable_configuration.set_deck_list_image_generator_styles(deck_list_styles)
+        self.save_configuration(mutable_configuration)
