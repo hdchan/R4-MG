@@ -294,7 +294,7 @@ class HorizontalLabeledInputRow(R4UIWidget):
             ]).set_uniform_content_margins(0),
             
             input
-        ]).set_layout_to_widget(self)
+        ], [None, 1]).set_layout_to_widget(self)
 
     def set_uniform_content_margins(self, margin: int) -> 'HorizontalLabeledInputRow':
         return self.set_content_margins(margin, margin, margin, margin)
@@ -360,30 +360,6 @@ class R4UITabWidget(R4UIWidget):
         layout.setLayout(self.layout())
         return self
     
-class Splitter(QSplitter):
-    def __init__(self, 
-                 orientation: Qt.Orientation, 
-                 widgets: List[R4UIWidget]):
-        super().__init__()
-        self.setOrientation(orientation)
-        self._widgets: List[R4UIWidget] = []
-        self.add_widgets(widgets)
-        
-    def add_widgets(self, widgets: List[R4UIWidget]):
-        for w in widgets:
-            self._widgets.append(w)
-            self.addWidget(w)
-            
-class HorizontalSplitter(Splitter):
-    def __init__(self,
-                 widgets: List[R4UIWidget]):
-        super().__init__(Qt.Orientation.Horizontal, widgets)
-        
-class VerticalSplitter(Splitter):
-    def __init__(self,
-                 widgets: List[R4UIWidget]):
-        super().__init__(Qt.Orientation.Vertical, widgets)
-
 
 class R4UISpacer(QSpacerItem):
     def __init__(self, width: int, height: int, h_policy: QSizePolicy.Policy, v_policy: QSizePolicy.Policy):

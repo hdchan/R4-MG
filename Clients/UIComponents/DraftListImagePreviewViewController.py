@@ -1,7 +1,7 @@
 
 
 from io import BytesIO
-from typing import Optional, Set, Tuple
+from typing import Optional, Set, Tuple, Hashable
 
 from PyQt5.QtCore import QMutex, QObject, QRunnable, QThreadPool, QTimer, pyqtSignal
 from PyQt5.QtGui import QImage, QPixmap
@@ -20,24 +20,26 @@ from R4UI import (
     ObjectComboBox,
     R4UIHorizontallyExpandingSpacer,
     VerticalBoxLayout,
+    HorizontalLabeledInputRow,
+    R4UICheckBox
 )
 
-from ..Models.ParsedDeckList import ParsedDeckList
+from ..Models.ParsedDeckList import ParsedDeckList, ParsedDeckListProviding
 from ..Utility.DraftListImageGenerator import DraftListImageGenerator
 from .PhotoViewer import PhotoViewer
 
 
-class DraftListImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
+class DraftListImagePreviewViewController(QWidget, TransmissionReceiverProtocol, ParsedDeckListProviding):
     def __init__(self, 
                  observation_tower: ObservationTower,
                  draft_list_data_source: DataSourceDraftList):
         super().__init__()
         self._observation_tower = observation_tower
         self._draft_list_data_source = draft_list_data_source
-        self._image_generator: DraftListImageGenerator = DraftListImageGenerator()
+        self._image_generator: DraftListImageGenerator = DraftListImageGenerator(self)
         self.pool = QThreadPool()
         self.mutex = QMutex()
-        self.working_resources: Set[ParsedDeckList] = set()
+        self.working_resources: Set[Hashable] = set()
         self._main_deck_cols = 6
         
         self._save_async_timer = QTimer()
@@ -51,12 +53,17 @@ class DraftListImagePreviewViewController(QWidget, TransmissionReceiverProtocol)
                                                        DraftListUpdatedEvent, 
                                                        DraftPackUpdatedEvent])
     
-    @property
-    def _current_option(self) -> DraftListImageGenerator.Option:
-        return self._option_dropdown.currentData()
-    
     def _option_changed(self, val: int):
-        self._sync_ui()
+        self._image_generator.set_option(self._option_dropdown.currentData())
+        self._start_generate_image()
+
+    def _sideboard_box_changed(self, val: bool):
+        self._image_generator.set_is_sideboard_enabled(val)
+        self._start_generate_image()
+
+    def _alphabetical_box_changed(self, val: bool):
+        self._image_generator.set_is_alphabetical(val)
+        self._start_generate_image()
 
     def _setup_view(self):
         self.setMinimumSize(500, 400)
@@ -65,7 +72,6 @@ class DraftListImagePreviewViewController(QWidget, TransmissionReceiverProtocol)
         self._image_view.delegate = self
         
         self._option_dropdown = ObjectComboBox([
-                    
                     (DraftListImageGenerator.Option.COST_CURVE_LEADER_BASE_VERTICAL.value, DraftListImageGenerator.Option.COST_CURVE_LEADER_BASE_VERTICAL),
 
                     (DraftListImageGenerator.Option.COST_CURVE_LEADER_BASE_HORIZONTAL.value, DraftListImageGenerator.Option.COST_CURVE_LEADER_BASE_HORIZONTAL),
@@ -74,7 +80,9 @@ class DraftListImagePreviewViewController(QWidget, TransmissionReceiverProtocol)
         
         VerticalBoxLayout([
             HorizontalBoxLayout([
-                self._option_dropdown
+                self._option_dropdown,
+                HorizontalLabeledInputRow("Show sideboard", R4UICheckBox(self._sideboard_box_changed, self._image_generator.is_sideboard_enabled)),
+                HorizontalLabeledInputRow("Sort alphabetically", R4UICheckBox(self._alphabetical_box_changed, self._image_generator.is_alphabetical))
                 ]) \
                 .set_uniform_content_margins(0) \
                 .add_spacer(R4UIHorizontallyExpandingSpacer()),
@@ -83,7 +91,7 @@ class DraftListImagePreviewViewController(QWidget, TransmissionReceiverProtocol)
         .set_layout_to_widget(self) \
         .set_uniform_content_margins(0)
         
-        self._sync_ui()
+        self._start_generate_image()
     
     def _lock_resource_and_notify(self, local_resource: ParsedDeckList) -> bool:
         if local_resource in self.working_resources:
@@ -91,29 +99,36 @@ class DraftListImagePreviewViewController(QWidget, TransmissionReceiverProtocol)
         self.mutex.lock()
         self.working_resources.add(local_resource)
         self.mutex.unlock()
+        self._sync_spinner()
         return True
     
-    def _unlock_resource_and_notify(self, result: Tuple[QPixmap, QImage, ParsedDeckList, Optional[Exception]]):
+    def _unlock_resource_and_notify(self, result: Tuple[QPixmap, QImage, Hashable, Optional[Exception]]):
         pix_map, _, local_resource, _ = result
         if local_resource in self.working_resources:
             self.mutex.lock()
             self.working_resources.remove(local_resource)
             self.mutex.unlock()
             self._image_view.setPhoto(pix_map, None)
-            self._loading_spinner.stop()
+            self._sync_spinner()
     
-    def _sync_ui(self):
+    def _sync_spinner(self):
+        if len(self.working_resources) == 0:
+            self._loading_spinner.stop()
+        else:
+            self._loading_spinner.start()
+
+    def _start_generate_image(self):
         self._save_async_timer.stop()
         self._save_async_timer.start(self.debounce_time)
     
     def export_image(self) -> None:
-        def finish(result: Tuple[QPixmap, QImage, ParsedDeckList, Optional[Exception]]):
+        def finish(result: Tuple[QPixmap, QImage, Hashable, Optional[Exception]]):
             _, qimage, _, _ = result
             if local_resource in self.working_resources:
                 self.mutex.lock()
                 self.working_resources.remove(local_resource)
                 self.mutex.unlock()
-                
+                self._sync_spinner()
                 file_path, ok = QFileDialog.getSaveFileName(None, 
                                                     "Save File", 
                                                     "", 
@@ -127,14 +142,12 @@ class DraftListImagePreviewViewController(QWidget, TransmissionReceiverProtocol)
         if self._lock_resource_and_notify(local_resource):
             # should lock UI in case another job is added
             worker = Worker(self._image_generator, 
-                            local_resource, 
-                            self._current_option)
+                            local_resource)
             worker.signals.finished.connect(finish)
             self.pool.start(worker)
             
     def _generate_image(self):
         print("Generating image")
-        self._loading_spinner.start()
         local_resource = ParsedDeckList.from_draft_packs(self._draft_list_data_source.draft_packs)
         if local_resource.has_cards == False:
             self._image_view.setPhoto(None)
@@ -142,18 +155,22 @@ class DraftListImagePreviewViewController(QWidget, TransmissionReceiverProtocol)
         if self._lock_resource_and_notify(local_resource):
             # should lock UI in case another job is added
             worker = Worker(self._image_generator, 
-                            local_resource,
-                            self._current_option)
+                            local_resource)
             worker.signals.finished.connect(self._unlock_resource_and_notify)
             self.pool.start(worker)
-        
     
+    # MARK: - ParsedDeckListProviding
+    @property
+    def parsed_deck(self) -> ParsedDeckList:
+        return ParsedDeckList.from_draft_packs(self._draft_list_data_source.draft_packs)
+    
+    # MARK: - Observation
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
         if type(event) is LocalAssetResourceFetchEvent:
             if event.local_resource in self._draft_list_data_source.draft_pack_flat_list:
-                self._sync_ui()
+                self._start_generate_image()
         if type(event) is DraftListUpdatedEvent or type(event) is DraftPackUpdatedEvent:
-            self._sync_ui()
+            self._start_generate_image()
             
             
 class WorkerSignals(QObject):
@@ -162,16 +179,14 @@ class WorkerSignals(QObject):
 class Worker(QRunnable):
     def __init__(self, 
                  _image_generator: DraftListImageGenerator,
-                 parsed_deck_list: ParsedDeckList, 
-                 option: DraftListImageGenerator.Option):
+                 parsed_deck_list: Hashable):
         super(Worker, self).__init__()
         self._image_generator = _image_generator
         self.parsed_deck_list = parsed_deck_list
-        self.option = option
         self.signals = WorkerSignals()
 
     def run(self):
-        generated_image = self._image_generator.generate_image(self.option, self.parsed_deck_list)
+        generated_image = self._image_generator.generate_image()
         if generated_image is None:
             return
         byte_array = BytesIO()
