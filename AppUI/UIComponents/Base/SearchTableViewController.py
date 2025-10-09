@@ -166,19 +166,20 @@ class SearchTableViewController(QWidget,
                                         search_configuration: SearchConfiguration,
                                         error: Optional[Exception], 
                                         is_initial_load: bool):
-        
+        try:
+            status = "🟢 OK"
+            if error is not None:
+                if isinstance(error, HTTPError):
+                    status = f"🔴 {error.code}"
+                else:
+                    status = f"🔴 {error}"
+            self._search_table_combo_view.load_list(is_initial_load)
+            self._load_source_labels(status_string=status)
 
-        status = "🟢 OK"
-        if error is not None:
-            if isinstance(error, HTTPError):
-                status = f"🔴 {error.code}"
-            else:
-                status = f"🔴 {error}"
-        self._search_table_combo_view.load_list(is_initial_load)
-        self._load_source_labels(status_string=status)
-
-        self._search_table_combo_view.set_search_components_enabled(True)
-        self._search_table_combo_view.set_item_active(0)
+            self._search_table_combo_view.set_search_components_enabled(True)
+            self._search_table_combo_view.set_item_active(0)
+        except Exception as error:
+            print(error)
 
     def ds_did_retrieve_card_resource_for_card_selection(self, 
                                                          ds: DataSourceCardSearch):

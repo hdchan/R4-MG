@@ -281,7 +281,7 @@ class AppMenuBarBuilder:
                 AppUIConfigurationCheckableR4UIActionMenuItem(
                     self._app_dependencies_provider,
                     "Delay network call", 
-                    lambda x: x.core_configuration.is_mock_data, 
+                    lambda x: x.core_configuration.is_delay_network_mode, 
                     lambda mutable_config, old_config: mutable_config.core_mutable_configuration.set_is_delay_network_mode(not old_config.core_configuration.is_delay_network_mode)
                     ), 
                     ])

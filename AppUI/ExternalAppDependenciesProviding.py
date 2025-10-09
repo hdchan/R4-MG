@@ -76,6 +76,5 @@ class ExternalAppDependenciesProviding:
                             aggregate_list: bool) -> Optional[List[LocalCardResource]]:
         return None
     
-    def provide_draft_list_image_preview_widget(self, 
-                                                app_dependencies_provider: AppDependenciesProviding) -> QWidget:
+    def provide_draft_list_image_preview_widget(self) -> QWidget:
         raise Exception

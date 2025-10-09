@@ -1,9 +1,9 @@
-from io import BytesIO
-from typing import Hashable, Optional, Set, Tuple
 
-from PyQt5.QtCore import (QMutex, QObject, QRunnable, QThreadPool, QTimer,
-                          pyqtSignal)
-from PyQt5.QtGui import QImage, QPixmap
+from typing import Optional
+
+from PIL import Image
+from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QFileDialog
 
 from AppCore.Observation import (TransmissionProtocol,
@@ -11,32 +11,26 @@ from AppCore.Observation import (TransmissionProtocol,
 from AppCore.Observation.Events import (DraftListUpdatedEvent,
                                         DraftPackUpdatedEvent,
                                         LocalAssetResourceFetchEvent)
+from AppUI.AppDependenciesProviding import AppDependenciesProviding
 from AppUI.UIComponents.Base.LoadingSpinner import LoadingSpinner
 from R4UI import HorizontalBoxLayout, HorizontalSplitter, R4UIWidget
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+
 from ..Config.SWUAppConfiguration import SWUAppConfigurationManager
-from ..Events.DeckListImageGeneratedEvent import DeckListImageGeneratedEvent
 from ..Models.ParsedDeckList import ParsedDeckList, ParsedDeckListProviding
 from ..Utility.DraftListImageGenerator import DraftListImageGenerator
 from .DraftListImagePreviewInspectorPanelViewController import (
     DraftListImagePreviewInspectorPanelViewController,
     DraftListImagePreviewInspectorPanelViewControllerDelegate)
 from .PhotoViewer import PhotoViewer
-
+from ..SWUAppDependenciesProviding import SWUAppDependenciesProviding
 
 class DraftListImagePreviewViewController(R4UIWidget, TransmissionReceiverProtocol, ParsedDeckListProviding, DraftListImagePreviewInspectorPanelViewControllerDelegate):
-    def __init__(self, 
-                 app_dependencies_provider: AppDependenciesProviding,
-                 configuration_manager: SWUAppConfigurationManager):
+    def __init__(self, swu_app_dependencies_provider: SWUAppDependenciesProviding):
         super().__init__()
-        self._observation_tower = app_dependencies_provider.observation_tower
-        self._draft_list_data_source = app_dependencies_provider.data_source_draft_list
-        self._configuration_manager = configuration_manager
-        self._image_generator: DraftListImageGenerator = DraftListImageGenerator(self, configuration_manager)
-        self.pool = QThreadPool()
-        self.mutex = QMutex()
-        self.working_resources: Set[Hashable] = set()
-        self._main_deck_cols = 6
+        self._observation_tower = swu_app_dependencies_provider.observation_tower
+        self._draft_list_data_source = swu_app_dependencies_provider.data_source_draft_list
+        self._configuration_manager = swu_app_dependencies_provider.configuration_manager
+        self._image_generator: DraftListImageGenerator = DraftListImageGenerator(self, self._configuration_manager, self._observation_tower)
         
         self._save_async_timer = QTimer()
         self._save_async_timer.setSingleShot(True)
@@ -49,10 +43,6 @@ class DraftListImagePreviewViewController(R4UIWidget, TransmissionReceiverProtoc
                                                        DraftListUpdatedEvent, 
                                                        DraftPackUpdatedEvent])
     
-    # MARK: - DraftListImagePreviewInspectorPanelViewControllerDelegate
-    def option_did_update(self):
-        self._start_generate_image()
-
     def _setup_view(self):
         # TODO: remove after converting to window
         self.setMinimumSize(1300, 500)
@@ -70,124 +60,66 @@ class DraftListImagePreviewViewController(R4UIWidget, TransmissionReceiverProtoc
             ], [1, None]),
             
         ]) \
-        .set_layout_to_widget(self) \
-        # .set_uniform_content_margins(0)
-        
-        self._start_generate_image()
-    
-    def _lock_resource_and_notify(self, local_resource: ParsedDeckList) -> bool:
-        if local_resource in self.working_resources:
-            return False
-        self.mutex.lock()
-        self.working_resources.add(local_resource)
-        self.mutex.unlock()
-        self._sync_spinner()
-        return True
-    
-    def _sync_spinner(self):
-        if len(self.working_resources) == 0:
-            self._loading_spinner.stop()
-        else:
-            self._loading_spinner.start()
+        .set_layout_to_widget(self)
 
-    def _start_generate_image(self):
-        self._save_async_timer.stop()
-        self._save_async_timer.start(self.debounce_time)
-    
-    def export_image(self) -> None:
-        def finish(result: Tuple[QPixmap, QImage, Hashable, Optional[Exception]]):
-            _, qimage, _, _ = result
-            if local_resource in self.working_resources:
-                self.mutex.lock()
-                self.working_resources.remove(local_resource)
-                self.mutex.unlock()
-                self._sync_spinner()
-                file_path, ok = QFileDialog.getSaveFileName(None, 
-                                                    "Save File", 
-                                                    "", 
-                                                    f"PNG (*.png);;All Files (*)")
-                if ok:
-                    qimage.save(file_path)
-            
-        
-        print("Exporting image")
-        local_resource = ParsedDeckList.from_draft_packs(self._draft_list_data_source.draft_packs)
-        if self._lock_resource_and_notify(local_resource):
-            # should lock UI in case another job is added
-            worker = Worker(self._image_generator, 
-                            local_resource)
-            worker.signals.finished.connect(finish)
-            self.pool.start(worker)
-            
-    def _generate_image(self):
-        parsed_deck_list = ParsedDeckList.from_draft_packs(self._draft_list_data_source.draft_packs)
-        if parsed_deck_list.has_cards == False:
-            self._image_view.setPhoto(None)
-            return
-        
-        start_event = DeckListImageGeneratedEvent(DeckListImageGeneratedEvent.EventType.STARTED, 
-                                                  parsed_deck_list)
-        self._observation_tower.notify(start_event)
+        self._start_generate_image_timer()
 
-        def _unlock_resource_and_notify(result: Tuple[QPixmap, QImage, Hashable, Optional[Exception]]):
-            pix_map, _, local_resource, _ = result
-            if local_resource in self.working_resources:
-                self.mutex.lock()
-                self.working_resources.remove(local_resource)
-                self.mutex.unlock()
-                self._image_view.setPhoto(pix_map, None)
-                self._sync_spinner()
-
-                end_event = DeckListImageGeneratedEvent(DeckListImageGeneratedEvent.EventType.FINISHED, 
-                                                        parsed_deck_list)
-                end_event.predecessor = start_event
-                print(f"Generated image: {end_event.seconds_since_predecessor}")
-                self._observation_tower.notify(end_event)
-
-        if self._lock_resource_and_notify(parsed_deck_list):
-            # should lock UI in case another job is added
-            worker = Worker(self._image_generator, 
-                            parsed_deck_list)
-            worker.signals.finished.connect(_unlock_resource_and_notify)
-            self.pool.start(worker)
-    
     # MARK: - ParsedDeckListProviding
     @property
     def parsed_deck(self) -> ParsedDeckList:
         return ParsedDeckList.from_draft_packs(self._draft_list_data_source.draft_packs)
+
+    # MARK: - DraftListImagePreviewInspectorPanelViewControllerDelegate
+    def option_did_update(self):
+        self._start_generate_image_timer()
+
+    def _sync_spinner(self):
+        if self._image_generator.is_loading:
+            self._loading_spinner.start()
+        else:
+            self._loading_spinner.stop()
+
+    def _start_generate_image_timer(self):
+        self._save_async_timer.stop()
+        self._save_async_timer.start(self.debounce_time)
+    
+    def _generate_image(self):
+        if self.parsed_deck.has_cards == False:
+            self._image_view.setPhoto(None)
+            return
+        
+        def _finished(pixmap: Optional[QPixmap], image: Optional[Image.Image]):
+            try:
+                self._image_view.setPhoto(pixmap, None)
+                self._sync_spinner()
+            except Exception as error:
+                print(error)
+ 
+        self._image_generator.generate_image(_finished)
+        self._sync_spinner()
+
+    def export_image(self) -> None:
+        def _finished(pixmap: Optional[QPixmap], image: Optional[Image.Image]):
+            try:
+                if image is None:
+                    return
+                self._sync_spinner()
+                file_path, ok = QFileDialog.getSaveFileName(None, 
+                                                        "Save File", 
+                                                        "", 
+                                                        f"PNG (*.png);;All Files (*)")
+                if ok:
+                    image.save(file_path)
+            except Exception as error:
+                print(error)
+ 
+        self._image_generator.generate_image(_finished)
+        self._sync_spinner()
     
     # MARK: - Observation
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
         if type(event) is LocalAssetResourceFetchEvent:
             if event.local_resource in self._draft_list_data_source.draft_pack_flat_list:
-                self._start_generate_image()
+                self._start_generate_image_timer()
         if type(event) is DraftListUpdatedEvent or type(event) is DraftPackUpdatedEvent:
-            self._start_generate_image()
-            
-            
-class WorkerSignals(QObject):
-    finished = pyqtSignal(object)
-
-class Worker(QRunnable):
-    def __init__(self, 
-                 _image_generator: DraftListImageGenerator,
-                 parsed_deck_list: Hashable):
-        super(Worker, self).__init__()
-        self._image_generator = _image_generator
-        self.parsed_deck_list = parsed_deck_list
-        self.signals = WorkerSignals()
-
-    def run(self):
-        generated_image = self._image_generator.generate_image()
-        if generated_image is None:
-            return
-        byte_array = BytesIO()
-        # TODO: fix crash here "tile cannot extend outside image"
-        generated_image.save(byte_array, format="PNG")
-        byte_array.seek(0)
-        
-        qimage = QImage.fromData(byte_array.getvalue())
-        qpixmap = QPixmap.fromImage(qimage)
-        # qpixmap = qpixmap.scaled(qpixmap.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        
-        self.signals.finished.emit((qpixmap, qimage, self.parsed_deck_list, None))
+            self._start_generate_image_timer()

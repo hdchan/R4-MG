@@ -63,7 +63,7 @@ class CustomDirectorySearchDataSource:
     def __init__(self,
                  core_dependencies_internal_provider: CoreDependenciesInternalProviding):
         self._configuration_manager = core_dependencies_internal_provider.configuration_manager
-        self._local_networker = DataFetcherLocal(self._configuration_manager)
+        self._local_networker = DataFetcherLocal(DataFetcherLocal.Configuration(self._configuration_manager.configuration.network_delay_duration))
         self._platform_service_provider = core_dependencies_internal_provider.platform_service_provider
         self._observation_tower = core_dependencies_internal_provider.observation_tower
         self._image_resource_processor_provider = core_dependencies_internal_provider.image_resource_processor_provider

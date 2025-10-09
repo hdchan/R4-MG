@@ -1,5 +1,4 @@
 from typing import Callable, List, Optional, Tuple
-from AppCore.Config import Configuration
 from AppCore.Models import (PaginationConfiguration, SearchConfiguration,
                             TradingCard)
 
@@ -33,5 +32,6 @@ class DataSourceCardSearchClientProtocol:
         raise Exception()
     
 class DataSourceCardSearchClientProviding:
-    def client(self, setting: Configuration.Settings.SearchSource) -> DataSourceCardSearchClientProtocol:
+    @property
+    def search_client(self) -> DataSourceCardSearchClientProtocol:
         return NotImplemented

@@ -92,11 +92,14 @@ class CustomDirectorySearchTableViewController(QWidget, TransmissionReceiverProt
                                         ds: CustomDirectorySearchDataSource,
                                         search_configuration: SearchConfiguration,
                                         error: Optional[Exception]):
-        status = "🟢 OK"
-        if error is not None:
-            status = f"🔴 {error}"
-        self._load_list()
-        self._load_source_labels(status_string=status)
+        try:
+            status = "🟢 OK"
+            if error is not None:
+                status = f"🔴 {error}"
+            self._load_list()
+            self._load_source_labels(status_string=status)
+        except Exception as error:
+            print(error)
 
     def ds_did_retrieve_card_resource_for_card_selection(self, 
                                                          ds: CustomDirectorySearchDataSource, 

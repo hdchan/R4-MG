@@ -86,6 +86,11 @@ class DataSourceDraftList:
         new_pack = DraftPack.new_draft_pack(name)
         self._packs.append(new_pack)
         self._save_and_notify_draft_pack_update()
+
+    def create_new_pack_from_list(self, name: str, list: List[LocalCardResource]):
+        new_pack = DraftPack.new_draft_pack(name)
+        new_pack.add_resources(list)
+        self._save_and_notify_draft_pack_update()
         
     def update_pack_name(self, pack_index: int, name: str):
         if pack_index >= 0 and pack_index < len(self._packs):

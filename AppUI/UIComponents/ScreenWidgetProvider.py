@@ -57,4 +57,4 @@ class ScreenWidgetProvider(ScreenWidgetProviding):
         return MainWindow(self._app_dependencies_internal_provider)
     
     def draft_list_image_preview_view(self) -> QWidget:
-        return self._external_app_dependencies_provider.provide_draft_list_image_preview_widget(self._app_dependencies_provider)
+        return self._external_app_dependencies_provider.provide_draft_list_image_preview_widget()

@@ -89,7 +89,7 @@ class DataSourceCardSearch:
     
     @property
     def _api_client(self) -> DataSourceCardSearchClientProtocol:
-        return self._search_client_provider.client(setting=self._configuration.search_source)
+        return self._search_client_provider.search_client
     
     @property
     def _image_resource_processor(self) -> ImageResourceProcessorProtocol:

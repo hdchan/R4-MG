@@ -1,4 +1,4 @@
-from typing import Callable, List, Optional
+from typing import Optional
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QPixmap
@@ -32,7 +32,7 @@ class PhotoViewer(QtWidgets.QGraphicsView):
         self.setBackgroundBrush(QtGui.QBrush(QtGui.QColor(255, 255, 255)))
         self.setFrameShape(QtWidgets.QFrame.NoFrame)
         self._clipboard_image: Optional[QImage] = None
-        self.delegate = None
+        self.delegate: Optional[PhotoViewerDelegate] = None
 
     def hasPhoto(self):
         return not self._empty

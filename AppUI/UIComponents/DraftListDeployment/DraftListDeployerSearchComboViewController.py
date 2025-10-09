@@ -17,6 +17,7 @@ class DraftListDeployerSearchComboViewController(QWidget):
     def _setup_view(self):
         configuration = SearchTableViewController.SearchTableViewControllerConfiguration(is_flip_button_hidden=False)
         
+        # TODO: package
         image_preview_view = ImagePreviewLocalResourceDataSourceDecorator(self._app_dependencies_provider)
         search_table = SearchTableViewController(self._app_dependencies_provider, configuration, image_preview_view)
         

@@ -34,9 +34,6 @@ class AppDependenciesProvider(CoreDependenciesProvider, AppDependenciesProviding
                                                                                 self._data_serializer,
                                                                                 client=self._external_app_dependencies_provider.locally_managed_sets_client)
             
-            client_provider = external_app_dependencies_provider.data_source_card_search_client_provider(self._local_managed_sets_data_source)
-            self._search_client_provider = client_provider
-            
             self._router = Router(ScreenWidgetProvider(self, self))
 
         @property
@@ -53,7 +50,7 @@ class AppDependenciesProvider(CoreDependenciesProvider, AppDependenciesProviding
 
         @property
         def search_client_provider(self) -> DataSourceCardSearchClientProviding:
-            return self._search_client_provider
+            return self.external_app_dependencies_provider.data_source_card_search_client_provider(self._local_managed_sets_data_source)
         
         @property
         def local_managed_sets_data_source(self) -> DataSourceLocallyManagedSets:

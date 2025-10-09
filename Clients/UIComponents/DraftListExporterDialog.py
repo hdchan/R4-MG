@@ -9,30 +9,6 @@ from R4UI import (BoldLabel, ComboBox,
 from ..Exporter.ExportFormattable import ExportFormattable
 from ..Models import SWUTradingCardBackedLocalCardResource
 
-# T = TypeVar("T")
-
-# class CellObject(Generic[T]):
-#     def __init__(self, o: T):
-#         self._o: T = o
-#         self._is_checked = False
-        
-#         def _checked(checked: bool):
-#             self._is_checked = checked
-        
-#         self._check_box = R4UICheckBox(_checked)
-    
-#     @property
-#     def check_box(self) -> R4UICheckBox:
-#         return self._check_box
-    
-#     @property
-#     def is_checked(self) -> bool:
-#         return self._is_checked
-    
-#     @property
-#     def object(self) -> T:
-#         return self._o
-
 class DraftListExporterDialog(QDialog):
         def __init__(self, 
                      leaders: List[SWUTradingCardBackedLocalCardResource],

@@ -1,11 +1,18 @@
 
+import copy
 import sys
-from typing import Callable, List, Optional, Tuple
+from io import BytesIO
+from typing import Callable, Hashable, List, Optional, Set, Tuple
 
 from PIL import Image
 from PIL.ImageFile import ImageFile
+from PyQt5.QtCore import QMutex, QObject, QRunnable, QThreadPool, pyqtSignal
+from PyQt5.QtGui import QImage, QPixmap
+
+from AppCore.Observation import ObservationTower
 
 from ..Config.SWUAppConfiguration import SWUAppConfigurationManager
+from ..Events.DeckListImageGeneratedEvent import DeckListImageGeneratedEvent
 from ..Models import (DeckListImageGeneratorStyles, ParsedDeckList,
                       ParsedDeckListProviding,
                       SWUTradingCardBackedLocalCardResource)
@@ -15,9 +22,17 @@ class DraftListImageGenerator:
     
     def __init__(self, 
                  parsed_deck_provider: ParsedDeckListProviding, 
-                 configuration_manager: SWUAppConfigurationManager):
+                 configuration_manager: SWUAppConfigurationManager, observation_tower: ObservationTower):
         self._configuration_manager = configuration_manager
         self._parsed_deck_list_provider = parsed_deck_provider
+        self._observation_tower = observation_tower
+        self.pool = QThreadPool()
+        self.mutex = QMutex()
+        self.working_resources: Set[Hashable] = set()
+
+    @property
+    def is_loading(self) -> bool:
+        return len(self.working_resources) > 0
 
     @property
     def _deck_list_image_generator_styles(self) -> DeckListImageGeneratorStyles:
@@ -27,11 +42,52 @@ class DraftListImageGenerator:
     def _parsed_deck_list(self) -> ParsedDeckList:
         return self._parsed_deck_list_provider.parsed_deck
 
-    def generate_image(self) -> Optional[Image.Image]:
-        if self._deck_list_image_generator_styles.is_leader_base_on_top:
-            return self.generate_cost_curve_with_horizontal_leader_base()
-        else:
-            return self.generate_cost_curve_with_vertical_leader_base()
+    def generate_image(self, completion: Callable[[Optional[QPixmap], Optional[Image.Image]], None]):
+        print("Generating deck list image")
+        deck_copy = copy.deepcopy(self._parsed_deck_list)
+        start_event = DeckListImageGeneratedEvent(DeckListImageGeneratedEvent.EventType.STARTED, 
+                                                  deck_copy)
+        self._observation_tower.notify(start_event)
+
+        def _finished(result: Tuple[Optional[QPixmap], Optional[Image.Image], ParsedDeckList]):
+            pixmap, image, parsed_deck = result
+            self.mutex.lock()
+            self.working_resources.remove(parsed_deck)
+            self.mutex.unlock()
+
+            end_event = DeckListImageGeneratedEvent(DeckListImageGeneratedEvent.EventType.STARTED, 
+                                                  deck_copy)
+            end_event.predecessor = start_event
+            self._observation_tower.notify(end_event) 
+            print(f"Image generation took: {end_event.seconds_since_predecessor}")
+            completion(pixmap, image)
+
+        def _generate_image() -> Tuple[Optional[QPixmap], Optional[Image.Image]]:
+            image: Optional[Image.Image]
+            if self._deck_list_image_generator_styles.is_leader_base_on_top:
+                image = self.generate_cost_curve_with_horizontal_leader_base()
+            else:
+                image = self.generate_cost_curve_with_vertical_leader_base()
+
+            pixmap: Optional[QPixmap] = None
+            if image is not None:
+                byte_array = BytesIO()
+                image.save(byte_array, format="PNG")
+                byte_array.seek(0)
+                
+                qimage = QImage.fromData(byte_array.getvalue())
+                pixmap = QPixmap.fromImage(qimage)
+
+
+            return pixmap, image
+            
+        self.mutex.lock()
+        
+        self.working_resources.add(deck_copy)
+        self.mutex.unlock()
+        worker = Worker(_generate_image, deck_copy)
+        worker.signals.finished.connect(_finished)
+        self.pool.start(worker)
         
     # MARK: - cost curve
     def _create_transparent_image(self, width: int, height: int) -> Image.Image:
@@ -261,3 +317,20 @@ class DraftListImageGenerator:
                            main_deck_sideboard_image)
 
         return result_image
+    
+
+class WorkerSignals(QObject):
+    finished = pyqtSignal(object)
+
+class Worker(QRunnable):
+    def __init__(self, 
+                 fn: Callable[[], Tuple[Optional[QPixmap], Optional[Image.Image]]], 
+                 parsed_deck_list: ParsedDeckList):
+        super(Worker, self).__init__()
+        self.signals = WorkerSignals()
+        self._fn = fn
+        self._parsed_deck_list = parsed_deck_list
+
+    def run(self):
+        pixmap, image = self._fn()
+        self.signals.finished.emit((pixmap, image, self._parsed_deck_list))

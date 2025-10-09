@@ -2,7 +2,6 @@
 from typing import Any, Dict, List, Optional
 from uuid import UUID, uuid4
 
-from AppCore.Config import *
 from AppCore.Models import LocalCardResource
 import copy
 
@@ -95,6 +94,9 @@ class DraftPack():
             
         def add_resource(self, resource: LocalCardResource):
             self._draft_list.append(resource)
+
+        def add_resources(self, resources: List[LocalCardResource]):
+            self._draft_list += resources
             
         def remove_resource(self, resource_index: int):
             if resource_index >= 0 and resource_index < len(self._draft_list):
