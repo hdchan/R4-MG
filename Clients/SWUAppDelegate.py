@@ -32,7 +32,8 @@ from .UIComponents.DraftListImagePreviewViewController import \
     DraftListImagePreviewViewController
 from .UIComponents.DraftListItemCell import DraftListItemCell
 from .UIComponents.DraftListItemHeader import DraftListItemHeader
-
+from AppUI.ExternalAppDependenciesProviding import SearchQueryBarViewProviding
+from .UIComponents.SearchQueryBarViewController import SearchQueryBarViewController
 
 class SWUAppDelegate(ExternalAppDependenciesProviding):
     
@@ -56,6 +57,10 @@ class SWUAppDelegate(ExternalAppDependenciesProviding):
     @property
     def _internal_asset_provider(self) -> InternalAssetProvider:
         return self._swu_app_dependencies_provider.asset_provider
+
+    # MARK: - Card search
+    def provide_card_search_query_view(self) -> Optional[SearchQueryBarViewProviding]:
+        return SearchQueryBarViewController()
 
     # MARK: - Image deployer
     @property

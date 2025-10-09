@@ -23,6 +23,8 @@ from .SearchTableComboViewController import (
     SearchTableComboViewController, SearchTableComboViewControllerDelegate)
 
 
+
+
 class SearchTableViewController(QWidget, 
                                 TransmissionReceiverProtocol, 
                                 DataSourceCardSearchDelegate, 
@@ -61,7 +63,7 @@ class SearchTableViewController(QWidget,
         layout = QVBoxLayout()
         self.setLayout(layout)
         self._card_type_list = list(CardType) # TODO: move to external dependencies
-        search_table_combo_view = SearchTableComboViewController(self)
+        search_table_combo_view = SearchTableComboViewController(app_dependencies_provider, self)
         layout.addWidget(search_table_combo_view)
         self._search_table_combo_view = search_table_combo_view
     
@@ -119,17 +121,17 @@ class SearchTableViewController(QWidget,
 
     def _search(self, config_modifier: ... = None):
         # prevent query errors
-        stripped_text = self._search_table_combo_view.card_name_search_bar_text.strip()
-        self._search_table_combo_view.set_search_bar_text(stripped_text)
+        # stripped_text = self._search_table_combo_view.card_name_search_bar_text.strip()
+        # self._search_table_combo_view.set_search_bar_text(stripped_text)
         
-        search_configuration = SWUCardSearchConfiguration()
-        search_configuration.card_name = stripped_text
-        search_configuration.card_type = self._card_type_list[self._search_table_combo_view.card_type_selection.currentIndex()]
+        # search_configuration = SWUCardSearchConfiguration()
+        # search_configuration.card_name = stripped_text
+        # search_configuration.card_type = self._card_type_list[self._search_table_combo_view.card_type_selection.currentIndex()]
                 
-        if config_modifier is not None:
-            search_configuration = config_modifier(search_configuration)
+        # if config_modifier is not None:
+        #     search_configuration = config_modifier(search_configuration)
         
-        self._card_search_data_source.search(search_configuration)
+        self._card_search_data_source.search(self._search_table_combo_view.search_configuration)
 
     def _load_source_labels(self, status_string: str = ""):
         search_source_url = self._card_search_data_source.site_source_url

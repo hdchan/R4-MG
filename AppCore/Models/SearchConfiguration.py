@@ -30,3 +30,5 @@ class SearchConfiguration():
         obj.card_name = json[SearchConfiguration.Keys.CARD_NAME]
         obj.metadata = json[SearchConfiguration.Keys.METADATA]
         return obj
+    
+    

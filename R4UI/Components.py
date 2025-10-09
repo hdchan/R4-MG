@@ -235,10 +235,12 @@ class R4UIMenuBarBuilder(QMenuBar):
 class LineEditInt(QLineEdit):
     def __init__(self,
                  int: Optional[int] = None, 
-                 triggered_fn: Optional[Callable[[int], None]] = None):
+                 triggered_fn: Optional[Callable[[int], None]] = None,
+                 placeholder_text: Optional[str] = None):
         super().__init__()
         self._triggered_fn = triggered_fn
         self.setValidator(QIntValidator())
+        self.setPlaceholderText(placeholder_text)
         self.set_value(int)
         self.textChanged.connect(self._triggered)
         
@@ -265,10 +267,12 @@ class LineEditInt(QLineEdit):
 class LineEditFloat(QLineEdit):
     def __init__(self,
                  int: Optional[float] = None, 
-                 triggered_fn: Optional[Callable[[float], None]] = None):
+                 triggered_fn: Optional[Callable[[float], None]] = None,
+                 placeholder_text: Optional[str] = None):
         super().__init__()
         self._triggered_fn = triggered_fn
         self.setValidator(QDoubleValidator())
+        self.setPlaceholderText(placeholder_text)
         self.set_value(int)
         self.textChanged.connect(self._triggered)
         
@@ -296,10 +300,12 @@ class LineEditFloat(QLineEdit):
 class LineEditText(QLineEdit):
     def __init__(self,
                  text: Optional[str] = None, 
-                 triggered_fn: Optional[Callable[[str], None]] = None):
+                 triggered_fn: Optional[Callable[[str], None]] = None, 
+                 placeholder_text: Optional[str] = None):
         super().__init__()
         self._triggered_fn = triggered_fn
         self.set_value(text)
+        self.setPlaceholderText(placeholder_text)
         self.textChanged.connect(self._triggered)
         
     def _triggered(self, text: str):
@@ -318,7 +324,7 @@ class LineEditText(QLineEdit):
 class HorizontalLabeledInputRow(R4UIWidget):
     def __init__(self, 
                  text: str,
-                 input: R4UIWidget, 
+                 input: R4UIWidget,
                  description: Optional[str] = None):
         super().__init__()
         self._layout = HorizontalBoxLayout([

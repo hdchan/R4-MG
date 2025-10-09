@@ -27,7 +27,7 @@ class LocallyManagedSetPreviewViewController(QWidget, SearchTableComboViewContro
         self._resource = resource
         self._card_search_data_source = app_dependencies_provider.new_instance_card_search_data_source(self, self)
         self._local_managed_sets_data_source = app_dependencies_provider.local_managed_sets_data_source
-        self._local_fetcher = DataFetcherLocal(app_dependencies_provider.configuration_manager)
+        self._local_fetcher = DataFetcherLocal(DataFetcherLocal.Configuration(app_dependencies_provider.configuration_manager.configuration.network_delay_duration))
 
         self._selected_resource: Optional[LocalCardResource] = None
         self._card_resources = self._local_managed_sets_data_source.retrieve_set_card_list(resource)
@@ -37,7 +37,7 @@ class LocallyManagedSetPreviewViewController(QWidget, SearchTableComboViewContro
         layout = QHBoxLayout()
         self.setLayout(layout)
         
-        search_table_combo_view = SearchTableComboViewController(self)
+        search_table_combo_view = SearchTableComboViewController(app_dependencies_provider, self)
         layout.addWidget(search_table_combo_view, 7)
         self._search_table_combo_view = search_table_combo_view
         

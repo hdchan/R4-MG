@@ -4,27 +4,34 @@ from typing import List, Optional
 from PyQt5.QtWidgets import QWidget
 
 from AppCore.DataSource import (DataSourceCardSearchClientProviding,
-                                DataSourceDraftList,
                                 DataSourceImageResourceDeployer,
                                 DataSourceLocallyManagedSets)
 from AppCore.DataSource.DataSourceLocallyManagedSets import \
     DataSourceLocallyManagedSetsClientProtocol
-from AppCore.Models import DraftPack, LocalCardResource
+from AppCore.Models import DraftPack, LocalCardResource, SearchConfiguration
 from AppUI.ExternalAppDependenciesProviding import *
 from AppUI.Models import DraftListStyleSheet
 from AppUI.Router.Router import Router
 from R4UI import R4UIWidget
-from AppUI.AppDependenciesProviding import AppDependenciesProviding
+
+class SearchQueryBarViewProviding(R4UIWidget):
+    @property
+    def search_configuration(self) -> SearchConfiguration:
+        raise Exception
 
 class ExternalAppDependenciesProviding:
     
+    @property
+    def logo_path(self) -> str:
+        return ""
+    
+    # MARK: - Card search
+    def provide_card_search_query_view(self) -> Optional[SearchQueryBarViewProviding]:
+        return None
+
     # MARK: - Image deployer
     @property
     def card_back_image_path(self) -> str:
-        return ""
-    
-    @property
-    def logo_path(self) -> str:
         return ""
     
     @property
@@ -49,6 +56,9 @@ class ExternalAppDependenciesProviding:
     
     def data_source_card_search_client_provider(self,
                                                 local_managed_sets_data_source: DataSourceLocallyManagedSets) -> DataSourceCardSearchClientProviding:
+        raise Exception
+    
+    def provide_draft_list_image_preview_widget(self) -> QWidget:
         raise Exception
     
     # Optional
@@ -76,5 +86,4 @@ class ExternalAppDependenciesProviding:
                             aggregate_list: bool) -> Optional[List[LocalCardResource]]:
         return None
     
-    def provide_draft_list_image_preview_widget(self) -> QWidget:
-        raise Exception
+    
