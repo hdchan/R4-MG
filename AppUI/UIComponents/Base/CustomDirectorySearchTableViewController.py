@@ -1,7 +1,7 @@
 from typing import Optional
-
+from PyQt5.QtCore import QSize
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QLineEdit, QListWidget,
-                             QPushButton, QVBoxLayout, QWidget)
+                             QPushButton, QVBoxLayout, QWidget, QSizePolicy)
 
 from AppCore.Config import Configuration
 from AppCore.DataSource.DataSourceCustomDirectorySearch import (
@@ -60,6 +60,9 @@ class CustomDirectorySearchTableViewController(QWidget, TransmissionReceiverProt
         
         
         search_source_label = QLabel()
+        # TODO: need to account for long labels else where
+        search_source_label.setMinimumSize(QSize(1, 1))
+        search_source_label.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Preferred)
         search_source_label.linkActivated.connect(self._handle_link_activated)
         layout.addWidget(search_source_label)
         self.search_source_label = search_source_label
