@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.21.2
+### Feature
+- Add stage & publish to contextual menu on draft list
+
 ## 0.21.1
 ### Hotfix
 - Adjust sizing policy for source label
