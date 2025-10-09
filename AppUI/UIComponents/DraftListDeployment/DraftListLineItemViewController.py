@@ -6,7 +6,9 @@ from PyQt5.QtGui import QContextMenuEvent
 from PyQt5.QtWidgets import QAction, QMenu, QVBoxLayout, QLabel
 
 from AppCore.DataSource import LocalResourceDataSourceProviding
-from AppCore.Models import LocalCardResource, TradingCard, DraftPack
+from AppUI.Configuration.AppUIConfiguration import AppUIConfiguration
+from AppCore.Config.Configuration import Configuration
+from AppCore.Models import LocalCardResource, TradingCard, DraftPack, DeploymentCardResource
 from AppUI.AppDependenciesProviding import AppDependenciesProviding
 
 from AppUI.Models.DraftListStyleSheet import DraftListStyleSheet
@@ -34,6 +36,7 @@ class DraftListLineItemViewController(R4UIWidget):
         self._data_source_draft_list = app_dependencies_provider.data_source_draft_list
         self._data_source_local_resource_provider = data_source_local_resource_provider
         self._data_source_image_resource_deployer = app_dependencies_provider.data_source_image_resource_deployer
+        self._app_ui_configuration_manager = app_dependencies_provider.app_ui_configuration_manager
         self._router = app_dependencies_provider.router
         self._trading_card = trading_card
         self._local_resource = local_resource
@@ -49,6 +52,10 @@ class DraftListLineItemViewController(R4UIWidget):
     def set_delegate(self, delegate: DraftListLineItemViewControllerDelegate):
         self._delegate = weakref.ref(delegate)
     
+    @property
+    def _configuration(self) -> Configuration:
+        return self._app_ui_configuration_manager.configuration.core_configuration
+
     @property
     def _can_edit(self) -> bool:
         if self._delegate is not None:
@@ -140,9 +147,22 @@ class DraftListLineItemViewController(R4UIWidget):
             context_menu.addSeparator()
             for d in deployment_resources:
                 name = d.production_resource.file_name_with_ext
-                action = QAction(f"Stage to - {name}", self)
-                action.triggered.connect(lambda _, deployment_resource=d: # type: ignore
-                    self._data_source_image_resource_deployer.stage_resource(deployment_resource, self._local_resource)) # type: ignore
+                
+                if self._configuration.draft_list_add_card_mode == Configuration.Settings.DraftListAddCardMode.STAGE:
+                    action = QAction(f"Stage to - {name}", self)
+                    action.triggered.connect(lambda _, deployment_resource=d: # type: ignore
+                        self._data_source_image_resource_deployer.stage_resource(deployment_resource, self._local_resource)) # type: ignore
+                elif self._configuration.draft_list_add_card_mode == Configuration.Settings.DraftListAddCardMode.STAGE_AND_PUBLISH:
+                    def stage_and_publish(deployment_resource: DeploymentCardResource):
+                        self._data_source_image_resource_deployer.stage_resource(deployment_resource, self._local_resource)
+                        self._data_source_image_resource_deployer.publish_staged_resources()
+
+                    action = QAction(f"Publish to - {name}", self)
+                    action.triggered.connect(lambda _, deployment_resource=d: stage_and_publish(deployment_resource)) # type: ignore
+                    
+                else:
+                    continue
+                
                 deployment_actions.append(action)
                 context_menu.addAction(action) # type: ignore
 
