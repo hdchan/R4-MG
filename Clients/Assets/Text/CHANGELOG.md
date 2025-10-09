@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.21.1
+### Hotfix
+- Adjust sizing policy for source label
+
 ## 0.21.0
 ### Added
 - Panel for updating draft list image generator styles

@@ -1,8 +1,8 @@
 from typing import Optional
 from urllib.error import HTTPError
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QLabel, QVBoxLayout, QWidget
+from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtWidgets import QLabel, QVBoxLayout, QWidget, QSizePolicy
 
 from AppCore.Config import Configuration
 from AppCore.DataSource import (DataSourceSelectedLocalCardResourceProtocol,
@@ -66,6 +66,9 @@ class SearchTableViewController(QWidget,
         self._search_table_combo_view = search_table_combo_view
     
         search_source_label = QLabel()
+        # TODO: need to account for long labels else where
+        search_source_label.setMinimumSize(QSize(1, 1))
+        search_source_label.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Preferred)
         layout.addWidget(search_source_label)
         search_source_label.linkActivated.connect(self._handle_link_activated)
         self.search_source_label = search_source_label
