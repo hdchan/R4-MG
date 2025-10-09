@@ -6,15 +6,14 @@ from PyQt5.QtCore import (QMutex, QObject, QRunnable, QThreadPool, QTimer,
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QFileDialog
 
-from AppCore.DataSource import DataSourceDraftList
-from AppCore.Observation import (ObservationTower, TransmissionProtocol,
+from AppCore.Observation import (TransmissionProtocol,
                                  TransmissionReceiverProtocol)
 from AppCore.Observation.Events import (DraftListUpdatedEvent,
                                         DraftPackUpdatedEvent,
                                         LocalAssetResourceFetchEvent)
 from AppUI.UIComponents.Base.LoadingSpinner import LoadingSpinner
 from R4UI import HorizontalBoxLayout, HorizontalSplitter, R4UIWidget
-
+from AppUI.AppDependenciesProviding import AppDependenciesProviding
 from ..Config.SWUAppConfiguration import SWUAppConfigurationManager
 from ..Events.DeckListImageGeneratedEvent import DeckListImageGeneratedEvent
 from ..Models.ParsedDeckList import ParsedDeckList, ParsedDeckListProviding
@@ -27,12 +26,11 @@ from .PhotoViewer import PhotoViewer
 
 class DraftListImagePreviewViewController(R4UIWidget, TransmissionReceiverProtocol, ParsedDeckListProviding, DraftListImagePreviewInspectorPanelViewControllerDelegate):
     def __init__(self, 
-                 observation_tower: ObservationTower,
-                 draft_list_data_source: DataSourceDraftList, 
+                 app_dependencies_provider: AppDependenciesProviding,
                  configuration_manager: SWUAppConfigurationManager):
         super().__init__()
-        self._observation_tower = observation_tower
-        self._draft_list_data_source = draft_list_data_source
+        self._observation_tower = app_dependencies_provider.observation_tower
+        self._draft_list_data_source = app_dependencies_provider.data_source_draft_list
         self._configuration_manager = configuration_manager
         self._image_generator: DraftListImageGenerator = DraftListImageGenerator(self, configuration_manager)
         self.pool = QThreadPool()

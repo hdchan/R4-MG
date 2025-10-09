@@ -1,7 +1,7 @@
 import copy
 from typing import Callable, List, Set
 
-from AppCore.Models import DraftPack
+from AppCore.Models import DraftPack, LocalCardResource
 
 from .CardType import CardType
 from .SWUTradingCard import SWUTradingCard
@@ -14,9 +14,12 @@ class ParsedDeckList:
     @classmethod
     def from_draft_packs(cls, draft_packs: List[DraftPack]):
         flat_list = [item for pack in draft_packs for item in pack.draft_list]
-        
+        return ParsedDeckList.from_local_card_resources(flat_list)
+
+    @classmethod
+    def from_local_card_resources(cls, local_card_resources: List[LocalCardResource]):
         swu_backed_resources: List[SWUTradingCardBackedLocalCardResource] = []
-        for r in flat_list:
+        for r in local_card_resources:
             swu_backed_resource = SWUTradingCardModelMapper.from_card_resource(r)
             if swu_backed_resource is None:
                 # no_trading_card_resources.append(r)

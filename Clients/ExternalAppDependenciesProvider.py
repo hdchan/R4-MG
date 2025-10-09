@@ -157,6 +157,5 @@ class ExternalAppDependenciesProvider(ExternalAppDependenciesProviding):
         self._draft_list_exporter.export_draft_list(draft_packs, to_path, swu_db)
         
     def provide_draft_list_image_preview_widget(self, app_dependencies_provider: AppDependenciesProviding) -> QWidget:
-        return DraftListImagePreviewViewController(self._observation_tower, 
-                                                   app_dependencies_provider.data_source_draft_list, 
+        return DraftListImagePreviewViewController(app_dependencies_provider,
                                                    self._swu_app_configuration_manager)
