@@ -14,7 +14,7 @@ from AppUI.ExternalAppDependenciesProviding import *
 from AppUI.Models import DraftListStyleSheet
 from AppUI.Router.Router import Router
 from R4UI import R4UIWidget
-
+from AppUI.AppDependenciesProviding import AppDependenciesProviding
 
 class ExternalAppDependenciesProviding:
     
@@ -76,5 +76,6 @@ class ExternalAppDependenciesProviding:
                             aggregate_list: bool) -> Optional[List[LocalCardResource]]:
         return None
     
-    def provide_draft_list_image_preview_widget(self, draft_list_data_source: DataSourceDraftList) -> QWidget:
+    def provide_draft_list_image_preview_widget(self, 
+                                                app_dependencies_provider: AppDependenciesProviding) -> QWidget:
         raise Exception

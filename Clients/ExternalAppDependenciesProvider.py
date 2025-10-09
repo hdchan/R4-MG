@@ -1,7 +1,7 @@
 import copy
 from typing import Dict, List, Optional
 
-from PyQt5.QtWidgets import QWidget, QTextEdit
+from PyQt5.QtWidgets import QTextEdit, QWidget
 
 from AppCore.Config import ConfigurationManager
 from AppCore.DataFetcher import *
@@ -11,7 +11,7 @@ from AppCore.DataSource import (DataSourceCardSearchClientProviding,
                                 DataSourceLocallyManagedSets)
 from AppCore.DataSource.DataSourceLocallyManagedSets import \
     DataSourceLocallyManagedSetsClientProtocol
-from AppCore.Models import DraftPack, LocalCardResource, TradingCard
+from AppCore.Models import DraftPack, LocalCardResource
 from AppCore.Observation import ObservationTower
 from AppUI.Assets import AssetProvider
 from AppUI.ExternalAppDependenciesProviding import \
@@ -22,8 +22,10 @@ from R4UI import R4UIWidget, VerticalBoxLayout
 
 from .Assets import AssetProvider as InternalAssetProvider
 from .ClientProvider import ClientProvider
+from .Config.SWUAppConfiguration import SWUAppConfigurationManager
 from .Exporter.DraftListExporter import DraftListExporter
 from .Models.SWUTradingCard import SWUTradingCard
+from .Models.SWUTradingCardModelMapper import SWUTradingCardModelMapper
 from .swu_db_com import SWUDBLocalSetRetrieverClient
 from .UIComponents.AboutViewController import AboutViewController
 from .UIComponents.AddImageCTAViewController import AddImageCTAViewController
@@ -31,8 +33,8 @@ from .UIComponents.DraftListImagePreviewViewController import \
     DraftListImagePreviewViewController
 from .UIComponents.DraftListItemCell import DraftListItemCell
 from .UIComponents.DraftListItemHeader import DraftListItemHeader
-from .Models.SWUTradingCardModelMapper import SWUTradingCardModelMapper
-from .Config.SWUAppConfiguration import SWUAppConfigurationManager
+from AppUI.AppDependenciesProviding import AppDependenciesProviding
+
 class ExternalAppDependenciesProvider(ExternalAppDependenciesProviding):
     
     def __init__(self, 
@@ -154,7 +156,7 @@ class ExternalAppDependenciesProvider(ExternalAppDependenciesProviding):
     def export_draft_list(self, draft_packs: List[DraftPack], to_path: str, swu_db: bool):
         self._draft_list_exporter.export_draft_list(draft_packs, to_path, swu_db)
         
-    def provide_draft_list_image_preview_widget(self, draft_list_data_source: DataSourceDraftList) -> QWidget:
+    def provide_draft_list_image_preview_widget(self, app_dependencies_provider: AppDependenciesProviding) -> QWidget:
         return DraftListImagePreviewViewController(self._observation_tower, 
-                                                   draft_list_data_source, 
+                                                   app_dependencies_provider.data_source_draft_list, 
                                                    self._swu_app_configuration_manager)
