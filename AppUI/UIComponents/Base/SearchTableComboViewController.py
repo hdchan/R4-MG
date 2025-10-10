@@ -267,6 +267,15 @@ class SearchTableComboViewController(QWidget):
     def search_configuration(self) -> SearchConfiguration:
         return self._query_view.search_configuration
     
+    @property
+    def secondary_search_configuration(self) -> Optional[SearchConfiguration]:
+        return self._query_view.secondary_search_configuration
+
+    @property
+    def tertiary_search_configuration(self) -> Optional[SearchConfiguration]:
+        return self._query_view.tertiary_search_configuration
+        
+    
     def _set_flip_button_enabled(self, enabled: bool):
         self.flip_button.setEnabled(enabled)
         

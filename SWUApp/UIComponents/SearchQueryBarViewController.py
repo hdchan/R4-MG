@@ -11,8 +11,7 @@ from ..Models.SWUCardSearchConfiguration import SWUCardSearchConfiguration
 class SearchQueryBarViewController(SearchQueryBarViewProviding):
     def __init__(self):
         super().__init__()
-        # app_dependencies_provider.shortcut_action_coordinator.bind_search_leader(self._search_leader, self)
-        # app_dependencies_provider.shortcut_action_coordinator.bind_search_base(self._search_base, self)
+        
         self._query_text: Optional[str] = None
 
         self._query_search_bar = LineEditText(triggered_fn=self._set_text,
@@ -46,6 +45,35 @@ class SearchQueryBarViewController(SearchQueryBarViewProviding):
             pass
         return config
     
+    @property
+    def secondary_search_configuration(self) -> Optional[SearchConfiguration]:
+        config = SWUCardSearchConfiguration()
+        if self._query_text is not None:
+            config.card_name = self._query_text.strip()
+        try:
+            index = self._card_type_selection.currentIndex()
+            card_type = list(CardType)[index]
+            config.card_type = card_type
+        except:
+            pass
+        config.card_type = CardType.LEADER
+        return config
+        
+
+    @property
+    def tertiary_search_configuration(self) -> Optional[SearchConfiguration]:
+        config = SWUCardSearchConfiguration()
+        if self._query_text is not None:
+            config.card_name = self._query_text.strip()
+        try:
+            index = self._card_type_selection.currentIndex()
+            card_type = list(CardType)[index]
+            config.card_type = card_type
+        except:
+            pass
+        config.card_type = CardType.BASE
+        return config
+    
     def set_search_focus(self) -> None:
         self._query_search_bar.setFocus()
         self._query_search_bar.selectAll()
@@ -58,18 +86,6 @@ class SearchQueryBarViewController(SearchQueryBarViewProviding):
         self.set_search_bar_text(search_configuration.card_name)
         swu_search_config = SWUCardSearchConfiguration.from_search_configuration(search_configuration)
         self.set_card_type_filter(swu_search_config.card_type)
-
-    # def _search_leader(self):
-    #     def modifier(config: SWUCardSearchConfiguration) -> SearchConfiguration:
-    #         config.card_type = CardType.LEADER
-    #         return config
-    #     self._search(modifier)
-        
-    # def _search_base(self):
-    #     def modifier(config: SWUCardSearchConfiguration) -> SearchConfiguration:
-    #         config.card_type = CardType.BASE
-    #         return config
-    #     self._search(modifier)
 
     def set_card_type_filter(self, card_type: Optional[str]):
         if card_type is not None:

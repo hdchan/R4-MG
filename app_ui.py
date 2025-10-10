@@ -9,9 +9,10 @@ from AppUI.AppDependenciesProvider import AppDependenciesProvider
 from AppUI.UIComponents.DraftListDeployment.MainWindow import MainWindow
 from SWUApp.SWUAppDependenciesProvider import SWUAppDependenciesProvider
 # TODO: graphing algorithm to sort dependencies?
-
+from AppUI.CrashReporter import CrashReporter
 class MainAssembly:
     def __init__(self):
+        
         self.app = QApplication([])
         # Ensure this is set before config manager writes out to settings file
         self.app.setApplicationName(Configuration.APP_NAME)
@@ -29,14 +30,13 @@ class MainAssembly:
                                                                   self._configuration_manager,
                                                                   self._asset_provider, 
                                                                   self._swu_app_delegate)
-        
+        CrashReporter(self._app_dependencies_provider)
         self._app_dependencies_provider.router.open_image_deployment_view()
         self._app_dependencies_provider.router.open_draft_list_deployment_view()
         if self._configuration_manager.configuration.is_draft_list_image_preview_enabled:
             self._app_dependencies_provider.router.open_draft_list_image_preview_view()
         
         self.app.setWindowIcon(QIcon(self._swu_app_delegate.logo_path))
-        
         self.app.exec()
 
     def _lazy_app_dependencies_provider(self) -> AppDependenciesProvider:
@@ -54,6 +54,7 @@ class MainAssembly:
     def _start_other_program(self):
         self.another_window = MainWindow(self._app_dependencies_provider)
         self.another_window.show()
-        
+
+
 if __name__ == '__main__':
-    MainAssembly()
+        MainAssembly()

@@ -19,6 +19,14 @@ class SearchQueryBarViewProviding(R4UIWidget):
     def search_configuration(self) -> SearchConfiguration:
         raise Exception
     
+    @property
+    def secondary_search_configuration(self) -> Optional[SearchConfiguration]:
+        return None
+
+    @property
+    def tertiary_search_configuration(self) -> Optional[SearchConfiguration]:
+        return None
+    
     def did_receive_configuration(self, search_configuration: SearchConfiguration) -> None:
         return
     

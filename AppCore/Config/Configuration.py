@@ -287,6 +287,13 @@ class Configuration():
     def config_directory(self) -> str:
         return f'{self._config_dir_path}'
     
+    @property
+    def logs_dir_path(self) -> str:
+        return f'{self._config_dir_path}/logs'
+    
+    @property
+    def app_crash_log_path(self) -> str:
+        return f'{self.logs_dir_path}/app_crash.log'
     
     # MARK: - Picture
     @property

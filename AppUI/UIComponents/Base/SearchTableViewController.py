@@ -59,7 +59,6 @@ class SearchTableViewController(QWidget,
 
         layout = QVBoxLayout()
         self.setLayout(layout)
-        # self._card_type_list = list(CardType) # TODO: move to external dependencies
         search_table_combo_view = SearchTableComboViewController(app_dependencies_provider, self)
         layout.addWidget(search_table_combo_view)
         self._search_table_combo_view = search_table_combo_view
@@ -87,6 +86,8 @@ class SearchTableViewController(QWidget,
         app_dependencies_provider.shortcut_action_coordinator.bind_focus_search(self._search_table_combo_view.set_search_focus, self)
         app_dependencies_provider.shortcut_action_coordinator.bind_reset_search(self._search_table_combo_view.reset_search, self)
         app_dependencies_provider.shortcut_action_coordinator.bind_search(self._search, self)
+        app_dependencies_provider.shortcut_action_coordinator.bind_search_leader(self._search_secondary, self)
+        app_dependencies_provider.shortcut_action_coordinator.bind_search_base(self._search_tertiary, self)
     
     @property
     def card_search_data_source(self) -> DataSourceCardSearch:
@@ -102,8 +103,20 @@ class SearchTableViewController(QWidget,
     def get_selection(self):
         self._search_table_combo_view.get_selection()
 
-    def _search(self, config_modifier: ... = None):
+    def _search(self):
         self._card_search_data_source.search(self._search_table_combo_view.search_configuration)
+
+    def _search_secondary(self):
+        configuration = self._search_table_combo_view.secondary_search_configuration
+        if configuration is None:
+            return
+        self._card_search_data_source.search(configuration)
+
+    def _search_tertiary(self):
+        configuration = self._search_table_combo_view.tertiary_search_configuration
+        if configuration is None:
+            return
+        self._card_search_data_source.search(configuration)
 
     def _load_source_labels(self, status_string: str = ""):
         search_source_url = self._card_search_data_source.site_source_url
