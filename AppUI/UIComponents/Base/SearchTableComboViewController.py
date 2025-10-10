@@ -1,13 +1,18 @@
 from typing import List, Optional
 
-from PyQt5.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QLineEdit,
-                             QListWidget, QPushButton, QVBoxLayout, QWidget)
 from PyQt5 import QtGui, QtWidgets
-from .LoadingSpinner import LoadingSpinner
-from R4UI import R4UIWidget, HorizontalBoxLayout, LineEditText, Label
+from PyQt5.QtWidgets import (QComboBox, QHBoxLayout, QListWidget, QPushButton,
+                             QVBoxLayout, QWidget)
+
 from AppCore.Models import SearchConfiguration
-from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
+from AppUI.AppDependenciesInternalProviding import \
+    AppDependenciesInternalProviding
 from AppUI.ExternalAppDependenciesProviding import SearchQueryBarViewProviding
+from R4UI import HorizontalBoxLayout, LineEditText
+
+from .LoadingSpinner import LoadingSpinner
+
+
 class SearchTableComboViewControllerDelegate:
     def stc_select_card_resource_for_card_selection(self, stc: 'SearchTableComboViewController', index: int) -> None:
         raise Exception
@@ -21,14 +26,6 @@ class SearchTableComboViewControllerDelegate:
     
     def stc_tapped_flip_button(self, stc: 'SearchTableComboViewController') -> None:
         raise Exception
-    
-    @property
-    def stc_default_card_type(self) -> Optional[str]: # can this optional?
-        return None
-    
-    @property
-    def stc_card_type_list(self) -> List[str]:
-        return []
     
     @property
     def stc_history_list(self) -> List[str]:
@@ -175,34 +172,6 @@ class SearchTableComboViewController(QWidget):
             self._query_view = external_query_view
         
         layout.addWidget(self._query_view)
-        # query_layout = QHBoxLayout()
-        # query_layout.setContentsMargins(0, 0, 0, 0)
-        # query_widget = QWidget()
-        # query_widget.setLayout(query_layout)
-        # layout.addWidget(query_widget)
-
-        # card_name_search_bar = QLineEdit(self)
-        # card_name_search_bar.setPlaceholderText("Lookup by card name (Ctrl+L)")
-        # self.card_name_search_bar = card_name_search_bar
-        # query_layout.addWidget(card_name_search_bar)
-        
-        # card_type_layout = QHBoxLayout()
-        # card_type_layout.setContentsMargins(0, 0, 0, 0)
-        # card_type_widget = QWidget()
-        # card_type_widget.setLayout(card_type_layout)
-        # query_layout.addWidget(card_type_widget)
-        
-        # card_type_selection_label = QLabel("Type")
-        # card_type_layout.addWidget(card_type_selection_label)
-        # self._card_type_selection_label = card_type_selection_label
-        
-        # card_type_selection = QComboBox()
-        # for i in self._delegate.stc_card_type_list:
-        #     card_type_selection.addItem(i)
-        # self.card_type_selection = card_type_selection
-        # card_type_layout.addWidget(card_type_selection)
-        
-        
 
         result_list = QListWidget()
         result_list.itemSelectionChanged.connect(self.get_selection)
@@ -239,26 +208,12 @@ class SearchTableComboViewController(QWidget):
         self.flip_button.setHidden(self._delegate.stc_is_flip_button_hidden)
         self.flip_button.setText(self._delegate.stc_flip_button_text)
         self._set_search_button_text(self._delegate.stc_search_button_text)
-        # self.card_type_selection.setHidden(not self._delegate.stc_card_type_list)
-        # self._card_type_selection_label.setHidden(not self._delegate.stc_card_type_list)
 
         self._search_history_selection.clear()
         history_list = self._delegate.stc_history_list
         self._search_history_selection.addItems(history_list)
         self._search_history_selection.setHidden(len(history_list) == 0 or self._delegate.stc_is_history_dropdown_hidden)
 
-    def set_card_type_filter(self, card_type: Optional[str]):
-        pass
-        # if card_type is not None:
-        #     found_index = self.card_type_selection.findText(card_type)
-        # else:
-        #     found_index = self.card_type_selection.findText(self._delegate.stc_default_card_type)
-           
-        # if found_index >= 0:
-        #         self.card_type_selection.setCurrentIndex(found_index)
-        # else:
-        #     raise Exception("index not found")
-    
     def set_active(self):
         self.get_selection()
         
@@ -267,15 +222,10 @@ class SearchTableComboViewController(QWidget):
             self.result_list.setCurrentRow(index)
     
     def set_search_focus(self):
-        pass
-        # self.card_name_search_bar.setFocus()
-        # self.card_name_search_bar.selectAll()
+        self._query_view.set_search_focus()
 
     def reset_search(self):
-        pass
-        # self.card_name_search_bar.clear()
-        # self.card_name_search_bar.setFocus()
-        # self.set_card_type_filter(None)
+        self._query_view.reset_search()
     
     def get_selection(self):
         selected_indexs = self.result_list.selectedIndexes()
@@ -296,9 +246,8 @@ class SearchTableComboViewController(QWidget):
         self._delegate
         
     def set_search_components_enabled(self, is_on: bool):
-        # self.card_name_search_bar.setEnabled(is_on)
         self._search_button.setEnabled(is_on)
-        # self.card_type_selection.setEnabled(is_on)
+        self._query_view.set_enabled(is_on)
         if is_on:
             self._loading_spinner.stop()
         else:
@@ -307,20 +256,12 @@ class SearchTableComboViewController(QWidget):
     def _set_search_button_text(self, text: str):
         self._search_button.setText(text)
         
-    def set_search_bar_text(self, text: str):
-        pass
-        # self.card_name_search_bar.setText(text)
+    def set_configuration(self, configuration: SearchConfiguration):
+        self._query_view.did_receive_configuration(configuration)
     
     @property
     def search_configuration(self) -> SearchConfiguration:
         return self._query_view.search_configuration
-
-    @property
-    def card_name_search_bar_text(self) -> str:
-        test = self._query_view.search_configuration
-        print('hi')
-        return ""
-        # return self.card_name_search_bar.text()
     
     def _set_flip_button_enabled(self, enabled: bool):
         self.flip_button.setEnabled(enabled)

@@ -9,7 +9,8 @@ from AppCore.DataSource import LocalResourceDataSourceProviding
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         DraftPackUpdatedEvent,
                                         LocalCardResourceSelectedEvent,
-                                        ProductionCardResourcesLoadEvent)
+                                        ProductionCardResourcesLoadEvent, 
+                                        PublishStagedCardResourcesEvent)
 from AppCore.Observation.ObservationTower import *
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from R4UI import ComboBox, R4UIMenuListBuilder, PushButton, VerticalBoxLayout, HorizontalBoxLayout, R4UIActionMenuItem, BoldLabel
@@ -50,7 +51,7 @@ class DraftListTabbedPackPreviewViewController(QWidget, TransmissionReceiverProt
         app_dependencies_provider.observation_tower.subscribe_multi(self, [DraftPackUpdatedEvent,
                                                                            LocalCardResourceSelectedEvent,
                                                                            ProductionCardResourcesLoadEvent, 
-                                                                           ConfigurationUpdatedEvent])
+                                                                           ConfigurationUpdatedEvent, PublishStagedCardResourcesEvent])
         
         app_dependencies_provider.shortcut_action_coordinator.bind_add_card_to_draft_list(self._add_resource, self)
         
@@ -112,8 +113,10 @@ class DraftListTabbedPackPreviewViewController(QWidget, TransmissionReceiverProt
         return self._configuration_manager.configuration
     
     def _add_resource(self):
+        # TODO: protect action when staging is enabled
         if self._is_publishing:
             return
+        # print("got through!")
         selected_pack = self._tab_widget.currentIndex()
         selected_resource = self._data_source_local_resource_provider.data_source.selected_local_resource
         if selected_resource is not None:
@@ -221,6 +224,13 @@ class DraftListTabbedPackPreviewViewController(QWidget, TransmissionReceiverProt
         if type(event) == DraftPackUpdatedEvent or \
             type(event) == LocalCardResourceSelectedEvent or \
             type(event) == ConfigurationUpdatedEvent:
+            self._sync_ui()
+        if type(event) == PublishStagedCardResourcesEvent:
+            if event.event_type == PublishStagedCardResourcesEvent.EventType.STARTED:
+                self._is_publishing = True
+            else:
+                self._is_publishing = False
+            # print(self._is_publishing)
             self._sync_ui()
         if type(event) == ProductionCardResourcesLoadEvent:
             self._reset_deployment_destination_selection()

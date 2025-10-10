@@ -18,6 +18,18 @@ class SearchQueryBarViewProviding(R4UIWidget):
     @property
     def search_configuration(self) -> SearchConfiguration:
         raise Exception
+    
+    def did_receive_configuration(self, search_configuration: SearchConfiguration) -> None:
+        return
+    
+    def set_search_focus(self) -> None:
+        return
+    
+    def reset_search(self) -> None:
+        return
+    
+    def set_enabled(self, is_on: bool) -> None:
+        return
 
 class ExternalAppDependenciesProviding:
     

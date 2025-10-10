@@ -1,8 +1,8 @@
 from typing import Optional
 from urllib.error import HTTPError
 
-from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtWidgets import QLabel, QVBoxLayout, QWidget, QSizePolicy
+from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtWidgets import QLabel, QSizePolicy, QVBoxLayout, QWidget
 
 from AppCore.Config import Configuration
 from AppCore.DataSource import (DataSourceSelectedLocalCardResourceProtocol,
@@ -13,7 +13,6 @@ from AppCore.Observation import *
 from AppCore.Observation.Events import (CardSearchEvent,
                                         ConfigurationUpdatedEvent,
                                         LocalCardResourceFetchEvent)
-from Clients import SWUCardSearchConfiguration, CardType
 from AppUI.AppDependenciesInternalProviding import \
     AppDependenciesInternalProviding
 from AppUI.Observation.Events import KeyboardEvent
@@ -21,8 +20,6 @@ from AppUI.Observation.Events import KeyboardEvent
 from .ImagePreviewViewController import ImagePreviewViewController
 from .SearchTableComboViewController import (
     SearchTableComboViewController, SearchTableComboViewControllerDelegate)
-
-
 
 
 class SearchTableViewController(QWidget, 
@@ -62,7 +59,7 @@ class SearchTableViewController(QWidget,
 
         layout = QVBoxLayout()
         self.setLayout(layout)
-        self._card_type_list = list(CardType) # TODO: move to external dependencies
+        # self._card_type_list = list(CardType) # TODO: move to external dependencies
         search_table_combo_view = SearchTableComboViewController(app_dependencies_provider, self)
         layout.addWidget(search_table_combo_view)
         self._search_table_combo_view = search_table_combo_view
@@ -77,7 +74,7 @@ class SearchTableViewController(QWidget,
 
         self._load_source_labels()
         
-        self._search_table_combo_view.set_card_type_filter(None)
+        # self._search_table_combo_view.set_card_type_filter(None)
         
         self._search_table_combo_view.sync_ui()
         
@@ -90,8 +87,6 @@ class SearchTableViewController(QWidget,
         app_dependencies_provider.shortcut_action_coordinator.bind_focus_search(self._search_table_combo_view.set_search_focus, self)
         app_dependencies_provider.shortcut_action_coordinator.bind_reset_search(self._search_table_combo_view.reset_search, self)
         app_dependencies_provider.shortcut_action_coordinator.bind_search(self._search, self)
-        app_dependencies_provider.shortcut_action_coordinator.bind_search_leader(self._search_leader, self)
-        app_dependencies_provider.shortcut_action_coordinator.bind_search_base(self._search_base, self)
     
     @property
     def card_search_data_source(self) -> DataSourceCardSearch:
@@ -107,30 +102,7 @@ class SearchTableViewController(QWidget,
     def get_selection(self):
         self._search_table_combo_view.get_selection()
 
-    def _search_leader(self):
-        def modifier(config: SWUCardSearchConfiguration) -> SearchConfiguration:
-            config.card_type = CardType.LEADER
-            return config
-        self._search(modifier)
-        
-    def _search_base(self):
-        def modifier(config: SWUCardSearchConfiguration) -> SearchConfiguration:
-            config.card_type = CardType.BASE
-            return config
-        self._search(modifier)
-
     def _search(self, config_modifier: ... = None):
-        # prevent query errors
-        # stripped_text = self._search_table_combo_view.card_name_search_bar_text.strip()
-        # self._search_table_combo_view.set_search_bar_text(stripped_text)
-        
-        # search_configuration = SWUCardSearchConfiguration()
-        # search_configuration.card_name = stripped_text
-        # search_configuration.card_type = self._card_type_list[self._search_table_combo_view.card_type_selection.currentIndex()]
-                
-        # if config_modifier is not None:
-        #     search_configuration = config_modifier(search_configuration)
-        
         self._card_search_data_source.search(self._search_table_combo_view.search_configuration)
 
     def _load_source_labels(self, status_string: str = ""):
@@ -159,9 +131,7 @@ class SearchTableViewController(QWidget,
                                       ds: DataSourceCardSearch,
                                       search_configuration: SearchConfiguration):
         self._search_table_combo_view.set_search_components_enabled(False)
-        self._search_table_combo_view.set_search_bar_text(search_configuration.card_name)
-        swu_search_config = SWUCardSearchConfiguration.from_search_configuration(search_configuration)
-        self._search_table_combo_view.set_card_type_filter(swu_search_config.card_type)
+        self._search_table_combo_view.set_configuration(search_configuration)
 
     def ds_completed_search_with_result(self, 
                                         ds: DataSourceCardSearch,
@@ -201,10 +171,7 @@ class SearchTableViewController(QWidget,
         result = self._card_search_data_source.get_search_configuration_from_history(index)
         if result is not None:
             search_configuration, _ = result
-            self._search_table_combo_view.set_search_bar_text(search_configuration.card_name)
-            # TODO: remove SWUcard config dependency
-            swu_search_config = SWUCardSearchConfiguration.from_search_configuration(search_configuration)
-            self._search_table_combo_view.set_card_type_filter(swu_search_config.card_type)
+            self._search_table_combo_view.set_configuration(search_configuration)
             stc.reset_search_history()
 
     @property
@@ -236,14 +203,6 @@ class SearchTableViewController(QWidget,
     @property
     def stc_list_items(self) -> list[str]:
         return self._card_search_data_source.trading_card_display_names
-    
-    @property
-    def stc_card_type_list(self) -> List[str]:
-        return list(map(lambda x: x.value, self._card_type_list))
-    
-    @property
-    def stc_default_card_type(self) -> Optional[str]:
-        return CardType.UNSPECIFIED.value
     
     def stc_select_card_resource_for_card_selection(self, stc: SearchTableComboViewController, index: int) -> None:
         self._card_search_data_source.select_card_resource_for_card_selection(index)

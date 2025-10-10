@@ -1,58 +1,86 @@
+from typing import Optional
+
 from AppCore.Models import SearchConfiguration
 from AppUI.ExternalAppDependenciesProviding import SearchQueryBarViewProviding
-from R4UI import ComboBox, HorizontalBoxLayout, Label, LineEditText, R4UIWidget
-from typing import Optional
+from R4UI import ComboBox, HorizontalBoxLayout, Label, LineEditText
+
+from ..Models.CardType import CardType
+from ..Models.SWUCardSearchConfiguration import SWUCardSearchConfiguration
+
 
 class SearchQueryBarViewController(SearchQueryBarViewProviding):
     def __init__(self):
         super().__init__()
-
+        # app_dependencies_provider.shortcut_action_coordinator.bind_search_leader(self._search_leader, self)
+        # app_dependencies_provider.shortcut_action_coordinator.bind_search_base(self._search_base, self)
         self._query_text: Optional[str] = None
 
+        self._query_search_bar = LineEditText(triggered_fn=self._set_text,
+                         placeholder_text="Lookup by card name (Ctrl+L)")
+        self._card_type_selection = ComboBox(list(CardType))
         HorizontalBoxLayout([
-            LineEditText(triggered_fn=self._set_text,
-                         placeholder_text="Lookup by card name (Ctrl+L)"),
+            self._query_search_bar,
             HorizontalBoxLayout([
                 Label("Type"),
-                ComboBox([
-                    "Option 1"
-                ])
+                self._card_type_selection
             ])
         ]).set_uniform_content_margins(0).set_layout_to_widget(self)
-
-        # query_layout = QHBoxLayout()
-        # query_layout.setContentsMargins(0, 0, 0, 0)
-        # query_widget = QWidget()
-        # query_widget.setLayout(query_layout)
-        # layout.addWidget(query_widget)
-
-        # card_name_search_bar = QLineEdit(self)
-        # card_name_search_bar.setPlaceholderText()
-        # self.card_name_search_bar = card_name_search_bar
-        # query_layout.addWidget(card_name_search_bar)
-        
-        # card_type_layout = QHBoxLayout()
-        # card_type_layout.setContentsMargins(0, 0, 0, 0)
-        # card_type_widget = QWidget()
-        # card_type_widget.setLayout(card_type_layout)
-        # query_layout.addWidget(card_type_widget)
-        
-        # card_type_selection_label = QLabel("Type")
-        # card_type_layout.addWidget(card_type_selection_label)
-        # self._card_type_selection_label = card_type_selection_label
-        
-        # card_type_selection = QComboBox()
-        # for i in self._delegate.stc_card_type_list:
-        #     card_type_selection.addItem(i)
-        # self.card_type_selection = card_type_selection
-        # card_type_layout.addWidget(card_type_selection)
 
     def _set_text(self, text: str):
         self._query_text = text
 
+    def set_enabled(self, is_on: bool) -> None:
+        self._query_search_bar.setEnabled(is_on)
+        self._card_type_selection.setEnabled(is_on)
+
     @property
     def search_configuration(self) -> SearchConfiguration:
-        config = SearchConfiguration()
+        config = SWUCardSearchConfiguration()
         if self._query_text is not None:
             config.card_name = self._query_text.strip()
+        try:
+            index = self._card_type_selection.currentIndex()
+            card_type = list(CardType)[index]
+            config.card_type = card_type
+        except:
+            pass
         return config
+    
+    def set_search_focus(self) -> None:
+        self._query_search_bar.setFocus()
+        self._query_search_bar.selectAll()
+    
+    def reset_search(self) -> None:
+        self._query_search_bar.clear()
+        self.set_card_type_filter(None)
+
+    def did_receive_configuration(self, search_configuration: SearchConfiguration) -> None:
+        self.set_search_bar_text(search_configuration.card_name)
+        swu_search_config = SWUCardSearchConfiguration.from_search_configuration(search_configuration)
+        self.set_card_type_filter(swu_search_config.card_type)
+
+    # def _search_leader(self):
+    #     def modifier(config: SWUCardSearchConfiguration) -> SearchConfiguration:
+    #         config.card_type = CardType.LEADER
+    #         return config
+    #     self._search(modifier)
+        
+    # def _search_base(self):
+    #     def modifier(config: SWUCardSearchConfiguration) -> SearchConfiguration:
+    #         config.card_type = CardType.BASE
+    #         return config
+    #     self._search(modifier)
+
+    def set_card_type_filter(self, card_type: Optional[str]):
+        if card_type is not None:
+            found_index = self._card_type_selection.findText(card_type)
+        else:
+            found_index = self._card_type_selection.findText(list(CardType)[0])
+           
+        if found_index >= 0:
+                self._card_type_selection.setCurrentIndex(found_index)
+        else:
+            raise Exception("index not found")
+
+    def set_search_bar_text(self, text: str):
+        self._query_search_bar.setText(text)
