@@ -6,7 +6,7 @@ from AppCore.Models import TradingCard
 from AppCore.DataFetcher import DataFetcherRemoteRequestProtocol
 from AppCore.DataSource import DataSourceCardSearchClientSearchResponse
 
-from Clients.Models.CardType import CardType
+from ..Models.CardType import CardType
 from ..Models.SWUCardSearchConfiguration import SWUCardSearchConfiguration
 from .SWUDBTradingCard import SWUDBTradingCard
 

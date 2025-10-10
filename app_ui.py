@@ -1,13 +1,13 @@
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication
-from Clients.SWUAppDelegate import SWUAppDelegate
+from SWUApp.SWUAppDelegate import SWUAppDelegate
 from AppCore.Config import Configuration, ConfigurationManager
 from AppUI.UIComponents.ImageDeployment.Window import Window
 from AppCore.Observation import ObservationTower
 from AppUI.Assets import AssetProvider
 from AppUI.AppDependenciesProvider import AppDependenciesProvider
 from AppUI.UIComponents.DraftListDeployment.MainWindow import MainWindow
-from Clients.SWUAppDependenciesProvider import SWUAppDependenciesProvider
+from SWUApp.SWUAppDependenciesProvider import SWUAppDependenciesProvider
 # TODO: graphing algorithm to sort dependencies?
 
 class MainAssembly:

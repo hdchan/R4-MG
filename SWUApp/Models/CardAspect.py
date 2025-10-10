@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Dict, Optional
 
-from Clients.Assets import AssetProvider
+from ..Assets import AssetProvider
 
 
 class CardAspect(str, Enum):

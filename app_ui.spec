@@ -7,7 +7,7 @@ a = Analysis(
     binaries=[],
     datas=[
         ('AppUI\\Assets', 'AppUI\\Assets'),
-        ('Clients\\Assets', 'Clients\\Assets')
+        ('SWUApp\\Assets', 'SWUApp\\Assets')
     ],
     hiddenimports=[],
     hookspath=[],
