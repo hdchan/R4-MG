@@ -39,6 +39,10 @@ class SearchTableComboViewControllerDelegate:
         return "Search"
     
     @property
+    def is_only_text_search(self) -> bool:
+        return False
+    
+    @property
     def stc_is_flippable(self) -> bool:
         return False
     
@@ -168,7 +172,7 @@ class SearchTableComboViewController(QWidget):
         self._query_view = DefaultSearchQueryBarViewController()
 
         external_query_view = app_dependencies_provider.external_app_dependencies_provider.provide_card_search_query_view()
-        if external_query_view is not None:
+        if external_query_view is not None and delegate.is_only_text_search == False:
             self._query_view = external_query_view
         
         layout.addWidget(self._query_view)

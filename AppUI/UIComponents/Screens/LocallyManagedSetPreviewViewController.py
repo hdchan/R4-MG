@@ -59,11 +59,8 @@ class LocallyManagedSetPreviewViewController(QWidget, SearchTableComboViewContro
         self._vc_search() # initial loading
     
     def _vc_search(self):
-        stripped_text = self._search_table_combo_view.card_name_search_bar_text.strip()
-        search_configuration = SearchConfiguration()
-        search_configuration.card_name = stripped_text
-        
-        self._card_search_data_source.search(search_configuration)
+
+        self._card_search_data_source.search(self._search_table_combo_view.search_configuration)
 
     # MARK: - DataSourceCardSearchClientProtocol 
     @property
@@ -89,7 +86,8 @@ class LocallyManagedSetPreviewViewController(QWidget, SearchTableComboViewContro
         result = DataSourceCardSearchClientSearchResponse(filtered_list)
         return (result, None)
     
-    def client(self, setting: Configuration.Settings.SearchSource) -> DataSourceCardSearchClientProtocol:
+    @property
+    def search_client(self) -> DataSourceCardSearchClientProtocol:
         return self
     
     # MARK: - DataSourceCardSearchDelegate
@@ -124,3 +122,7 @@ class LocallyManagedSetPreviewViewController(QWidget, SearchTableComboViewContro
     @property
     def stc_is_flippable(self) -> bool:
         return self._card_search_data_source.current_previewed_trading_card_is_flippable
+    
+    @property
+    def is_only_text_search(self) -> bool:
+        return True
