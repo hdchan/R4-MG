@@ -9,16 +9,16 @@ from AppCore.Models import PaginationConfiguration, SearchConfiguration
 
 from ..Models.CardType import CardType
 from ..Models.SWUCardSearchConfiguration import SWUCardSearchConfiguration
+from ..swu_db_com.SWUDBAPIRemoteClient import SWUDBAPIRemoteClient
 from ..SWUAppDependenciesProviding import SWUAppDependenciesProviding
 from .ImporterDialog import ImporterDialog
-from ..swu_db_com.SWUDBAPIRemoteClient import SWUDBAPIRemoteClient
-from AppCore.DataFetcher import DataFetcherRemote
 
 
 class ImporterSearchClient(DataSourceCardSearchClientProviding, DataSourceCardSearchClientProtocol):
 
-    def __init__(self):
-        self._remote_client = SWUDBAPIRemoteClient()
+    def __init__(self,
+                 swu_app_dependencies_provider: SWUAppDependenciesProviding):
+        self._remote_client = SWUDBAPIRemoteClient(swu_app_dependencies_provider)
 
     @property
     def source_display_name(self) -> str:
@@ -37,8 +37,10 @@ class ImporterSearchClient(DataSourceCardSearchClientProviding, DataSourceCardSe
         
 
 class ImporterFlow(DataSourceCardSearchDelegate):
-    def __init__(self, app_dependencies_provider: SWUAppDependenciesProviding):
-        self._search_data_source = app_dependencies_provider.new_data_source_card_search(self, ImporterSearchClient())
+    def __init__(self, 
+                 swu_app_dependencies_provider: SWUAppDependenciesProviding):
+        self._search_data_source = swu_app_dependencies_provider.new_data_source_card_search(self, 
+                                                                                             ImporterSearchClient(swu_app_dependencies_provider))
 
     def start(self):
         dialog = ImporterDialog()

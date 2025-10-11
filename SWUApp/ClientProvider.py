@@ -17,7 +17,8 @@ class ClientProvider(DataSourceCardSearchClientProviding):
         remote_data_fetcher = DataFetcherRemote(DataFetcherRemote.Configuration(self._swu_app_dependencies_provider.configuration_manager.configuration.core_configuration.network_delay_duration))
         local_data_fetcher = DataFetcherLocal(DataFetcherLocal.Configuration(self._swu_app_dependencies_provider.configuration_manager.configuration.core_configuration.network_delay_duration))
         internal_asset_provider = self._swu_app_dependencies_provider.asset_provider
-        self._swu_db_search = swu_db_com.SWUDBAPIRemoteClient(remote_data_fetcher)
+        self._swu_db_search = swu_db_com.SWUDBAPIRemoteClient(swu_app_dependencies_provider, 
+                                                              remote_data_fetcher)
         self._local_search = swu_db_com.SWUDBAPILocalClient(local_data_fetcher, 
                                                             internal_asset_provider)
         self._locally_managed_deck_search = swu_db_com.SWUDBLocalCardRetrieverClient(local_data_fetcher, 
