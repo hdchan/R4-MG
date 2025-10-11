@@ -4,16 +4,16 @@ from typing import List
 from PyQt5.QtWidgets import QDialog, QFileDialog
 
 from AppCore.DataFetcher import *
-from AppCore.Models import DraftPack
 
 from ..Models.ParsedDeckList import ParsedDeckList
 from ..UIComponents.DraftListExporterDialog import DraftListExporterDialog
 from .ExportFormattable import (CSVExporter, ExportFormattable, MGGExporter,
                                 SWUDBDotCOMExporter)
-
+from ..SWUAppDependenciesProviding import SWUAppDependenciesProviding
 
 class DraftListExporter:
-    def export_draft_list(self, draft_packs: List[DraftPack], to_path: str, swu_db: bool):
+    def export_draft_list(self, swu_app_dependencies_provider: SWUAppDependenciesProviding):
+        draft_packs = swu_app_dependencies_provider.data_source_draft_list.draft_packs
         parsed_deck_list = ParsedDeckList.from_draft_packs(draft_packs)
         
         leaders = parsed_deck_list.leaders

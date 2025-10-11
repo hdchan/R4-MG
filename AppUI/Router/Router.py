@@ -2,7 +2,7 @@ import webbrowser
 from typing import Dict, Optional
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QInputDialog, QMessageBox, QWidget
+from PyQt5.QtWidgets import QInputDialog, QMessageBox, QWidget, QDialog
 
 from AppCore.Models import (LocalAssetResource, LocalCardResource,
                             LocalResourceDraftListWindow)
@@ -88,6 +88,7 @@ class Router:
         view.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
         self._views[object_name] = view
         view.show()
+
     
     def show_error(self, error: Exception):
         msgBox = QMessageBox()

@@ -13,7 +13,7 @@ from .SearchRequest import SearchRequest
 # suggests using move to thread
 class SWUDBAPIRemoteClient(DataSourceCardSearchClientProtocol):
 
-    def __init__(self, networker: DataFetcherRemote):
+    def __init__(self, networker: DataFetcherRemote = DataFetcherRemote()):
         self._networker = networker
 
     @property

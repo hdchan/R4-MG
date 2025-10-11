@@ -19,7 +19,7 @@ class DataFetcherRemote:
             self.network_delay_duration = network_delay_duration
 
     def __init__(self, 
-                 configuration: 'DataFetcherRemote.Configuration'):
+                 configuration: 'DataFetcherRemote.Configuration' = Configuration()):
         self._configuration = configuration
 
     class ClientWorker(QObject):
@@ -50,7 +50,7 @@ class DataFetcherRemote:
                 #             break
                 #         buf.write(chunk)
                 # json_response = json.loads(buf.getvalue())
-                print(request.full_url)
+                # print(request.full_url)
                 print(request.headers)
                 buf = urlopen(request)
                 json_response = json.load(buf)

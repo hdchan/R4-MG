@@ -9,7 +9,8 @@ from AppUI.AppDependenciesInternalProviding import \
 from .Assets import AssetProvider
 from .Config.SWUAppConfiguration import SWUAppConfigurationManager
 from .SWUAppDependenciesProviding import SWUAppDependenciesProviding
-
+from AppCore.DataSource.DataSourceCardSearch import DataSourceCardSearch, DataSourceCardSearchDelegate
+from AppCore.DataSource.DataSourceCardSearchClientProtocol import DataSourceCardSearchClientProviding
 
 class SWUAppDependenciesProvider(SWUAppDependenciesProviding):
 
@@ -40,3 +41,8 @@ class SWUAppDependenciesProvider(SWUAppDependenciesProviding):
     @property
     def data_source_draft_list(self) -> DataSourceDraftList:
         return self._app_ui_dependencies_provider.data_source_draft_list
+    
+    def new_data_source_card_search(self,
+                                    delegate: DataSourceCardSearchDelegate,
+                                    search_client_provider: DataSourceCardSearchClientProviding) -> DataSourceCardSearch:
+        return self._app_ui_dependencies_provider.new_instance_card_search_data_source(delegate, search_client_provider)

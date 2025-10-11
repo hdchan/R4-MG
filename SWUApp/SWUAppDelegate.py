@@ -34,6 +34,7 @@ from .UIComponents.DraftListItemCell import DraftListItemCell
 from .UIComponents.DraftListItemHeader import DraftListItemHeader
 from AppUI.ExternalAppDependenciesProviding import SearchQueryBarViewProviding
 from .UIComponents.SearchQueryBarViewController import SearchQueryBarViewController
+from .Exporter.ImporterFlow import ImporterFlow
 
 class SWUAppDelegate(ExternalAppDependenciesProviding):
     
@@ -161,8 +162,15 @@ class SWUAppDelegate(ExternalAppDependenciesProviding):
                 result.append(resource)
         return result
     
-    def export_draft_list(self, draft_packs: List[DraftPack], to_path: str, swu_db: bool):
-        self._draft_list_exporter.export_draft_list(draft_packs, to_path, swu_db)
+    def export_draft_list(self):
+        self._swu_app_dependencies_provider
+        self._draft_list_exporter.export_draft_list(self._swu_app_dependencies_provider)
+
+    def import_draft_list(self):
+        # dialog = ImporterDialog()
+        # dialog.exec()
+        importer = ImporterFlow(self._swu_app_dependencies_provider)
+        importer.start()
         
     def provide_draft_list_image_preview_widget(self) -> QWidget:
         return DraftListImagePreviewViewController(self._swu_app_dependencies_provider)

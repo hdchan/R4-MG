@@ -319,8 +319,6 @@ class Configuration():
     def assets_dir_path(self) -> str:
         return f'{self._app_data_dir_path}/assets/'
     
-    # TODO: move decks to dedicated folder
-    
     @property
     def locally_managed_sets_dir_path(self) -> str:
         return f'{self.assets_dir_path}locally_managed_sets/'

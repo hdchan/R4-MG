@@ -192,11 +192,18 @@ class AppMenuBarBuilder:
         
 
     def draft_list_actions_menu(self):
-        def _export_to_swudb():
+        def _export_draft_list():
             try:
-                self._external_app_dependencies_provider.export_draft_list(self._data_source_draft_list.draft_packs, self._core_configuration.picture_dir_path, True)
+                self._external_app_dependencies_provider.export_draft_list()
             except Exception as error:
                 self._router.show_error(error)
+
+        def _import_draft_list():
+            try:
+                self._external_app_dependencies_provider.import_draft_list()
+            except Exception as error:
+                self._router.show_error(error)
+        
         
         def _prompt_keeep_packs_clear_list():
             if self._router.prompt_accept("Clear list BUT keep packs", 
@@ -212,7 +219,9 @@ class AppMenuBarBuilder:
             .add_separator() \
             .add_actions([
                 R4UIActionMenuItem("Export draft list",
-                                    _export_to_swudb),
+                                    _export_draft_list),
+                R4UIActionMenuItem("Import",
+                                    _import_draft_list),
             ]) \
             .add_actions([
                 R4UIActionMenuItem("Clear list BUT keep packs",

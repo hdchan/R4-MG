@@ -95,10 +95,10 @@ class ExternalAppDependenciesProviding:
                                text: str) -> Optional[QWidget]:
         return None
     
-    def export_draft_list(self, draft_packs: List[DraftPack], to_path: str, swu_db: bool) -> None:
+    def export_draft_list(self) -> None:
         return None
     
-    def export_draft_list_csv(self, draft_packs: List[DraftPack], to_path: str) -> None:
+    def import_draft_list(self) -> None:
         return None
     
     def draft_resource_list(self, 
