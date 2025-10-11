@@ -221,8 +221,9 @@ class DraftListTabbedPackPreviewViewController(QWidget, TransmissionReceiverProt
     # MARK: - TransmissionReceiverProtocol
     
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
+        # if type(event) == LocalCardResourceSelectedEvent: IS THIS NEEDED?
+        #     self._sync_ui()
         if type(event) == DraftPackUpdatedEvent or \
-            type(event) == LocalCardResourceSelectedEvent or \
             type(event) == ConfigurationUpdatedEvent:
             self._sync_ui()
         if type(event) == PublishStagedCardResourcesEvent:
