@@ -46,16 +46,16 @@ class MGGHandler(ExportFormattable, Importable, DataSourceCardSearchDelegate):
                 if not any(char.isalnum() for char in l):
                     current_section = ""
                     continue
-                if l.lower() == "leader":
+                if l.lower() == "leader".lower():
                     current_section = l.lower()
                     current_card_type = CardType.LEADER
                     continue
-                elif l.lower() == 'base':
+                elif l.lower() == 'base'.lower():
                     current_section = l.lower()
                     current_card_type = CardType.BASE
                     continue
                     
-                if l.lower() == "maindeck" \
+                if l.lower().replace(" ", '') == "maindeck".lower() \
                     or l.lower() == "sideboard":
                     current_section = l.lower()
                     current_card_type = CardType.UNSPECIFIED

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.22.1
+### Hotfix
+- Fix exception thrown when "Main Deck" text is passed for Melee.gg importer
+
 ## 0.22.0
 ### UI/UX Changes
 - Adjust sizing policy for source label
