@@ -1,7 +1,7 @@
 import copy
 from typing import Dict, List, Optional
 
-from PyQt5.QtWidgets import QTextEdit, QWidget
+from PyQt5.QtWidgets import QTextEdit, QWidget, QAction
 
 from AppCore.Config import ConfigurationManager
 from AppCore.DataFetcher import *
@@ -10,18 +10,19 @@ from AppCore.DataSource import (DataSourceCardSearchClientProviding,
                                 DataSourceLocallyManagedSets)
 from AppCore.DataSource.DataSourceLocallyManagedSets import \
     DataSourceLocallyManagedSetsClientProtocol
-from AppCore.Models import DraftPack, LocalCardResource
+from AppCore.Models import LocalCardResource
 from AppCore.Observation import ObservationTower
-from AppUI.ExternalAppDependenciesProviding import \
-    ExternalAppDependenciesProviding
+from AppUI.ExternalAppDependenciesProviding import (
+    ExternalAppDependenciesProviding, SearchQueryBarViewProviding)
 from AppUI.Models import DraftListStyleSheet
 from AppUI.Router.Router import Router
-from R4UI import R4UIWidget, VerticalBoxLayout
+from R4UI import R4UIMenuListBuilder, RWidget, VerticalBoxLayout
 
 from .Assets import AssetProvider as InternalAssetProvider
 from .ClientProvider import ClientProvider
 from .Config.SWUAppConfiguration import SWUAppConfigurationManager
 from .ExporterImporter.DraftListExporter import DraftListExporter
+from .ExporterImporter.ImporterFlow import ImporterFlow
 from .Models.SWUTradingCard import SWUTradingCard
 from .Models.SWUTradingCardModelMapper import SWUTradingCardModelMapper
 from .swu_db_com import SWUDBLocalSetRetrieverClient
@@ -32,9 +33,9 @@ from .UIComponents.DraftListImagePreviewViewController import \
     DraftListImagePreviewViewController
 from .UIComponents.DraftListItemCell import DraftListItemCell
 from .UIComponents.DraftListItemHeader import DraftListItemHeader
-from AppUI.ExternalAppDependenciesProviding import SearchQueryBarViewProviding
-from .UIComponents.SearchQueryBarViewController import SearchQueryBarViewController
-from .ExporterImporter.ImporterFlow import ImporterFlow
+from .UIComponents.SearchQueryBarViewController import \
+    SearchQueryBarViewController
+
 
 class SWUAppDelegate(ExternalAppDependenciesProviding):
     
@@ -45,7 +46,7 @@ class SWUAppDelegate(ExternalAppDependenciesProviding):
         self._configuration_manager = configuration_manager
         self._locally_managed_sets_client = SWUDBLocalSetRetrieverClient()
         self._draft_list_exporter = DraftListExporter()
-        self._data_source_card_search_client_provider: Optional[DataSourceCardSearchClientProviding] = None 
+        self._data_source_card_search_client_provider: Optional[DataSourceCardSearchClientProviding] = None
     
     @property
     def _swu_app_configuration_manager(self) -> SWUAppConfigurationManager:
@@ -76,10 +77,13 @@ class SWUAppDelegate(ExternalAppDependenciesProviding):
     def image_preview_logo_path(self) -> str:
         return self._internal_asset_provider.image.swu_logo_black_path
     
-    def provide_about_view_controller(self) -> R4UIWidget:
+    def hook_developer_menu(self, menu: R4UIMenuListBuilder) -> Optional[R4UIMenuListBuilder]:
+        return menu
+
+    def provide_about_view_controller(self) -> RWidget:
         return AboutViewController(self._configuration_manager, self._internal_asset_provider)
 
-    def provide_additional_quick_guide(self) -> Optional[R4UIWidget]:
+    def provide_additional_quick_guide(self) -> Optional[RWidget]:
         with open(self._internal_asset_provider.text.shortcuts_path, 'r', encoding='utf-8') as file:
             data = file.read()
         markdown = QTextEdit()
@@ -93,7 +97,7 @@ class SWUAppDelegate(ExternalAppDependenciesProviding):
 
     def provide_image_deployer_banner_cta(self, 
                                           data_source_image_resource_deployer: DataSourceImageResourceDeployer, 
-                                          router: Router) -> Optional[R4UIWidget]:
+                                          router: Router) -> Optional[RWidget]:
         return AddImageCTAViewController(self._observation_tower, data_source_image_resource_deployer, self._internal_asset_provider, router)
 
     def data_source_card_search_client_provider(self,

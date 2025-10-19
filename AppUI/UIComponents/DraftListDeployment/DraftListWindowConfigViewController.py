@@ -1,18 +1,21 @@
 from typing import Optional
 
-from PyQt5.QtWidgets import QWidget
-
 from AppCore.Models import DraftPack, LocalResourceDraftListWindow
 from AppCore.Observation import (TransmissionProtocol,
                                  TransmissionReceiverProtocol)
 from AppCore.Observation.Events import (DraftListWindowResourceUpdatedEvent,
                                         DraftPackUpdatedEvent)
-from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
-from R4UI import (HorizontalBoxLayout, HorizontalLabeledInputRow,
-                    LineEditInt, ObjectComboBox, PushButton, VerticalBoxLayout, Label)
-from .DraftListTablePackPreviewContainerViewController import DraftListTablePackPreviewContainerViewController
+from AppUI.AppDependenciesInternalProviding import \
+    AppDependenciesInternalProviding
+from R4UI import (HorizontalBoxLayout, HorizontalLabeledInputRow, Label,
+                  LineEditInt, ObjectComboBox, PushButton, RWidget,
+                  VerticalBoxLayout)
 
-class DraftListWindowConfigViewController(QWidget, TransmissionReceiverProtocol):
+from .DraftListTablePackPreviewContainerViewController import \
+    DraftListTablePackPreviewContainerViewController
+
+
+class DraftListWindowConfigViewController(RWidget, TransmissionReceiverProtocol):
     def __init__(self,
                  app_dependencies_provider: AppDependenciesInternalProviding, 
                  resource: LocalResourceDraftListWindow):

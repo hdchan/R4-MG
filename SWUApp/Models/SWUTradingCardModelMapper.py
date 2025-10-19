@@ -1,5 +1,6 @@
-from typing import Optional
 import copy
+from typing import Any, Dict, Optional
+
 from AppCore.Models import LocalCardResource, TradingCard
 
 from ..starwarsunlimited_com.StarWarsUnlimitedTradingCard import \
@@ -31,6 +32,7 @@ class SWUTradingCardModelMapper:
             trading_card=swu_trading_card,
             metadata=copy.deepcopy(local_resource.metadata) # not sure why this value gets shared
             )
+    
     @staticmethod
     def from_trading_card(trading_card: TradingCard) -> Optional[SWUTradingCard]:
         try:
@@ -43,4 +45,18 @@ class SWUTradingCardModelMapper:
         except:
             pass
         
+        return None
+    
+    @staticmethod
+    def from_json_response(json: Dict[str, Any]) -> Optional[SWUTradingCard]:
+        try:
+            return SWUTradingCardModelMapper.from_trading_card(SWUDBTradingCard.from_swudb_response(json))
+        except:
+            pass
+
+        try:
+            return SWUTradingCardModelMapper.from_trading_card(StarWarsUnlimitedTradingCard.from_swudb_response(json))
+        except:
+            pass
+
         return None

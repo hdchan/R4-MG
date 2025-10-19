@@ -1,11 +1,11 @@
 from typing import Optional
 from urllib.error import HTTPError
 
-from PyQt5.QtCore import QSize, Qt
-from PyQt5.QtWidgets import QLabel, QSizePolicy, QVBoxLayout, QWidget
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QSizePolicy
 
 from AppCore.Config import Configuration
-from AppCore.DataSource import (DataSourceSelectedLocalCardResourceProtocol,
+from AppCore.Models import (DataSourceSelectedLocalCardResourceProtocol,
                                 LocalResourceDataSourceProviding)
 from AppCore.DataSource.DataSourceCardSearch import *
 from AppCore.Models import SearchConfiguration
@@ -16,13 +16,17 @@ from AppCore.Observation.Events import (CardSearchEvent,
 from AppUI.AppDependenciesInternalProviding import \
     AppDependenciesInternalProviding
 from AppUI.Observation.Events import KeyboardEvent
+from R4UI import Label, RWidget, VerticalBoxLayout
 
-from .ImagePreviewViewController import ImagePreviewViewController
 from .SearchTableComboViewController import (
     SearchTableComboViewController, SearchTableComboViewControllerDelegate)
 
 
-class SearchTableViewController(QWidget, 
+class SearchTableViewControllerDelegate:
+    def stvc_did_retrieve_card(self) -> None:
+        return
+
+class SearchTableViewController(RWidget, 
                                 TransmissionReceiverProtocol, 
                                 DataSourceCardSearchDelegate, 
                                 SearchTableComboViewControllerDelegate, 
@@ -40,11 +44,9 @@ class SearchTableViewController(QWidget,
     
     def __init__(self,
                  app_dependencies_provider: AppDependenciesInternalProviding,
-                 search_table_view_controller_config: SearchTableViewControllerConfiguration = SearchTableViewControllerConfiguration(),
-                 image_preview_view: Optional[ImagePreviewViewController] = None):
+                 search_table_view_controller_config: SearchTableViewControllerConfiguration = SearchTableViewControllerConfiguration()):
         super().__init__()
         self._search_table_view_controller_config = search_table_view_controller_config
-        self._image_preview_view = image_preview_view
         ds_configuration = DataSourceCardSearch.DataSourceCardSearchConfiguration(search_table_view_controller_config.search_history_identifier, 
                                                                                   search_table_view_controller_config.search_history_page_size)
         self._card_search_data_source = app_dependencies_provider.new_instance_card_search_data_source(delegate=self,  
@@ -52,22 +54,22 @@ class SearchTableViewController(QWidget,
                                                                                                      ds_configuration=ds_configuration)
         self._observation_tower = app_dependencies_provider.observation_tower
         self._router = app_dependencies_provider.router
+
+        self.delegate: Optional[SearchTableViewControllerDelegate] = None
         
         self._shift_pressed = False
         self._ctrl_pressed = False
         self._configuration_manager = app_dependencies_provider.configuration_manager
 
-        layout = QVBoxLayout()
-        self.setLayout(layout)
+        layout = VerticalBoxLayout().set_layout_to_widget(self)
         search_table_combo_view = SearchTableComboViewController(app_dependencies_provider, self)
-        layout.addWidget(search_table_combo_view)
+        layout.add_widget(search_table_combo_view)
         self._search_table_combo_view = search_table_combo_view
     
-        search_source_label = QLabel()
+        search_source_label = Label()
         # TODO: need to account for long labels else where
-        search_source_label.setMinimumSize(QSize(1, 1))
         search_source_label.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Preferred)
-        layout.addWidget(search_source_label)
+        layout.add_widget(search_source_label)
         search_source_label.linkActivated.connect(self._handle_link_activated)
         self.search_source_label = search_source_label
 
@@ -96,9 +98,6 @@ class SearchTableViewController(QWidget,
     @property
     def _configuration(self) -> Configuration:
         return self._configuration_manager.configuration
-
-    def set_active(self):
-        self._search_table_combo_view.set_active()
 
     def get_selection(self):
         self._search_table_combo_view.get_selection()
@@ -169,8 +168,8 @@ class SearchTableViewController(QWidget,
     def ds_did_retrieve_card_resource_for_card_selection(self, 
                                                          ds: DataSourceCardSearch):
         if self._card_search_data_source.current_selected_card_search_resource is not None:
-            if self._image_preview_view is not None:
-                self._image_preview_view.set_image(self._card_search_data_source.current_selected_card_search_resource)
+            if self.delegate is not None:
+                self.delegate.stvc_did_retrieve_card()
         self._search_table_combo_view.sync_ui()
             
         

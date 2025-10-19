@@ -4,15 +4,15 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QBoxLayout, QGridLayout, QHBoxLayout, QSpacerItem,
                              QVBoxLayout)
 
-from .R4UIWidget import R4UIWidget
+from .RWidget import RWidget
 
 
-class BoxLayout(R4UIWidget):
+class BoxLayout(RWidget):
     def __init__(self, 
                  layout: QBoxLayout,  
-                 widgets: List[R4UIWidget] = [], weights: List[Optional[int]] = []):
+                 widgets: List[RWidget] = [], weights: List[Optional[int]] = []):
         super().__init__()
-        self._widgets: List[R4UIWidget] = []
+        self._widgets: List[RWidget] = []
         self._layout = layout
         self.setLayout(self._layout)
         self.add_widgets(widgets, weights)
@@ -25,14 +25,14 @@ class BoxLayout(R4UIWidget):
     def set_alignment_top(self) -> 'BoxLayout':
         return self.set_alignment_for_all_widgets(Qt.AlignmentFlag.AlignTop)
     
-    def add_widgets(self, widgets: List[R4UIWidget], weights: List[Optional[int]] = []):
+    def add_widgets(self, widgets: List[RWidget], weights: List[Optional[int]] = []):
         for i, w in enumerate(widgets):
             if i < len(weights):
                 self.add_widget(w, weight=weights[i])
             else:
                 self.add_widget(w)
 
-    def add_widget(self, widget: R4UIWidget, weight: Optional[int] = None):
+    def add_widget(self, widget: RWidget, weight: Optional[int] = None):
         self._widgets.append(widget)
         if weight is not None:
             self._layout.addWidget(widget, weight)
@@ -43,7 +43,7 @@ class BoxLayout(R4UIWidget):
         self._layout.addSpacerItem(spacer_item)
         return self
         
-    def set_layout_to_widget(self, layout: R4UIWidget) -> 'BoxLayout':
+    def set_layout_to_widget(self, layout: RWidget) -> 'BoxLayout':
         layout.setLayout(self.layout())
         return self
     
@@ -68,11 +68,11 @@ class BoxLayout(R4UIWidget):
                     widget = None
         self._widgets = []
                     
-    def replace_all_widgets(self, widgets: List[R4UIWidget]):
+    def replace_all_widgets(self, widgets: List[RWidget]):
         self._clear_widgets()
         self.add_widgets(widgets)
     
-    def insert_widget(self, index: int, widget: R4UIWidget):
+    def insert_widget(self, index: int, widget: RWidget):
         self._layout.insertWidget(index, widget)
      
     def remove_widget_at_index(self, index_to_remove: int):
@@ -107,25 +107,25 @@ class BoxLayout(R4UIWidget):
         self._layout.insertItem(index_2, item_1)
 
 class HorizontalBoxLayout(BoxLayout):
-    def __init__(self, widgets: List[R4UIWidget] = [], weights: List[Optional[int]] = []):
+    def __init__(self, widgets: List[RWidget] = [], weights: List[Optional[int]] = []):
         super().__init__(QHBoxLayout(), widgets, weights)
         pass
     
             
 class VerticalBoxLayout(BoxLayout):
-    def __init__(self, widgets: List[R4UIWidget] = [], weights: List[Optional[int]] = []):
+    def __init__(self, widgets: List[RWidget] = [], weights: List[Optional[int]] = []):
         super().__init__(QVBoxLayout(), widgets, weights)
         pass
 
-class GridLayout(R4UIWidget):
-    def __init__(self, widgets: List[tuple[R4UIWidget, tuple[int, int]]] = []):
+class GridLayout(RWidget):
+    def __init__(self, widgets: List[tuple[RWidget, tuple[int, int]]] = []):
         super().__init__()
-        self._widgets: List[R4UIWidget] = []
+        self._widgets: List[RWidget] = []
         self._layout = QGridLayout()
         self.setLayout(self._layout)
         self.add_widgets(widgets)
         
-    def add_widgets(self, widgets: List[tuple[R4UIWidget, tuple[int, int]]]):
+    def add_widgets(self, widgets: List[tuple[RWidget, tuple[int, int]]]):
         for w, p in widgets:
             self._widgets.append(w)
             self._layout.addWidget(w, p[0], p[1])
@@ -140,11 +140,11 @@ class GridLayout(R4UIWidget):
                     widget = None
         self._widgets = []
                     
-    def replace_all_widgets(self, widgets: List[tuple[R4UIWidget, tuple[int, int]]]):
+    def replace_all_widgets(self, widgets: List[tuple[RWidget, tuple[int, int]]]):
         self._clear_widgets()
         self.add_widgets(widgets)
         
-    def set_layout_to_widget(self, layout: R4UIWidget) -> 'GridLayout':
+    def set_layout_to_widget(self, layout: RWidget) -> 'GridLayout':
         layout.setLayout(self.layout())
         return self
     

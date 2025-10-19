@@ -5,7 +5,7 @@ from PyQt5.QtGui import QBrush, QColor, QPalette, QPixmap, QResizeEvent
 from PyQt5.QtWidgets import (QFrame, QScrollArea, QSizePolicy, QSpacerItem,
                              QVBoxLayout, QWidget)
 
-from AppCore.DataSource import LocalResourceDataSourceProviding
+from AppCore.Models import LocalResourceDataSourceProviding
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         DraftListUpdatedEvent)
 from AppCore.Observation.ObservationTower import *

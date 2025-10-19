@@ -5,7 +5,7 @@ from weakref import ReferenceType
 from PyQt5.QtGui import QContextMenuEvent
 from PyQt5.QtWidgets import QAction, QMenu, QVBoxLayout, QLabel
 
-from AppCore.DataSource import LocalResourceDataSourceProviding
+from AppCore.Models import LocalResourceDataSourceProviding
 
 from AppCore.Models import LocalCardResource, TradingCard, DraftPack
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
@@ -13,14 +13,14 @@ from AppCore.Config.Configuration import Configuration
 from AppCore.Models import LocalCardResource, TradingCard, DraftPack, DeploymentCardResource
 
 from AppUI.Models.DraftListStyleSheet import DraftListStyleSheet
-from R4UI import R4UIWidget
+from R4UI import RWidget
 
 class DraftListLineItemViewControllerDelegate:
     @property
     def dlli_can_edit(self) -> bool:
         return True
 
-class DraftListLineItemViewController(R4UIWidget):
+class DraftListLineItemViewController(RWidget):
     def __init__(self, 
                  app_dependencies_provider: AppDependenciesInternalProviding,
                  stylesheet: DraftListStyleSheet, # TODO: move style sheet to client side

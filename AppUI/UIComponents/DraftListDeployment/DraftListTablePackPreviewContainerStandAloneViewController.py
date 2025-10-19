@@ -1,15 +1,15 @@
-from PyQt5.QtWidgets import QWidget
-
 from AppCore.Models import LocalResourceDraftListWindow
-from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
-from AppUI.UIComponents.DraftListDeployment.DraftListTablePackPreviewContainerViewController import \
-    DraftListTablePackPreviewContainerViewController
-from R4UI import VerticalBoxLayout
-
 from AppCore.Observation import (TransmissionProtocol,
                                  TransmissionReceiverProtocol)
 from AppCore.Observation.Events import DraftListWindowResourceUpdatedEvent
-class DraftListTablePackPreviewContainerStandAloneViewController(QWidget, TransmissionReceiverProtocol):
+from AppUI.AppDependenciesInternalProviding import \
+    AppDependenciesInternalProviding
+from AppUI.UIComponents.DraftListDeployment.DraftListTablePackPreviewContainerViewController import \
+    DraftListTablePackPreviewContainerViewController
+from R4UI import RWidget, VerticalBoxLayout
+
+
+class DraftListTablePackPreviewContainerStandAloneViewController(RWidget, TransmissionReceiverProtocol):
     
     def __init__(self, 
                  app_dependencies_provider: AppDependenciesInternalProviding, 

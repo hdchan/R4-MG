@@ -7,6 +7,7 @@ from AppCore.DataSource.DataSourceRecentPublished import *
 from AppCore.DataSource.DataSourceRecentSearch import *
 from AppCore.ImageResource import *
 from AppUI.Coordinators import ShortcutActionCoordinator
+from AppCore.Models import ModelTransformer
 
 from .AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from .AppDependenciesProviding import AppDependenciesProviding
@@ -22,8 +23,9 @@ class AppDependenciesProvider(CoreDependenciesProvider, AppDependenciesProviding
                      observation_tower: ObservationTower, 
                      configuration_manager: ConfigurationManager, 
                      asset_provider: AssetProvider, 
+                     model_transformer: ModelTransformer,
                      external_app_dependencies_provider: ExternalAppDependenciesProviding):
-            super().__init__(observation_tower, configuration_manager)
+            super().__init__(observation_tower, configuration_manager, model_transformer)
             self._asset_provider = asset_provider
             self._external_app_dependencies_provider = external_app_dependencies_provider
             self._shortcut_action_coordinator = ShortcutActionCoordinator()

@@ -19,6 +19,7 @@ class Configuration():
         class Keys:
             DEVELOPER_MODE = 'developer_mode'
             DRAFT_LIST_IMAGE_PREVIEW = 'draft_list_image_preview'
+            REMOTE_SOCKET_CONNECTION = "remote_socket_connection"
 
     class Settings:
         class Keys:
@@ -46,6 +47,8 @@ class Configuration():
             DRAFT_LIST_ADD_CARD_MODE = 'draft_list_add_card_mode'
             DRAFT_LIST_ADD_CARD_DEPLOYMENT_DESTINATION = 'draft_list_add_card_deployment_destination'
             
+            REMOTE_SOCKET_URL = 'remote_socket_url'
+
             IS_MOCK_DATA = 'is_mock_data'
             IS_DELAY_NETWORK_MODE = 'is_delay_network_mode'
         
@@ -96,7 +99,8 @@ class Configuration():
         underlying_json: Dict[str, Any] = {
             Configuration.Keys.TOGGLES: {
                 Configuration.Toggles.Keys.DEVELOPER_MODE: False,
-                Configuration.Toggles.Keys.DRAFT_LIST_IMAGE_PREVIEW: False
+                Configuration.Toggles.Keys.DRAFT_LIST_IMAGE_PREVIEW: False,
+                Configuration.Toggles.Keys.REMOTE_SOCKET_CONNECTION: False
             },
             Configuration.Keys.SETTINGS: {
                 Configuration.Settings.Keys.SEARCH_SOURCE: Configuration.Settings.SearchSource.DEFAULT.value,
@@ -123,6 +127,8 @@ class Configuration():
                 Configuration.Settings.Keys.DRAFT_LIST_ADD_CARD_MODE: Configuration.Settings.DraftListAddCardMode.OFF.value,
                 Configuration.Settings.Keys.DRAFT_LIST_ADD_CARD_DEPLOYMENT_DESTINATION: None,
                 
+                Configuration.Settings.Keys.REMOTE_SOCKET_URL: None,
+
                 Configuration.Settings.Keys.IS_MOCK_DATA: False,
                 Configuration.Settings.Keys.IS_DELAY_NETWORK_MODE: False
             }
@@ -243,11 +249,19 @@ class Configuration():
     @property
     def draft_list_add_card_deployment_destination(self) -> Optional[str]:
         return self._get_with_default_settings(self.Settings.Keys.DRAFT_LIST_ADD_CARD_DEPLOYMENT_DESTINATION)
+    
+    @property
+    def remote_socket_url(self) -> Optional[str]:
+        return self._get_with_default_settings(self.Settings.Keys.REMOTE_SOCKET_URL)
 
     # MARK: - Toggles
     @property
     def is_draft_list_image_preview_enabled(self) -> bool:
         return self._get_with_default_toggles(self.Toggles.Keys.DRAFT_LIST_IMAGE_PREVIEW)
+    
+    @property
+    def is_remote_socket_connection_enabled(self) -> bool:
+        return self._get_with_default_toggles(self.Toggles.Keys.REMOTE_SOCKET_CONNECTION)
 
     # MARK: - Developer settings
     @property
@@ -428,6 +442,9 @@ class MutableConfiguration(Configuration):
     
     def set_draft_list_add_card_deployment_destination(self, value: Optional[str]):
         self._settings[self.Settings.Keys.DRAFT_LIST_ADD_CARD_DEPLOYMENT_DESTINATION] = value
+
+    def set_remote_socket_connection_url(self, value: Optional[str]):
+        self._settings[self.Settings.Keys.REMOTE_SOCKET_URL] = value
     
     def set_configuration_for_key(self, key: str, value: Any):
         self._settings[key] = value
@@ -435,6 +452,9 @@ class MutableConfiguration(Configuration):
     # MARK: - Toggles
     def set_is_draft_list_image_preview_enabled(self, value: bool):
         self._toggles[self.Toggles.Keys.DRAFT_LIST_IMAGE_PREVIEW] = value
+
+    def set_is_remote_socket_connection_enabled(self, value: bool):
+        self._toggles[self.Toggles.Keys.REMOTE_SOCKET_CONNECTION] = value
     
     # MARK: - Developer settings
     def set_is_mock_data(self, value: bool):

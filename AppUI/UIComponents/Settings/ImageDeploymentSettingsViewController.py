@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QFileDialog
 from AppCore.Config import Configuration
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.Configuration import MutableAppUIConfiguration
-from AppUI.UIComponents import SettingsContainerChildProtocol
+from .SettingsContainerChildProtocol import SettingsContainerChildProtocol
 from R4UI import (HorizontalLabeledInputRow, Label, LineEditInt, PushButton,
                   R4UIButtonGroup, R4UICheckBox, VerticalBoxLayout,
                   VerticalGroupBox, VerticalLabeledInputRow)

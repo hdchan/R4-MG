@@ -3,8 +3,9 @@ import shutil
 from copy import deepcopy
 from pathlib import Path
 from typing import List, Optional
-from PyQt5.QtCore import QMutex, QObject, QRunnable, QThreadPool, pyqtSignal
+
 from PIL import Image
+from PyQt5.QtCore import QMutex, QObject, QRunnable, QThreadPool, pyqtSignal
 
 from AppCore.Config import Configuration
 from AppCore.ImageFetcher.ImageFetcherProvider import *

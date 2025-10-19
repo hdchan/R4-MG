@@ -1,9 +1,9 @@
 from pyqtspinner import WaitingSpinner
 from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QWidget
+from R4UI import RWidget
 
 class LoadingSpinner(WaitingSpinner):
-    def __init__(self, parent: QWidget):
+    def __init__(self, parent: RWidget):
         super().__init__(
             parent,
             roundness=100.0,

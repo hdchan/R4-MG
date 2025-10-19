@@ -10,7 +10,7 @@ from AppUI.AppDependenciesInternalProviding import \
 from AppUI.ExternalAppDependenciesProviding import SearchQueryBarViewProviding
 from R4UI import HorizontalBoxLayout, LineEditText
 
-from .LoadingSpinner import LoadingSpinner
+from ..Base.LoadingSpinner import LoadingSpinner
 
 
 class SearchTableComboViewControllerDelegate:
@@ -217,9 +217,6 @@ class SearchTableComboViewController(QWidget):
         history_list = self._delegate.stc_history_list
         self._search_history_selection.addItems(history_list)
         self._search_history_selection.setHidden(len(history_list) == 0 or self._delegate.stc_is_history_dropdown_hidden)
-
-    def set_active(self):
-        self.get_selection()
         
     def set_item_active(self, index: int):
         if self.result_list.count() > 0:
@@ -232,9 +229,9 @@ class SearchTableComboViewController(QWidget):
         self._query_view.reset_search()
     
     def get_selection(self):
-        selected_indexs = self.result_list.selectedIndexes()
-        if len(selected_indexs) > 0:
-            self._delegate.stc_select_card_resource_for_card_selection(self, selected_indexs[0].row())
+        selected_indexes = self.result_list.selectedIndexes()
+        if len(selected_indexes) > 0:
+            self._delegate.stc_select_card_resource_for_card_selection(self, selected_indexes[0].row())
             
     def _result_list_scrolled(self, value: int):
         # print(value)
@@ -286,10 +283,10 @@ class SearchTableComboViewController(QWidget):
         if vertical_scroll_bar is not None:
             current_position = vertical_scroll_bar.sliderPosition()
         
-        selected_indexs = self.result_list.selectedIndexes()
+        selected_indexes = self.result_list.selectedIndexes()
         selected_index = 0
-        if len(selected_indexs) > 0:
-            selected_index = selected_indexs[0].row()
+        if len(selected_indexes) > 0:
+            selected_index = selected_indexes[0].row()
             
         self.result_list.clear()
         for i in self._delegate.stc_list_items:

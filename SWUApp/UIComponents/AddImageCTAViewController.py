@@ -11,13 +11,13 @@ from AppCore.DataSource import DataSourceImageResourceDeployer
 from AppCore.Observation import *
 from AppCore.Observation.Events import CardSearchEvent
 from AppUI.Router.Router import Router
-from R4UI import R4UIWidget
+from R4UI import RWidget
 
 from ..Assets import AssetProvider
 from .LoadingSpinnerDisc import LoadingSpinnerDisc
 
 
-class AddImageCTAViewController(R4UIWidget, TransmissionReceiverProtocol):
+class AddImageCTAViewController(RWidget, TransmissionReceiverProtocol):
     def __init__(self,
                  observation_tower: ObservationTower,
                  data_source_image_resource_deployer: DataSourceImageResourceDeployer,

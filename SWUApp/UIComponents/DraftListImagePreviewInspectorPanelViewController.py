@@ -4,7 +4,7 @@ from typing import Optional
 from PyQt5.QtCore import QTimer
 
 from R4UI import (HorizontalLabeledInputRow, LineEditFloat, LineEditInt,
-                  R4UICheckBox, R4UIVerticallyExpandingSpacer, R4UIWidget,
+                  R4UICheckBox, R4UIVerticallyExpandingSpacer, RWidget,
                   VerticalBoxLayout, ScrollArea, PushButton)
 
 from ..Config.SWUAppConfiguration import SWUAppConfigurationManager
@@ -18,7 +18,7 @@ class DraftListImagePreviewInspectorPanelViewControllerDelegate:
     def regenerate_was_clicked(self) -> None:
         pass
 
-class DraftListImagePreviewInspectorPanelViewController(R4UIWidget):
+class DraftListImagePreviewInspectorPanelViewController(RWidget):
     def __init__(self, 
                  image_generator: DraftListImageGenerator, 
                  delegate: DraftListImagePreviewInspectorPanelViewControllerDelegate, 

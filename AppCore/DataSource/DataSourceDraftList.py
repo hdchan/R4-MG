@@ -1,11 +1,13 @@
 import copy
-from typing import List, Optional, Any
+from typing import Any, List, Optional
 
 from AppCore.Config import *
 from AppCore.Models import DraftPack, LocalCardResource
 from AppCore.Observation import ObservationTower
-from AppCore.Observation.Events import DraftListUpdatedEvent, DraftPackUpdatedEvent
+from AppCore.Observation.Events import (DraftListUpdatedEvent,
+                                        DraftPackUpdatedEvent)
 from AppCore.Service.DataSerializer import DataSerializer
+
 
 class DataSourceDraftList:
     

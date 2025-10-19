@@ -1,10 +1,10 @@
 from typing import Optional
-
-from AppCore.DataSource import (DataSourceSelectedLocalCardResourceProtocol,
+import copy
+from AppCore.Models import (DataSourceSelectedLocalCardResourceProtocol,
                           LocalResourceDataSourceProviding)
 from AppCore.Models import LocalCardResource
 from AppCore.Observation import *
-from AppCore.Observation.Events import LocalCardResourceSelectedEvent
+from AppCore.Observation.Events import LocalCardResourceSelectedFromDataSourceEvent
 
 from .ImagePreviewViewController import ImagePreviewViewController
 
@@ -13,7 +13,7 @@ class ImagePreviewLocalResourceDataSourceDecorator(ImagePreviewViewController, L
     
     def set_image(self, local_resource: LocalCardResource):
         super().set_image(local_resource)
-        self._observation_tower.notify(LocalCardResourceSelectedEvent(local_resource)) # rework?
+        self._observation_tower.notify(LocalCardResourceSelectedFromDataSourceEvent(copy.deepcopy(local_resource), self))
         
     
     # MARK: - LocalResourceDataSourceProviding, DataSourceSelectedLocalCardResourceProtocol

@@ -10,12 +10,12 @@ from AppCore.DataSource.DataSourceCardSearch import (
 from AppCore.DataSource.DataSourceCustomDirectorySearch import (
     CustomDirectorySearchDataSource, CustomDirectorySearchDataSourceDelegate)
 from AppCore.DataSource.DataSourceRecentPublished import \
-    DataSourceRecentPublished
+    DataSourceCachedHistory
 from AppCore.ImageResource import ImageResourceProcessorProviding
 from AppCore.Observation.ObservationTower import ObservationTower
 from AppCore.Service import (DataSerializer, PlatformServiceProvider,
                              StringFormatter)
-
+from AppCore.SocketIO import SocketRouter
 
 class CoreDependenciesProviding:
     @property
@@ -61,9 +61,17 @@ class CoreDependenciesProviding:
         raise Exception
     
     @property
-    def data_source_recent_published(self) -> DataSourceRecentPublished:
+    def data_source_recent_published(self) -> DataSourceCachedHistory:
         raise Exception
     
     @property
     def data_source_draft_list_window_resource_deployer(self) -> DataSourceDraftListWindowResourceDeployer:
+        raise Exception
+    
+    @property
+    def socket_router(self) -> SocketRouter:
+        raise Exception
+    
+    @property
+    def data_source_socket_io(self) -> DataSourceCachedHistory:
         raise Exception

@@ -5,9 +5,13 @@ from AppCore.ImageResource import ImageResourceProcessorProviding
 from AppCore.Observation.ObservationTower import ObservationTower
 from AppCore.Service import (DataSerializer, PlatformServiceProvider,
                              StringFormatter)
-
+from AppCore.Models import ModelTransformer
 
 class CoreDependenciesInternalProviding:
+    @property
+    def model_transformer(self) -> ModelTransformer:
+        raise Exception
+    
     @property
     def data_source_image_resource_deployer(self) -> DataSourceImageResourceDeployer:
          raise Exception

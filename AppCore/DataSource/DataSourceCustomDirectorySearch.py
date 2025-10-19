@@ -8,8 +8,11 @@ from AppCore.CoreDependenciesInternalProviding import \
 from AppCore.DataFetcher import DataFetcherLocal
 from AppCore.Models import LocalCardResource, SearchConfiguration
 from AppCore.Models.LocalCardResource import LocalCardResource
-from AppCore.Observation.Events import (CardSearchEvent,
-                                        LocalCardResourceSelectedEvent)
+from AppCore.Observation.Events import (
+    CardSearchEvent, LocalCardResourceSelectedFromDataSourceEvent)
+
+from ..Models.DataSourceSelectedLocalCardResource import \
+    DataSourceSelectedLocalCardResourceProtocol
 
 PNG_EXTENSION = 'png' # TODO: allow for other image formats
 
@@ -25,7 +28,7 @@ class CustomDirectorySearchDataSourceDelegate:
                                                          local_resource: LocalCardResource) -> None:
         raise Exception
 
-class CustomDirectorySearchDataSource:
+class CustomDirectorySearchDataSource(DataSourceSelectedLocalCardResourceProtocol):
     
     class CardResourceProvider:
         def __init__(self,
@@ -67,11 +70,21 @@ class CustomDirectorySearchDataSource:
         self._platform_service_provider = core_dependencies_internal_provider.platform_service_provider
         self._observation_tower = core_dependencies_internal_provider.observation_tower
         self._image_resource_processor_provider = core_dependencies_internal_provider.image_resource_processor_provider
+        self._selected_index: Optional[int] = None
         
         self._trading_card_providers: List[CustomDirectorySearchDataSource.CardResourceProvider] = []
         
         self.delegate: Optional[CustomDirectorySearchDataSourceDelegate] = None
-        
+    
+    @property
+    def selected_local_resource(self) -> Optional[LocalCardResource]:
+        index = self._selected_index
+        if index is None:
+            return None
+        trading_card_resource_provider = self._trading_card_providers[index]
+        selected_resource = trading_card_resource_provider.local_resource
+        return selected_resource
+
     @property
     def _configuration(self) -> Configuration:
         return self._configuration_manager.configuration
@@ -104,7 +117,7 @@ class CustomDirectorySearchDataSource:
         trading_card_resource_provider = self._trading_card_providers[index]
         selected_resource = trading_card_resource_provider.local_resource
         self._selected_resource = selected_resource
-        self._observation_tower.notify(LocalCardResourceSelectedEvent(selected_resource))
+        self._observation_tower.notify(LocalCardResourceSelectedFromDataSourceEvent(copy.deepcopy(selected_resource), self))
         self._image_resource_processor_provider.image_resource_processor.async_store_local_resource(selected_resource, retry)
         if self.delegate is not None:
             self.delegate.ds_did_retrieve_card_resource_for_card_selection(self, copy.deepcopy(selected_resource))

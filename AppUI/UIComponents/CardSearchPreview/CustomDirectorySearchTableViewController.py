@@ -1,34 +1,44 @@
 from typing import Optional
+
 from PyQt5.QtCore import QSize
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QLineEdit, QListWidget,
-                             QPushButton, QVBoxLayout, QWidget, QSizePolicy)
+                             QPushButton, QSizePolicy, QVBoxLayout, QWidget)
 
 from AppCore.Config import Configuration
+from AppCore.Models import DataSourceSelectedLocalCardResourceProtocol
+from AppCore.DataSource.DataSourceCardSearch import *
 from AppCore.DataSource.DataSourceCustomDirectorySearch import (
     CustomDirectorySearchDataSource, CustomDirectorySearchDataSourceDelegate)
-from AppCore.DataSource.DataSourceCardSearch import *
 from AppCore.Models import LocalCardResource, SearchConfiguration
 from AppCore.Observation import *
-from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
-                                        LocalCardResourceFetchEvent, CardSearchEvent)
-from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
+from AppCore.Observation.Events import (CardSearchEvent,
+                                        ConfigurationUpdatedEvent,
+                                        LocalCardResourceFetchEvent)
+from AppUI.AppDependenciesInternalProviding import \
+    AppDependenciesInternalProviding
 from AppUI.Observation.Events import KeyboardEvent
+from R4UI import RWidget
 
-from ..Base.ImagePreviewViewController import ImagePreviewViewController
-from .LoadingSpinner import LoadingSpinner
+from ..Base.LoadingSpinner import LoadingSpinner
 
 
-class CustomDirectorySearchTableViewController(QWidget, TransmissionReceiverProtocol, CustomDirectorySearchDataSourceDelegate):
+class CustomDirectorySearchTableViewControllerDelegate:
+    def cds_did_retrieve_card(self) -> None:
+        return
+    
+class CustomDirectorySearchTableViewController(RWidget, 
+                                               TransmissionReceiverProtocol, 
+                                               CustomDirectorySearchDataSourceDelegate, 
+                                               DataSourceSelectedLocalCardResourceProtocol):
     def __init__(self, 
-                 app_dependencies_provider: AppDependenciesInternalProviding,
-                 image_preview_view: ImagePreviewViewController):
+                 app_dependencies_provider: AppDependenciesInternalProviding):
         super().__init__()
-        self._image_preview_view = image_preview_view
         self._observation_tower = app_dependencies_provider.observation_tower
         self._router = app_dependencies_provider.router
         self._card_search_data_source = app_dependencies_provider.new_instance_custom_directory_search_data_source(self)
         
         self._configuration_manager = app_dependencies_provider.configuration_manager
+        self.delegate: Optional[CustomDirectorySearchTableViewControllerDelegate] = None
 
         layout = QVBoxLayout()
         self.setLayout(layout)
@@ -85,6 +95,10 @@ class CustomDirectorySearchTableViewController(QWidget, TransmissionReceiverProt
         self._sync_ui()
     
     @property
+    def data_source(self) -> DataSourceSelectedLocalCardResourceProtocol:
+        return self._card_search_data_source
+    
+    @property
     def _configuration(self) -> Configuration:
         return self._configuration_manager.configuration
     
@@ -104,15 +118,13 @@ class CustomDirectorySearchTableViewController(QWidget, TransmissionReceiverProt
     def ds_did_retrieve_card_resource_for_card_selection(self, 
                                                          ds: CustomDirectorySearchDataSource, 
                                                          local_resource: LocalCardResource):
-        self._image_preview_view.set_image(local_resource)
-
-    def set_active(self):
-        self.get_selection()
+        if self.delegate is not None:
+            self.delegate.cds_did_retrieve_card()
 
     def get_selection(self):
-        selected_indexs = self.result_list.selectedIndexes()
-        if len(selected_indexs) > 0:
-            self._card_search_data_source.select_card_resource_for_card_selection(selected_indexs[0].row())
+        selected_indexes = self.result_list.selectedIndexes()
+        if len(selected_indexes) > 0:
+            self._card_search_data_source.select_card_resource_for_card_selection(selected_indexes[0].row())
 
     def _set_search_focus(self):
         self.card_name_search_bar.setFocus()
@@ -142,10 +154,10 @@ class CustomDirectorySearchTableViewController(QWidget, TransmissionReceiverProt
         self._card_search_data_source.search(search_configuration)
         
     def _load_list(self):
-        selected_indexs = self.result_list.selectedIndexes()
+        selected_indexes = self.result_list.selectedIndexes()
         selected_index = 0
-        if len(selected_indexs) > 0:
-            selected_index = selected_indexs[0].row()
+        if len(selected_indexes) > 0:
+            selected_index = selected_indexes[0].row()
 
         trading_cards = self._card_search_data_source.resource_display_names
         self.result_list.clear()

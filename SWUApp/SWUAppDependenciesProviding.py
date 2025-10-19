@@ -9,7 +9,6 @@ from AppUI.Router.Router import Router
 from .Assets import AssetProvider
 from .Config.SWUAppConfiguration import SWUAppConfigurationManager
 
-
 class SWUAppDependenciesProviding:
     @property
     def observation_tower(self) -> ObservationTower:
