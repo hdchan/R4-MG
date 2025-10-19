@@ -1,20 +1,20 @@
 from typing import Optional
 
-from PyQt5.QtWidgets import QWidget
-
 from AppCore.Models import LocalResourceDraftListWindow
 from AppCore.Observation import (TransmissionProtocol,
                                  TransmissionReceiverProtocol)
-from AppCore.Observation.Events import DraftListWindowResourceUpdatedEvent, DraftPackUpdatedEvent
-from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
-from R4UI import VerticalBoxLayout
+from AppCore.Observation.Events import (DraftListWindowResourceUpdatedEvent,
+                                        DraftPackUpdatedEvent)
+from AppUI.AppDependenciesInternalProviding import \
+    AppDependenciesInternalProviding
+from R4UI import RWidget, VerticalBoxLayout
 
 from .DraftListTablePackPreviewViewController import (
     DraftListTablePackPreviewViewController,
     DraftListTablePackPreviewViewControllerDelegate)
 
 
-class DraftListTablePackPreviewContainerViewController(QWidget,
+class DraftListTablePackPreviewContainerViewController(RWidget,
                                                        DraftListTablePackPreviewViewControllerDelegate,
                                                        TransmissionReceiverProtocol):
     

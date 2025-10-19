@@ -6,13 +6,13 @@ from PyQt5.QtWidgets import QFileDialog, QLabel
 from AppCore.Config import Configuration
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.Configuration import MutableAppUIConfiguration
-from AppUI.UIComponents import SettingsContainerChildProtocol
+from .SettingsContainerChildProtocol import SettingsContainerChildProtocol
 from R4UI import (BoldLabel, ComboBox, GridLayout, HeaderLabel,
                     HorizontalBoxLayout, HorizontalLabeledInputRow,
                     LineEditInt, LineEditText, PushButton, ScrollArea,
                     VerticalBoxLayout, VerticalGroupBox)
 
-from ....Models.DraftListStyleSheet import DraftListStyleSheet
+from AppUI.Models.DraftListStyleSheet import DraftListStyleSheet
 
 
 class CellStyleWrapper(VerticalGroupBox):

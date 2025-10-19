@@ -1,10 +1,11 @@
-from PyQt5.QtWidgets import QTextEdit, QWidget
+from PyQt5.QtWidgets import QTextEdit
 
-from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
-from R4UI import VerticalBoxLayout, R4UITabWidget
+from AppUI.AppDependenciesInternalProviding import \
+    AppDependenciesInternalProviding
+from R4UI import RTabWidget, RWidget, VerticalBoxLayout
 
 
-class ShortcutsViewController(QWidget):
+class ShortcutsViewController(RWidget):
     def __init__(self, 
                  app_dependencies_provider: AppDependenciesInternalProviding):
         super().__init__()
@@ -19,7 +20,7 @@ class ShortcutsViewController(QWidget):
         markdown.setMarkdown(data)
         markdown.setReadOnly(True)
         
-        tab_widget = R4UITabWidget([
+        tab_widget = RTabWidget([
                 (markdown, "Shortcuts")
             ])
 

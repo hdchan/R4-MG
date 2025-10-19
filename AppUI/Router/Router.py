@@ -2,7 +2,7 @@ import webbrowser
 from typing import Dict, Optional
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QInputDialog, QMessageBox, QWidget, QDialog
+from PyQt5.QtWidgets import QInputDialog, QMessageBox, QWidget
 
 from AppCore.Models import (LocalAssetResource, LocalCardResource,
                             LocalResourceDraftListWindow)

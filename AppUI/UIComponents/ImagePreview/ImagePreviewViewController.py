@@ -2,7 +2,7 @@ from typing import Optional
 
 from PyQt5.QtCore import QPoint, Qt
 from PyQt5.QtGui import QClipboard, QGuiApplication, QPixmap
-from PyQt5.QtWidgets import QAction, QLabel, QMenu, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QAction, QLabel, QMenu, QVBoxLayout
 
 from AppCore.Config import Configuration
 from AppCore.ImageResource.ImageResourceProcessorProtocol import *
@@ -13,12 +13,14 @@ from AppCore.Observation.Events import (CacheClearedEvent,
                                         LocalCardResourceFetchEvent,
                                         PublishStatusUpdatedEvent)
 from AppCore.Service.PlatformServiceProvider import *
-from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
+from AppUI.AppDependenciesInternalProviding import \
+    AppDependenciesInternalProviding
+from R4UI import RWidget
 
-from .LoadingSpinner import LoadingSpinner
+from ..Base.LoadingSpinner import LoadingSpinner
 
 MAX_PREVIEW_SIZE = 256
-class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
+class ImagePreviewViewController(RWidget, TransmissionReceiverProtocol):
     def __init__(self, 
                  app_dependencies_provider: AppDependenciesInternalProviding, 
                  # whether we can manipulate images
@@ -53,7 +55,7 @@ class ImagePreviewViewController(QWidget, TransmissionReceiverProtocol):
         # self._image_view.mousePressEvent = self._tapped_image # causes memory leak in child
         
         image_info_layout = QVBoxLayout()
-        image_info_widget = QWidget()
+        image_info_widget = RWidget()
         image_info_widget.setLayout(image_info_layout)
         self._image_info_widget = image_info_widget
         layout.addWidget(image_info_widget)

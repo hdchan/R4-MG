@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QMainWindow
 
-class R4UIMainWindow(QMainWindow):
+class RMainWindow(QMainWindow):
     pass
-class R4UIWidget(QWidget):
+
+class RWidget(QWidget):
     pass

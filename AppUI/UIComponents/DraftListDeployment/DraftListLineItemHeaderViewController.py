@@ -1,13 +1,11 @@
 
-from PyQt5.QtWidgets import  QWidget, QLabel
-
-from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
-
+from AppUI.AppDependenciesInternalProviding import \
+    AppDependenciesInternalProviding
 from AppUI.Models.DraftListStyleSheet import DraftListStyleSheet
-from R4UI import VerticalBoxLayout
+from R4UI import Label, RWidget, VerticalBoxLayout
 
 
-class DraftListLineItemHeaderViewController(QWidget):
+class DraftListLineItemHeaderViewController(RWidget):
     def __init__(self, 
                  app_dependencies_provider: AppDependenciesInternalProviding,
                  stylesheet: DraftListStyleSheet,
@@ -22,7 +20,7 @@ class DraftListLineItemHeaderViewController(QWidget):
         self._setup_view()
     
     def _setup_view(self):
-        element = QLabel(self._text)
+        element = Label(self._text)
         
         extern_widget = self._external_app_dependencies_provider.draft_list_item_header(self._stylesheet, self._text)
         if extern_widget is not None:

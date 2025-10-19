@@ -1,19 +1,20 @@
 from typing import List
 
-from PyQt5.QtWidgets import QSizePolicy, QWidget
+from PyQt5.QtWidgets import QSizePolicy
 
 from AppCore.Observation import (TransmissionProtocol,
                                  TransmissionReceiverProtocol)
 from AppCore.Observation.Events import DraftListWindowResourceLoadEvent
-from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
-from R4UI import (HorizontalBoxLayout, PushButton, ScrollArea,
-                    VerticalBoxLayout)
+from AppUI.AppDependenciesInternalProviding import \
+    AppDependenciesInternalProviding
+from R4UI import (HorizontalBoxLayout, PushButton, RWidget, ScrollArea,
+                  VerticalBoxLayout)
 
 from .DraftListWindowConfigViewController import \
     DraftListWindowConfigViewController
 
-from R4UI import R4UIWidget
-class DraftListWindowDeployerViewController(QWidget, TransmissionReceiverProtocol):
+
+class DraftListWindowDeployerViewController(RWidget, TransmissionReceiverProtocol):
     def __init__(self, 
                  app_dependencies_provider: AppDependenciesInternalProviding):
         super().__init__()
@@ -47,7 +48,7 @@ class DraftListWindowDeployerViewController(QWidget, TransmissionReceiverProtoco
     def _sync_ui(self):
         windows_resource = self._data_source_draft_list_window_resource_deployer.draft_list_windows
         
-        widgets: List[R4UIWidget] = []
+        widgets: List[RWidget] = []
         for w in windows_resource:
             widgets.append(DraftListWindowConfigViewController(self._app_dependencies_provider, w))
         

@@ -6,7 +6,7 @@ from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProvid
 from AppUI.Configuration.AppUIConfiguration import *
 from AppUI.UIComponents import AppUIConfigurationCheckableR4UIActionMenuItem
 from R4UI import R4UIActionMenuItem, R4UIMenuBarBuilder, R4UIMenuListBuilder
-
+import copy
 
 class AppMenuBarBuilder:
     def __init__(self, app_dependencies_provider: AppDependenciesInternalProviding):
@@ -288,7 +288,8 @@ class AppMenuBarBuilder:
     def developer_menu(self) -> Optional[R4UIMenuListBuilder]:
         if self._core_configuration.is_developer_mode == False:
             return None
-        return R4UIMenuListBuilder("Developer",[
+
+        result_menu = R4UIMenuListBuilder("Developer",[
                 AppUIConfigurationCheckableR4UIActionMenuItem(
                     self._app_dependencies_provider,
                     "Mock data", 
@@ -303,3 +304,9 @@ class AppMenuBarBuilder:
                     lambda mutable_config, old_config: mutable_config.core_mutable_configuration.set_is_delay_network_mode(not old_config.core_configuration.is_delay_network_mode)
                     ), 
                     ])
+        
+        modifed_menu = self._external_app_dependencies_provider.hook_developer_menu(result_menu)
+        if modifed_menu is not None:
+            return modifed_menu
+        
+        return result_menu

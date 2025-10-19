@@ -1,15 +1,15 @@
 from typing import List, Tuple
 
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
-from AppUI.UIComponents.Base.SettingsContainerChildProtocol import *
-from R4UI import (HorizontalBoxLayout, PushButton, R4UITabWidget, R4UIWidget,
+from AppUI.UIComponents.Settings.SettingsContainerChildProtocol import *
+from R4UI import (HorizontalBoxLayout, PushButton, RWidget, RTabWidget,
                   VerticalBoxLayout)
 
 from .DraftListSettingsViewController import DraftListSettingsViewController
 from .ImageDeploymentSettingsViewController import ImageDeploymentSettingsViewController
 from .ToggleSettingsViewController import ToggleSettingsViewController
 
-class AppSettingsViewController(R4UIWidget):
+class AppSettingsViewController(RWidget):
     def __init__(self,
                  app_dependencies_provider: AppDependenciesInternalProviding):
         super().__init__()
@@ -28,7 +28,7 @@ class AppSettingsViewController(R4UIWidget):
         ]
         
         VerticalBoxLayout([
-            R4UITabWidget(self._children),
+            RTabWidget(self._children),
             HorizontalBoxLayout([
                 PushButton("Apply", self._apply),
                 PushButton("Save && Close", self._save_and_close)

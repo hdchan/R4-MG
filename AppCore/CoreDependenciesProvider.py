@@ -5,7 +5,8 @@ from AppCore.Config import ConfigurationManager
 from AppCore.DataFetcher import *
 from AppCore.DataSource import (DataSourceDraftList,
                                 DataSourceDraftListWindowResourceDeployer,
-                                DataSourceImageResourceDeployer)
+                                DataSourceImageResourceDeployer,
+                                DataSourceSocketIOHistory)
 from AppCore.DataSource.DataSourceCardSearch import *
 from AppCore.ImageFetcher import ImageFetcherProvider
 from AppCore.ImageResource import ImageResourceProcessor
@@ -13,17 +14,20 @@ from AppCore.Observation.Events import ApplicationEvent
 from AppCore.Observation.ObservationTower import ObservationTower
 from AppCore.Service import (DataSerializer, PlatformServiceProvider,
                              StringFormatter)
+from AppCore.SocketIO.SocketRouter import SocketRouter
 
 from .CoreDependenciesInternalProviding import \
     CoreDependenciesInternalProviding
 from .CoreDependenciesProviding import CoreDependenciesProviding
-
+from AppCore.Models import ModelTransformer
 
 class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesInternalProviding):
     def __init__(self, 
                  observation_tower: ObservationTower, 
-                 configuration_manager: ConfigurationManager):
+                 configuration_manager: ConfigurationManager, 
+                 model_transformer: ModelTransformer):
         self._observation_tower = observation_tower
+        self._model_transformer = model_transformer
         self._string_formatter = StringFormatter()
         self._data_serializer = DataSerializer()
         
@@ -53,8 +57,22 @@ class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesIntern
                                                                                                           self._data_source_draft_list, 
                                                                                                           self._data_serializer)
         
+        
+
+        self._data_source_socket_io = DataSourceSocketIOHistory(self._model_transformer,
+                                                                self._observation_tower, 
+                                                                self._image_resource_processor_provider, 
+                                                                self._configuration_manager, 
+                                                                self._data_serializer)
+        
+        self._socket_router = SocketRouter(self._configuration_manager, self._observation_tower, self._data_source_socket_io)
+        
         atexit.register(self._cleanup)
     
+    @property
+    def model_transformer(self) -> ModelTransformer:
+        return self._model_transformer
+
     @property
     def image_resource_processor_provider(self) -> ImageResourceProcessorProviding:
         return self._image_resource_processor_provider
@@ -91,13 +109,13 @@ class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesIntern
         ds = DataSourceCardSearch(self,
                                   search_client_provider,
                                   ds_configuration)
-        ds.delegate = delegate
+        ds.delegate = delegate # TODO: remove delegate in favor of observation event
         return ds
     
     def new_instance_custom_directory_search_data_source(self, 
                                                          delegate: CustomDirectorySearchDataSourceDelegate) -> CustomDirectorySearchDataSource:
         ds = CustomDirectorySearchDataSource(self)
-        ds.delegate = delegate
+        ds.delegate = delegate # TODO: remove delegate in favor of observation event
         return ds
     
     @property
@@ -105,13 +123,21 @@ class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesIntern
         return self._data_source_draft_list
     
     @property
-    def data_source_recent_published(self) -> DataSourceRecentPublished:
+    def data_source_recent_published(self) -> DataSourceCachedHistory:
         return self._data_source_recent_published
     
     @property
     def data_source_draft_list_window_resource_deployer(self) -> DataSourceDraftListWindowResourceDeployer:
         return self._data_source_draft_list_window_resource_deployer
     
+    @property
+    def socket_router(self) -> SocketRouter:
+        return self._socket_router
+    
+    @property
+    def data_source_socket_io(self) -> DataSourceCachedHistory:
+        return self._data_source_socket_io
+
     def _cleanup(self):
         print("Performing cleanup before exit...")
         self._observation_tower.notify(ApplicationEvent(ApplicationEvent.EventType.APP_WILL_TERMINATE))

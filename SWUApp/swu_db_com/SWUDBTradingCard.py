@@ -1,7 +1,10 @@
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional
+
 from AppCore.Models import TradingCard
+
 from ..Models.SWUTradingCard import SWUTradingCard
-from typing import Optional, List
+
+
 class SWUDBTradingCard(SWUTradingCard):
     @classmethod
     def from_trading_card(cls, trading_card: TradingCard) -> 'SWUDBTradingCard':

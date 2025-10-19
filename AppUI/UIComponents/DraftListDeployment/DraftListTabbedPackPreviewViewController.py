@@ -2,19 +2,22 @@
 from typing import Optional
 
 from PyQt5.QtCore import QPoint, Qt
-from PyQt5.QtWidgets import QTabWidget, QWidget
+from PyQt5.QtWidgets import QTabWidget
 
 from AppCore.Config import Configuration
-from AppCore.DataSource import LocalResourceDataSourceProviding
+from AppCore.Models import LocalResourceDataSourceProviding
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         DraftPackUpdatedEvent,
                                         LocalCardResourceFetchEvent,
-                                        LocalCardResourceSelectedEvent,
-                                        ProductionCardResourcesLoadEvent, 
+                                        LocalCardResourceSelectedFromDataSourceEvent,
+                                        ProductionCardResourcesLoadEvent,
                                         PublishStagedCardResourcesEvent)
 from AppCore.Observation.ObservationTower import *
-from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
-from R4UI import ComboBox, R4UIMenuListBuilder, PushButton, VerticalBoxLayout, HorizontalBoxLayout, R4UIActionMenuItem, BoldLabel
+from AppUI.AppDependenciesInternalProviding import \
+    AppDependenciesInternalProviding
+from R4UI import (BoldLabel, ComboBox, HorizontalBoxLayout, PushButton,
+                  R4UIActionMenuItem, R4UIMenuListBuilder, RWidget,
+                  VerticalBoxLayout)
 
 from .DraftListTablePackPreviewViewController import (
     DraftListTablePackPreviewViewController,
@@ -34,7 +37,7 @@ class DraftListTabbedPackPreviewViewControllerDraftListTablePackPreviewViewContr
         return False
 
 
-class DraftListTabbedPackPreviewViewController(QWidget, TransmissionReceiverProtocol):
+class DraftListTabbedPackPreviewViewController(RWidget, TransmissionReceiverProtocol):
     def __init__(self, 
                  app_dependencies_provider: AppDependenciesInternalProviding,
                  data_source_local_resource_provider: LocalResourceDataSourceProviding):
@@ -51,7 +54,7 @@ class DraftListTabbedPackPreviewViewController(QWidget, TransmissionReceiverProt
         
         app_dependencies_provider.observation_tower.subscribe_multi(self, [DraftPackUpdatedEvent,
                                                                            LocalCardResourceFetchEvent,
-                                                                           LocalCardResourceSelectedEvent,
+                                                                           LocalCardResourceSelectedFromDataSourceEvent,
                                                                            ProductionCardResourcesLoadEvent, 
                                                                            ConfigurationUpdatedEvent, PublishStagedCardResourcesEvent])
         
@@ -198,7 +201,7 @@ class DraftListTabbedPackPreviewViewController(QWidget, TransmissionReceiverProt
             delegate = DraftListTabbedPackPreviewViewControllerDraftListTablePackPreviewViewControllerDelegate(pack.pack_identifier)
             view_controller.delegate = delegate
             self._tab_widget.addTab(view_controller, pack.pack_name)
-        self._tab_widget.addTab(QWidget(), "+")
+        self._tab_widget.addTab(RWidget(), "+")
         if self._selected_tab >= len(self._data_source_draft_list.pack_names):
             self._tab_widget.setCurrentIndex(self._selected_tab - 1)
         else:
@@ -226,7 +229,7 @@ class DraftListTabbedPackPreviewViewController(QWidget, TransmissionReceiverProt
     # MARK: - TransmissionReceiverProtocol
     
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
-        if type(event) == LocalCardResourceFetchEvent or type(event) == LocalCardResourceSelectedEvent:
+        if type(event) == LocalCardResourceFetchEvent or type(event) == LocalCardResourceSelectedFromDataSourceEvent:
             if event.local_resource == self._data_source_local_resource_provider.data_source.selected_local_resource:
                 self._sync_button()
         if type(event) == DraftPackUpdatedEvent or \

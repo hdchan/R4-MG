@@ -1,40 +1,32 @@
+from AppUI.AppDependenciesInternalProviding import \
+    AppDependenciesInternalProviding
+from AppUI.UIComponents.CardSearchPreview.CardSearchPreviewFactory import \
+    CardSearchPreviewFactory
+from R4UI import HorizontalSplitter, RWidget, VerticalBoxLayout
 
-from PyQt5.QtWidgets import QWidget
+from .DraftListTabbedPackPreviewViewController import \
+    DraftListTabbedPackPreviewViewController
+from .DraftListWindowDeployerViewController import \
+    DraftListWindowDeployerViewController
 
-from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
-from AppUI.UIComponents import ImagePreviewLocalResourceDataSourceDecorator
-from R4UI import VerticalBoxLayout, HorizontalSplitter
 
-from ..Base.SearchTableViewController import SearchTableViewController
-from .DraftListTabbedPackPreviewViewController import DraftListTabbedPackPreviewViewController
-from .DraftListWindowDeployerViewController import DraftListWindowDeployerViewController
-class DraftListDeployerSearchComboViewController(QWidget):
+class DraftListDeployerSearchComboViewController(RWidget):
     def __init__(self, app_dependencies_provider: AppDependenciesInternalProviding):
         super().__init__()
         self._app_dependencies_provider = app_dependencies_provider
         self._setup_view()
         
     def _setup_view(self):
-        configuration = SearchTableViewController.SearchTableViewControllerConfiguration(is_flip_button_hidden=False)
-        
-        # TODO: package
-        image_preview_view = ImagePreviewLocalResourceDataSourceDecorator(self._app_dependencies_provider)
-        search_table = SearchTableViewController(self._app_dependencies_provider, configuration, image_preview_view)
-        
-        the_view = HorizontalSplitter([
-                VerticalBoxLayout([
-                    image_preview_view,
-                    search_table
-                ]),
-                
+        card_search = CardSearchPreviewFactory.DraftListCardSearchPreviewViewController(self._app_dependencies_provider)
+
+        VerticalBoxLayout([
+            HorizontalSplitter([
+                card_search,
                 DraftListTabbedPackPreviewViewController(
                     self._app_dependencies_provider, 
-                    data_source_local_resource_provider=search_table
+                    data_source_local_resource_provider=card_search
                     ),
                 
                 DraftListWindowDeployerViewController(self._app_dependencies_provider)
                 ])
-        
-        VerticalBoxLayout([
-            the_view
         ]).set_layout_to_widget(self)

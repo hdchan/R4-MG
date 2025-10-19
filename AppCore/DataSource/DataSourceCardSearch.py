@@ -9,14 +9,13 @@ from AppCore.CoreDependenciesInternalProviding import \
 from AppCore.DataSource.DataSourceCardSearchClientProtocol import *
 from AppCore.DataSource.DataSourceRecentSearch import DataSourceRecentSearch
 from AppCore.ImageResource.ImageResourceProcessorProtocol import *
-from AppCore.Models import LocalCardResource, SearchConfiguration, TradingCard
+from AppCore.Models import LocalCardResource, SearchConfiguration, TradingCard, DataSourceSelectedLocalCardResourceProtocol
 from AppCore.Models.CardResourceProvider import CardResourceProvider
 from AppCore.Models.LocalCardResource import LocalCardResource
 from AppCore.Models.TradingCard import TradingCard
 from AppCore.Observation import *
-from AppCore.Observation.Events import (CardSearchEvent,
-                                        LocalCardResourceSelectedEvent)
-
+from AppCore.Observation.Events import (
+    CardSearchEvent, LocalCardResourceSelectedFromDataSourceEvent)
 
 class DataSourceCardSearchDelegate:
     def ds_started_search_with_result(self,
@@ -42,7 +41,7 @@ class DataSourceCardSearchDelegate:
 INITIAL_PAGE = 0
 INITIAL_PAGE_COUNT = 0
 
-class DataSourceCardSearch:
+class DataSourceCardSearch(DataSourceSelectedLocalCardResourceProtocol):
     
     class DataSourceCardSearchConfiguration:
         def __init__(self, 
@@ -134,6 +133,9 @@ class DataSourceCardSearch:
     def _trading_cards(self) -> List[TradingCard]:
         return list(map(lambda x: x.trading_card, self._trading_card_providers))
     
+    @property
+    def selected_local_resource(self) -> Optional[LocalCardResource]:
+        return self.current_selected_card_search_resource
     
     @property
     def current_selected_card_search_resource(self) -> Optional[LocalCardResource]:
@@ -284,7 +286,7 @@ class DataSourceCardSearch:
         trading_card_resource_provider = self._trading_card_providers[index]
         selected_resource = trading_card_resource_provider.local_resource
         self._selected_resource = selected_resource
-        self._observation_tower.notify(LocalCardResourceSelectedEvent(selected_resource))
+        self._observation_tower.notify(LocalCardResourceSelectedFromDataSourceEvent(copy.deepcopy(selected_resource), self))
         self._image_resource_processor_provider.image_resource_processor.async_store_local_resource(selected_resource, retry)
         if self.delegate is not None:
             self.delegate.ds_did_retrieve_card_resource_for_card_selection(self)

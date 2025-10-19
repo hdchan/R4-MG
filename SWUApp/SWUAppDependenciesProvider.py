@@ -2,15 +2,19 @@
 from typing import Callable, Optional
 
 from AppCore.DataSource import DataSourceDraftList
+from AppCore.DataSource.DataSourceCardSearch import (
+    DataSourceCardSearch, DataSourceCardSearchDelegate)
+from AppCore.ImageResource import ImageResourceProcessorProviding
 from AppCore.Observation.ObservationTower import ObservationTower
 from AppUI.AppDependenciesInternalProviding import \
     AppDependenciesInternalProviding
 from AppUI.Router.Router import Router
+
 from .Assets import AssetProvider
 from .Config.SWUAppConfiguration import SWUAppConfigurationManager
 from .SWUAppDependenciesProviding import SWUAppDependenciesProviding
-from AppCore.DataSource.DataSourceCardSearch import DataSourceCardSearch, DataSourceCardSearchDelegate
-from AppCore.ImageResource import ImageResourceProcessorProviding
+
+
 class SWUAppDependenciesProvider(SWUAppDependenciesProviding):
 
     def __init__(self, 

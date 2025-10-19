@@ -13,7 +13,7 @@ from AppCore.Observation.Events import (DraftListUpdatedEvent,
                                         LocalAssetResourceFetchEvent,
                                         LocalCardResourceFetchEvent)
 from AppUI.UIComponents.Base.LoadingSpinner import LoadingSpinner
-from R4UI import HorizontalBoxLayout, HorizontalSplitter, R4UIWidget
+from R4UI import HorizontalBoxLayout, HorizontalSplitter, RWidget
 
 from ..Models.ParsedDeckList import ParsedDeckList
 from ..SWUAppDependenciesProviding import SWUAppDependenciesProviding
@@ -24,7 +24,7 @@ from .DraftListImagePreviewInspectorPanelViewController import (
 from .PhotoViewer import PhotoViewer
 
 
-class DraftListImagePreviewViewController(R4UIWidget, TransmissionReceiverProtocol, DraftListImagePreviewInspectorPanelViewControllerDelegate):
+class DraftListImagePreviewViewController(RWidget, TransmissionReceiverProtocol, DraftListImagePreviewInspectorPanelViewControllerDelegate):
     def __init__(self, swu_app_dependencies_provider: SWUAppDependenciesProviding):
         super().__init__()
         self._observation_tower = swu_app_dependencies_provider.observation_tower

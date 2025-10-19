@@ -2,14 +2,14 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QSizePolicy,
                              QVBoxLayout, QWidget)
 
-from AppCore.DataSource.DataSourceSelectedLocalCardResource import *
+from AppCore.Models.DataSourceSelectedLocalCardResource import *
 from AppCore.ImageResource.ImageResourceProcessorProtocol import *
 from AppCore.Models import DeploymentCardResource, LocalCardResource
 from AppCore.Observation import TransmissionProtocol
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         DeploymentCardResourceEvent)
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
-from AppUI.UIComponents.Base.ImagePreviewViewController import *
+from AppUI.UIComponents.ImagePreview.ImagePreviewViewController import *
 
 
 class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
@@ -90,7 +90,7 @@ class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
         app_dependencies_provider.observation_tower.subscribe_multi(self, [DeploymentCardResourceEvent, 
                                                                          PublishStagedCardResourcesEvent, 
                                                                          PublishStatusUpdatedEvent, 
-                                                                         LocalCardResourceSelectedEvent, 
+                                                                         LocalCardResourceSelectedFromDataSourceEvent, 
                                                                          ConfigurationUpdatedEvent])
     
         self._sync_state()
@@ -155,7 +155,7 @@ class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
         if (type(event) == DeploymentCardResourceEvent or 
             type(event) == PublishStagedCardResourcesEvent or 
             type(event) == PublishStatusUpdatedEvent or 
-            type(event) == LocalCardResourceSelectedEvent):
+            type(event) == LocalCardResourceSelectedFromDataSourceEvent):
             self._sync_state()
         if type(event) == ConfigurationUpdatedEvent:
             self._sync_configuration_state()

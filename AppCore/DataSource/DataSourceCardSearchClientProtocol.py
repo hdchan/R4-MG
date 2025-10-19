@@ -1,4 +1,5 @@
 from typing import Callable, List, Optional, Tuple
+
 from AppCore.Models import (PaginationConfiguration, SearchConfiguration,
                             TradingCard)
 

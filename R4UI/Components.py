@@ -6,14 +6,14 @@ from PyQt5.QtGui import QIntValidator, QDoubleValidator
 from PyQt5.QtWidgets import (QAction, QButtonGroup, QCheckBox, QComboBox,
                              QGroupBox, QLabel, QLineEdit, QMenu, QMenuBar,
                              QPushButton, QRadioButton, QScrollArea,
-                             QSizePolicy, QSpacerItem, QSplitter, QTabWidget, QMainWindow)
+                             QSizePolicy, QSpacerItem, QTabWidget, QMainWindow)
 
 from .BoxLayouts import HorizontalBoxLayout, VerticalBoxLayout
-from .R4UIWidget import R4UIWidget
+from .RWidget import RWidget
 
 
 T = TypeVar("T")
-class LabeledRadioButton(R4UIWidget, Generic[T]):
+class LabeledRadioButton(RWidget, Generic[T]):
     def __init__(self, 
                  text: str, 
                  value: T, 
@@ -41,7 +41,7 @@ class LabeledRadioButton(R4UIWidget, Generic[T]):
         self._radio_button.setChecked(checked)
         return self
 
-class R4UIButtonGroup(R4UIWidget, Generic[T]):
+class R4UIButtonGroup(RWidget, Generic[T]):
     def __init__(self, 
                  values: List[tuple[str, T]], 
                  toggled_fn: Optional[Callable[[T], None]] = None):
@@ -120,7 +120,7 @@ class ObjectComboBox(QComboBox):
         
 class Label(QLabel):
     def __init__(self, 
-                 text: str,
+                 text: str = "",
                  point_size: int = 9,
                  is_bold: bool = False):
         super().__init__()
@@ -129,6 +129,7 @@ class Label(QLabel):
         font.setBold(is_bold)
         font.setPointSize(point_size)
         self.setFont(font)
+        self.setMinimumWidth(1)
 
     def set_word_wrap(self, val: bool) -> 'Label':
         self.setWordWrap(val)
@@ -148,7 +149,7 @@ class HeaderLabel(Label):
         super().__init__(text, point_size=12, is_bold=True)
 class ScrollArea(QScrollArea):
     def __init__(self,
-                 widget: R4UIWidget):
+                 widget: RWidget):
         super().__init__()
         self.setWidgetResizable(True)
         self.setWidget(widget)
@@ -325,10 +326,10 @@ class LineEditText(QLineEdit):
             return
         self.setText(value)
 
-class HorizontalLabeledInputRow(R4UIWidget):
+class HorizontalLabeledInputRow(RWidget):
     def __init__(self, 
                  text: str,
-                 input: R4UIWidget,
+                 input: RWidget,
                  description: Optional[str] = None):
         super().__init__()
         self._text_label = Label(text)
@@ -352,10 +353,10 @@ class HorizontalLabeledInputRow(R4UIWidget):
         self._layout.setContentsMargins(left, top, right, bottom)
         return self
 
-class VerticalLabeledInputRow(R4UIWidget):
+class VerticalLabeledInputRow(RWidget):
     def __init__(self, 
                  text: str,
-                 input: R4UIWidget, 
+                 input: RWidget, 
                  description: Optional[str] = None):
         super().__init__()
         VerticalBoxLayout([
@@ -366,14 +367,14 @@ class VerticalLabeledInputRow(R4UIWidget):
         ]).set_layout_to_widget(self)
 
 class VerticalGroupBox(QGroupBox):
-    def __init__(self, initial_widgets: List[R4UIWidget] = []):
+    def __init__(self, initial_widgets: List[RWidget] = []):
         super().__init__()
         self._layout = VerticalBoxLayout(initial_widgets).set_layout_to_widget(self)
     
-    def add_widgets(self, widgets: List[R4UIWidget]):
+    def add_widgets(self, widgets: List[RWidget]):
         self._layout.add_widgets(widgets)
             
-    def replace_all_widgets(self, widgets: List[R4UIWidget]):
+    def replace_all_widgets(self, widgets: List[RWidget]):
         self._layout.replace_all_widgets(widgets)
         
     def set_alignment_top(self) -> 'VerticalGroupBox':
@@ -385,18 +386,23 @@ class VerticalGroupBox(QGroupBox):
         return self
 
 
-class R4UITabWidget(R4UIWidget):
+class RTabWidget(RWidget):
     def __init__(self, 
-                 tabs: List[tuple[R4UIWidget, str]] = [], 
+                 tabs: List[tuple[RWidget, str]] = [], 
                  tab_change_fn: Optional[Callable[[int], None]] = None):
         super().__init__()
         self._tab_change_fn = tab_change_fn
         self._tab_widget = QTabWidget()
+        self._tab_widget.currentChanged.connect(self._tab_changed)
         self._layout = VerticalBoxLayout([self._tab_widget]).set_layout_to_widget(self)
-        self._widgets: List[R4UIWidget] = []
+        self._widgets: List[RWidget] = []
         self.add_tabs(tabs)
-        
-    def add_tabs(self, tabs: List[tuple[R4UIWidget, str]]):
+    
+    @property
+    def current_index(self) -> int:
+        return self._tab_widget.currentIndex()
+
+    def add_tabs(self, tabs: List[tuple[RWidget, str]]):
         for t in tabs:
             self._widgets.append(t[0])
             self._tab_widget.addTab(t[0], t[1])
@@ -405,7 +411,7 @@ class R4UITabWidget(R4UIWidget):
         if self._tab_change_fn is not None:
             self._tab_change_fn(index)
         
-    def set_layout_to_widget(self, layout: R4UIWidget) -> 'R4UITabWidget':
+    def set_layout_to_widget(self, layout: RWidget) -> 'RWidget':
         layout.setLayout(self.layout())
         return self
     

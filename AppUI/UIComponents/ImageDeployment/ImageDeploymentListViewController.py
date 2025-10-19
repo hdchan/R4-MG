@@ -5,20 +5,18 @@ from PyQt5.QtWidgets import (QHBoxLayout, QPushButton, QScrollArea,
                              QSizePolicy, QVBoxLayout, QWidget)
 
 from AppCore.Config import Configuration
-from AppCore.DataSource.DataSourceSelectedLocalCardResource import *
+from AppCore.Models.DataSourceSelectedLocalCardResource import *
 from AppCore.ImageResource.ImageResourceProcessorProtocol import *
 from AppCore.Observation import *
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         LocalCardResourceFetchEvent,
-                                        LocalCardResourceSelectedEvent,
                                         ProductionCardResourcesLoadEvent,
                                         PublishStagedCardResourcesEvent,
                                         PublishStatusUpdatedEvent)
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 
-from .LoadingSpinner import LoadingSpinner
-from ..Base import ImageDeploymentViewController
-
+from ..Base.LoadingSpinner import LoadingSpinner
+from .ImageDeploymentViewController import ImageDeploymentViewController
 
 class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
@@ -37,7 +35,6 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
         self._observation_tower.subscribe_multi(self, [PublishStatusUpdatedEvent, 
                                                       LocalCardResourceFetchEvent, 
                                                       PublishStagedCardResourcesEvent, 
-                                                      LocalCardResourceSelectedEvent, 
                                                       ProductionCardResourcesLoadEvent, 
                                                       ConfigurationUpdatedEvent])
         
@@ -164,10 +161,6 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
             type(event) == PublishStagedCardResourcesEvent):
             can_publish_staged_resources = self._data_source_image_resource_deployer.can_publish_staged_resources
             self.set_production_button_enabled(can_publish_staged_resources)
-        # if type(event) == PublishStagedCardResourcesEvent:
-        #     if (event.event_type == PublishStagedCardResourcesEvent.EventType.FINISHED or 
-        #         event.event_type == PublishStagedCardResourcesEvent.EventType.FAILED):
-        #         self._reload_production_resources_list()
         if type(event) == ProductionCardResourcesLoadEvent:
             if event.event_type == ProductionCardResourcesLoadEvent.EventType.STARTED:
                 self.loading_spinner.start()
