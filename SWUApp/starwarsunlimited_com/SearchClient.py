@@ -10,7 +10,8 @@ from .SearchRequest import SearchRequest
 
 class SearchClient(DataSourceCardSearchClientProtocol):
 
-    def __init__(self, networker: DataFetcherRemote, 
+    def __init__(self, 
+                 networker: DataFetcherRemote, 
                  asset_provider: AssetProvider):
         self._networker = networker
         self._asset_provider = asset_provider

@@ -7,8 +7,7 @@ class ScreenWidgetProviding:
     def about_view(self) -> RWidget:
         return NotImplemented
     
-    @property
-    def app_settings_view(self) -> RWidget:
+    def app_settings_view(self, current_tab: int = 0) -> RWidget:
         return NotImplemented
     
     @property

@@ -1,7 +1,7 @@
 from typing import Optional
 
 from PyQt5.QtCore import QSize
-from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QLineEdit, QListWidget,
+from PyQt5.QtWidgets import (QHBoxLayout, QLineEdit, QListWidget,
                              QPushButton, QSizePolicy, QVBoxLayout, QWidget)
 
 from AppCore.Config import Configuration
@@ -17,7 +17,7 @@ from AppCore.Observation.Events import (CardSearchEvent,
 from AppUI.AppDependenciesInternalProviding import \
     AppDependenciesInternalProviding
 from AppUI.Observation.Events import KeyboardEvent
-from R4UI import RWidget
+from R4UI import RWidget, Label
 
 from ..Base.LoadingSpinner import LoadingSpinner
 
@@ -69,7 +69,7 @@ class CustomDirectorySearchTableViewController(RWidget,
         layout.addWidget(search_button)
         
         
-        search_source_label = QLabel()
+        search_source_label = Label()
         # TODO: need to account for long labels else where
         search_source_label.setMinimumSize(QSize(1, 1))
         search_source_label.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Preferred)

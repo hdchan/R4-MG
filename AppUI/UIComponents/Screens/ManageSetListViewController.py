@@ -1,6 +1,6 @@
 from typing import Optional, Tuple
-from PyQt5.QtGui import QPixmap, QValidator
-from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QLineEdit, QPushButton,
+from PyQt5.QtGui import QValidator
+from PyQt5.QtWidgets import (QHBoxLayout, QLineEdit, QPushButton,
                              QScrollArea, QSizePolicy, QVBoxLayout, QWidget)
 
 from AppCore.Models import LocalAssetResource
@@ -9,7 +9,7 @@ from AppCore.Observation import (TransmissionProtocol,
 from AppCore.Observation.Events import LocalAssetResourceFetchEvent
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 
-
+from R4UI import Label
 class ManageSetListViewController(QWidget, TransmissionReceiverProtocol):
     
     class ListItemViewControllerDelegate:
@@ -32,7 +32,7 @@ class ManageSetListViewController(QWidget, TransmissionReceiverProtocol):
             v_layout = QHBoxLayout()
             self.setLayout(v_layout)
             
-            text_edit = QLabel()
+            text_edit = Label()
             v_layout.addWidget(text_edit)
             self._text_edit = text_edit
             
@@ -116,7 +116,7 @@ class ManageSetListViewController(QWidget, TransmissionReceiverProtocol):
             v_layout = QVBoxLayout()
             self.setLayout(v_layout)
             
-            helper_text = QLabel()
+            helper_text = Label()
             helper_text.setWordWrap(True)
             helper_text.setText("Enter set identifier below to save and download a deck to use for locally managed set search. These identifiers can be found on the bottom right of a card within its set.")
             v_layout.addWidget(helper_text)

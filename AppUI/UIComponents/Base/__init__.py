@@ -1,2 +1,2 @@
-from .AppUIConfigurationCheckableActionMenuItem import AppUIConfigurationCheckableR4UIActionMenuItem
+from .AppUIConfigurationCheckableActionMenuItem import AppUIConfigurationCheckableRActionMenuItem
 from .AppWindow import AppWindow

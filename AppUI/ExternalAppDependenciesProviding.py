@@ -10,7 +10,7 @@ from AppCore.Models import LocalCardResource, SearchConfiguration
 from AppUI.ExternalAppDependenciesProviding import *
 from AppUI.Models import DraftListStyleSheet
 from AppUI.Router.Router import Router
-from R4UI import RWidget, R4UIMenuListBuilder
+from R4UI import RWidget, RMenuListBuilder
 from AppCore.Models import LocalCardResource
 from typing import Dict, Any
 
@@ -45,7 +45,7 @@ class ExternalAppDependenciesProviding:
     def logo_path(self) -> str:
         return ""
     
-    def hook_developer_menu(self, menu: R4UIMenuListBuilder) -> Optional[R4UIMenuListBuilder]:
+    def hook_developer_menu(self, menu: RMenuListBuilder) -> Optional[RMenuListBuilder]:
         return None
 
     # MARK: - Card search

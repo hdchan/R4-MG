@@ -1,16 +1,16 @@
 from typing import Callable
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QFileDialog, QLabel
+from PyQt5.QtWidgets import QFileDialog
 
 from AppCore.Config import Configuration
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.Configuration import MutableAppUIConfiguration
 from .SettingsContainerChildProtocol import SettingsContainerChildProtocol
-from R4UI import (BoldLabel, ComboBox, GridLayout, HeaderLabel,
+from R4UI import (RBoldLabel, RComboBox, GridLayout, RHeaderLabel,
                     HorizontalBoxLayout, HorizontalLabeledInputRow,
                     LineEditInt, LineEditText, PushButton, ScrollArea,
-                    VerticalBoxLayout, VerticalGroupBox)
+                    VerticalBoxLayout, VerticalGroupBox, Label)
 
 from AppUI.Models.DraftListStyleSheet import DraftListStyleSheet
 
@@ -33,7 +33,7 @@ class CellStyleWrapper(VerticalGroupBox):
         if cell_style is not None:
             self.add_widgets([
                 HorizontalBoxLayout([
-                    BoldLabel(f'Cell item - {self._index + 1}'),
+                    RBoldLabel(f'Cell item - {self._index + 1}'),
                     trash_button
                     ]),
                 
@@ -74,10 +74,10 @@ class DraftListSettingsViewController(SettingsContainerChildProtocol):
     def _setup_view(self):
         
         self._cell_configuration_list = VerticalGroupBox()
-        self._container_background_image_label = QLabel()
-        self._cell_font_label = QLabel()
-        self._cell_header_font_label = QLabel()
-        self._add_card_mode_combo_box = ComboBox([
+        self._container_background_image_label = Label()
+        self._cell_font_label = Label()
+        self._cell_header_font_label = Label()
+        self._add_card_mode_combo_box = RComboBox([
                             "Off",
                             "Stage",
                             "Stage & Publish"
@@ -127,13 +127,13 @@ class DraftListSettingsViewController(SettingsContainerChildProtocol):
             ScrollArea(
                 VerticalBoxLayout([
                     VerticalGroupBox([
-                        HeaderLabel("Add card mode"),
+                        RHeaderLabel("Add card mode"),
                         self._add_card_mode_combo_box
                     ]),
                     VerticalGroupBox([
-                        HeaderLabel("Container"),
+                        RHeaderLabel("Container"),
                         VerticalGroupBox([
-                            BoldLabel("Padding"),
+                            RBoldLabel("Padding"),
                             GridLayout([
                                 (HorizontalLabeledInputRow("Left", self._container_padding_left), (1, 0)),
                                 (HorizontalLabeledInputRow("Top", self._container_padding_top), (0, 1)),
@@ -150,10 +150,10 @@ class DraftListSettingsViewController(SettingsContainerChildProtocol):
                         ]),
                     
                     VerticalGroupBox([
-                        HeaderLabel("Cell Header"),
+                        RHeaderLabel("Cell Header"),
                         
                         VerticalGroupBox([
-                            BoldLabel("Padding"),
+                            RBoldLabel("Padding"),
                             GridLayout([
                                 (HorizontalLabeledInputRow("Left", self._cell_header_padding_left), (1, 0)),
                                 (HorizontalLabeledInputRow("Top", self._cell_header_padding_top), (0, 1)),
@@ -173,7 +173,7 @@ class DraftListSettingsViewController(SettingsContainerChildProtocol):
                                 ),
                             
                         VerticalGroupBox([
-                            BoldLabel("Text"),
+                            RBoldLabel("Text"),
                             HorizontalLabeledInputRow("Font size", self._cell_header_font_size),
                             HorizontalLabeledInputRow("Font color", self._cell_header_font_color
                                 ),
@@ -189,10 +189,10 @@ class DraftListSettingsViewController(SettingsContainerChildProtocol):
                         ]),
                     
                     VerticalGroupBox([
-                        HeaderLabel("Cells Items - Global"),
+                        RHeaderLabel("Cells Items - Global"),
                         
                         VerticalGroupBox([
-                            BoldLabel("Padding"),
+                            RBoldLabel("Padding"),
                             GridLayout([
                                 (HorizontalLabeledInputRow("Left", self._cell_padding_left), (1, 0)),
                                 (HorizontalLabeledInputRow("Top", self._cell_padding_top), (0, 1)),
@@ -242,7 +242,7 @@ class DraftListSettingsViewController(SettingsContainerChildProtocol):
         self._sync_ui()
     
     def _load_cell_interval_configuration(self):
-        self._cell_configuration_list.replace_all_widgets([HeaderLabel("Cell Items - Intervals")])
+        self._cell_configuration_list.replace_all_widgets([RHeaderLabel("Cell Items - Intervals")])
         for current_index in range(self._stylesheet.cell_interval_count):
             self._cell_configuration_list.add_widgets([
                 CellStyleWrapper(current_index,

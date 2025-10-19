@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.23.0
+### Feature
+- set current tab on settings window
+- Add grid layout for image generator
+
+### Engineering
+- card search preview refactors
+- unified search table component
+- Refactoring folder structures
+- further unification of search table
+- abstracting cached history
+- refactoring cache events
+
 ## 0.22.1
 ### Hotfix
 - Fix exception thrown when "Main Deck" text is passed for Melee.gg importer

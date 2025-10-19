@@ -4,12 +4,13 @@ from typing import Optional
 from PyQt5.QtCore import QTimer
 
 from R4UI import (HorizontalLabeledInputRow, LineEditFloat, LineEditInt,
-                  R4UICheckBox, R4UIVerticallyExpandingSpacer, RWidget,
-                  VerticalBoxLayout, ScrollArea, PushButton)
+                  PushButton, RCheckBox, RVerticallyExpandingSpacer, RWidget,
+                  ScrollArea, VerticalBoxLayout, RObjectComboBox)
 
 from ..Config.SWUAppConfiguration import SWUAppConfigurationManager
-from ..Utility.DraftListImageGenerator import DraftListImageGenerator
-
+from ..DeckListImageGenerator.DeckListImageGeneratorProtocol import (
+    DeckListImageGeneratorProtocol, DeckListImageGeneratorProviding)
+from ..Models.DeckListImageGeneratorStyles import DeckListImageGeneratorStyles
 
 class DraftListImagePreviewInspectorPanelViewControllerDelegate:
     def option_did_update(self) -> None:
@@ -20,11 +21,11 @@ class DraftListImagePreviewInspectorPanelViewControllerDelegate:
 
 class DraftListImagePreviewInspectorPanelViewController(RWidget):
     def __init__(self, 
-                 image_generator: DraftListImageGenerator, 
+                 image_generator_provider: DeckListImageGeneratorProviding, 
                  delegate: DraftListImagePreviewInspectorPanelViewControllerDelegate, 
                  configuration_manager: SWUAppConfigurationManager):
         super().__init__()
-        self._image_generator = image_generator
+        self._image_generator_provider = image_generator_provider
         self._configuration_manager = configuration_manager
         self.delegate: Optional[DraftListImagePreviewInspectorPanelViewControllerDelegate] = delegate
         self._deck_list_image_generator_styles = configuration_manager.configuration.deck_list_image_generator_styles
@@ -36,6 +37,9 @@ class DraftListImagePreviewInspectorPanelViewController(RWidget):
 
         self._setup_view()
     
+    @property
+    def _image_generator(self) -> DeckListImageGeneratorProtocol:
+        return self._image_generator_provider.image_generator
 
     def _start_save_timer(self):
         self._save_async_timer.stop()
@@ -53,10 +57,13 @@ class DraftListImagePreviewInspectorPanelViewController(RWidget):
         deck_list_styles.stacked_card_reveal_percentage = self._deck_list_image_generator_styles.stacked_card_reveal_percentage
         deck_list_styles.is_sideboard_enabled = self._deck_list_image_generator_styles.is_sideboard_enabled
         deck_list_styles.is_sorted_alphabetically = self._deck_list_image_generator_styles.is_sorted_alphabetically
+        deck_list_styles.layout_type = self._deck_list_image_generator_styles.layout_type
 
         deck_list_styles.is_full_image_preview = self._deck_list_image_generator_styles.is_full_image_preview
         deck_list_styles.is_auto_generate_preview = self._deck_list_image_generator_styles.is_auto_generate_preview
         deck_list_styles.is_visual_debug = self._deck_list_image_generator_styles.is_visual_debug
+        deck_list_styles.grid_width = self._deck_list_image_generator_styles.grid_width
+        deck_list_styles.grid_width_sideboard = self._deck_list_image_generator_styles.grid_width_sideboard
 
         self._configuration_manager.save_deck_list_image_generator_styles(deck_list_styles)
         self._notify_delegate()
@@ -114,15 +121,36 @@ class DraftListImagePreviewInspectorPanelViewController(RWidget):
         self._deck_list_image_generator_styles.stacked_card_reveal_percentage = val
         self._start_save_timer()
 
+    def _layout_type_updated(self):
+        self._deck_list_image_generator_styles.layout_type = self._layout_type_dropdown.currentData()
+        self._start_save_timer()
+
+    def _grid_width_updated(self, val: int):
+        self._deck_list_image_generator_styles.grid_width = val
+        self._start_save_timer()
+
+    def _grid_width_sideboard_updated(self, val: int):
+        self._deck_list_image_generator_styles.grid_width_sideboard = val
+        self._start_save_timer()
+
     def _setup_view(self):
+        self._layout_type_dropdown = RObjectComboBox([
+            (DeckListImageGeneratorStyles.LayoutType.COST_CURVE.value, DeckListImageGeneratorStyles.LayoutType.COST_CURVE),
+            (DeckListImageGeneratorStyles.LayoutType.GRID.value, DeckListImageGeneratorStyles.LayoutType.GRID)
+        ])
+        self._layout_type_dropdown.setCurrentText(self._deck_list_image_generator_styles.layout_type.value)
+        self._layout_type_dropdown.currentIndexChanged.connect(self._layout_type_updated)
+
         vertical_layout = VerticalBoxLayout([
-            HorizontalLabeledInputRow("Leader and Base on top (OFF = left side)", R4UICheckBox(self._is_leader_base_on_top_updated, self._deck_list_image_generator_styles.is_leader_base_on_top)),
+            HorizontalLabeledInputRow("Layout type", self._layout_type_dropdown),
 
-            HorizontalLabeledInputRow("Show sideboard", R4UICheckBox(self._sideboard_box_changed, self._deck_list_image_generator_styles.is_sideboard_enabled)),
+            HorizontalLabeledInputRow("Leader and Base on top (OFF = left side)", RCheckBox(self._is_leader_base_on_top_updated, self._deck_list_image_generator_styles.is_leader_base_on_top)),
 
-            HorizontalLabeledInputRow("Sort alphabetically", R4UICheckBox(self._alphabetical_box_changed, self._deck_list_image_generator_styles.is_sorted_alphabetically)),
+            HorizontalLabeledInputRow("Show sideboard", RCheckBox(self._sideboard_box_changed, self._deck_list_image_generator_styles.is_sideboard_enabled)),
 
-            HorizontalLabeledInputRow("Sideboard spacing left relative to main deck", 
+            HorizontalLabeledInputRow("Sort alphabetically", RCheckBox(self._alphabetical_box_changed, self._deck_list_image_generator_styles.is_sorted_alphabetically)),
+
+            HorizontalLabeledInputRow("Sideboard spacing relative to main deck", 
                                       LineEditInt(self._deck_list_image_generator_styles.sideboard_left_spacing_relative_to_main_deck, 
                                                   self._sideboard_left_spacing_relative_to_main_deck_updated)),
 
@@ -138,18 +166,26 @@ class DraftListImagePreviewInspectorPanelViewController(RWidget):
                                       LineEditInt(self._deck_list_image_generator_styles.leader_base_spacing_between, 
                                                   self._leader_base_spacing_between_updated)),
 
-            HorizontalLabeledInputRow("Leader Base spacing right relative to main deck", 
+            HorizontalLabeledInputRow("Leader Base spacing relative to main deck", 
                                       LineEditInt(self._deck_list_image_generator_styles.leader_base_spacing_left_relative_to_main_deck, 
                                                   self._leader_base_spacing_left_relative_to_main_deck_updated)),
 
             HorizontalLabeledInputRow("Stacked card reveal percentage", 
                                       LineEditFloat(self._deck_list_image_generator_styles.stacked_card_reveal_percentage, 
                                                   self._stacked_card_reveal_percentage_updated)),
+            
+            HorizontalLabeledInputRow("Grid width main deck", 
+                                      LineEditInt(self._deck_list_image_generator_styles.grid_width, 
+                                                  self._grid_width_updated)),
 
-            HorizontalLabeledInputRow("Full image preview (WARNING: This will increase image generation duration and memory usage)", R4UICheckBox(self._full_image_preview_changed, self._deck_list_image_generator_styles.is_full_image_preview)).set_word_wrap(True),
+            HorizontalLabeledInputRow("Grid width sideboard", 
+                                      LineEditInt(self._deck_list_image_generator_styles.grid_width_sideboard, 
+                                                  self._grid_width_sideboard_updated)),
 
-            HorizontalLabeledInputRow("Auto generate preview (WARNING: This will increase CPU usage)", R4UICheckBox(self._auto_generate_preview_changed, self._deck_list_image_generator_styles.is_auto_generate_preview))
-        ]).add_spacer(R4UIVerticallyExpandingSpacer())
+            HorizontalLabeledInputRow("Full image preview (⚠️: This will increase image generation duration and memory usage)", RCheckBox(self._full_image_preview_changed, self._deck_list_image_generator_styles.is_full_image_preview)).set_word_wrap(True),
+
+            HorizontalLabeledInputRow("Auto generate preview (⚠️: This will increase CPU usage)", RCheckBox(self._auto_generate_preview_changed, self._deck_list_image_generator_styles.is_auto_generate_preview))
+        ]).add_spacer(RVerticallyExpandingSpacer())
 
         self.regenerate_button = PushButton("Regenerate", self._handle_regenerate)
 
@@ -159,7 +195,7 @@ class DraftListImagePreviewInspectorPanelViewController(RWidget):
         ]).set_uniform_content_margins(0).set_layout_to_widget(self)
 
         if self._configuration_manager.configuration.core_configuration.is_developer_mode:
-            vertical_layout.add_widget(HorizontalLabeledInputRow("Visual debug", R4UICheckBox(self._visual_debug_box_changed, self._deck_list_image_generator_styles.is_visual_debug)),)
+            vertical_layout.add_widget(HorizontalLabeledInputRow("Visual debug", RCheckBox(self._visual_debug_box_changed, self._deck_list_image_generator_styles.is_visual_debug)),)
 
     def _handle_regenerate(self):
         if self.delegate is not None:

@@ -2,7 +2,7 @@ from typing import Optional
 
 from PyQt5.QtCore import QPoint, Qt
 from PyQt5.QtGui import QClipboard, QGuiApplication, QPixmap
-from PyQt5.QtWidgets import QAction, QLabel, QMenu, QVBoxLayout
+from PyQt5.QtWidgets import QAction, QMenu, QVBoxLayout
 
 from AppCore.Config import Configuration
 from AppCore.ImageResource.ImageResourceProcessorProtocol import *
@@ -15,7 +15,7 @@ from AppCore.Observation.Events import (CacheClearedEvent,
 from AppCore.Service.PlatformServiceProvider import *
 from AppUI.AppDependenciesInternalProviding import \
     AppDependenciesInternalProviding
-from R4UI import RWidget
+from R4UI import RWidget, Label
 
 from ..Base.LoadingSpinner import LoadingSpinner
 
@@ -41,7 +41,7 @@ class ImagePreviewViewController(RWidget, TransmissionReceiverProtocol):
         layout = QVBoxLayout(self)
         self.setLayout(layout)
         
-        label = QLabel(self)
+        label = Label()
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(label)
         
@@ -61,24 +61,24 @@ class ImagePreviewViewController(RWidget, TransmissionReceiverProtocol):
         layout.addWidget(image_info_widget)
         
         
-        self._card_display_name = QLabel()
+        self._card_display_name = Label()
         self._card_display_name.setWordWrap(True)
         self._card_display_name.setOpenExternalLinks(True)
         self._card_display_name.setAlignment(Qt.AlignmentFlag.AlignCenter)
         image_info_layout.addWidget(self._card_display_name)
         
-        self._size_info_label = QLabel()
+        self._size_info_label = Label()
         self._size_info_label.setWordWrap(True)
         self._size_info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         image_info_layout.addWidget(self._size_info_label)
         
-        self._created_date_label = QLabel()
+        self._created_date_label = Label()
         self._created_date_label.setWordWrap(True)
         self._created_date_label.setOpenExternalLinks(True)
         self._created_date_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         image_info_layout.addWidget(self._created_date_label)
 
-        self._image_url_label = QLabel()
+        self._image_url_label = Label()
         # self._image_url_label.setMaximumWidth(100)
         self._image_url_label.setWordWrap(True)
         self._image_url_label.setOpenExternalLinks(True)

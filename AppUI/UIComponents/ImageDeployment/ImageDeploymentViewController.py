@@ -1,5 +1,5 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QSizePolicy,
+from PyQt5.QtWidgets import (QHBoxLayout, QPushButton, QSizePolicy,
                              QVBoxLayout, QWidget)
 
 from AppCore.Models.DataSourceSelectedLocalCardResource import *
@@ -10,7 +10,7 @@ from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         DeploymentCardResourceEvent)
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.UIComponents.ImagePreview.ImagePreviewViewController import *
-
+from R4UI import Label
 
 class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
@@ -26,7 +26,7 @@ class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
         
         vertical_layout = QVBoxLayout()
         
-        label = QLabel()
+        label = Label()
         label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.MinimumExpanding)
         label.setWordWrap(True)
         font = label.font()

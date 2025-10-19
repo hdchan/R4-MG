@@ -1,8 +1,8 @@
 
 from PyQt5.QtGui import QColor, QFont, QFontDatabase, QPalette
-from PyQt5.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QWidget
+from PyQt5.QtWidgets import QHBoxLayout, QSizePolicy, QWidget
 from AppUI.Models import DraftListStyleSheet
-from R4UI import VerticalBoxLayout
+from R4UI import VerticalBoxLayout, Label
 
 class DraftListItemHeader(QWidget):
     def __init__(self, 
@@ -36,7 +36,7 @@ class DraftListItemHeader(QWidget):
         palette.setColor(QPalette.ColorRole.Foreground, QColor(self._stylesheet.cell_header_font_color))
             
             
-        label = QLabel()
+        label = Label()
         label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
         label.setPalette(palette)
         label.setText(self._text)

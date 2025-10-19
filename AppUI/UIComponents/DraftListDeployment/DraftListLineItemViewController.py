@@ -3,7 +3,7 @@ from typing import List, Optional
 from weakref import ReferenceType
 
 from PyQt5.QtGui import QContextMenuEvent
-from PyQt5.QtWidgets import QAction, QMenu, QVBoxLayout, QLabel
+from PyQt5.QtWidgets import QAction, QMenu, QVBoxLayout
 
 from AppCore.Models import LocalResourceDataSourceProviding
 
@@ -13,7 +13,7 @@ from AppCore.Config.Configuration import Configuration
 from AppCore.Models import LocalCardResource, TradingCard, DraftPack, DeploymentCardResource
 
 from AppUI.Models.DraftListStyleSheet import DraftListStyleSheet
-from R4UI import RWidget
+from R4UI import RWidget, Label
 
 class DraftListLineItemViewControllerDelegate:
     @property
@@ -81,7 +81,7 @@ class DraftListLineItemViewController(RWidget):
             container_layout.addWidget(external_list_item)
         else:
             # default cell
-            label = QLabel()
+            label = Label()
             label.setText(self._trading_card.name)
             container_layout.addWidget(label)
         

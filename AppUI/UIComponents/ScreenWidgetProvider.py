@@ -27,10 +27,10 @@ class ScreenWidgetProvider(ScreenWidgetProviding):
     def about_view(self) -> RWidget:
         return self._app_dependencies_internal_provider.external_app_dependencies_provider.provide_about_view_controller()
     
-    @property
-    def app_settings_view(self) -> RWidget:
-        return AppSettingsViewController(self._app_dependencies_internal_provider)
-    
+    def app_settings_view(self, current_tab: int = 0) -> RWidget:
+        vc = AppSettingsViewController(self._app_dependencies_internal_provider)
+        vc.set_current_tab(current_tab)
+        return vc
     @property
     def shortcuts_view(self) -> RWidget:
         return ShortcutsViewController(self._app_dependencies_internal_provider)

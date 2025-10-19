@@ -33,8 +33,8 @@ class Router:
         button = dlg.exec()
         return button == QMessageBox.StandardButton.Yes
         
-    def open_app_settings_page(self):
-        view = self._component_provider.app_settings_view
+    def open_app_settings_page(self, current_tab: int = 0):
+        view = self._component_provider.app_settings_view(current_tab)
         self._open_view("app_settings", view)
 
     def open_about_page(self):

@@ -4,14 +4,14 @@ from typing import Optional
 from PyQt5.QtCore import QPoint, Qt, QUrl
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtMultimedia import QSoundEffect
-from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QMenu, QPushButton,
+from PyQt5.QtWidgets import (QAction, QHBoxLayout, QMenu, QPushButton,
                              QVBoxLayout, QWidget)
 
 from AppCore.DataSource import DataSourceImageResourceDeployer
 from AppCore.Observation import *
 from AppCore.Observation.Events import CardSearchEvent
 from AppUI.Router.Router import Router
-from R4UI import RWidget
+from R4UI import RWidget, Label
 
 from ..Assets import AssetProvider
 from .LoadingSpinnerDisc import LoadingSpinnerDisc
@@ -52,7 +52,7 @@ class AddImageCTAViewController(RWidget, TransmissionReceiverProtocol):
         
         layout.addWidget(QWidget())
         
-        r4_image = QLabel()
+        r4_image = Label()
         image = QPixmap()
         image.load(self._asset_provider.image.r4_head)
         r4_image.setPixmap(image)
@@ -70,13 +70,13 @@ class AddImageCTAViewController(RWidget, TransmissionReceiverProtocol):
         
         cta_container_layout.addWidget(QWidget())
         
-        beep_text = QLabel()
+        beep_text = Label()
         beep_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
         beep_text.setStyleSheet('color: white;')
         beep_text.setText('<b>R4:</b> <i>Beep Boop</i>')
         cta_container_layout.addWidget(beep_text)
         
-        text = QLabel()
+        text = Label()
         text.setAlignment(Qt.AlignmentFlag.AlignCenter)
         text.setStyleSheet('color: white;')
         text.setText('I can help you create a new image file.')
@@ -89,7 +89,7 @@ class AddImageCTAViewController(RWidget, TransmissionReceiverProtocol):
         cta.clicked.connect(self._cta_clicked)
         cta_container_layout.addWidget(cta)
         
-        text2 = QLabel()
+        text2 = Label()
         text2.setAlignment(Qt.AlignmentFlag.AlignCenter)
         text2.setText('<b>File > New image file</b>')
         text2.setStyleSheet('color: white;')

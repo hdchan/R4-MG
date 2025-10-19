@@ -19,19 +19,6 @@ class CustomDialog(QDialog):
             Label(crash_message)
         ]).set_layout_to_widget(self)
 
-        # layout = QVBoxLayout()
-
-        # self.label = QtWidgets.QLabel("Enter your name:")
-        # layout.addWidget(self.label)
-
-        # self.name_input = QtWidgets.QLineEdit()
-        # layout.addWidget(self.name_input)
-
-        # button_box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
-        # button_box.accepted.connect(self.accept)
-        # button_box.rejected.connect(self.reject)
-        # layout.addWidget(button_box)
-
 
 class CrashReporter:
 

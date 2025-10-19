@@ -18,8 +18,6 @@ a = Analysis(
     optimize=0,
 )
 
-a.datas += [("AppUI\\Assets\\Audio\\r2\\"+file.split("\\")[-1], file, "DATA") for file in glob.glob("AppUI\\Assets\\Audio\\r2\\*")]
-
 pyz = PYZ(a.pure)
 
 exe = EXE(

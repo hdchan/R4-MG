@@ -4,11 +4,59 @@ from typing import Callable, List, Set
 from AppCore.Models import DraftPack, LocalCardResource
 
 from .CardType import CardType
-from .SWUTradingCard import SWUTradingCard
 from .SWUTradingCardBackedLocalCardResource import \
     SWUTradingCardBackedLocalCardResource
 from .SWUTradingCardModelMapper import SWUTradingCardModelMapper
 
+
+class FilterCriteria:
+    def __init__(self, criteria: Callable[[SWUTradingCardBackedLocalCardResource], bool]):
+        self.criteria = criteria
+
+    @classmethod
+    def card_type(cls, card_type: CardType, is_card_type: bool):
+        return cls(lambda x: (x.guaranteed_trading_card.card_type == card_type) == is_card_type)
+
+    @classmethod
+    def leader(cls, is_leader: bool = True):
+        return FilterCriteria.card_type(CardType.LEADER, is_leader)
+    
+    @classmethod
+    def base(cls, is_base: bool = True):
+        return FilterCriteria.card_type(CardType.BASE, is_base)
+    
+    @classmethod
+    def sideboard(cls, is_sideboard: bool = True):
+        return cls(lambda x: x.is_sideboard == is_sideboard)
+    
+    @classmethod
+    def all_units(cls, is_unit: bool = True):
+        return FilterCriteria.card_type(CardType.UNIT, is_unit)
+    
+    @classmethod
+    def all_upgrades_and_events(cls):
+        return cls(lambda x: x.guaranteed_trading_card.card_type == CardType.UPGRADE or x.guaranteed_trading_card.card_type == CardType.EVENT)
+    
+    @classmethod
+    def cost(cls, cost: int):
+        return cls(lambda x: x.guaranteed_trading_card.card_cost == cost)
+
+class FilterCriteriaBuilder:
+    def __init__(self):
+        self._criterias: List[FilterCriteria] = []
+
+    def add(self, criteria: FilterCriteria) -> 'FilterCriteriaBuilder':
+        self._criterias.append(criteria)
+        return self
+
+    def _meets_criteria(self, resource: SWUTradingCardBackedLocalCardResource) -> bool:
+        for c in self._criterias:
+            if not c.criteria(resource):
+                return False
+        return True
+    
+    def filter(self, cards: List[SWUTradingCardBackedLocalCardResource]) -> List[SWUTradingCardBackedLocalCardResource]:
+        return list(filter(lambda x: self._meets_criteria(x), cards))
 
 class ParsedDeckList:
     @classmethod
@@ -40,13 +88,25 @@ class ParsedDeckList:
     
     @property
     def all_cards(self) -> List[SWUTradingCardBackedLocalCardResource]:
-        return self._deep_copy_swu_backed_resources
+        return copy.deepcopy(self._swu_backed_resources)
+    
+    def card_count_main_deck(self, resource: SWUTradingCardBackedLocalCardResource) -> int:
+        filtered: List[SWUTradingCardBackedLocalCardResource] = list(filter(lambda x: x == resource, self.main_deck))
+        return len(filtered)
+    
+    def card_count_sideboard(self, resource: SWUTradingCardBackedLocalCardResource) -> int:
+        filtered: List[SWUTradingCardBackedLocalCardResource] = list(filter(lambda x: x == resource, self.sideboard))
+        return len(filtered)
     
     @property
     def first_leader_and_first_base(self) -> List[SWUTradingCardBackedLocalCardResource]:
         result: List[SWUTradingCardBackedLocalCardResource] = []
-        leaders = self.leaders
-        bases = self.bases
+        leaders = FilterCriteriaBuilder() \
+            .add(FilterCriteria.leader()) \
+            .filter(self._swu_backed_resources)
+        bases = FilterCriteriaBuilder() \
+            .add(FilterCriteria.base()) \
+            .filter(self._swu_backed_resources)
         if len(leaders) > 0:
             result.append(leaders[0])
         if len(bases) > 0:
@@ -54,52 +114,70 @@ class ParsedDeckList:
         return result
     
     @property
-    def cost_curve_values(self) -> List[int]:
+    def main_deck_cost_curve_values(self) -> List[int]:
         value_set: Set[int] = set()
-        for c in self.all_cards:
+        for c in self.main_deck:
             value_set.add(c.guaranteed_trading_card.card_cost)
         return sorted(list(value_set))
     
     @property
-    def _deep_copy_swu_backed_resources(self) -> List[SWUTradingCardBackedLocalCardResource]:
-        return copy.deepcopy(self._swu_backed_resources)
-    
-    def _filtered_cards(self, criteria: Callable[[SWUTradingCard], bool]) -> List[SWUTradingCardBackedLocalCardResource]:
-        return list(filter(lambda x: criteria(x.guaranteed_trading_card), self._deep_copy_swu_backed_resources))
-    
-    def _filter_card_with_cost(self, cost: int, input_list: List[SWUTradingCardBackedLocalCardResource]) -> List[SWUTradingCardBackedLocalCardResource]:
-        return list(filter(lambda x: x.guaranteed_trading_card.card_cost == cost, input_list))
-    
-    @property
-    def leaders(self) -> List[SWUTradingCardBackedLocalCardResource]:
-        return self._filtered_cards(lambda x: x.card_type == CardType.LEADER)
-        
-    @property
-    def bases(self) -> List[SWUTradingCardBackedLocalCardResource]:
-        return self._filtered_cards(lambda x: x.card_type == CardType.BASE)
+    def sideboard_cost_curve_values(self) -> List[int]:
+        value_set: Set[int] = set()
+        for c in self.sideboard:
+            value_set.add(c.guaranteed_trading_card.card_cost)
+        return sorted(list(value_set))
     
     @property
     def main_deck(self) -> List[SWUTradingCardBackedLocalCardResource]:
-        return list(filter(lambda x: x.guaranteed_trading_card.card_type != CardType.LEADER and x.guaranteed_trading_card.card_type != CardType.BASE and not x.is_sideboard, self._deep_copy_swu_backed_resources))
+        return FilterCriteriaBuilder() \
+            .add(FilterCriteria.leader(False)) \
+            .add(FilterCriteria.base(False)) \
+            .add(FilterCriteria.sideboard(False)) \
+            .filter(self._swu_backed_resources)
     
-    # TODO: alphabetical sideboard?
     @property
     def sideboard(self) -> List[SWUTradingCardBackedLocalCardResource]:
-        return list(filter(lambda x: x.guaranteed_trading_card.card_type != CardType.LEADER and x.guaranteed_trading_card.card_type != CardType.BASE and x.is_sideboard, self._deep_copy_swu_backed_resources))
+        return FilterCriteriaBuilder() \
+            .add(FilterCriteria.sideboard()) \
+            .filter(self._swu_backed_resources)
         
-    def main_deck_with_cost(self, cost: int) -> List[SWUTradingCardBackedLocalCardResource]:
-        return self._filter_card_with_cost(cost, self.main_deck)
+    def main_deck_with_cost(self, cost: int, is_alphabetical: bool = False) -> List[SWUTradingCardBackedLocalCardResource]:
+        result = FilterCriteriaBuilder() \
+            .add(FilterCriteria.cost(cost)) \
+            .filter(self.main_deck)
+        if is_alphabetical:
+            result = sorted(result, key=lambda x: x.guaranteed_trading_card.name)
+        return result
     
-    def all_units_with_cost(self, cost: int, is_alphabetical: bool) -> List[SWUTradingCardBackedLocalCardResource]:
-        result = list(filter(lambda x: x.guaranteed_trading_card.card_type == CardType.UNIT and not x.is_sideboard, self._deep_copy_swu_backed_resources))
-        result = self._filter_card_with_cost(cost, result)
+    def sideboard_with_cost(self, cost: int, is_alphabetical: bool = False) -> List[SWUTradingCardBackedLocalCardResource]:
+        result = FilterCriteriaBuilder() \
+            .add(FilterCriteria.sideboard()) \
+            .add(FilterCriteria.cost(cost)) \
+            .filter(self._swu_backed_resources)
+        if is_alphabetical:
+            result = sorted(result, key=lambda x: x.guaranteed_trading_card.name)
+        return result
+    
+    def all_cards_excluding_leader_base(self) -> List[SWUTradingCardBackedLocalCardResource]:
+        result = list(filter(lambda x: x.guaranteed_trading_card.card_type != CardType.LEADER and x.guaranteed_trading_card.card_type != CardType.BASE, self._swu_backed_resources))
+        return result
+
+    def all_units_with_cost(self, cost: int, is_alphabetical: bool = False) -> List[SWUTradingCardBackedLocalCardResource]:
+        result = FilterCriteriaBuilder() \
+            .add(FilterCriteria.all_units()) \
+            .add(FilterCriteria.cost(cost)) \
+            .filter(self.main_deck)
         if is_alphabetical:
             result = sorted(result, key=lambda x: x.guaranteed_trading_card.name)
         return result
 
-    def all_upgrades_and_events_with_cost(self, cost: int, is_alphabetical: bool) -> List[SWUTradingCardBackedLocalCardResource]:
-        result = list(filter(lambda x: (x.guaranteed_trading_card.card_type == CardType.UPGRADE or x.guaranteed_trading_card.card_type == CardType.EVENT) and not x.is_sideboard, self._deep_copy_swu_backed_resources))
-        result = self._filter_card_with_cost(cost, result)
+    def all_main_deck_upgrades_and_events_with_cost(self, cost: int, is_alphabetical: bool = False) -> List[SWUTradingCardBackedLocalCardResource]:
+        result = FilterCriteriaBuilder() \
+            .add(FilterCriteria.leader(False)) \
+            .add(FilterCriteria.base(False)) \
+            .add(FilterCriteria.all_units(False)) \
+            .add(FilterCriteria.cost(cost)) \
+            .filter(self.main_deck)
         if is_alphabetical:
             result = sorted(result, key=lambda x: x.guaranteed_trading_card.name)
         return result

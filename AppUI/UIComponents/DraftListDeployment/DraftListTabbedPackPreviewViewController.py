@@ -15,8 +15,8 @@ from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
 from AppCore.Observation.ObservationTower import *
 from AppUI.AppDependenciesInternalProviding import \
     AppDependenciesInternalProviding
-from R4UI import (BoldLabel, ComboBox, HorizontalBoxLayout, PushButton,
-                  R4UIActionMenuItem, R4UIMenuListBuilder, RWidget,
+from R4UI import (RBoldLabel, RComboBox, HorizontalBoxLayout, PushButton,
+                  RActionMenuItem, RMenuListBuilder, RWidget,
                   VerticalBoxLayout)
 
 from .DraftListTablePackPreviewViewController import (
@@ -70,14 +70,14 @@ class DraftListTabbedPackPreviewViewController(RWidget, TransmissionReceiverProt
         
         self._add_card_button = PushButton(None, self._add_resource)
         
-        self._deployment_destination_selection = ComboBox()
+        self._deployment_destination_selection = RComboBox()
         self._reset_deployment_destination_selection()
         
         VerticalBoxLayout([
             self._tab_widget,
             self._add_card_button,
             HorizontalBoxLayout([
-                BoldLabel("Deployment Destination"),
+                RBoldLabel("Deployment Destination"),
                 self._deployment_destination_selection,
                 ]),
             
@@ -165,13 +165,13 @@ class DraftListTabbedPackPreviewViewController(RWidget, TransmissionReceiverProt
         if tab_bar is not None:
             tab_index = tab_bar.tabAt(a0)
         
-        R4UIMenuListBuilder() \
+        RMenuListBuilder() \
             .add_separator() \
             .add_actions([
-                R4UIActionMenuItem("Rename", lambda: self._prompt_rename_draft_list_pack(tab_index)),
-                R4UIActionMenuItem("Move left", lambda: self._data_source_draft_list.move_pack_left(tab_index)),
-                R4UIActionMenuItem("Move right", lambda: self._data_source_draft_list.move_pack_right(tab_index)),
-                R4UIActionMenuItem(f"Delete - {self._data_source_draft_list.pack_name(tab_index)}", lambda: self._delete_pack(tab_index)),
+                RActionMenuItem("Rename", lambda: self._prompt_rename_draft_list_pack(tab_index)),
+                RActionMenuItem("Move left", lambda: self._data_source_draft_list.move_pack_left(tab_index)),
+                RActionMenuItem("Move right", lambda: self._data_source_draft_list.move_pack_right(tab_index)),
+                RActionMenuItem(f"Delete - {self._data_source_draft_list.pack_name(tab_index)}", lambda: self._delete_pack(tab_index)),
             ]) \
             .exec_menu(self._tab_widget.mapToGlobal(a0))
     

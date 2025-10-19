@@ -7,7 +7,7 @@ from AppCore.DataSource.DataSourceCardSearchClientProtocol import (
     DataSourceCardSearchClientProtocol, DataSourceCardSearchClientProviding,
     DataSourceCardSearchClientSearchCallback)
 from AppCore.Models import PaginationConfiguration, SearchConfiguration
-from R4UI import ComboBox, PushButton, VerticalBoxLayout, HorizontalBoxLayout, BoldLabel, R4UIHorizontallyExpandingSpacer
+from R4UI import RComboBox, PushButton, VerticalBoxLayout, HorizontalBoxLayout, RBoldLabel, RHorizontallyExpandingSpacer
 
 from ..swu_db_com.SWUDBAPIRemoteClient import SWUDBAPIRemoteClient
 from ..SWUAppDependenciesProviding import SWUAppDependenciesProviding
@@ -22,14 +22,14 @@ class ImporterDialog(QDialog):
         self._text_edit = QTextEdit()
         self._text_edit.setPlaceholderText("Paste deck list")
 
-        self._import_formats = ComboBox(list(map(lambda x: x.format_name, self._importers)))
+        self._import_formats = RComboBox(list(map(lambda x: x.format_name, self._importers)))
 
         VerticalBoxLayout([
             self._text_edit,
             HorizontalBoxLayout([
-                BoldLabel("Format"),
+                RBoldLabel("Format"),
                 self._import_formats
-            ]).add_spacer(R4UIHorizontallyExpandingSpacer()),
+            ]).add_spacer(RHorizontallyExpandingSpacer()),
             PushButton("Import", self.accept)
         ]).set_layout_to_widget(self)
 

@@ -15,27 +15,12 @@ from ..Events.DeckListImageGeneratedEvent import DeckListImageGeneratedEvent
 from ..Models import (DeckListImageGeneratorStyles, ParsedDeckList,
                       SWUTradingCardBackedLocalCardResource)
 from ..SWUAppDependenciesProviding import SWUAppDependenciesProviding
+from .DeckListImageGeneratorProtocol import DeckListImageGeneratorProtocol
+from .ScaledDeckListImageGeneratorStyles import \
+    ScaledDeckListImageGeneratorStyles
 
 
-class ScaledDeckListImageGeneratorStyles(DeckListImageGeneratorStyles):
-    @classmethod
-    def from_non_scaled_styles(cls, other: DeckListImageGeneratorStyles, scale_factor: float):
-        return cls(
-            sideboard_left_spacing_relative_to_main_deck = int(other.sideboard_left_spacing_relative_to_main_deck * scale_factor),
-            main_deck_column_spacing = int(other.main_deck_column_spacing * scale_factor), 
-            main_deck_row_spacing = int(other.main_deck_row_spacing * scale_factor), 
-            leader_base_spacing_between = int(other.leader_base_spacing_between * scale_factor), 
-            leader_base_spacing_left_relative_to_main_deck = int(other.leader_base_spacing_left_relative_to_main_deck * scale_factor), 
-            stacked_card_reveal_percentage = other.stacked_card_reveal_percentage, 
-            is_sideboard_enabled = other.is_sideboard_enabled, 
-            is_sorted_alphabetically = other.is_sorted_alphabetically, 
-            is_leader_base_on_top = other.is_leader_base_on_top, 
-            is_visual_debug = other.is_visual_debug, 
-            is_full_image_preview = other.is_full_image_preview,
-            is_auto_generate_preview = other.is_auto_generate_preview
-        )
-
-class DraftListImageGenerator:
+class LegacyDeckListImageGenerator(DeckListImageGeneratorProtocol):
     
     def __init__(self, 
                  swu_app_dependencies_provider: SWUAppDependenciesProviding):
@@ -60,10 +45,6 @@ class DraftListImageGenerator:
     def _deck_list_image_generator_styles(self, scale_factor: float = 1) -> DeckListImageGeneratorStyles:
         return ScaledDeckListImageGeneratorStyles.from_non_scaled_styles(self._configuration_manager.configuration.deck_list_image_generator_styles, scale_factor)
 
-    # @property
-    # def _parsed_deck_list(self) -> ParsedDeckList:
-    #     return self._parsed_deck_list_provider.parsed_deck
-
     def _asset_path_for_resource(self, resource: LocalCardResource) -> str:
         if self._is_full_image or self._deck_list_image_generator_styles().is_full_image_preview:
             return resource.image_path
@@ -71,9 +52,9 @@ class DraftListImageGenerator:
 
     def generate_image(self,
                        parsed_deck_list: ParsedDeckList,
-                       is_full_image: bool, 
+                       is_export: bool, 
                        completion: Callable[[Optional[QPixmap], Optional[Image.Image]], None]):
-        
+        is_full_image = is_export
         def _completed():
             self._is_downloading_images = False
             self._generate_image(parsed_deck_list,
@@ -81,16 +62,6 @@ class DraftListImageGenerator:
                                  completion)
         self._image_resource_processor_provider.image_resource_processor.async_store_local_resources_multi(parsed_deck_list.all_cards, _completed)
         self._is_downloading_images = True
-        # resource_downloader = ResourceDownloader(self._swu_app_dependencies_provider, parsed_deck_list)
-        # def _callback():
-        #     # finished downloading resource, continue to generate image
-        #     self._is_downloading_images = False
-        #     self._generate_image(parsed_deck_list,
-        #                          is_full_image, 
-        #                          completion)
-        # resource_downloader.callback = _callback
-        # self._is_downloading_images = True
-        # resource_downloader.start()
 
     def _generate_image(self, 
                         parsed_deck_list: ParsedDeckList,
@@ -256,7 +227,7 @@ class DraftListImageGenerator:
         get_main_deck_cards_with_cost: Callable[[int], List[SWUTradingCardBackedLocalCardResource]]) -> Image.Image:
             col_images: List[Image.Image] = []
             row_image_paths: List[str] = []
-            for c in parsed_deck_list.cost_curve_values:
+            for c in parsed_deck_list.main_deck_cost_curve_values:
                 main_deck_with_cost = get_main_deck_cards_with_cost(c)
                 if len(main_deck_with_cost) == 0:
                     # closes gaps if there are not in the entire column
@@ -311,7 +282,7 @@ class DraftListImageGenerator:
         
         main_deck_image = stack_rows([
             create_card_type_row(lambda x: parsed_deck_list.all_units_with_cost(x, self._deck_list_image_generator_styles(scale_factor).is_sorted_alphabetically), lambda x: parsed_deck_list.main_deck_with_cost(x)),
-            create_card_type_row(lambda x: parsed_deck_list.all_upgrades_and_events_with_cost(x, self._deck_list_image_generator_styles(scale_factor).is_sorted_alphabetically), lambda x: parsed_deck_list.main_deck_with_cost(x)),
+            create_card_type_row(lambda x: parsed_deck_list.all_main_deck_upgrades_and_events_with_cost(x, self._deck_list_image_generator_styles(scale_factor).is_sorted_alphabetically), lambda x: parsed_deck_list.main_deck_with_cost(x)),
         ])
         
         return main_deck_image

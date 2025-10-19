@@ -16,7 +16,7 @@ from AppUI.ExternalAppDependenciesProviding import (
     ExternalAppDependenciesProviding, SearchQueryBarViewProviding)
 from AppUI.Models import DraftListStyleSheet
 from AppUI.Router.Router import Router
-from R4UI import R4UIMenuListBuilder, RWidget, VerticalBoxLayout
+from R4UI import RMenuListBuilder, RWidget, VerticalBoxLayout
 
 from .Assets import AssetProvider as InternalAssetProvider
 from .ClientProvider import ClientProvider
@@ -77,7 +77,7 @@ class SWUAppDelegate(ExternalAppDependenciesProviding):
     def image_preview_logo_path(self) -> str:
         return self._internal_asset_provider.image.swu_logo_black_path
     
-    def hook_developer_menu(self, menu: R4UIMenuListBuilder) -> Optional[R4UIMenuListBuilder]:
+    def hook_developer_menu(self, menu: RMenuListBuilder) -> Optional[RMenuListBuilder]:
         return menu
 
     def provide_about_view_controller(self) -> RWidget:
