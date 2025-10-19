@@ -3,8 +3,8 @@ from typing import List
 from PyQt5.QtWidgets import QDialog, QFileDialog
 
 from AppCore.DataFetcher import *
-from R4UI import (BoldLabel, ComboBox, HorizontalBoxLayout, PushButton,
-                  R4UIHorizontallyExpandingSpacer, VerticalBoxLayout)
+from R4UI import (RBoldLabel, RComboBox, HorizontalBoxLayout, PushButton,
+                  RHorizontallyExpandingSpacer, VerticalBoxLayout)
 
 from ..ExporterImporter.ExportImportFormattable import ExportFormattable
 from ..Models.ParsedDeckList import ParsedDeckList
@@ -19,13 +19,13 @@ class DraftListExporterDialog(QDialog):
             self._exporters = exporters
             
             self._accept_button = PushButton("Export", self.accept) 
-            self._export_format = ComboBox(list(map(lambda x: x.format_name, self._exporters)))
+            self._export_format = RComboBox(list(map(lambda x: x.format_name, self._exporters)))
             
             VerticalBoxLayout([
                 HorizontalBoxLayout([
-                    BoldLabel("Format"),
+                    RBoldLabel("Format"),
                     self._export_format
-                ]).add_spacer(R4UIHorizontallyExpandingSpacer()),
+                ]).add_spacer(RHorizontallyExpandingSpacer()),
                 HorizontalBoxLayout([
                     PushButton("Cancel", self.reject),
                     self._accept_button

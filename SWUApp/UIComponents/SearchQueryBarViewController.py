@@ -2,7 +2,7 @@ from typing import Optional
 
 from AppCore.Models import SearchConfiguration
 from AppUI.ExternalAppDependenciesProviding import SearchQueryBarViewProviding
-from R4UI import ComboBox, HorizontalBoxLayout, Label, LineEditText
+from R4UI import RComboBox, HorizontalBoxLayout, Label, LineEditText
 
 from ..Models.CardType import CardType
 from ..Models.SWUCardSearchConfiguration import SWUCardSearchConfiguration
@@ -16,7 +16,7 @@ class SearchQueryBarViewController(SearchQueryBarViewProviding):
 
         self._query_search_bar = LineEditText(triggered_fn=self._set_text,
                          placeholder_text="Lookup by card name (Ctrl+L)")
-        self._card_type_selection = ComboBox(list(CardType))
+        self._card_type_selection = RComboBox(list(CardType))
         HorizontalBoxLayout([
             self._query_search_bar,
             HorizontalBoxLayout([

@@ -10,6 +10,7 @@ from .ImageDeploymentSettingsViewController import ImageDeploymentSettingsViewCo
 from .ToggleSettingsViewController import ToggleSettingsViewController
 
 class AppSettingsViewController(RWidget):
+
     def __init__(self,
                  app_dependencies_provider: AppDependenciesInternalProviding):
         super().__init__()
@@ -27,14 +28,19 @@ class AppSettingsViewController(RWidget):
             (ToggleSettingsViewController(self._app_dependencies_provider), "Toggles")
         ]
         
+        self._tab_widget = RTabWidget(self._children)
+
         VerticalBoxLayout([
-            RTabWidget(self._children),
+            self._tab_widget,
             HorizontalBoxLayout([
                 PushButton("Apply", self._apply),
                 PushButton("Save && Close", self._save_and_close)
             ])
         ]).set_layout_to_widget(self)
-        
+    
+    def set_current_tab(self, index: int):
+        self._tab_widget.set_current_index(index)
+
     def _apply(self):
         current_mutable_configuration_instance = self._app_ui_configuration_manager.mutable_configuration()
         for c in self._children:

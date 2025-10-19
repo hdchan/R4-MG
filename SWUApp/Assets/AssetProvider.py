@@ -50,6 +50,14 @@ class AssetProvider:
         def _aspect_resource(self, aspect: str) -> str:
             return self._image_path(f'Aspects/SWH_Aspects_{aspect}_50.png')
         
+        def card_quantity(self, quantity: int) -> str:
+            if quantity >= 1 and quantity <= 3:
+                return self._image_path(f'CardQuantity/{quantity}.png')
+            elif quantity > 3:
+                return self._image_path(f'CardQuantity/3_plus.png')
+            else:
+                return self._image_path(f'CardQuantity/unknown.png')
+        
         def _image_path(self, file_name: str) -> str:
             return os.path.join(APP_DIR, f'Images/{file_name}')
         

@@ -13,7 +13,7 @@ from .RWidget import RWidget
 
 
 T = TypeVar("T")
-class LabeledRadioButton(RWidget, Generic[T]):
+class RLabeledRadioButton(RWidget, Generic[T]):
     def __init__(self, 
                  text: str, 
                  value: T, 
@@ -41,14 +41,14 @@ class LabeledRadioButton(RWidget, Generic[T]):
         self._radio_button.setChecked(checked)
         return self
 
-class R4UIButtonGroup(RWidget, Generic[T]):
+class RButtonGroup(RWidget, Generic[T]):
     def __init__(self, 
                  values: List[tuple[str, T]], 
                  toggled_fn: Optional[Callable[[T], None]] = None):
         super().__init__()
         self._toggled_fn = toggled_fn
         self._button_group = QButtonGroup(self)
-        self._buttons: List[LabeledRadioButton[T]] = []
+        self._buttons: List[RLabeledRadioButton[T]] = []
         self._selected_value: T
         
         def _selected(value: T):
@@ -56,17 +56,17 @@ class R4UIButtonGroup(RWidget, Generic[T]):
             self._toggled()
             
         for text, value in values:
-            self._buttons.append(LabeledRadioButton(text, value, _selected))
+            self._buttons.append(RLabeledRadioButton(text, value, _selected))
         
         self._layout = VerticalBoxLayout().set_layout_to_widget(self)
         for b in self._buttons:
             self._layout.add_widget(b.radio_button)
     
-    def set_checked_index(self, index: int) -> 'R4UIButtonGroup[T]':
+    def set_checked_index(self, index: int) -> 'RButtonGroup[T]':
         self._buttons[index].radio_button.setChecked(True)
         return self
     
-    def set_object_checked(self, o: T) -> 'R4UIButtonGroup[T]':
+    def set_object_checked(self, o: T) -> 'RButtonGroup[T]':
         found = list(filter(lambda x: x.value == o, self._buttons))
         if len(found) > 0:
             found[0].set_checked(True)
@@ -76,11 +76,11 @@ class R4UIButtonGroup(RWidget, Generic[T]):
         if self._toggled_fn is not None:
             self._toggled_fn(self._selected_value)
             
-    def set_alignment_top(self) -> 'R4UIButtonGroup[T]':
+    def set_alignment_top(self) -> 'RButtonGroup[T]':
         self._layout.set_alignment_top()
         return self
 
-class R4UICheckBox(QCheckBox):
+class RCheckBox(QCheckBox):
     def __init__(self, 
                  checked_fn: Callable[[bool], None], 
                  is_checked: bool = False):
@@ -92,7 +92,7 @@ class R4UICheckBox(QCheckBox):
     def _checked(self, state: Qt.CheckState):
         self._checked_fn(state == Qt.CheckState.Checked)
     
-class ComboBox(QComboBox):
+class RComboBox(QComboBox):
     def __init__(self, options: List[str] = []):
         super().__init__()
         self.add_options(options)
@@ -105,7 +105,7 @@ class ComboBox(QComboBox):
         self.clear()
         self.add_options(options)
         
-class ObjectComboBox(QComboBox):
+class RObjectComboBox(QComboBox):
     def __init__(self, options: List[tuple[str, Optional[Any]]] = []):
         super().__init__()
         self.add_options(options)
@@ -129,7 +129,7 @@ class Label(QLabel):
         font.setBold(is_bold)
         font.setPointSize(point_size)
         self.setFont(font)
-        self.setMinimumWidth(1)
+        # self.setMinimumWidth(1)
 
     def set_word_wrap(self, val: bool) -> 'Label':
         self.setWordWrap(val)
@@ -138,12 +138,12 @@ class Label(QLabel):
     def set_text(self, text: str):
         self.setText(text)
         
-class BoldLabel(Label):
+class RBoldLabel(Label):
     def __init__(self, 
                  text: str):
         super().__init__(text, is_bold=True)
         
-class HeaderLabel(Label):
+class RHeaderLabel(Label):
     def __init__(self, 
                  text: str):
         super().__init__(text, point_size=12, is_bold=True)
@@ -161,14 +161,17 @@ class PushButton(QPushButton):
                  tooltip: Optional[str] = None):
         super().__init__()
         self._triggered_fn = triggered_fn
-        self.setText(text)
+        self.set_text(text)
         self.clicked.connect(self._triggered)
         self.setToolTip(tooltip)
         
     def _triggered(self):
         self._triggered_fn()
 
-class R4UIActionMenuItem(QAction):
+    def set_text(self, text: Optional[str]):
+        self.setText(text)
+
+class RActionMenuItem(QAction):
     def __init__(self,
                  text: str,
                  triggered_fn: Callable[[], None]):
@@ -179,7 +182,7 @@ class R4UIActionMenuItem(QAction):
     def _triggered(self):
         self._triggered_fn()
         
-class R4UIMenuListBuilder(QMenu):
+class RMenuListBuilder(QMenu):
     def __init__(self, 
                  text: Optional[str] = None, 
                  actions: List[QAction] = []):
@@ -188,21 +191,21 @@ class R4UIMenuListBuilder(QMenu):
         self._menus: List[QMenu] = []
         self.add_actions(actions)
     
-    def add_actions(self, actions: List[QAction]) -> 'R4UIMenuListBuilder':
+    def add_actions(self, actions: List[QAction]) -> 'RMenuListBuilder':
         for a in actions:
             self.add_action(a)
         return self
     
-    def add_action(self, action: QAction) -> 'R4UIMenuListBuilder':
+    def add_action(self, action: QAction) -> 'RMenuListBuilder':
         self._items.append(action)
         self.addAction(action) # type: ignore
         return self
     
-    def add_separator(self) -> 'R4UIMenuListBuilder':
+    def add_separator(self) -> 'RMenuListBuilder':
         self.addSeparator()
         return self
     
-    def add_menus(self, menus: List[QMenu]) -> 'R4UIMenuListBuilder':
+    def add_menus(self, menus: List[QMenu]) -> 'RMenuListBuilder':
         for m in menus:
             self.addMenu(m)
             self._menus.append(m)
@@ -211,7 +214,7 @@ class R4UIMenuListBuilder(QMenu):
     def exec_menu(self, point: QPoint):
         self.exec(point)
     
-class R4UIMenuBarBuilder(QMenuBar):
+class RMenuBarBuilder(QMenuBar):
     def __init__(self,
                  menus: List[Optional[QMenu]] = []):
         super().__init__()
@@ -219,7 +222,7 @@ class R4UIMenuBarBuilder(QMenuBar):
         self.add_menus(menus)
         self.setNativeMenuBar(False)
     
-    def add_menus(self, menus: List[Optional[QMenu]]) -> 'R4UIMenuBarBuilder':
+    def add_menus(self, menus: List[Optional[QMenu]]) -> 'RMenuBarBuilder':
         for m in menus:
             if m is None:
                 continue
@@ -227,11 +230,11 @@ class R4UIMenuBarBuilder(QMenuBar):
             self.addMenu(m)
         return self
     
-    def add_separator(self) -> 'R4UIMenuBarBuilder':
+    def add_separator(self) -> 'RMenuBarBuilder':
         self.addSeparator()
         return self
 
-    def set_to_window(self, window: QMainWindow) -> 'R4UIMenuBarBuilder':
+    def set_to_window(self, window: QMainWindow) -> 'RMenuBarBuilder':
         self.setParent(window)
         window.setMenuBar(self)
         return self
@@ -398,6 +401,10 @@ class RTabWidget(RWidget):
         self._widgets: List[RWidget] = []
         self.add_tabs(tabs)
     
+    def set_current_index(self, index: int):
+        if index < len(self._widgets):
+            self._tab_widget.setCurrentIndex(index)
+
     @property
     def current_index(self) -> int:
         return self._tab_widget.currentIndex()
@@ -416,17 +423,17 @@ class RTabWidget(RWidget):
         return self
     
 
-class R4UISpacer(QSpacerItem):
+class RSpacer(QSpacerItem):
     def __init__(self, width: int, height: int, h_policy: QSizePolicy.Policy, v_policy: QSizePolicy.Policy):
         super().__init__(width, height, h_policy, v_policy)
         pass
 
-class R4UIVerticallyExpandingSpacer(R4UISpacer):
+class RVerticallyExpandingSpacer(RSpacer):
     def __init__(self, width: int = 0, height: int = 0):
         super().__init__(width, height, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         pass
         
-class R4UIHorizontallyExpandingSpacer(R4UISpacer):
+class RHorizontallyExpandingSpacer(RSpacer):
     def __init__(self, width: int = 0, height: int = 0):
         super().__init__(width, height, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         pass

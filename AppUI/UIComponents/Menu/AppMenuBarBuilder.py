@@ -4,8 +4,8 @@ from AppCore.Config.ConfigurationManager import *
 from AppCore.Service.PlatformServiceProvider import PlatformServiceProtocol
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.Configuration.AppUIConfiguration import *
-from AppUI.UIComponents import AppUIConfigurationCheckableR4UIActionMenuItem
-from R4UI import R4UIActionMenuItem, R4UIMenuBarBuilder, R4UIMenuListBuilder
+from AppUI.UIComponents import AppUIConfigurationCheckableRActionMenuItem
+from R4UI import RActionMenuItem, RMenuBarBuilder, RMenuListBuilder
 import copy
 
 class AppMenuBarBuilder:
@@ -26,25 +26,25 @@ class AppMenuBarBuilder:
     def _core_configuration(self) -> Configuration:
         return self._app_ui_configuration_manager.configuration.core_configuration
 
-    def build_shared_actions_menu(self) -> R4UIMenuListBuilder:
+    def build_shared_actions_menu(self) -> RMenuListBuilder:
         def confirm_clear_cache():
             if self._router.prompt_accept("Clear cache", "Are you sure you want to clear the cache?"):
                 self._platform_service_provider.platform_service.clear_cache()
 
-        return R4UIMenuListBuilder("Actions") \
+        return RMenuListBuilder("Actions") \
         .add_actions([
-            R4UIActionMenuItem("Clear cache", confirm_clear_cache),
+            RActionMenuItem("Clear cache", confirm_clear_cache),
         ])
     
-    def build_draft_list_menu_bar(self, window: QMainWindow) -> R4UIMenuBarBuilder:
-        return R4UIMenuBarBuilder([
+    def build_draft_list_menu_bar(self, window: QMainWindow) -> RMenuBarBuilder:
+        return RMenuBarBuilder([
                 self.draft_list_actions_menu(),
                 self.image_preview_view_toggle_menu(),
             ]) \
             .set_to_window(window) \
-            .add_menus(self.shared_menu_bar_items())
+            .add_menus(self.shared_menu_bar_items(initial_settings_tab_index=1))
 
-    def build_image_deployment_menu_bar(self, window: QMainWindow) -> R4UIMenuBarBuilder:
+    def build_image_deployment_menu_bar(self, window: QMainWindow) -> RMenuBarBuilder:
         def confirm_unstage_all_resources():
             if self._router.prompt_accept("Unstage all staged resources", "Are you sure you want to unstage all staged resources?"):
                 self._data_source_image_resource_deployer.unstage_all_resources()
@@ -58,24 +58,24 @@ class AppMenuBarBuilder:
                 except Exception as error:
                     self._router.show_error(error)
 
-        return R4UIMenuBarBuilder([
+        return RMenuBarBuilder([
                 self.build_shared_actions_menu() \
                     .add_separator() \
                     .add_actions([
-                        R4UIActionMenuItem("New image file", lambda: prompt_generate_new_file_with_placeholder(self._external_app_dependencies_provider.card_back_image_path)),
-                        R4UIActionMenuItem("Refresh production images", self._data_source_image_resource_deployer.load_production_resources),
-                        R4UIActionMenuItem("Unstage all staged resources", confirm_unstage_all_resources),
+                        RActionMenuItem("New image file", lambda: prompt_generate_new_file_with_placeholder(self._external_app_dependencies_provider.card_back_image_path)),
+                        RActionMenuItem("Refresh production images", self._data_source_image_resource_deployer.load_production_resources),
+                        RActionMenuItem("Unstage all staged resources", confirm_unstage_all_resources),
                     ]),
                 self.image_preview_view_toggle_menu() \
                     .add_separator() \
                     .add_actions([
-                        AppUIConfigurationCheckableR4UIActionMenuItem(
+                        AppUIConfigurationCheckableRActionMenuItem(
                             self._app_dependencies_provider,
                             "Hide image deployment controls", 
                             lambda x: x.core_configuration.hide_deployment_cell_controls, 
                             lambda mutable_config, old_config: mutable_config.core_mutable_configuration.set_hide_deployment_cell_controls(not old_config.core_configuration.hide_deployment_cell_controls)
                             ),
-                        AppUIConfigurationCheckableR4UIActionMenuItem(
+                        AppUIConfigurationCheckableRActionMenuItem(
                             self._app_dependencies_provider,
                             "Horizontal deployment list", 
                             lambda x: x.core_configuration.is_deployment_list_horizontal, 
@@ -83,31 +83,31 @@ class AppMenuBarBuilder:
                             ),
                     ]) \
                     .add_menus([
-                        R4UIMenuListBuilder("Sort deployment list") \
+                        RMenuListBuilder("Sort deployment list") \
                             .add_menus([
-                                R4UIMenuListBuilder("Criteria", [
-                                    AppUIConfigurationCheckableR4UIActionMenuItem(
+                                RMenuListBuilder("Criteria", [
+                                    AppUIConfigurationCheckableRActionMenuItem(
                                         self._app_dependencies_provider,
                                         "Created date", 
                                         lambda x: x.core_configuration.deployment_list_sort_criteria == Configuration.Settings.DeploymentListSortCriteria.CREATED_DATE, 
                                         lambda mutable_config, old_config: mutable_config.core_mutable_configuration.set_deployment_list_sort_criteria(Configuration.Settings.DeploymentListSortCriteria.CREATED_DATE)
                                         ),
 
-                                    AppUIConfigurationCheckableR4UIActionMenuItem(
+                                    AppUIConfigurationCheckableRActionMenuItem(
                                         self._app_dependencies_provider,
                                         "File name", 
                                         lambda x: x.core_configuration.deployment_list_sort_criteria == Configuration.Settings.DeploymentListSortCriteria.FILE_NAME, 
                                         lambda mutable_config, old_config: mutable_config.core_mutable_configuration.set_deployment_list_sort_criteria(Configuration.Settings.DeploymentListSortCriteria.FILE_NAME)
                                         ),
                                 ]),
-                                R4UIMenuListBuilder("Order", [
-                                    AppUIConfigurationCheckableR4UIActionMenuItem(
+                                RMenuListBuilder("Order", [
+                                    AppUIConfigurationCheckableRActionMenuItem(
                                         self._app_dependencies_provider,
                                         "Ascending", 
                                         lambda x: not x.core_configuration.deployment_list_sort_is_desc_order, 
                                         lambda mutable_config, old_config: mutable_config.core_mutable_configuration.set_deployment_list_sort_order(False)
                                         ),
-                                    AppUIConfigurationCheckableR4UIActionMenuItem(
+                                    AppUIConfigurationCheckableRActionMenuItem(
                                         self._app_dependencies_provider,
                                         "Descending", 
                                         lambda x: x.core_configuration.deployment_list_sort_is_desc_order, 
@@ -118,32 +118,32 @@ class AppMenuBarBuilder:
                     ]),
             ]) \
             .set_to_window(window) \
-            .add_menus(self.shared_menu_bar_items())
+            .add_menus(self.shared_menu_bar_items(initial_settings_tab_index=0))
 
-    def shared_menu_bar_items(self) -> List[Optional[R4UIMenuListBuilder]]:
+    def shared_menu_bar_items(self, initial_settings_tab_index: int = 0) -> List[Optional[RMenuListBuilder]]:
         return [
             self.windows_menu(),
-            self.help_menu(),
+            self.help_menu(initial_settings_tab_index),
             self.developer_menu()
         ]
 
     def image_preview_view_toggle_menu(self):
-        return R4UIMenuListBuilder("View") \
+        return RMenuListBuilder("View") \
         .add_menus([
-            R4UIMenuListBuilder("Card title detail",[
-                AppUIConfigurationCheckableR4UIActionMenuItem(
+            RMenuListBuilder("Card title detail",[
+                AppUIConfigurationCheckableRActionMenuItem(
                     self._app_dependencies_provider,
                     "Short", 
                     lambda x: x.core_configuration.card_title_detail == Configuration.Settings.CardTitleDetail.SHORT, 
                     lambda mutable_config, old_config: mutable_config.core_mutable_configuration.set_card_title_detail(Configuration.Settings.CardTitleDetail.SHORT)
                     ),
-                AppUIConfigurationCheckableR4UIActionMenuItem(
+                AppUIConfigurationCheckableRActionMenuItem(
                     self._app_dependencies_provider,
                     "Normal", 
                     lambda x: x.core_configuration.card_title_detail == Configuration.Settings.CardTitleDetail.NORMAL, 
                     lambda mutable_config, old_config: mutable_config.core_mutable_configuration.set_card_title_detail(Configuration.Settings.CardTitleDetail.NORMAL)
                     ),
-                AppUIConfigurationCheckableR4UIActionMenuItem(
+                AppUIConfigurationCheckableRActionMenuItem(
                     self._app_dependencies_provider,
                     "Detailed", 
                     lambda x: x.core_configuration.card_title_detail == Configuration.Settings.CardTitleDetail.DETAILED, 
@@ -152,7 +152,7 @@ class AppMenuBarBuilder:
             ]),
         ]) \
         .add_actions([
-            AppUIConfigurationCheckableR4UIActionMenuItem(
+            AppUIConfigurationCheckableRActionMenuItem(
                     self._app_dependencies_provider,
                     "Hide image preview", 
                     lambda x: x.core_configuration.hide_image_preview, 
@@ -160,26 +160,26 @@ class AppMenuBarBuilder:
                     ),
         ]) \
         .add_menus([
-            R4UIMenuListBuilder("Image preview scale",[
-                AppUIConfigurationCheckableR4UIActionMenuItem(
+            RMenuListBuilder("Image preview scale",[
+                AppUIConfigurationCheckableRActionMenuItem(
                     self._app_dependencies_provider,
                     "25%", 
                     lambda x: x.core_configuration.image_preview_scale == 0.25, 
                     lambda mutable_config, old_config: mutable_config.core_mutable_configuration.set_image_preview_scale(0.25)
                     ),
-                AppUIConfigurationCheckableR4UIActionMenuItem(
+                AppUIConfigurationCheckableRActionMenuItem(
                     self._app_dependencies_provider,
                     "50%", 
                     lambda x: x.core_configuration.image_preview_scale == 0.5, 
                     lambda mutable_config, old_config: mutable_config.core_mutable_configuration.set_image_preview_scale(0.5)
                     ),
-                AppUIConfigurationCheckableR4UIActionMenuItem(
+                AppUIConfigurationCheckableRActionMenuItem(
                     self._app_dependencies_provider,
                     "75%", 
                     lambda x: x.core_configuration.image_preview_scale == 0.75, 
                     lambda mutable_config, old_config: mutable_config.core_mutable_configuration.set_image_preview_scale(0.75)
                     ),
-                AppUIConfigurationCheckableR4UIActionMenuItem(
+                AppUIConfigurationCheckableRActionMenuItem(
                     self._app_dependencies_provider,
                     "100%", 
                     lambda x: x.core_configuration.image_preview_scale == 1.0, 
@@ -188,7 +188,7 @@ class AppMenuBarBuilder:
             ]),
         ]) \
         .add_actions([
-            AppUIConfigurationCheckableR4UIActionMenuItem(
+            AppUIConfigurationCheckableRActionMenuItem(
                     self._app_dependencies_provider,
                     "Show resource details", 
                     lambda x: x.core_configuration.show_resource_details, 
@@ -224,21 +224,21 @@ class AppMenuBarBuilder:
         return self.build_shared_actions_menu() \
             .add_separator() \
             .add_actions([
-                R4UIActionMenuItem("Export draft list",
+                RActionMenuItem("Export draft list",
                                     _export_draft_list),
-                R4UIActionMenuItem("Import",
+                RActionMenuItem("Import",
                                     _import_draft_list),
             ]) \
             .add_actions([
-                R4UIActionMenuItem("Clear list BUT keep packs",
+                RActionMenuItem("Clear list BUT keep packs",
                                     _prompt_keeep_packs_clear_list),
-                R4UIActionMenuItem("Clear ENTIRE list", 
+                RActionMenuItem("Clear ENTIRE list", 
                                     _prompt_clear_list),
             ])
     
-    def toggles_menu(self) -> R4UIMenuListBuilder:
-        return R4UIMenuListBuilder("Toggles",[
-                AppUIConfigurationCheckableR4UIActionMenuItem(
+    def toggles_menu(self) -> RMenuListBuilder:
+        return RMenuListBuilder("Toggles",[
+                AppUIConfigurationCheckableRActionMenuItem(
                     self._app_dependencies_provider,
                     "Draft list image preview", 
                     lambda x: x.core_configuration.is_draft_list_image_preview_enabled, 
@@ -246,58 +246,58 @@ class AppMenuBarBuilder:
                     ),
                     ])
 
-    def windows_menu(self) -> R4UIMenuListBuilder:
-        return R4UIMenuListBuilder("Windows",) \
+    def windows_menu(self) -> RMenuListBuilder:
+        return RMenuListBuilder("Windows",) \
             .add_actions([
-                R4UIActionMenuItem("Manage set list", self._router.open_manage_deck_list_page),
+                RActionMenuItem("Manage set list", self._router.open_manage_deck_list_page),
             ]) \
             .add_separator() \
             .add_actions([
-                R4UIActionMenuItem("Draft list deployer", self._router.open_draft_list_deployment_view),
-                R4UIActionMenuItem("Draft list image preview", self._router.open_draft_list_image_preview_view),
-                R4UIActionMenuItem("Image deployer", self._router.open_image_deployment_view),
+                RActionMenuItem("Draft list deployer", self._router.open_draft_list_deployment_view),
+                RActionMenuItem("Draft list image preview", self._router.open_draft_list_image_preview_view),
+                RActionMenuItem("Image deployer", self._router.open_image_deployment_view),
             ]) \
             .add_separator() \
             .add_actions([
-                R4UIActionMenuItem("Cache directory",
+                RActionMenuItem("Cache directory",
                                    lambda: self._platform_service.open_file(self._core_configuration.cache_dir_path)),
                 
-                R4UIActionMenuItem("Configuration file directory",
+                RActionMenuItem("Configuration file directory",
                                    lambda: self._platform_service.open_file(self._core_configuration.config_directory)),
 
-                R4UIActionMenuItem("Image deployment directory",
+                RActionMenuItem("Image deployment directory",
                                    lambda: self._platform_service.open_file(self._core_configuration.picture_dir_path)),
                 
-                R4UIActionMenuItem("Logs directory",
+                RActionMenuItem("Logs directory",
                                    lambda: self._platform_service.open_file(self._core_configuration.logs_dir_path)),
             ])
 
-    def help_menu(self) -> R4UIMenuListBuilder:
-        return R4UIMenuListBuilder("Help") \
+    def help_menu(self, initial_settings_tab_index: int = 0) -> RMenuListBuilder:
+        return RMenuListBuilder("Help") \
             .add_actions([
-                R4UIActionMenuItem("Settings", self._router.open_app_settings_page),
-                R4UIActionMenuItem("Quick guide", self._router.open_shortcuts_page),
+                RActionMenuItem("Settings", lambda: self._router.open_app_settings_page(initial_settings_tab_index)),
+                RActionMenuItem("Quick guide", self._router.open_shortcuts_page),
             ]) \
             .add_separator() \
             .add_actions([
                 
-                R4UIActionMenuItem("Check for updates", self._router.open_update_page),
-                R4UIActionMenuItem("About", self._router.open_about_page),
+                RActionMenuItem("Check for updates", self._router.open_update_page),
+                RActionMenuItem("About", self._router.open_about_page),
             ])
 
-    def developer_menu(self) -> Optional[R4UIMenuListBuilder]:
+    def developer_menu(self) -> Optional[RMenuListBuilder]:
         if self._core_configuration.is_developer_mode == False:
             return None
 
-        result_menu = R4UIMenuListBuilder("Developer",[
-                AppUIConfigurationCheckableR4UIActionMenuItem(
+        result_menu = RMenuListBuilder("Developer",[
+                AppUIConfigurationCheckableRActionMenuItem(
                     self._app_dependencies_provider,
                     "Mock data", 
                     lambda x: x.core_configuration.is_mock_data, 
                     lambda mutable_config, old_config: mutable_config.core_mutable_configuration.set_is_mock_data(not old_config.core_configuration.is_mock_data)
                     ),
 
-                AppUIConfigurationCheckableR4UIActionMenuItem(
+                AppUIConfigurationCheckableRActionMenuItem(
                     self._app_dependencies_provider,
                     "Delay network call", 
                     lambda x: x.core_configuration.is_delay_network_mode, 

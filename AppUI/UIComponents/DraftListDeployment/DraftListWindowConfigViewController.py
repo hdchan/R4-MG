@@ -8,7 +8,7 @@ from AppCore.Observation.Events import (DraftListWindowResourceUpdatedEvent,
 from AppUI.AppDependenciesInternalProviding import \
     AppDependenciesInternalProviding
 from R4UI import (HorizontalBoxLayout, HorizontalLabeledInputRow, Label,
-                  LineEditInt, ObjectComboBox, PushButton, RWidget,
+                  LineEditInt, RObjectComboBox, PushButton, RWidget,
                   VerticalBoxLayout)
 
 from .DraftListTablePackPreviewContainerViewController import \
@@ -32,7 +32,7 @@ class DraftListWindowConfigViewController(RWidget, TransmissionReceiverProtocol)
         self._setup_view()
         
     def _setup_view(self):
-        self._pack_list_combo_box = ObjectComboBox()
+        self._pack_list_combo_box = RObjectComboBox()
         
         self._height_input = LineEditInt(self._resource.window_configuration.window_height)
         self._width_input = LineEditInt(self._resource.window_configuration.window_width)

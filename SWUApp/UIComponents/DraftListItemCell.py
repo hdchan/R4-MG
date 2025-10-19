@@ -2,13 +2,14 @@
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QFont, QFontDatabase, QPalette, QPixmap
-from PyQt5.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QWidget
+from PyQt5.QtWidgets import QHBoxLayout, QSizePolicy, QWidget
 
 from AppUI.Models import DraftListStyleSheet
 
 from ..Assets.AssetProvider import AssetProvider as InternalAssetProvider
 from ..Models.SWUTradingCardModelMapper import SWUTradingCardBackedLocalCardResource
 from ..Models.CardType import CardType
+from R4UI import Label
 
 class DraftListItemCell(QWidget):
     def __init__(self, 
@@ -51,7 +52,7 @@ class DraftListItemCell(QWidget):
             palette.setColor(QPalette.ColorRole.Foreground, QColor(cell_style.cell_font_color))
             
             
-        label = QLabel()
+        label = Label()
         label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
         label.setPalette(palette)
 
@@ -71,7 +72,7 @@ class DraftListItemCell(QWidget):
             label_text += f' {self._resource.guaranteed_trading_card.variants_string}'
         label.setText(label_text)
         
-        cost_label = QLabel()
+        cost_label = Label()
         cost_label.setText(self._trading_card.cost)
         cost_label.setPalette(palette)
         
@@ -92,7 +93,7 @@ class DraftListItemCell(QWidget):
         
         SIZE = self._stylesheet.cell_aspect_image_size
         
-        image_view = QLabel()
+        image_view = Label()
         pixmap = QPixmap(1, SIZE)
         # Fill the pixmap with a transparent color (alpha value of 0)
         pixmap.fill(QColor(0, 0, 0, 0)) # R, G, B, Alpha
@@ -107,7 +108,7 @@ class DraftListItemCell(QWidget):
             image_path = a.aspect_image_path(self._internal_asset_provider, SIZE <= 50)
             if image_path is not None:
                 image = QPixmap()
-                image_view = QLabel()
+                image_view = Label()
                 image.load(image_path)
                 scaled_image = image.scaled(SIZE, SIZE, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
                 image_view.setPixmap(scaled_image)

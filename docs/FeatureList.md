@@ -15,7 +15,7 @@
 ### Visual image
 - [x] sorting by card cost/aspect and their card count (and or visual representation of sorted cards)
 - [x] information/text represtation for the casters (draft pool)
-- [ ] import cards from melee.gg/swu-db.com
+- [x] import cards from melee.gg/swu-db.com
 - [x] sideboard functionality with toggle
 
 ## Image deployment
@@ -24,4 +24,3 @@
 - [ ] Sync via network
 - [ ] auto-complete (not important)
 - [ ] OBS can read text files
-- [ ] Integration with melee GG

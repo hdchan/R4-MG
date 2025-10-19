@@ -12,7 +12,7 @@ from PyQt5.QtCore import QStandardPaths
 class Configuration():
     
     APP_NAME = 'R4-MG'
-    APP_VERSION = '0.22.1'
+    APP_VERSION = '0.23.0'
     SETTINGS_VERSION = '1.0'
     
     class Toggles:
@@ -20,6 +20,7 @@ class Configuration():
             DEVELOPER_MODE = 'developer_mode'
             DRAFT_LIST_IMAGE_PREVIEW = 'draft_list_image_preview'
             REMOTE_SOCKET_CONNECTION = "remote_socket_connection"
+            USES_LEGACY_DECK_IMAGE_GENERATION = 'uses_legacy_deck_image_generation'
 
     class Settings:
         class Keys:
@@ -100,7 +101,8 @@ class Configuration():
             Configuration.Keys.TOGGLES: {
                 Configuration.Toggles.Keys.DEVELOPER_MODE: False,
                 Configuration.Toggles.Keys.DRAFT_LIST_IMAGE_PREVIEW: False,
-                Configuration.Toggles.Keys.REMOTE_SOCKET_CONNECTION: False
+                Configuration.Toggles.Keys.REMOTE_SOCKET_CONNECTION: False,
+                Configuration.Toggles.Keys.USES_LEGACY_DECK_IMAGE_GENERATION: False
             },
             Configuration.Keys.SETTINGS: {
                 Configuration.Settings.Keys.SEARCH_SOURCE: Configuration.Settings.SearchSource.DEFAULT.value,
@@ -262,6 +264,10 @@ class Configuration():
     @property
     def is_remote_socket_connection_enabled(self) -> bool:
         return self._get_with_default_toggles(self.Toggles.Keys.REMOTE_SOCKET_CONNECTION)
+    
+    @property
+    def is_using_legacy_deck_image_generation(self) -> bool:
+        return self._get_with_default_toggles(self.Toggles.Keys.USES_LEGACY_DECK_IMAGE_GENERATION)
 
     # MARK: - Developer settings
     @property
@@ -455,6 +461,9 @@ class MutableConfiguration(Configuration):
 
     def set_is_remote_socket_connection_enabled(self, value: bool):
         self._toggles[self.Toggles.Keys.REMOTE_SOCKET_CONNECTION] = value
+
+    def set_is_using_legacy_deck_list_image_generation(self, value: bool):
+        self._toggles[self.Toggles.Keys.USES_LEGACY_DECK_IMAGE_GENERATION] = value
     
     # MARK: - Developer settings
     def set_is_mock_data(self, value: bool):

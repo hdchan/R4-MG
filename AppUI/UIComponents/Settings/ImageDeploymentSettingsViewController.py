@@ -6,7 +6,7 @@ from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProvid
 from AppUI.Configuration import MutableAppUIConfiguration
 from .SettingsContainerChildProtocol import SettingsContainerChildProtocol
 from R4UI import (HorizontalLabeledInputRow, Label, LineEditInt, PushButton,
-                  R4UIButtonGroup, R4UICheckBox, VerticalBoxLayout,
+                  RButtonGroup, RCheckBox, VerticalBoxLayout,
                   VerticalGroupBox, VerticalLabeledInputRow)
 
 
@@ -23,7 +23,7 @@ class ImageDeploymentSettingsViewController(SettingsContainerChildProtocol):
         VerticalBoxLayout([
             VerticalGroupBox([
                 Label("Select search source from where search should be used from:"),
-                R4UIButtonGroup([
+                RButtonGroup([
                     ("https://www.starwarsunlimited.com/", Configuration.Settings.SearchSource.STARWARSUNLIMITED_FFG),
                     ("https://www.swu-db.com/", Configuration.Settings.SearchSource.SWUDBAPI),
                     ("Local Search + www.swu-db.com Images (Set 1-5) [NOTE: Will be removed]", Configuration.Settings.SearchSource.LOCAL),
@@ -38,7 +38,7 @@ class ImageDeploymentSettingsViewController(SettingsContainerChildProtocol):
             ]),
             VerticalGroupBox([
                 HorizontalLabeledInputRow("Enable resize production image", 
-                                          R4UICheckBox(lambda x: self._mutable_configuration.set_resize_prod_images(x), self._mutable_configuration.resize_prod_images)),
+                                          RCheckBox(lambda x: self._mutable_configuration.set_resize_prod_images(x), self._mutable_configuration.resize_prod_images)),
                 VerticalLabeledInputRow("Max resize length larger than 256 (will maintain aspect ratio)", 
                                         LineEditInt(self._mutable_configuration.resize_prod_images_max_size, lambda x: self._mutable_configuration.set_resize_prod_images_max_size(x)))
             ])

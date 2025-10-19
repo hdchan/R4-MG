@@ -6,6 +6,7 @@ class SocketRouterUpdatedEvent(TransmissionProtocol):
         DISCONNECTED = 0
         ESTABLISHING_CONNECTION = 1
         CONNECTED = 2
+        CONNECTION_ERROR = 3
 
     def __init__(self, event_type: EventType):
         self.event_type = event_type

@@ -115,7 +115,7 @@ class CardSearchPreviewFactory:
 
             def _setup_view(self):
                 self._status_label = Label()
-                self._connect_button = PushButton("Connect", self._connect)
+                self._connect_button = PushButton(None, self._connect)
                 VerticalBoxLayout([
                     self._status_label,
                     self._connect_button
@@ -128,15 +128,26 @@ class CardSearchPreviewFactory:
                 return self._configuration_manager.configuration
 
             def _connect(self):
-                self._socket_router.connect_if_possible()
+                if self._socket_router.is_connected_to_socket:
+                    self._socket_router.disconnect()
+                else:
+                    self._socket_router.connect_if_possible()
 
             def _sync_ui(self):
                 url = "No connection saved"
                 saved_url = self._configuration.remote_socket_url
                 if saved_url is not None:
                     status = "🔴 Not connected"
+                    self._connect_button.set_text("Connect")
+                    self._connect_button.setEnabled(True)
                     if self._socket_router.is_connected_to_socket:
                         status = "🟢 Connected"
+                        self._connect_button.set_text("Disconnect")
+                        self._connect_button.setEnabled(True)
+                    elif self._socket_router.is_establishing_connection:
+                        status = "🟡 Connecting..."
+                        self._connect_button.set_text("Connecting...")
+                        self._connect_button.setEnabled(False)
 
                     url = f'Status: {status} to {saved_url}'
                     

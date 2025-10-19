@@ -1,6 +1,8 @@
 
-from typing import Optional
 import copy
+import time
+from typing import Optional
+
 from PIL import Image
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QPixmap
@@ -15,9 +17,12 @@ from AppCore.Observation.Events import (DraftListUpdatedEvent,
 from AppUI.UIComponents.Base.LoadingSpinner import LoadingSpinner
 from R4UI import HorizontalBoxLayout, HorizontalSplitter, RWidget
 
+from ..DeckListImageGenerator.DeckListImageGeneratorProtocol import \
+    DeckListImageGeneratorProtocol
+from ..DeckListImageGenerator.DeckListImageGeneratorProvider import \
+    DeckListImageGeneratorProvider
 from ..Models.ParsedDeckList import ParsedDeckList
 from ..SWUAppDependenciesProviding import SWUAppDependenciesProviding
-from ..Utility.DraftListImageGenerator import DraftListImageGenerator
 from .DraftListImagePreviewInspectorPanelViewController import (
     DraftListImagePreviewInspectorPanelViewController,
     DraftListImagePreviewInspectorPanelViewControllerDelegate)
@@ -30,7 +35,7 @@ class DraftListImagePreviewViewController(RWidget, TransmissionReceiverProtocol,
         self._observation_tower = swu_app_dependencies_provider.observation_tower
         self._draft_list_data_source = swu_app_dependencies_provider.data_source_draft_list
         self._configuration_manager = swu_app_dependencies_provider.configuration_manager
-        self._image_generator: DraftListImageGenerator = DraftListImageGenerator(swu_app_dependencies_provider)
+        self._image_generator_provider = DeckListImageGeneratorProvider(swu_app_dependencies_provider)
         
         self._save_async_timer = QTimer()
         self._save_async_timer.setSingleShot(True)
@@ -44,6 +49,10 @@ class DraftListImagePreviewViewController(RWidget, TransmissionReceiverProtocol,
                                                        DraftPackUpdatedEvent, 
                                                        LocalCardResourceFetchEvent])
     
+    @property
+    def _image_generator(self) -> DeckListImageGeneratorProtocol:
+        return self._image_generator_provider.image_generator
+
     def _setup_view(self):
         # TODO: remove after converting to window
         self.setMinimumSize(1300, 500)
@@ -51,7 +60,7 @@ class DraftListImagePreviewViewController(RWidget, TransmissionReceiverProtocol,
         self._image_view = PhotoViewer(self)
         self._loading_spinner = LoadingSpinner(self._image_view)
         self._image_view.delegate = self
-        self._inspector_panel = DraftListImagePreviewInspectorPanelViewController(self._image_generator,
+        self._inspector_panel = DraftListImagePreviewInspectorPanelViewController(self._image_generator_provider,
                                                                   self,
                                                                   self._configuration_manager)
         
@@ -95,12 +104,17 @@ class DraftListImagePreviewViewController(RWidget, TransmissionReceiverProtocol,
             self._image_view.setPhoto(None)
             return
         
+        start = time.time()
+
         def _finished(pixmap: Optional[QPixmap], image: Optional[Image.Image]):
+            end = time.time()
+            print(f'Image generation took {(end - start)}')
             try:
                 self._image_view.setPhoto(pixmap, None)
                 self._sync_spinner()
             except Exception as error:
                 print(error)
+        
         self._image_generator.generate_image(self._parsed_deck, False, _finished)
         self._sync_spinner()
 

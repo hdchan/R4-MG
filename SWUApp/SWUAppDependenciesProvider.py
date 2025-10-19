@@ -14,7 +14,6 @@ from .Assets import AssetProvider
 from .Config.SWUAppConfiguration import SWUAppConfigurationManager
 from .SWUAppDependenciesProviding import SWUAppDependenciesProviding
 
-
 class SWUAppDependenciesProvider(SWUAppDependenciesProviding):
 
     def __init__(self, 

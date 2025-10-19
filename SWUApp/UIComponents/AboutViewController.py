@@ -1,12 +1,13 @@
 from PyQt5.QtCore import QPoint, Qt, QUrl
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtMultimedia import QSoundEffect
-from PyQt5.QtWidgets import (QAction, QLabel, QMenu, QTextEdit, QVBoxLayout,
+from PyQt5.QtWidgets import (QAction, QMenu, QTextEdit, QVBoxLayout,
                              QWidget)
 
 from AppCore.Config import ConfigurationManager
 
 from ..Assets import AssetProvider
+from R4UI import Label
 
 
 class AboutViewController(QWidget):
@@ -26,7 +27,7 @@ class AboutViewController(QWidget):
         
         image.load(self.asset_provider.image.logo_path)
         image = image.scaled(50, 50, Qt.AspectRatioMode.KeepAspectRatio)
-        image_view = QLabel()
+        image_view = Label()
         image_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         image_view.customContextMenuRequested.connect(self._showContextMenu)
         image_view.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -35,7 +36,7 @@ class AboutViewController(QWidget):
         
         configuration = self.configuration_manager.configuration
         
-        label = QLabel()
+        label = Label()
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         label.setText(f'{configuration.app_display_name}')
         v_layout.addWidget(label)

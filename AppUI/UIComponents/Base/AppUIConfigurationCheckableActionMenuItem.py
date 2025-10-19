@@ -6,7 +6,7 @@ from AppCore.Config.ConfigurationManager import *
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.Configuration.AppUIConfiguration import *
 
-class AppUIConfigurationCheckableR4UIActionMenuItem(QAction, TransmissionReceiverProtocol):
+class AppUIConfigurationCheckableRActionMenuItem(QAction, TransmissionReceiverProtocol):
     def __init__(self,
                  app_dependencies_provider: AppDependenciesInternalProviding, 
                  text: str,

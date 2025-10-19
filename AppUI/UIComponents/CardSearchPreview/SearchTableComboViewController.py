@@ -1,14 +1,14 @@
 from typing import List, Optional
 
 from PyQt5 import QtGui, QtWidgets
-from PyQt5.QtWidgets import (QComboBox, QHBoxLayout, QListWidget, QPushButton,
+from PyQt5.QtWidgets import (QHBoxLayout, QListWidget, QPushButton,
                              QVBoxLayout, QWidget)
 
 from AppCore.Models import SearchConfiguration
 from AppUI.AppDependenciesInternalProviding import \
     AppDependenciesInternalProviding
 from AppUI.ExternalAppDependenciesProviding import SearchQueryBarViewProviding
-from R4UI import HorizontalBoxLayout, LineEditText
+from R4UI import HorizontalBoxLayout, LineEditText, RComboBox
 
 from ..Base.LoadingSpinner import LoadingSpinner
 
@@ -67,7 +67,7 @@ class SearchTableComboViewControllerDelegate:
 
 
 # https://stackoverflow.com/a/65830989
-class ComboBox(QComboBox):
+class ComboBox(RComboBox):
     # https://code.qt.io/cgit/qt/qtbase.git/tree/src/widgets/widgets/qcombobox.cpp?h=5.15.2#n3173
     def paintEvent(self, event):
         
@@ -107,7 +107,6 @@ class ComboBox(QComboBox):
         # under Linux/GNOME popups always do this
         # but under Windows they get truncated/ellipsised
         # here we calculate the maximum width among the items
-        # and set QComboBox.view() to accomodate this
         # which makes items show full width under Windows
         view = self.view()
         fm = self.fontMetrics()
