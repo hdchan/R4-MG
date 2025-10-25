@@ -1,8 +1,8 @@
 
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor, QFont, QFontDatabase, QPalette, QPixmap
-from PyQt5.QtWidgets import QHBoxLayout, QSizePolicy, QWidget
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QColor, QFont, QFontDatabase, QPalette, QPixmap
+from PySide6.QtWidgets import QHBoxLayout, QSizePolicy, QWidget
 
 from AppUI.Models import DraftListStyleSheet
 
@@ -41,7 +41,7 @@ class DraftListItemCell(QWidget):
         palette = self.palette()
         cell_style = self._stylesheet.get_modulo_interval_cell_style(self._card_index)
         if cell_style is not None:
-            palette.setColor(QPalette.ColorRole.Background, QColor(cell_style.cell_background_color))
+            palette.setColor(QPalette.ColorRole.Window, QColor(cell_style.cell_background_color))
         
         self.setLayout(horizontal_layout)
         self.setAutoFillBackground(True)
@@ -49,7 +49,7 @@ class DraftListItemCell(QWidget):
         
         palette = QPalette()
         if cell_style is not None:
-            palette.setColor(QPalette.ColorRole.Foreground, QColor(cell_style.cell_font_color))
+            palette.setColor(QPalette.ColorRole.Base, QColor(cell_style.cell_font_color))
             
             
         label = Label()

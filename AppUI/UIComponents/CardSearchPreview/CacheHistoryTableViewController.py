@@ -1,6 +1,6 @@
 from typing import Optional
 
-from PyQt5.QtWidgets import QListWidget, QListWidgetItem
+from PySide6.QtWidgets import QListWidget, QListWidgetItem
 
 from AppCore.DataSource.DataSourceCachedHistory import DataSourceCachedHistory
 from AppCore.Models import (DataSourceSelectedLocalCardResourceProtocol,

@@ -45,7 +45,7 @@ class LocallyManagedSetPreviewViewController(RWidget,
         self._selected_resource: Optional[LocalCardResource] = None
         self._card_resources = self._local_managed_sets_data_source.retrieve_set_card_list(resource)
         
-        self.setWindowTitle(f'Set preview: {resource.display_name.upper()} ({len(self._card_resources)} cards)')
+        self.setWindowTitle(f'Set preview: {resource.display_name.upper()} ({len(self._card_resources)} cards)') # TODO: why does this not show?
 
         self._search_table_combo_view = SearchTableComboViewController(app_dependencies_provider, self)
 

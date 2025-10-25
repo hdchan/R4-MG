@@ -1,8 +1,8 @@
 
 from typing import Optional
 
-from PyQt5.QtCore import QPoint, Qt
-from PyQt5.QtWidgets import QTabWidget
+from PySide6.QtCore import QPoint, Qt
+from PySide6.QtWidgets import QTabWidget
 
 from AppCore.Config import Configuration
 from AppCore.Models import LocalResourceDataSourceProviding
@@ -12,7 +12,7 @@ from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         LocalCardResourceSelectedFromDataSourceEvent,
                                         ProductionCardResourcesLoadEvent,
                                         PublishStagedCardResourcesEvent)
-from AppCore.Observation.ObservationTower import *
+from AppCore.Observation.ObservationTower import TransmissionReceiverProtocol, TransmissionProtocol
 from AppUI.AppDependenciesInternalProviding import \
     AppDependenciesInternalProviding
 from R4UI import (RBoldLabel, RComboBox, HorizontalBoxLayout, PushButton,
@@ -61,12 +61,14 @@ class DraftListTabbedPackPreviewViewController(RWidget, TransmissionReceiverProt
         app_dependencies_provider.shortcut_action_coordinator.bind_add_card_to_draft_list(self._add_resource, self)
         
     def _setup_view(self):
-        self._tab_widget = QTabWidget()
+        self._tab_widget = QTabWidget() # TODO: replace with RTabWidget
         tab_bar = self._tab_widget.tabBar()
         if tab_bar is not None:
             tab_bar.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
             tab_bar.customContextMenuRequested.connect(self._show_context_menu) # TODO: right clicking clicks tab, even if not switched to
-        self._tab_widget.tabBarClicked.connect(self._tab_clicked)
+            # 2025-10-29 21:51:29,570 - CRITICAL - Uncaught exception, application will terminate.
+            # AttributeError: Slot 'RTabWidget::' not found.
+            self._tab_widget.tabBarClicked.connect(self._tab_clicked)
         
         self._add_card_button = PushButton(None, self._add_resource)
         
@@ -215,12 +217,12 @@ class DraftListTabbedPackPreviewViewController(RWidget, TransmissionReceiverProt
             self._add_card_button.setText("Add Card (Ctrl+D)")
             self._add_card_button.setEnabled(True)
         elif add_card_mode == Configuration.Settings.DraftListAddCardMode.STAGE:
-            self._add_card_button.setText(f"Add Card and Stage (Ctrl+D)")
+            self._add_card_button.setText("Add Card and Stage (Ctrl+D)")
             self._add_card_button.setEnabled(True)
         elif add_card_mode == Configuration.Settings.DraftListAddCardMode.STAGE_AND_PUBLISH:
-            self._add_card_button.setText(f"Add Card and Publish (Ctrl+D)")
+            self._add_card_button.setText("Add Card and Publish (Ctrl+D)")
             selected_resource = self._data_source_local_resource_provider.data_source.selected_local_resource
-            self._add_card_button.setEnabled(selected_resource is not None and selected_resource.is_ready and self._is_publishing == False)
+            self._add_card_button.setEnabled(selected_resource is not None and selected_resource.is_ready and not self._is_publishing)
     
     def _sync_ui(self):
         self._sync_draft_list()
@@ -229,18 +231,18 @@ class DraftListTabbedPackPreviewViewController(RWidget, TransmissionReceiverProt
     # MARK: - TransmissionReceiverProtocol
     
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
-        if type(event) == LocalCardResourceFetchEvent or type(event) == LocalCardResourceSelectedFromDataSourceEvent:
+        if type(event) is LocalCardResourceFetchEvent or type(event) is LocalCardResourceSelectedFromDataSourceEvent:
             if event.local_resource == self._data_source_local_resource_provider.data_source.selected_local_resource:
                 self._sync_button()
-        if type(event) == DraftPackUpdatedEvent or \
-            type(event) == ConfigurationUpdatedEvent:
+        if type(event) is DraftPackUpdatedEvent or \
+            type(event) is ConfigurationUpdatedEvent:
             self._sync_ui()
-        if type(event) == PublishStagedCardResourcesEvent:
+        if type(event) is PublishStagedCardResourcesEvent:
             if event.event_type == PublishStagedCardResourcesEvent.EventType.STARTED:
                 self._is_publishing = True
             else:
                 self._is_publishing = False
             # print(self._is_publishing)
             self._sync_ui()
-        if type(event) == ProductionCardResourcesLoadEvent:
+        if type(event) is ProductionCardResourcesLoadEvent:
             self._reset_deployment_destination_selection()

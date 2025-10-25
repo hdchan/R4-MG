@@ -1,7 +1,7 @@
 import time
-from typing import Any, Callable, Dict, TypeVar
+from typing import Any, Callable, Dict, TypeVar, Set
 
-from PyQt5.QtCore import QObject, QRunnable, QThreadPool, pyqtSignal
+from PySide6.QtCore import QObject, QRunnable, QThreadPool, Signal
 
 T = TypeVar("T")
 
@@ -15,14 +15,21 @@ class DataFetcherLocal:
                  configuration: 'DataFetcherLocal.Configuration'):
         self._configuration = configuration
         self.pool = QThreadPool()
+        self.workers: Set[QRunnable] = set()
         
     def load(self, fn_work: Callable[[Dict[str, Any]], T], callback: Callable[[T], None], **kwargs: Any):
+        def _cleanup(identifier: QRunnable):
+            self.workers.remove(identifier)
+
         worker = RunnableWorker(fn_work, self._configuration.network_delay_duration, **kwargs)
         worker.signals.finished.connect(callback)
+        worker.signals.cleanup.connect(_cleanup)
+        self.workers.add(worker)
         self.pool.start(worker)
     
 class WorkerSignals(QObject):
-    finished = pyqtSignal(object)
+    finished = Signal(object)
+    cleanup = Signal(object)
 
 class RunnableWorker(QRunnable):
     def __init__(self, 
@@ -39,3 +46,4 @@ class RunnableWorker(QRunnable):
         time.sleep(self._delay)
         result = self._fn_work(self._kwargs)
         self.signals.finished.emit(result)
+        self.signals.cleanup.emit(self)

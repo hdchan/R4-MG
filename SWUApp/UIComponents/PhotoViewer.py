@@ -1,36 +1,41 @@
 from typing import Optional
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QApplication
+from PySide6 import QtCore
+from PySide6.QtGui import QAction, QColor, QContextMenuEvent, QCursor, QImage, QPixmap, QBrush
+from PySide6.QtWidgets import (
+    QApplication,
+    QFrame,
+    QGraphicsPixmapItem,
+    QGraphicsScene,
+    QGraphicsView,
+    QMenu,
+)
 
 SCALE_FACTOR = 1.25
-from PyQt5.QtGui import QContextMenuEvent, QImage
-
 class PhotoViewerDelegate:
     def export_image(self) -> None:
         return
 
-class PhotoViewer(QtWidgets.QGraphicsView):
-    coordinatesChanged = QtCore.pyqtSignal(QtCore.QPoint)
+class PhotoViewer(QGraphicsView):
+    coordinatesChanged = QtCore.Signal(QtCore.QPoint)
 
     def __init__(self, parent):
         super().__init__(parent)
         self._zoom = 0
         self._pinned = False
         self._empty = True
-        self._scene = QtWidgets.QGraphicsScene(self)
-        self._photo = QtWidgets.QGraphicsPixmapItem()
+        self._scene = QGraphicsScene(self)
+        self._photo = QGraphicsPixmapItem()
         self._photo.setShapeMode(
-            QtWidgets.QGraphicsPixmapItem.BoundingRectShape)
+            QGraphicsPixmapItem.BoundingRectShape)
         self._scene.addItem(self._photo)
         self.setScene(self._scene)
-        self.setTransformationAnchor(QtWidgets.QGraphicsView.AnchorUnderMouse)
-        self.setResizeAnchor(QtWidgets.QGraphicsView.AnchorUnderMouse)
+        self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
+        self.setResizeAnchor(QGraphicsView.AnchorUnderMouse)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.setBackgroundBrush(QtGui.QBrush(QtGui.QColor(255, 255, 255)))
-        self.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.setBackgroundBrush(QBrush(QColor(255, 255, 255)))
+        self.setFrameShape(QFrame.NoFrame)
         self._clipboard_image: Optional[QImage] = None
         self.delegate: Optional[PhotoViewerDelegate] = None
 
@@ -62,12 +67,12 @@ class PhotoViewer(QtWidgets.QGraphicsView):
         self._clipboard_image = qImage
         if pixmap and not pixmap.isNull():
             self._empty = False
-            self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
+            self.setDragMode(QGraphicsView.ScrollHandDrag)
             self._photo.setPixmap(pixmap)
         else:
             self._empty = True
-            self.setDragMode(QtWidgets.QGraphicsView.NoDrag)
-            self._photo.setPixmap(QtGui.QPixmap())
+            self.setDragMode(QGraphicsView.NoDrag)
+            self._photo.setPixmap(QPixmap())
         if not (self.zoomPinned() and self.hasPhoto()):
             self._zoom = 0
         self.resetView(SCALE_FACTOR ** self._zoom)
@@ -103,15 +108,15 @@ class PhotoViewer(QtWidgets.QGraphicsView):
         self.resetView()
 
     def toggleDragMode(self):
-        if self.dragMode() == QtWidgets.QGraphicsView.ScrollHandDrag:
-            self.setDragMode(QtWidgets.QGraphicsView.NoDrag)
+        if self.dragMode() == QGraphicsView.ScrollHandDrag:
+            self.setDragMode(QGraphicsView.NoDrag)
         elif not self._photo.pixmap().isNull():
-            self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
+            self.setDragMode(QGraphicsView.ScrollHandDrag)
 
     def updateCoordinates(self, pos=None):
         if self._photo.isUnderMouse():
             if pos is None:
-                pos = self.mapFromGlobal(QtGui.QCursor.pos())
+                pos = self.mapFromGlobal(QCursor.pos())
             point = self.mapToScene(pos).toPoint()
         else:
             point = QtCore.QPoint()
@@ -126,13 +131,13 @@ class PhotoViewer(QtWidgets.QGraphicsView):
         super().leaveEvent(event)
         
     def contextMenuEvent(self, a0: Optional[QContextMenuEvent]):
-        context_menu = QtWidgets.QMenu(self)
+        context_menu = QMenu(self)
         
-        copy_image = QtWidgets.QAction(f"Copy Image", self)
+        copy_image = QAction(f"Copy Image", self)
         copy_image.triggered.connect(self._copy_to_clipboard)
         context_menu.addAction(copy_image) # type: ignore
         
-        export_image = QtWidgets.QAction(f"Export Image", self)
+        export_image = QAction(f"Export Image", self)
         export_image.triggered.connect(self.export)
         context_menu.addAction(export_image) # type: ignore
 

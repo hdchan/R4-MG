@@ -1,7 +1,7 @@
 from typing import List, Optional
-
-from PyQt5 import QtGui, QtWidgets
-from PyQt5.QtWidgets import (QHBoxLayout, QListWidget, QPushButton,
+from PySide6.QtCore import Qt
+from PySide6 import QtGui, QtWidgets
+from PySide6.QtWidgets import (QHBoxLayout, QListWidget, QPushButton,
                              QVBoxLayout, QWidget)
 
 from AppCore.Models import SearchConfiguration
@@ -177,7 +177,7 @@ class SearchTableComboViewController(QWidget):
         layout.addWidget(self._query_view)
 
         result_list = QListWidget()
-        result_list.itemSelectionChanged.connect(self.get_selection)
+        result_list.itemSelectionChanged.connect(self.get_selection, Qt.DirectConnection)
         result_list.itemClicked.connect(self.get_selection)
         self.result_list = result_list
         layout.addWidget(result_list, 1)

@@ -1,5 +1,5 @@
 
-from PyQt5.QtWidgets import QFileDialog
+from PySide6.QtWidgets import QFileDialog
 
 from AppCore.Config import Configuration
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding

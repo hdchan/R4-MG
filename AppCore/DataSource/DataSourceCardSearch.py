@@ -270,6 +270,8 @@ class DataSourceCardSearch(DataSourceSelectedLocalCardResourceProtocol):
 
     def select_card_resource_for_card_selection(self, index: int):
         if index < len(self._trading_card_providers):
+            if self._selected_index == index:
+                return
             self._selected_index = index
             self._retrieve_card_resource_for_card_selection(index) # TODO: add separate out this logic to be parameterized?
 

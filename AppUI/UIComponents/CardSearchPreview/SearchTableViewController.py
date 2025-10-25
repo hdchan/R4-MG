@@ -1,8 +1,8 @@
 from typing import Optional
 from urllib.error import HTTPError
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QSizePolicy
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QSizePolicy
 
 from AppCore.Config import Configuration
 from AppCore.Models import (DataSourceSelectedLocalCardResourceProtocol,

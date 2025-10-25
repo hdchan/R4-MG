@@ -2,17 +2,18 @@ import os
 import re
 from io import TextIOWrapper
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Callable, Dict, Generic, List, Optional, Set, Tuple, TypeVar
 from urllib import request
 
-from PyQt5.QtCore import QObject, QRunnable, QThreadPool, pyqtSignal
+from PySide6.QtCore import QObject, QRunnable, QThreadPool, Signal, QMutex
 
-from AppCore.Config import *
+from AppCore.Config import Configuration, ConfigurationManager
 from AppCore.Models import LocalAssetResource, TradingCard
 from AppCore.Observation import ObservationTower
 from AppCore.Observation.Events import LocalAssetResourceFetchEvent
 from AppCore.Service import DataSerializer
 
+T = TypeVar("T")
 
 class DataSourceLocallyManagedSetsClientProtocol:
     def parse_asset(self, file: TextIOWrapper) -> List[TradingCard]:
@@ -48,6 +49,8 @@ class DataSourceLocallyManagedSets:
         self._data_serializer = data_serializer
         self._client = client
         self.pool = QThreadPool()
+        self.mutex = QMutex()
+        self.workers: Set[QRunnable] = set()
         self._hashed_cached_card_list: Dict[str, List[TradingCard]] = {}
     
     @property
@@ -104,19 +107,19 @@ class DataSourceLocallyManagedSets:
         sanitized_deck_identifier = self._replace_non_alphanumeric(deck_identifier.strip(), "") # NOTE: Assuming alphanumeric
         file_name = f'{ASSET_TYPE_IDENTIFIER}.{domain_identifier}.{sanitized_deck_identifier}'
         
-        resource = LocalAssetResource(asset_dir=self._asset_dir_path, 
-                                     file_name=file_name, 
-                                     file_extension=self._client.file_extension, 
-                                     display_name=file_name, 
-                                     remote_url=self._client.remote_url(deck_identifier))
+        asset_resource = LocalAssetResource(asset_dir=self._asset_dir_path,
+                                            file_name=file_name, 
+                                            file_extension=self._client.file_extension, 
+                                            display_name=file_name, 
+                                            remote_url=self._client.remote_url(deck_identifier))
         
         if force_download:
-            Path(resource.asset_path).unlink()
+            Path(asset_resource.asset_path).unlink()
             
-        open(resource.asset_temp_path, 'a').close() # add temp file
+        open(asset_resource.asset_temp_path, 'a').close() # add temp file
         
         initial_event = LocalAssetResourceFetchEvent(LocalAssetResourceFetchEvent.EventType.STARTED, 
-                                                     resource)
+                                                     asset_resource)
         self._observation_tower.notify(initial_event)
         
         
@@ -136,8 +139,28 @@ class DataSourceLocallyManagedSets:
             self._invalidate_cached_card_list()
             
         
-        worker = StoreAssetWorker(resource, self._client, self._data_serializer)
+        def _cleanup(identifier: QRunnable):
+            self.workers.remove(identifier)
+
+        _data_serializer = self._data_serializer
+
+        def _runnable_fn() -> Tuple[LocalAssetResource, Optional[Exception]]:
+            if asset_resource.remote_url is not None:
+                try:
+                    req = request.Request(asset_resource.remote_url)
+                    buf = request.urlopen(req)
+                    # TODO: if exists, then create backup and create new file?
+                    _data_serializer.save_buffer_data(asset_resource.asset_path, buf)
+                    return (asset_resource, None)
+                except Exception as error:
+                    return (asset_resource, error)
+            else:
+                return (asset_resource, Exception('No asset url'))
+
+        worker = GeneralWorker(_runnable_fn)
         worker.signals.finished.connect(finished)
+        worker.signals.cleanup.connect(_cleanup)
+        self.workers.add(worker)
         self.pool.start(worker)
     
     def _invalidate_cached_card_list(self):
@@ -194,30 +217,24 @@ class DataSourceLocallyManagedSets:
     def _replace_non_alphanumeric(self, text: str, replacement: str = '') -> str:
         return re.sub(r'[^a-zA-Z0-9]', replacement, text)
         
-    
-class WorkerSignals(QObject):
-    finished = pyqtSignal(object)
 
-class StoreAssetWorker(QRunnable):
-    def __init__(self, 
-                 resource: LocalAssetResource,
-                 client: DataSourceLocallyManagedSetsClientProtocol, 
-                 data_serializer: DataSerializer):
-        super(StoreAssetWorker, self).__init__()
-        self.resource = resource
-        self.client = client
-        self.data_serializer = data_serializer
+class WorkerSignals(QObject):
+    finished = Signal(object)
+    failed = Signal(Exception)
+    cleanup = Signal(object)
+
+
+class GeneralWorker(QRunnable, Generic[T]):
+    def __init__(self, runnable_fn: Callable[[], T]):
+        super().__init__()
+        self._runnable_fn = runnable_fn
         self.signals = WorkerSignals()
 
     def run(self):
-        if self.resource.remote_url is not None:
-            try:
-                req = request.Request(self.resource.remote_url)
-                buf = request.urlopen(req)
-                # TODO: if exists, then create backup and create new file?
-                self.data_serializer.save_buffer_data(self.resource.asset_path, buf)
-                self.signals.finished.emit((self.resource, None))
-            except Exception as error:
-                self.signals.finished.emit((self.resource, error))
-        else:
-            self.signals.finished.emit((self.resource, Exception('No asset url')))
+        try:
+            result = self._runnable_fn()
+            self.signals.finished.emit(result)
+        except Exception as error:
+            self.signals.failed.emit(error)
+        finally:
+            self.signals.cleanup.emit(self)

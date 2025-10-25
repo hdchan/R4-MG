@@ -69,6 +69,8 @@ class DataSourceCachedHistory(DataSourceSelectedLocalCardResourceProtocol):
     
     def select_card_resource_for_card_selection(self, index: int):
         if index < len(self._cached_history):
+            if self._selected_index == index:
+                return
             self._selected_index = index
             self._retrieve_card_resource_for_card_selection(index)
     

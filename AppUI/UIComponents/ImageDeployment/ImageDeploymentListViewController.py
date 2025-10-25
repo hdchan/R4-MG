@@ -1,7 +1,7 @@
 from typing import List
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QHBoxLayout, QPushButton, QScrollArea,
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (QHBoxLayout, QPushButton, QScrollArea,
                              QSizePolicy, QVBoxLayout, QWidget)
 
 from AppCore.Config import Configuration

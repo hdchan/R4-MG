@@ -1,6 +1,6 @@
 from typing import List
 
-from PyQt5.QtWidgets import QDialog, QFileDialog
+from PySide6.QtWidgets import QDialog, QFileDialog
 
 from AppCore.DataFetcher import *
 from R4UI import (RBoldLabel, RComboBox, HorizontalBoxLayout, PushButton,

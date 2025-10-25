@@ -1,10 +1,9 @@
 import json
 import time
-from functools import partial
-from typing import Any, Dict, Optional, Tuple, TypeVar, Callable
-from urllib.request import Request, urlopen
+from typing import Any, Callable, Dict, Generic, Optional, Set, Tuple, TypeVar
+from urllib.request import urlopen
 
-from PyQt5.QtCore import QObject, QThread, pyqtSignal
+from PySide6.QtCore import QObject, QRunnable, QThreadPool, Signal
 
 from .DataFetcherRemoteRequestProtocol import DataFetcherRemoteRequestProtocol
 
@@ -21,23 +20,30 @@ class DataFetcherRemote:
     def __init__(self, 
                  configuration: 'DataFetcherRemote.Configuration' = Configuration()):
         self._configuration = configuration
+        self.pool = QThreadPool()
+        self.workers: Set[QRunnable] = set()
+    
+    def load(self, request: DataFetcherRemoteRequestProtocol[T], callback: DataFetcherRemoteCallback[T]):
+        def progress_available(progress: float):
+            print(progress)
+            
+        def completed_request(result: Tuple[Optional[Dict[str, Any]], Optional[Exception]]):
+            json_response, error = result
+            if json_response is not None:
+                decoded_response = request.response(json_response)
+                callback((decoded_response, error))
+            else:
+                callback((None, error))
 
-    class ClientWorker(QObject):
-        finished = pyqtSignal()
-        progress_available = pyqtSignal(float)
-        result_available = pyqtSignal(object)
-
-        def __init__(self, delay: int):
-            super().__init__()
-            self.delay = delay
-
-        def load(self, request: Optional[Request]):
-            if request is None:
-                self.result_available.emit((None, Exception("Invalid request")))
-                self.finished.emit()
-                return
+        def _cleanup(identifier: QRunnable):
+            self.workers.remove(identifier)
+        
+        def _runnable_fn() -> Tuple[Optional[Dict[str, Any]], Optional[Exception]]:
+            actual_request = request.request()
+            if actual_request is None:
+                return (None, Exception("Invalid request"))
             try:
-                time.sleep(self.delay) # for debugging
+                time.sleep(self._configuration.network_delay_duration) # for debugging
                 # with urlopen(request) as response:
                 #     total_size = int(response.headers.get('Content-Length', 0))
                 #     downloaded = 0
@@ -51,35 +57,37 @@ class DataFetcherRemote:
                 #         buf.write(chunk)
                 # json_response = json.loads(buf.getvalue())
                 # print(request.full_url)
-                print(request.headers)
-                buf = urlopen(request)
+                print(actual_request.headers)
+                buf = urlopen(actual_request)
                 json_response = json.load(buf)
-                self.result_available.emit((json_response, None))
-                self.finished.emit()
+                return (json_response, None)
             except Exception as error:
-                self.result_available.emit((None, error))
-                self.finished.emit()
-    
-    def load(self, request: DataFetcherRemoteRequestProtocol[T], callback: DataFetcherRemoteCallback[T]):
-        def progress_available(progress: float):
-            print(progress)
-            
-        def completed_request(result: Tuple[Optional[Dict[str, Any]], Optional[Exception]]):
-            json_response, error = result
-            if json_response is not None:
-                decoded_response = request.response(json_response)
-                callback((decoded_response, error))
-            else:
-                callback((None, error))
-            
-        thread = QThread()
-        worker = self.ClientWorker(self._configuration.network_delay_duration)
-        worker.moveToThread(thread)
-        thread.started.connect(partial(worker.load, request.request()))
-        worker.progress_available.connect(progress_available)
-        worker.result_available.connect(completed_request)
-        worker.finished.connect(thread.quit)
-        worker.finished.connect(worker.deleteLater)
-        thread.finished.connect(thread.deleteLater)
-        self.latest_thread = thread
-        thread.start()
+                return (None, error)
+
+        worker = GeneralWorker(_runnable_fn)
+        worker.signals.finished.connect(completed_request)
+        worker.signals.cleanup.connect(_cleanup)
+        self.workers.add(worker)
+        self.pool.start(worker)
+
+
+class WorkerSignals(QObject):
+    finished = Signal(object)
+    failed = Signal(Exception)
+    cleanup = Signal(object)
+
+
+class GeneralWorker(QRunnable, Generic[T]):
+    def __init__(self, runnable_fn: Callable[[], T]):
+        super().__init__()
+        self._runnable_fn = runnable_fn
+        self.signals = WorkerSignals()
+
+    def run(self):
+        try:
+            result = self._runnable_fn()
+            self.signals.finished.emit(result)
+        except Exception as error:
+            self.signals.failed.emit(error)
+        finally:
+            self.signals.cleanup.emit(self)

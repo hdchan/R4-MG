@@ -1,7 +1,7 @@
 
 from typing import Optional
 
-from PyQt5.QtCore import QTimer
+from PySide6.QtCore import QTimer
 
 from R4UI import (HorizontalLabeledInputRow, LineEditFloat, LineEditInt,
                   PushButton, RCheckBox, RVerticallyExpandingSpacer, RWidget,
@@ -122,7 +122,7 @@ class DraftListImagePreviewInspectorPanelViewController(RWidget):
         self._start_save_timer()
 
     def _layout_type_updated(self):
-        self._deck_list_image_generator_styles.layout_type = self._layout_type_dropdown.currentData()
+        self._deck_list_image_generator_styles.layout_type = self._layout_type_dropdown.current_data
         self._start_save_timer()
 
     def _grid_width_updated(self, val: int):

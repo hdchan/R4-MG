@@ -1,9 +1,9 @@
 
 from typing import Any, Callable, List, Optional, TypeVar, Generic
 
-from PyQt5.QtCore import QPoint, Qt
-from PyQt5.QtGui import QIntValidator, QDoubleValidator
-from PyQt5.QtWidgets import (QAction, QButtonGroup, QCheckBox, QComboBox,
+from PySide6.QtCore import QPoint, Qt
+from PySide6.QtGui import QIntValidator, QDoubleValidator, QAction
+from PySide6.QtWidgets import (QButtonGroup, QCheckBox, QComboBox,
                              QGroupBox, QLabel, QLineEdit, QMenu, QMenuBar,
                              QPushButton, QRadioButton, QScrollArea,
                              QSizePolicy, QSpacerItem, QTabWidget, QMainWindow)
@@ -87,7 +87,9 @@ class RCheckBox(QCheckBox):
         super().__init__()
         self._checked_fn = checked_fn
         self.setChecked(is_checked)
-        self.stateChanged.connect(self._checked)
+        # pyside .stateChanged returns in
+        # should use .checkStateChanged
+        self.checkStateChanged.connect(self._checked)
         
     def _checked(self, state: Qt.CheckState):
         self._checked_fn(state == Qt.CheckState.Checked)
@@ -108,16 +110,26 @@ class RComboBox(QComboBox):
 class RObjectComboBox(QComboBox):
     def __init__(self, options: List[tuple[str, Optional[Any]]] = []):
         super().__init__()
+
+        self._data: List[Any] = []
         self.add_options(options)
             
     def add_options(self, options: List[tuple[str, Optional[Any]]]):
-        for string, object in options:
-            self.addItem(string, object)
+        for string, obj in options:
+            self._data.append(obj)
+            self.addItem(string, obj)
             
     def replace_options(self, options: List[tuple[str, Optional[Any]]]):
         self.clear()
+        self._data = []
         self.add_options(options)
-        
+
+    @property
+    def current_data(self) -> Any:
+        # custom property because currentData returning string instead of object
+        index = self.currentIndex()
+        return self._data[index]
+
 class Label(QLabel):
     def __init__(self, 
                  text: str = "",

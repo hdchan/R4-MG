@@ -1,10 +1,10 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 
 SCALE_FACTOR = 1.25
 
 
 class PhotoViewer(QtWidgets.QGraphicsView):
-    coordinatesChanged = QtCore.pyqtSignal(QtCore.QPoint)
+    coordinatesChanged = QtCore.Signal(QtCore.QPoint)
 
     def __init__(self, parent):
         super().__init__(parent)

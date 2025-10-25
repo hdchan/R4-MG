@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.24.0
+### Feature
+- Migrate to PySide6
+
 ## 0.23.0
 ### Feature
 - set current tab on settings window

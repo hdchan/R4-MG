@@ -4,8 +4,8 @@ from typing import Callable, List, Optional, Set, Dict
 import concurrent.futures
 from PIL import Image
 from PIL.ImageFile import ImageFile
-from PyQt5.QtGui import QImage, QPixmap
-from PyQt5.QtCore import QObject, pyqtSignal
+from PySide6.QtGui import QImage, QPixmap
+from PySide6.QtCore import QObject, Signal
 from AppCore.Config import Configuration
 from AppCore.Models import LocalCardResource
 
@@ -70,7 +70,7 @@ class ImagePropertiesContext:
 
 # https://stackoverflow.com/a/64504108
 class TaskManager(QObject):
-    finished = pyqtSignal(object)
+    finished = Signal(object)
 
     def __init__(self, parent=None, max_workers=None):
         super().__init__(parent)

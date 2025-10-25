@@ -1,7 +1,7 @@
 
 from typing import List
 
-from PyQt5.QtWidgets import QDialog, QTextEdit
+from PySide6.QtWidgets import QDialog, QTextEdit
 
 from AppCore.DataSource.DataSourceCardSearchClientProtocol import (
     DataSourceCardSearchClientProtocol, DataSourceCardSearchClientProviding,

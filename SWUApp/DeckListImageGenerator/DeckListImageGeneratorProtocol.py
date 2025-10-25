@@ -1,7 +1,7 @@
 from typing import Callable, Optional
 
 from PIL import Image
-from PyQt5.QtGui import QPixmap
+from PySide6.QtGui import QPixmap
 
 from ..Models import ParsedDeckList
 

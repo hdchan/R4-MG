@@ -1,6 +1,6 @@
 from typing import Callable
 
-from PyQt5.QtWidgets import QAction
+from PySide6.QtGui import QAction
 
 from AppCore.Config.ConfigurationManager import *
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding

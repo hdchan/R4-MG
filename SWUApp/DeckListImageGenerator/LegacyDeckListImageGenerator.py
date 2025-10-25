@@ -5,8 +5,8 @@ from typing import Callable, Hashable, List, Optional, Set, Tuple
 
 from PIL import Image
 from PIL.ImageFile import ImageFile
-from PyQt5.QtCore import QMutex, QObject, QRunnable, QThreadPool, pyqtSignal
-from PyQt5.QtGui import QImage, QPixmap
+from PySide6.QtCore import QMutex, QObject, QRunnable, QThreadPool, Signal
+from PySide6.QtGui import QImage, QPixmap
 
 from AppCore.Config import Configuration
 from AppCore.Models import LocalCardResource
@@ -33,6 +33,7 @@ class LegacyDeckListImageGenerator(DeckListImageGeneratorProtocol):
         self.mutex = QMutex()
         self.working_resources: Set[Hashable] = set()
         self._is_downloading_images = False
+        self.workers: Set[QRunnable] = set()
 
     @property
     def _core_configuration(self) -> Configuration:
@@ -106,11 +107,15 @@ class LegacyDeckListImageGenerator(DeckListImageGeneratorProtocol):
             return pixmap, image
             
         self.mutex.lock()
-        
         self.working_resources.add(parsed_deck_list)
         self.mutex.unlock()
+
+        def _cleanup(identifier: QRunnable):
+            self.workers.remove(identifier)
+
         worker = Worker(_generate_image, parsed_deck_list)
         worker.signals.finished.connect(_finished)
+        self.workers.add(worker)
         self.pool.start(worker)
         
     # MARK: - cost curve
@@ -407,7 +412,8 @@ class LegacyDeckListImageGenerator(DeckListImageGeneratorProtocol):
     
 
 class WorkerSignals(QObject):
-    finished = pyqtSignal(object)
+    finished = Signal(object)
+    cleanup = Signal(object)
 
 class Worker(QRunnable):
     def __init__(self, 
@@ -421,3 +427,4 @@ class Worker(QRunnable):
     def run(self):
         pixmap, image = self._fn()
         self.signals.finished.emit((pixmap, image, self._parsed_deck_list))
+        self.signals.cleanup.emit(self)

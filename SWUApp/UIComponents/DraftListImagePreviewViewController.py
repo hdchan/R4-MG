@@ -4,9 +4,9 @@ import time
 from typing import Optional
 
 from PIL import Image
-from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QFileDialog
+from PySide6.QtCore import QTimer
+from PySide6.QtGui import QPixmap
+from PySide6.QtWidgets import QFileDialog
 
 from AppCore.Observation import (TransmissionProtocol,
                                  TransmissionReceiverProtocol)

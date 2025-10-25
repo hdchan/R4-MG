@@ -1,17 +1,23 @@
 import os
-from pathlib import Path
-from typing import Callable, Optional, Set, Tuple, List, TypeVar, Generic
 from multiprocessing import Process
-from PIL import Image, ImageDraw, ImageFile
-from PyQt5.QtCore import QMutex, QObject, QRunnable, QThreadPool, pyqtSignal
+from pathlib import Path
+from typing import Callable, Generic, List, Optional, Set, Tuple, TypeVar
 
-from AppCore.ImageFetcher.ImageFetcherProvider import ImageFetcherProviding, ImageFetcherProtocol
+from PIL import Image, ImageDraw, ImageFile
+from PySide6.QtCore import QMutex, QObject, QRunnable, QThreadPool, Signal
+
+from AppCore.ImageFetcher.ImageFetcherProvider import (
+    ImageFetcherProtocol,
+    ImageFetcherProviding,
+)
 from AppCore.Models import LocalCardResource
 from AppCore.Observation import ObservationTower
 from AppCore.Observation.Events import LocalCardResourceFetchEvent
 
-from .ImageResourceProcessorProtocol import (ImageResourceProcessorProtocol,
-                                             ImageResourceProcessorProviding)
+from .ImageResourceProcessorProtocol import (
+    ImageResourceProcessorProtocol,
+    ImageResourceProcessorProviding,
+)
 
 THUMBNAIL_SIZE = 256
 ROUNDED_CORNERS = 30
@@ -81,45 +87,38 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol, ImageResourceProces
         self.pool = QThreadPool()
         self.mutex = QMutex()
         self.working_resources: Set[str] = set()
+        self.workers: Set[QRunnable] = set()
 
     @property
     def image_resource_processor(self) -> 'ImageResourceProcessor':
         return self
 
     def async_store_local_resources_multi(self, local_resources: List[LocalCardResource], completed: Callable[[], None]) -> None:
-        filtered_resources = list(filter(lambda x: x.is_ready == False or x.is_preview_ready, local_resources)) # only process the ones that we need to
+        filtered_resources = list(filter(lambda x: not x.is_ready or x.is_preview_ready, local_resources)) # only process the ones that we need to
         self.mutex.lock()
-        for l in filtered_resources:
-            self.working_resources.add(l.image_path)
+        for resource in filtered_resources:
+            self.working_resources.add(resource.image_path)
         self.mutex.unlock()
 
         def _finished():
             self.mutex.lock()
-            for l in filtered_resources:
-                if l.image_path in self.working_resources:
-                    self.working_resources.remove(l.image_path)
+            for resource in filtered_resources:
+                if resource.image_path in self.working_resources:
+                    self.working_resources.remove(resource.image_path)
             self.mutex.unlock()
             completed()
+
+        def _cleanup(identifier: QRunnable):
+            self.workers.remove(identifier)
 
         def _runnable_fn():
             for r in filtered_resources:
                 _process(r, self.image_fetcher_provider.image_fetcher)
-            
-            # multiprocessing causing multiple windows being spawned on prod build
-            # processes: List[Process] = []
-            # for resource in filtered_resources:
-            #     # _process(resource)
-            #     p = Process(target=_process, args=(resource, self.image_fetcher_provider.image_fetcher))
-            #     processes.append(p)
-            # for p in processes:
-            #     p.start()
-            # for p in processes:
-            #     p.join()
-
-            # return None
 
         worker = GeneralWorker(_runnable_fn)
         worker.signals.finished.connect(_finished)
+        worker.signals.cleanup.connect(_cleanup)
+        self.workers.add(worker)
         self.pool.start(worker)
 
     def async_store_local_resource(self, local_resource: LocalCardResource, retry: bool = False):
@@ -146,24 +145,39 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol, ImageResourceProces
         # create temp file for loading state
         # prevent multiple jobs from running on the same resource
         if self._lock_resource_and_notify(local_resource):
+            def _cleanup(identifier: QRunnable):
+                self.workers.remove(identifier)
+
             worker = StoreImageWorker(local_resource,
                                       self.image_fetcher_provider,
                                       self._generate_preview_image,
                                       self._add_corners)
             worker.signals.finished.connect(self._unlock_resource_and_notify)
+            worker.signals.cleanup.connect(_cleanup)
+            self.workers.add(worker)
             self.pool.start(worker)
 
     def rotate_and_save_resource(self, local_resource: LocalCardResource, angle: float):
         if self._lock_resource_and_notify(local_resource):
+            def _cleanup(identifier: QRunnable):
+                self.workers.remove(identifier)
+
             worker = RotateImageWorker(local_resource, angle)
             worker.signals.finished.connect(self._unlock_resource_and_notify)
+            worker.signals.cleanup.connect(_cleanup)
+            self.workers.add(worker)
             self.pool.start(worker)
     
     def regenerate_resource_preview(self, local_resource: LocalCardResource):
         if self._lock_resource_and_notify(local_resource):
+            def _cleanup(identifier: QRunnable):
+                self.workers.remove(identifier)
+
             # should lock UI incase another job is added
             worker = RegenerateImageWorker(local_resource, self._generate_preview_image)
             worker.signals.finished.connect(self._unlock_resource_and_notify)
+            worker.signals.cleanup.connect(_cleanup)
+            self.workers.add(worker)
             self.pool.start(worker)
 
     def _lock_resource_and_notify(self, local_resource: LocalCardResource) -> bool:
@@ -222,8 +236,10 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol, ImageResourceProces
 # https://www.pythonguis.com/tutorials/multithreading-pyqt-applications-qthreadpool/
 # https://stackoverflow.com/questions/13909195/how-run-two-different-threads-simultaneously-in-pyqt
 class WorkerSignals(QObject):
-    finished = pyqtSignal(object)
-    failed = pyqtSignal(Exception)
+    finished = Signal(object)
+    failed = Signal(Exception)
+    cleanup = Signal(object)
+
 
 class GeneralWorker(QRunnable, Generic[T]):
     def __init__(self, runnable_fn: Callable[[], T]):
@@ -237,6 +253,8 @@ class GeneralWorker(QRunnable, Generic[T]):
             self.signals.finished.emit(result)
         except Exception as error:
             self.signals.failed.emit(error)
+        finally:
+            self.signals.cleanup.emit(self)
 
 class StoreImageWorker(QRunnable):
     def __init__(self, 
@@ -264,8 +282,11 @@ class StoreImageWorker(QRunnable):
                 self.signals.finished.emit((self.local_resource, None))
             except Exception as error:
                 self.signals.finished.emit((self.local_resource, error))
+            finally:
+                self.signals.cleanup.emit(self)
         else:
             self.signals.finished.emit((self.local_resource, Exception('No image url')))
+            self.signals.cleanup.emit(self)
 
 class RegenerateImageWorker(QRunnable):
     def __init__(self, 
@@ -281,6 +302,7 @@ class RegenerateImageWorker(QRunnable):
         preview_img = self.downscale_fn(large_img)
         preview_img.save(self.local_resource.image_preview_path)
         self.signals.finished.emit((self.local_resource, None))
+        self.signals.cleanup.emit(self)
 
 class RotateImageWorker(QRunnable):
     def __init__(self, 
@@ -295,3 +317,4 @@ class RotateImageWorker(QRunnable):
         Image.open(self.local_resource.image_path).rotate(self.angle, resample=Image.Resampling.BICUBIC, expand=True).save(self.local_resource.image_path)
         Image.open(self.local_resource.image_preview_path).rotate(self.angle, resample=Image.Resampling.BICUBIC, expand=True).save(self.local_resource.image_preview_path)
         self.signals.finished.emit((self.local_resource, None))
+        self.signals.cleanup.emit(self)

@@ -1,7 +1,7 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget
-from PyQt5.QtGui import QPainter, QPen
-from PyQt5.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QWidget
+from PySide6.QtGui import QPainter, QPen
+from PySide6.QtCore import Qt
 
 class MyWidget(QWidget):
     def __init__(self):

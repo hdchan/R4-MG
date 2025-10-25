@@ -1,6 +1,6 @@
 from typing import Optional, Tuple
-from PyQt5.QtGui import QValidator
-from PyQt5.QtWidgets import (QHBoxLayout, QLineEdit, QPushButton,
+from PySide6.QtGui import QValidator
+from PySide6.QtWidgets import (QHBoxLayout, QLineEdit, QPushButton,
                              QScrollArea, QSizePolicy, QVBoxLayout, QWidget)
 
 from AppCore.Models import LocalAssetResource
@@ -65,6 +65,7 @@ class ManageSetListViewController(QWidget, TransmissionReceiverProtocol):
             
             if self._resource.is_loading:
                 # TODO: force delete if temp still persistent?
+                # TODO: add data last modified label
                 self._text_edit.setText(f'{self._resource.display_name.upper()} (installing...)')
             elif self._resource.is_ready:
                 self._text_edit.setText(f'{self._resource.display_name.upper()} (installed)')

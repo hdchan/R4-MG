@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QTextEdit
+from PySide6.QtWidgets import QTextEdit
 
 from AppUI.AppDependenciesInternalProviding import \
     AppDependenciesInternalProviding

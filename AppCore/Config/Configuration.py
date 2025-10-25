@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from PyQt5.QtCore import QStandardPaths
+from PySide6.QtCore import QStandardPaths
 
 """
 1. Add Key
@@ -12,7 +12,7 @@ from PyQt5.QtCore import QStandardPaths
 class Configuration():
     
     APP_NAME = 'R4-MG'
-    APP_VERSION = '0.23.0'
+    APP_VERSION = '0.24.0'
     SETTINGS_VERSION = '1.0'
     
     class Toggles:

@@ -1,7 +1,7 @@
 import copy
 from typing import Dict, List, Optional
-
-from PyQt5.QtWidgets import QTextEdit, QWidget, QAction
+from PySide6.QtGui import QAction
+from PySide6.QtWidgets import QTextEdit, QWidget
 
 from AppCore.Config import ConfigurationManager
 from AppCore.DataFetcher import *

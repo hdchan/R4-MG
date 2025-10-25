@@ -1,6 +1,6 @@
 from enum import Enum
 
-from PyQt5.QtGui import QKeyEvent
+from PySide6.QtGui import QKeyEvent
 
 from AppCore.Observation.TransmissionProtocol import TransmissionProtocol
 
