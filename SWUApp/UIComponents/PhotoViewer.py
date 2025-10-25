@@ -1,18 +1,18 @@
 from typing import Optional
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QApplication
+from PySide6  import QtCore, QtGui, QtWidgets
+from PySide6.QtGui import QPixmap
+from PySide6.QtWidgets import QApplication
 
 SCALE_FACTOR = 1.25
-from PyQt5.QtGui import QContextMenuEvent, QImage
+from PySide6.QtGui import QContextMenuEvent, QImage
 
 class PhotoViewerDelegate:
     def export_image(self) -> None:
         return
 
 class PhotoViewer(QtWidgets.QGraphicsView):
-    coordinatesChanged = QtCore.pyqtSignal(QtCore.QPoint)
+    coordinatesChanged = QtCore.Signal(QtCore.QPoint)
 
     def __init__(self, parent):
         super().__init__(parent)

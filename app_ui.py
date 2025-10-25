@@ -1,5 +1,5 @@
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication
+from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import QApplication
 
 from AppCore.Config import Configuration, ConfigurationManager
 from AppCore.Observation import ObservationTower

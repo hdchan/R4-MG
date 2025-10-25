@@ -3,7 +3,7 @@ import sys
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
-from PyQt5.QtWidgets import QDialog
+from PySide6.QtWidgets import QDialog
 
 from R4UI import Label, VerticalBoxLayout
 

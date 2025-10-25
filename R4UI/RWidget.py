@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QMainWindow
+from PySide6.QtWidgets import QWidget, QMainWindow
 
 class RMainWindow(QMainWindow):
     pass

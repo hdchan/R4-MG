@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from urllib import request
 
-from PyQt5.QtCore import QObject, QRunnable, QThreadPool, pyqtSignal
+from PySide6.QtCore import QObject, QRunnable, QThreadPool, Signal
 
 from AppCore.Config import *
 from AppCore.Models import LocalAssetResource, TradingCard
@@ -196,7 +196,7 @@ class DataSourceLocallyManagedSets:
         
     
 class WorkerSignals(QObject):
-    finished = pyqtSignal(object)
+    finished = Signal(object)
 
 class StoreAssetWorker(QRunnable):
     def __init__(self, 

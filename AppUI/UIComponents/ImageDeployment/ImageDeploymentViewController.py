@@ -1,5 +1,5 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QHBoxLayout, QPushButton, QSizePolicy,
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (QHBoxLayout, QPushButton, QSizePolicy,
                              QVBoxLayout, QWidget)
 
 from AppCore.Models.DataSourceSelectedLocalCardResource import *

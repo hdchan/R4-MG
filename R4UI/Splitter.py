@@ -1,8 +1,8 @@
 
 from typing import List, Optional
 
-from PyQt5.QtCore import  Qt
-from PyQt5.QtWidgets import (QSplitter)
+from PySide6.QtCore import  Qt
+from PySide6.QtWidgets import (QSplitter)
 
 from .RWidget import RWidget
 

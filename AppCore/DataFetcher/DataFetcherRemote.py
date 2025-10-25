@@ -4,7 +4,7 @@ from functools import partial
 from typing import Any, Dict, Optional, Tuple, TypeVar, Callable
 from urllib.request import Request, urlopen
 
-from PyQt5.QtCore import QObject, QThread, pyqtSignal
+from PySide6.QtCore import QObject, QThread, Signal
 
 from .DataFetcherRemoteRequestProtocol import DataFetcherRemoteRequestProtocol
 
@@ -23,9 +23,9 @@ class DataFetcherRemote:
         self._configuration = configuration
 
     class ClientWorker(QObject):
-        finished = pyqtSignal()
-        progress_available = pyqtSignal(float)
-        result_available = pyqtSignal(object)
+        finished = Signal()
+        progress_available = Signal(float)
+        result_available = Signal(object)
 
         def __init__(self, delay: int):
             super().__init__()

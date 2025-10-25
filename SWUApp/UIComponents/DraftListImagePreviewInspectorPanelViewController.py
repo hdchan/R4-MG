@@ -1,7 +1,7 @@
 
 from typing import Optional
 
-from PyQt5.QtCore import QTimer
+from PySide6.QtCore import QTimer
 
 from R4UI import (HorizontalLabeledInputRow, LineEditFloat, LineEditInt,
                   PushButton, RCheckBox, RVerticallyExpandingSpacer, RWidget,

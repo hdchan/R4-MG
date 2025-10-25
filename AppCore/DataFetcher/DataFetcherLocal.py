@@ -1,7 +1,7 @@
 import time
 from typing import Any, Callable, Dict, TypeVar
 
-from PyQt5.QtCore import QObject, QRunnable, QThreadPool, pyqtSignal
+from PySide6.QtCore import QObject, QRunnable, QThreadPool, Signal
 
 T = TypeVar("T")
 
@@ -22,7 +22,7 @@ class DataFetcherLocal:
         self.pool.start(worker)
     
 class WorkerSignals(QObject):
-    finished = pyqtSignal(object)
+    finished = Signal(object)
 
 class RunnableWorker(QRunnable):
     def __init__(self, 

@@ -1,8 +1,8 @@
 
 from typing import Optional
 
-from PyQt5.QtCore import QPoint, Qt
-from PyQt5.QtWidgets import QTabWidget
+from PySide6.QtCore import QPoint, Qt
+from PySide6.QtWidgets import QTabWidget
 
 from AppCore.Config import Configuration
 from AppCore.Models import LocalResourceDataSourceProviding

@@ -1,10 +1,10 @@
 import urllib.parse
 from typing import Optional
 
-from PyQt5.QtCore import QPoint, Qt, QUrl
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtMultimedia import QSoundEffect
-from PyQt5.QtWidgets import (QAction, QHBoxLayout, QMenu, QPushButton,
+from PySide6.QtCore import QPoint, Qt, QUrl
+from PySide6.QtGui import QPixmap, QAction
+from PySide6.QtMultimedia import QSoundEffect
+from PySide6.QtWidgets import (QHBoxLayout, QMenu, QPushButton,
                              QVBoxLayout, QWidget)
 
 from AppCore.DataSource import DataSourceImageResourceDeployer

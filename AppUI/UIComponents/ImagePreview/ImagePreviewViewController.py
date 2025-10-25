@@ -1,8 +1,8 @@
 from typing import Optional
 
-from PyQt5.QtCore import QPoint, Qt
-from PyQt5.QtGui import QClipboard, QGuiApplication, QPixmap
-from PyQt5.QtWidgets import QAction, QMenu, QVBoxLayout
+from PySide6.QtCore import QPoint, Qt
+from PySide6.QtGui import QClipboard, QGuiApplication, QPixmap, QAction
+from PySide6.QtWidgets import QMenu, QVBoxLayout
 
 from AppCore.Config import Configuration
 from AppCore.ImageResource.ImageResourceProcessorProtocol import *

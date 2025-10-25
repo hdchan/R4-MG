@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from PIL import Image
-from PyQt5.QtCore import QMutex, QObject, QRunnable, QThreadPool, pyqtSignal
+from PySide6.QtCore import QMutex, QObject, QRunnable, QThreadPool, Signal
 
 from AppCore.Config import Configuration
 from AppCore.ImageFetcher.ImageFetcherProvider import *
@@ -227,7 +227,7 @@ class DataSourceImageResourceDeployer:
         
         
 class WorkerSignals(QObject):
-    finished = pyqtSignal(object)
+    finished = Signal(object)
 
 class PublishResourcesWorker(QRunnable):
     def __init__(self, 

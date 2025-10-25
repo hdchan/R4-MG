@@ -2,8 +2,8 @@ import weakref
 from typing import List, Optional
 from weakref import ReferenceType
 
-from PyQt5.QtGui import QContextMenuEvent
-from PyQt5.QtWidgets import QAction, QMenu, QVBoxLayout
+from PySide6.QtGui import QContextMenuEvent, QAction
+from PySide6.QtWidgets import QMenu, QVBoxLayout
 
 from AppCore.Models import LocalResourceDataSourceProviding
 

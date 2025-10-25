@@ -5,8 +5,8 @@ from typing import Callable, Hashable, List, Optional, Set, Tuple
 
 from PIL import Image
 from PIL.ImageFile import ImageFile
-from PyQt5.QtCore import QMutex, QObject, QRunnable, QThreadPool, pyqtSignal
-from PyQt5.QtGui import QImage, QPixmap
+from PySide6.QtCore import QMutex, QObject, QRunnable, QThreadPool, Signal
+from PySide6.QtGui import QImage, QPixmap
 
 from AppCore.Config import Configuration
 from AppCore.Models import LocalCardResource
@@ -407,7 +407,7 @@ class LegacyDeckListImageGenerator(DeckListImageGeneratorProtocol):
     
 
 class WorkerSignals(QObject):
-    finished = pyqtSignal(object)
+    finished = Signal(object)
 
 class Worker(QRunnable):
     def __init__(self, 

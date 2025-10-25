@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QSizePolicy
+from PySide6.QtWidgets import QSizePolicy
 
 from AppCore.Models import (DataSourceSelectedLocalCardResourceProtocol,
                                 LocalResourceDataSourceProviding)

@@ -1,7 +1,7 @@
 from typing import List, Optional
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QBoxLayout, QGridLayout, QHBoxLayout, QSpacerItem,
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (QBoxLayout, QGridLayout, QHBoxLayout, QSpacerItem,
                              QVBoxLayout)
 
 from .RWidget import RWidget

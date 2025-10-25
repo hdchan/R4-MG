@@ -2,7 +2,7 @@ import concurrent.futures
 import sys
 import time
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PySide6  import QtCore, QtGui, QtWidgets
 
 
 def measure():
@@ -11,7 +11,7 @@ def measure():
 
 
 class TaskManager(QtCore.QObject):
-    finished = QtCore.pyqtSignal(object)
+    finished = QtCore.Signal(object)
 
     def __init__(self, parent=None, max_workers=None):
         super().__init__(parent)

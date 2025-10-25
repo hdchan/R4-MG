@@ -1,10 +1,9 @@
 import math
-import sys
 
-from PyQt5.QtCore import (QEasingCurve, QPoint, QPropertyAnimation, QRect,
-                          QSize, Qt, pyqtProperty)
-from PyQt5.QtGui import QBrush, QColor, QLinearGradient, QPainter, QPen
-from PyQt5.QtWidgets import QApplication, QPushButton, QVBoxLayout, QWidget
+from PySide6.QtCore import ( QPropertyAnimation,
+                          Qt, Property)
+from PySide6.QtGui import QBrush, QColor, QLinearGradient, QPainter, QPen
+from PySide6.QtWidgets import QWidget
 
 
 class LoadingSpinnerDisc(QWidget):
@@ -40,7 +39,7 @@ class LoadingSpinnerDisc(QWidget):
     def paintEvent(self, event):
         
         circle_painter = QPainter(self)
-        circle_painter.setRenderHint(QPainter.Antialiasing)
+        circle_painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         window_w = circle_painter.device().width()
         window_h = circle_painter.device().height()
@@ -53,7 +52,8 @@ class LoadingSpinnerDisc(QWidget):
         min_d = min(disc_w, disc_h)
         t = min_d * 0.005
         
-        pen = QPen(QColor('#000'), t, cap=Qt.FlatCap)
+        pen = QPen(QColor('#000'), t)
+        pen.setCapStyle(Qt.PenCapStyle.FlatCap)
         circle_painter.setPen(pen)
         
         gradient = QLinearGradient(disc_orig_x, disc_orig_y, disc_w, disc_h)
@@ -139,7 +139,7 @@ class LoadingSpinnerDisc(QWidget):
         # x, y = arc_line_pos(get_size(0.95), theta)
         # painter_guide.drawLine(arc_origin_x + disc_orig_x, y + disc_orig_y, x + disc_orig_x, y + disc_orig_y)
 
-    @pyqtProperty(int)
+    @Property(int)
     def angle(self):
         return self._angle
     
@@ -148,7 +148,7 @@ class LoadingSpinnerDisc(QWidget):
         self._angle = value
         self.update()
         
-    @pyqtProperty(float)
+    @Property(float)
     def shine(self):
         return self._shine
     

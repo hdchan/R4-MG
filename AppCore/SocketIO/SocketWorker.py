@@ -1,14 +1,14 @@
 from typing import Any, Optional
 
-from PyQt5.QtCore import QThread, pyqtSignal
+from PySide6.QtCore import QThread, Signal
 from socketio import Client
 
 
 class SocketWorker(QThread):
-    connected = pyqtSignal()
-    disconnected = pyqtSignal()
-    add_card = pyqtSignal(dict)
-    error = pyqtSignal(str)
+    connected = Signal()
+    disconnected = Signal()
+    add_card = Signal(dict)
+    error = Signal(str)
 
     def __init__(self, ):
         super().__init__()

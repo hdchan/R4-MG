@@ -1,7 +1,7 @@
 import sys
-from PyQt5.QtCore import QBuffer, QByteArray, QIODevice, Qt
-from PyQt5.QtGui import QClipboard, QImage, QColor, QPainter, QPixmap
-from PyQt5.QtWidgets import QMainWindow, QPushButton, QVBoxLayout, QWidget, QLabel, QApplication
+from PySide6.QtCore import QBuffer, QByteArray, QIODevice, Qt
+from PySide6.QtGui import QClipboard, QImage, QColor, QPainter, QPixmap
+from PySide6.QtWidgets import QMainWindow, QPushButton, QVBoxLayout, QWidget, QLabel, QApplication
 
 class MainWindow(QMainWindow):
     def __init__(self):

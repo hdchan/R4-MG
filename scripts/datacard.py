@@ -1,7 +1,7 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout
-from PyQt5.QtCore import QPropertyAnimation, QRect, QPoint, pyqtProperty, QSize, Qt, QEasingCurve
-from PyQt5.QtGui import QPainter, QColor, QBrush, QPen, QLinearGradient
+from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout
+from PySide6.QtCore import QPropertyAnimation, QRect, QPoint, Property, QSize, Qt, QEasingCurve
+from PySide6.QtGui import QPainter, QColor, QBrush, QPen, QLinearGradient
 import math
 class MyWidget(QWidget):
     def __init__(self):
@@ -129,7 +129,7 @@ class MyWidget(QWidget):
         x, y = arc_line_pos(get_size(0.95), theta)
         painter_guide.drawLine(arc_origin_x + disc_orig_x, y + disc_orig_y, x + disc_orig_x, y + disc_orig_y)
 
-    @pyqtProperty(int)
+    @Property(int)
     def angle(self):
         return self._angle
     
@@ -138,7 +138,7 @@ class MyWidget(QWidget):
         self._angle = value
         self.update()
         
-    @pyqtProperty(float)
+    @Property(float)
     def shine(self):
         return self._shine
     

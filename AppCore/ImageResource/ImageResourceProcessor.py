@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Callable, Optional, Set, Tuple, List, TypeVar, Generic
 from multiprocessing import Process
 from PIL import Image, ImageDraw, ImageFile
-from PyQt5.QtCore import QMutex, QObject, QRunnable, QThreadPool, pyqtSignal
+from PySide6.QtCore import QMutex, QObject, QRunnable, QThreadPool, Signal
 
 from AppCore.ImageFetcher.ImageFetcherProvider import ImageFetcherProviding, ImageFetcherProtocol
 from AppCore.Models import LocalCardResource
@@ -222,8 +222,8 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol, ImageResourceProces
 # https://www.pythonguis.com/tutorials/multithreading-pyqt-applications-qthreadpool/
 # https://stackoverflow.com/questions/13909195/how-run-two-different-threads-simultaneously-in-pyqt
 class WorkerSignals(QObject):
-    finished = pyqtSignal(object)
-    failed = pyqtSignal(Exception)
+    finished = Signal(object)
+    failed = Signal(Exception)
 
 class GeneralWorker(QRunnable, Generic[T]):
     def __init__(self, runnable_fn: Callable[[], T]):

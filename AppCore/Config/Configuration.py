@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from PyQt5.QtCore import QStandardPaths
+from PySide6.QtCore import QStandardPaths
 
 """
 1. Add Key

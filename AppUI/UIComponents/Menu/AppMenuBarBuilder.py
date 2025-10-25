@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMainWindow
+from PySide6.QtWidgets import QMainWindow
 from typing import Optional
 from AppCore.Config.ConfigurationManager import *
 from AppCore.Service.PlatformServiceProvider import PlatformServiceProtocol

@@ -1,8 +1,8 @@
 from typing import Callable, List
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QKeySequence
-from PyQt5.QtWidgets import QShortcut, QWidget
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QKeySequence, QShortcut
+from PySide6.QtWidgets import QWidget
 
 
 # Update `shortcuts.md` when adding new shortcut

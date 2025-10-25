@@ -1,15 +1,15 @@
 
 from typing import Optional
 
-from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QCloseEvent, QKeyEvent, QResizeEvent
-from PyQt5.QtWidgets import QDesktopWidget, QMainWindow, QWidget
+from PySide6.QtCore import QTimer
+from PySide6.QtGui import QCloseEvent, QKeyEvent, QResizeEvent, QGuiApplication
+from PySide6.QtWidgets import QMainWindow, QWidget
 
 from AppCore.Observation.TransmissionReceiverProtocol import \
     TransmissionReceiverProtocol
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.Observation.Events import KeyboardEvent
-from AppUI.Models import WindowDimensions
+from R4UI import RWidget
 
 class AppWindow(QMainWindow, TransmissionReceiverProtocol):
     
@@ -51,7 +51,7 @@ class AppWindow(QMainWindow, TransmissionReceiverProtocol):
         self.setGeometry(0, 0, width, height)
 
         qtRectangle = self.frameGeometry()
-        centerPoint = QDesktopWidget().availableGeometry().center()
+        centerPoint = QGuiApplication.primaryScreen().availableGeometry().center()
         qtRectangle.moveCenter(centerPoint)
         self.move(qtRectangle.topLeft())
         

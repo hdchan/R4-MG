@@ -1,7 +1,7 @@
 from typing import Optional
 
-from PyQt5.QtCore import QSize
-from PyQt5.QtWidgets import (QHBoxLayout, QLineEdit, QListWidget,
+from PySide6.QtCore import QSize
+from PySide6.QtWidgets import (QHBoxLayout, QLineEdit, QListWidget,
                              QPushButton, QSizePolicy, QVBoxLayout, QWidget)
 
 from AppCore.Config import Configuration
