@@ -1,4 +1,4 @@
-from PySide6  import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 
 SCALE_FACTOR = 1.25
 

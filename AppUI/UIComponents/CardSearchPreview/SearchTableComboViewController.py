@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from PySide6  import QtGui, QtWidgets
+from PySide6 import QtGui, QtWidgets
 from PySide6.QtWidgets import (QHBoxLayout, QListWidget, QPushButton,
                              QVBoxLayout, QWidget)
 

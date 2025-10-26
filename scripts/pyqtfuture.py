@@ -2,7 +2,7 @@ import concurrent.futures
 import sys
 import time
 
-from PySide6  import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 
 
 def measure():
