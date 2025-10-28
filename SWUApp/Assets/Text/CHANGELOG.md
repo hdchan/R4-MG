@@ -1,5 +1,10 @@
 # Changelog
 
+
+## 0.23.1
+### Hotfix
+- Fix invalid config call
+
 ## 0.23.0
 ### Feature
 - set current tab on settings window
