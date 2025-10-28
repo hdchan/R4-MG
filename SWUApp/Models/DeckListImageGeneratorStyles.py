@@ -71,7 +71,7 @@ class DeckListImageGeneratorStyles:
             self.Keys.IS_VISUAL_DEBUG: self.is_visual_debug,
             self.Keys.IS_FULL_IMAGE_PREVIEW: self.is_full_image_preview,
             self.Keys.IS_AUTO_GENERATE_PREVIEW: self.is_auto_generate_preview,
-            self.Keys.LAYOUT_TYPE: self.layout_type.value,
+            self.Keys.LAYOUT_TYPE: self.layout_type,
             self.Keys.GRID_WIDTH: self.grid_width,
             self.Keys.GRID_WIDTH_SIDEBOARD: self.grid_width_sideboard
         }
