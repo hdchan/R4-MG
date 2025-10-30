@@ -110,16 +110,26 @@ class RComboBox(QComboBox):
 class RObjectComboBox(QComboBox):
     def __init__(self, options: List[tuple[str, Optional[Any]]] = []):
         super().__init__()
+
+        self._data: List[Any] = []
         self.add_options(options)
             
     def add_options(self, options: List[tuple[str, Optional[Any]]]):
-        for string, object in options:
-            self.addItem(string, object)
+        for string, obj in options:
+            self._data.append(obj)
+            self.addItem(string, obj)
             
     def replace_options(self, options: List[tuple[str, Optional[Any]]]):
         self.clear()
+        self._data = []
         self.add_options(options)
-        
+
+    @property
+    def current_data(self) -> Any:
+        # custom property because currentData returning string instead of object
+        index = self.currentIndex()
+        return self._data[index]
+
 class Label(QLabel):
     def __init__(self, 
                  text: str = "",
