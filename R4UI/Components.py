@@ -87,7 +87,9 @@ class RCheckBox(QCheckBox):
         super().__init__()
         self._checked_fn = checked_fn
         self.setChecked(is_checked)
-        self.stateChanged.connect(self._checked)
+        # pyside .stateChanged returns in
+        # should use .checkStateChanged
+        self.checkStateChanged.connect(self._checked)
         
     def _checked(self, state: Qt.CheckState):
         self._checked_fn(state == Qt.CheckState.Checked)
