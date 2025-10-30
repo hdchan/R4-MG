@@ -1,9 +1,10 @@
 # Changelog
 
-
-## 0.23.1
-### Hotfix
-- Fix invalid config call
+## 0.24.0
+### Feature
+-
+### Engineering
+-
 
 ## 0.23.0
 ### Feature
