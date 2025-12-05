@@ -118,15 +118,22 @@ class AddImageCTAViewController(RWidget, TransmissionReceiverProtocol):
         menu.exec_(self.mapToGlobal(pos))
         
     def _pressed_sound(self):
-        self.sound_effect = QSoundEffect()
-        self.sound_effect.setVolume(0.5)
-        self.sound_effect.setSource(QUrl.fromLocalFile(self._asset_provider.audio.r4_effect_path))
-        print(f'playing sound effect: {self._asset_provider.audio.r4_effect_path}')
-        self.sound_effect.play()
+        try:
+            if self.sound_effect is not None:
+                self.sound_effect.stop()
+            else:
+                self.sound_effect = QSoundEffect()
+                self.sound_effect.setVolume(0.5)
+            # self.sound_effect.setLoopCount(0)
+            self.sound_effect.setSource(QUrl.fromLocalFile(self._asset_provider.audio.r4_effect_path))
+            print(f'playing sound effect: {self._asset_provider.audio.r4_effect_path}')
+            self.sound_effect.play()
+        except Exception as error:
+            print(error)
         
         
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
-        if type(event) == CardSearchEvent:
+        if type(event) is CardSearchEvent:
             if event.event_type == CardSearchEvent.EventType.STARTED:
                 self._loading_spinner.start()
             else:

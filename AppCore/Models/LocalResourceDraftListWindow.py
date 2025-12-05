@@ -24,7 +24,7 @@ class DraftListWindowConfiguration:
     def __eq__(self, other):  # type: ignore
         if not isinstance(other, DraftListWindowConfiguration):
             # don't attempt to compare against unrelated types
-            return NotImplemented
+            raise NotImplementedError
 
         return self._window_identifier == other._window_identifier
     
@@ -95,7 +95,7 @@ class LocalResourceDraftListWindow(LocalAssetResource):
     def __eq__(self, other):  # type: ignore
         if not isinstance(other, LocalResourceDraftListWindow):
             # don't attempt to compare against unrelated types
-            return NotImplemented
+            raise NotImplementedError
 
         return (self.window_configuration.window_identifier == other.window_configuration.window_identifier)
     

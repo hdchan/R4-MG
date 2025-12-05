@@ -2,9 +2,14 @@ from typing import List
 
 from PySide6.QtWidgets import QDialog, QFileDialog
 
-from AppCore.DataFetcher import *
-from R4UI import (RBoldLabel, RComboBox, HorizontalBoxLayout, PushButton,
-                  RHorizontallyExpandingSpacer, VerticalBoxLayout)
+from R4UI import (
+        HorizontalBoxLayout,
+        PushButton,
+        RBoldLabel,
+        RComboBox,
+        RHorizontallyExpandingSpacer,
+        VerticalBoxLayout,
+)
 
 from ..ExporterImporter.ExportImportFormattable import ExportFormattable
 from ..Models.ParsedDeckList import ParsedDeckList

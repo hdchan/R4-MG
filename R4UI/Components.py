@@ -1,12 +1,12 @@
 
-from typing import Any, Callable, List, Optional, TypeVar, Generic
+from typing import Any, Callable, List, Optional, TypeVar, Generic, Sequence
 
 from PySide6.QtCore import QPoint, Qt
 from PySide6.QtGui import QIntValidator, QDoubleValidator, QAction
 from PySide6.QtWidgets import (QButtonGroup, QCheckBox, QComboBox,
                              QGroupBox, QLabel, QLineEdit, QMenu, QMenuBar,
                              QPushButton, QRadioButton, QScrollArea,
-                             QSizePolicy, QSpacerItem, QTabWidget, QMainWindow)
+                             QSizePolicy, QSpacerItem, QTabWidget, QMainWindow, QWidget)
 
 from .BoxLayouts import HorizontalBoxLayout, VerticalBoxLayout
 from .RWidget import RWidget
@@ -37,7 +37,7 @@ class RLabeledRadioButton(RWidget, Generic[T]):
     def radio_button(self) -> QRadioButton:
         return self._radio_button
     
-    def set_checked(self, checked: bool) -> QRadioButton:
+    def set_checked(self, checked: bool) -> 'RLabeledRadioButton[T]':
         self._radio_button.setChecked(checked)
         return self
 
@@ -175,13 +175,15 @@ class PushButton(QPushButton):
         self._triggered_fn = triggered_fn
         self.set_text(text)
         self.clicked.connect(self._triggered)
-        self.setToolTip(tooltip)
+        if tooltip is not None:
+            self.setToolTip(tooltip)
         
     def _triggered(self):
         self._triggered_fn()
 
     def set_text(self, text: Optional[str]):
-        self.setText(text)
+        if text is not None:
+            self.setText(text)
 
 class RActionMenuItem(QAction):
     def __init__(self,
@@ -260,7 +262,8 @@ class LineEditInt(QLineEdit):
         super().__init__()
         self._triggered_fn = triggered_fn
         self.setValidator(QIntValidator())
-        self.setPlaceholderText(placeholder_text)
+        if placeholder_text is not None:
+            self.setPlaceholderText(placeholder_text)
         self.set_value(int)
         self.textChanged.connect(self._triggered)
         
@@ -269,14 +272,14 @@ class LineEditInt(QLineEdit):
             value = int(text)
             if self._triggered_fn is not None:
                 self._triggered_fn(value)
-        except:
+        except Exception:
             pass
         
     @property
     def value(self) -> Optional[int]:
         try:
             return int(self.text())
-        except:
+        except Exception:
             pass
         
     def set_value(self, int: Optional[int]):
@@ -292,7 +295,8 @@ class LineEditFloat(QLineEdit):
         super().__init__()
         self._triggered_fn = triggered_fn
         self.setValidator(QDoubleValidator())
-        self.setPlaceholderText(placeholder_text)
+        if placeholder_text is not None:
+            self.setPlaceholderText(placeholder_text)
         self.set_value(int)
         self.textChanged.connect(self._triggered)
         
@@ -301,14 +305,14 @@ class LineEditFloat(QLineEdit):
             value = float(text)
             if self._triggered_fn is not None:
                 self._triggered_fn(value)
-        except:
+        except Exception:
             pass
         
     @property
     def value(self) -> Optional[float]:
         try:
             return float(self.text())
-        except:
+        except Exception:
             pass
         
     def set_value(self, int: Optional[float]):
@@ -325,7 +329,8 @@ class LineEditText(QLineEdit):
         super().__init__()
         self._triggered_fn = triggered_fn
         self.set_value(text)
-        self.setPlaceholderText(placeholder_text)
+        if placeholder_text is not None:
+            self.setPlaceholderText(placeholder_text)
         self.textChanged.connect(self._triggered)
         
     def _triggered(self, text: str):
@@ -403,14 +408,14 @@ class VerticalGroupBox(QGroupBox):
 
 class RTabWidget(RWidget):
     def __init__(self, 
-                 tabs: List[tuple[RWidget, str]] = [], 
+                 tabs: Sequence[tuple[QWidget, str]] = [], 
                  tab_change_fn: Optional[Callable[[int], None]] = None):
         super().__init__()
         self._tab_change_fn = tab_change_fn
         self._tab_widget = QTabWidget()
         self._tab_widget.currentChanged.connect(self._tab_changed)
         self._layout = VerticalBoxLayout([self._tab_widget]).set_layout_to_widget(self)
-        self._widgets: List[RWidget] = []
+        self._widgets: Sequence[QWidget] = []
         self.add_tabs(tabs)
     
     def set_current_index(self, index: int):
@@ -421,17 +426,21 @@ class RTabWidget(RWidget):
     def current_index(self) -> int:
         return self._tab_widget.currentIndex()
 
-    def add_tabs(self, tabs: List[tuple[RWidget, str]]):
+    def add_tabs(self, tabs: Sequence[tuple[QWidget, str]]):
+        temp_list = list(self._widgets)
         for t in tabs:
-            self._widgets.append(t[0])
+            temp_list.append(t[0])
             self._tab_widget.addTab(t[0], t[1])
+        self._widgets = temp_list
     
     def _tab_changed(self, index: int):
         if self._tab_change_fn is not None:
             self._tab_change_fn(index)
         
     def set_layout_to_widget(self, layout: RWidget) -> 'RWidget':
-        layout.setLayout(self.layout())
+        the_layout = self.layout()
+        if the_layout is not None:
+            layout.setLayout(the_layout)
         return self
     
 

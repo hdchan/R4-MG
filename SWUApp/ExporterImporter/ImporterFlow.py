@@ -5,7 +5,7 @@ from PySide6.QtWidgets import QDialog, QTextEdit
 
 from AppCore.DataSource.DataSourceCardSearchClientProtocol import (
     DataSourceCardSearchClientProtocol, DataSourceCardSearchClientProviding,
-    DataSourceCardSearchClientSearchCallback)
+    DataSourceCardSearchClientSearchResult)
 from AppCore.Models import PaginationConfiguration, SearchConfiguration
 from R4UI import RComboBox, PushButton, VerticalBoxLayout, HorizontalBoxLayout, RBoldLabel, RHorizontallyExpandingSpacer
 
@@ -45,26 +45,25 @@ class ImporterDialog(QDialog):
     def selected_importer(self) -> Importable:
         return self._importers[self._import_format_index]
 
-class ImporterSearchClient(DataSourceCardSearchClientProviding, DataSourceCardSearchClientProtocol):
+# class ImporterSearchClient(DataSourceCardSearchClientProviding, DataSourceCardSearchClientProtocol):
 
-    def __init__(self,
-                 swu_app_dependencies_provider: SWUAppDependenciesProviding):
-        self._remote_client = SWUDBAPIRemoteClient(swu_app_dependencies_provider)
+#     def __init__(self,
+#                  swu_app_dependencies_provider: SWUAppDependenciesProviding):
+#         self._remote_client = SWUDBAPIRemoteClient(swu_app_dependencies_provider)
 
-    @property
-    def source_display_name(self) -> str:
-        return "swu-db.com"
+#     @property
+#     def source_display_name(self) -> str:
+#         return "swu-db.com"
         
-    def search(self, 
-               search_configuration: SearchConfiguration,
-               pagination_configuration: PaginationConfiguration,
-               callback: DataSourceCardSearchClientSearchCallback) -> None:
-        # TODO: switch depending on the config
-        self._remote_client.search(search_configuration, pagination_configuration, callback)
+#     def search_with_result(self, 
+#                search_configuration: SearchConfiguration,
+#                pagination_configuration: PaginationConfiguration) -> DataSourceCardSearchClientSearchResult:
+#         # TODO: switch depending on the config
+#         return self._remote_client.search_with_result(search_configuration, pagination_configuration)
     
-    @property
-    def search_client(self) -> DataSourceCardSearchClientProtocol:
-        return self
+#     @property
+#     def search_client(self) -> DataSourceCardSearchClientProtocol:
+#         return self
         
 
 class ImporterFlow:

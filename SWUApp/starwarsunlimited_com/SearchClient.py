@@ -1,5 +1,5 @@
 from AppCore.DataSource.DataSourceCardSearchClientProtocol import (DataSourceCardSearchClientProtocol,
-                                            DataSourceCardSearchClientSearchCallback,
+                                            DataSourceCardSearchClientSearchResult,
                                             )
 from AppCore.DataFetcher import DataFetcherRemote
 from AppCore.Models import PaginationConfiguration, SearchConfiguration
@@ -11,9 +11,9 @@ from .SearchRequest import SearchRequest
 class SearchClient(DataSourceCardSearchClientProtocol):
 
     def __init__(self, 
-                 networker: DataFetcherRemote, 
+                 remote_data_fetcher: DataFetcherRemote, 
                  asset_provider: AssetProvider):
-        self._networker = networker
+        self._remote_data_fetcher = remote_data_fetcher
         self._asset_provider = asset_provider
 
     @property
@@ -24,9 +24,8 @@ class SearchClient(DataSourceCardSearchClientProtocol):
     def site_source_url(self) -> str:
         return "www.starwarsunlimited.com"
 
-    def search(self, 
+    def search_with_result(self, 
                search_configuration: SearchConfiguration,
-               pagination_configuration: PaginationConfiguration,
-               callback: DataSourceCardSearchClientSearchCallback):
+               pagination_configuration: PaginationConfiguration) -> DataSourceCardSearchClientSearchResult:
         swu_search_config = SWUCardSearchConfiguration.from_search_configuration(search_configuration)
-        self._networker.load(SearchRequest(swu_search_config, pagination_configuration, self._asset_provider), callback)
+        return self._remote_data_fetcher.load_with_result(SearchRequest(swu_search_config, pagination_configuration, self._asset_provider))

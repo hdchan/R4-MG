@@ -28,7 +28,7 @@ class DataSourceSocketIOHistory(DataSourceCachedHistory, TransmissionReceiverPro
         self._observation_tower.subscribe(self, SocketIOReceivedCardEvent)
 
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
-        if type(event) == SocketIOReceivedCardEvent:
+        if type(event) is SocketIOReceivedCardEvent:
             json = event.data['data']
             trading_card = self._model_transformer.transform_json_to_trading_card(json)
             if trading_card is not None:

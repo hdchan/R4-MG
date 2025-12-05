@@ -1,25 +1,32 @@
 import atexit
+from typing import Optional
 
-from AppCore import *
 from AppCore.Config import ConfigurationManager
-from AppCore.DataFetcher import *
-from AppCore.DataSource import (DataSourceDraftList,
-                                DataSourceDraftListWindowResourceDeployer,
-                                DataSourceImageResourceDeployer,
-                                DataSourceSocketIOHistory)
-from AppCore.DataSource.DataSourceCardSearch import *
+from AppCore.DataSource import (
+    CustomDirectorySearchDataSource,
+    CustomDirectorySearchDataSourceDelegate,
+    DataSourceCachedHistory,
+    DataSourceDraftList,
+    DataSourceDraftListWindowResourceDeployer,
+    DataSourceImageResourceDeployer,
+    DataSourceRecentPublished,
+    DataSourceSocketIOHistory,
+)
+from AppCore.DataSource.DataSourceCardSearch import DataSourceCardSearch, DataSourceCardSearchClientProviding, DataSourceCardSearchDelegate
 from AppCore.ImageFetcher import ImageFetcherProvider
-from AppCore.ImageResource import ImageResourceProcessor
+from AppCore.ImageResource import (
+    ImageResourceProcessor,
+    ImageResourceProcessorProviding,
+)
+from AppCore.Models import ModelTransformer
 from AppCore.Observation.Events import ApplicationEvent
 from AppCore.Observation.ObservationTower import ObservationTower
-from AppCore.Service import (DataSerializer, PlatformServiceProvider,
-                             StringFormatter)
+from AppCore.Service import DataSerializer, PlatformServiceProvider, StringFormatter
 from AppCore.SocketIO.SocketRouter import SocketRouter
 
-from .CoreDependenciesInternalProviding import \
-    CoreDependenciesInternalProviding
+from .CoreDependenciesInternalProviding import CoreDependenciesInternalProviding
 from .CoreDependenciesProviding import CoreDependenciesProviding
-from AppCore.Models import ModelTransformer
+
 
 class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesInternalProviding):
     def __init__(self, 

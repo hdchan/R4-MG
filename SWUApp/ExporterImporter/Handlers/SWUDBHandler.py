@@ -4,12 +4,17 @@ from collections import deque
 from typing import Any, Dict, List, Optional
 
 from AppCore.DataSource.DataSourceCardSearch import (
-    DataSourceCardSearch, DataSourceCardSearchDelegate)
+    DataSourceCardSearch,
+    DataSourceCardSearchDelegate,
+)
 from AppCore.Models import SearchConfiguration
 
-from ...Models import (ParsedDeckList, SWUCardSearchConfiguration,
-                       SWUTradingCardBackedLocalCardResource,
-                       SWUTradingCardModelMapper)
+from ...Models import (
+    ParsedDeckList,
+    SWUCardSearchConfiguration,
+    SWUTradingCardBackedLocalCardResource,
+    SWUTradingCardModelMapper,
+)
 from ...SWUAppDependenciesProviding import SWUAppDependenciesProviding
 from ..ExportImportFormattable import ExportFormattable, Importable
 
@@ -98,8 +103,6 @@ class SWUDBHandler(ExportFormattable, Importable, DataSourceCardSearchDelegate):
                 self._result.append(current_resource)
         else:
             self._not_found.append(search_configuration)
-
-                        
         self._continue_processing_search_queue()
 
     # MARK: - Exporter

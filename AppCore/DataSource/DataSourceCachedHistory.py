@@ -51,7 +51,7 @@ class DataSourceCachedHistory(DataSourceSelectedLocalCardResourceProtocol):
                 for l in loaded:
                     try:
                         self._cached_history.append((LocalCardResource.from_json(l[self.Keys.LOCAL_RESOURCE]), datetime.fromtimestamp(l[self.Keys.DATETIME])))
-                    except: 
+                    except Exception: 
                         continue
                 
         self._selected_index: Optional[int] = None
@@ -69,8 +69,6 @@ class DataSourceCachedHistory(DataSourceSelectedLocalCardResourceProtocol):
     
     def select_card_resource_for_card_selection(self, index: int):
         if index < len(self._cached_history):
-            if self._selected_index == index:
-                return
             self._selected_index = index
             self._retrieve_card_resource_for_card_selection(index)
     
@@ -99,3 +97,4 @@ class DataSourceCachedHistory(DataSourceSelectedLocalCardResourceProtocol):
                 self.Keys.DATETIME: e[1].timestamp()
             })
         self._data_serializer.save_json_data(self._cache_history_path, data)
+        # TODO: create cache that contains actual publish history

@@ -1,12 +1,14 @@
+from typing import List, Optional
+
 from PySide6.QtWidgets import QMainWindow
-from typing import Optional
-from AppCore.Config.ConfigurationManager import *
+
+from AppCore.Config.ConfigurationManager import Configuration
 from AppCore.Service.PlatformServiceProvider import PlatformServiceProtocol
-from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
-from AppUI.Configuration.AppUIConfiguration import *
+from AppUI.AppDependenciesInternalProviding import \
+    AppDependenciesInternalProviding
 from AppUI.UIComponents import AppUIConfigurationCheckableRActionMenuItem
 from R4UI import RActionMenuItem, RMenuBarBuilder, RMenuListBuilder
-import copy
+
 
 class AppMenuBarBuilder:
     def __init__(self, app_dependencies_provider: AppDependenciesInternalProviding):
@@ -286,7 +288,7 @@ class AppMenuBarBuilder:
             ])
 
     def developer_menu(self) -> Optional[RMenuListBuilder]:
-        if self._core_configuration.is_developer_mode == False:
+        if not self._core_configuration.is_developer_mode:
             return None
 
         result_menu = RMenuListBuilder("Developer",[

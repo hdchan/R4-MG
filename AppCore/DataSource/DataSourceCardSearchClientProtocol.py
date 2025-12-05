@@ -1,7 +1,6 @@
 from typing import Callable, List, Optional, Tuple
 
-from AppCore.Models import (PaginationConfiguration, SearchConfiguration,
-                            TradingCard)
+from AppCore.Models import PaginationConfiguration, SearchConfiguration, TradingCard
 
 
 class DataSourceCardSearchClientSearchResponse:
@@ -20,19 +19,22 @@ class DataSourceCardSearchClientProtocol:
 
     @property
     def source_display_name(self) -> str:
-        return NotImplemented
+        raise NotImplementedError
+
+    @property
+    def can_auto_search(self) -> bool:
+        return False
 
     @property
     def site_source_url(self) -> Optional[str]:
         return None
-        
-    def search(self, 
+
+    def search_with_result(self, 
                search_configuration: SearchConfiguration,
-               pagination_configuration: PaginationConfiguration,
-               callback: DataSourceCardSearchClientSearchCallback) -> None:
-        raise Exception()
+               pagination_configuration: PaginationConfiguration) -> DataSourceCardSearchClientSearchResult:
+        raise Exception
     
 class DataSourceCardSearchClientProviding:
     @property
     def search_client(self) -> DataSourceCardSearchClientProtocol:
-        return NotImplemented
+        raise NotImplementedError

@@ -86,7 +86,7 @@ class CardSearchPreviewViewController(RWidget, TransmissionReceiverProtocol, Loc
         self.set_retrieved_resource_from_vc(index)
 
     def handle_observation_tower_event(self, event: TransmissionProtocol):
-        # if type(event) == ConfigurationUpdatedEvent:
+        # if type(event) is ConfigurationUpdatedEvent:
         #     if self._tab_widget.current_index == CardSearchPreviewViewController.TabKeys.CARD_SEARCH:
                 # self._search_table_view.get_selection()
                 pass

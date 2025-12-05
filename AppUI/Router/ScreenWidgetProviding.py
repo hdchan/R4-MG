@@ -5,30 +5,30 @@ from R4UI import RWidget
 class ScreenWidgetProviding:
     @property
     def about_view(self) -> RWidget:
-        return NotImplemented
+        raise NotImplementedError
     
     def app_settings_view(self, current_tab: int = 0) -> RWidget:
-        return NotImplemented
+        raise NotImplementedError
     
     @property
     def shortcuts_view(self) -> RWidget:
-        return NotImplemented
+        raise NotImplementedError
     
     @property
     def manage_deck_list_view(self) -> RWidget:
-        return NotImplemented
+        raise NotImplementedError
     
     def locally_managed_deck_preview_view(self, resource: LocalAssetResource) -> RWidget:
-        return NotImplemented
+        raise NotImplementedError
     
     def draft_list_standalone_view(self, resource: LocalResourceDraftListWindow) -> RWidget:
-        return NotImplemented
+        raise NotImplementedError
     
     def image_deployment_window(self) -> RWidget:
-        return NotImplemented
+        raise NotImplementedError
     
     def draft_list_deployment_window(self) -> RWidget:
-        return NotImplemented
+        raise NotImplementedError
     
     def draft_list_image_preview_view(self) -> RWidget:
-        return NotImplemented
+        raise NotImplementedError

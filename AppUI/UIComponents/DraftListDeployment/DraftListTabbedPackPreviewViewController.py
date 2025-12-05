@@ -68,7 +68,7 @@ class DraftListTabbedPackPreviewViewController(RWidget, TransmissionReceiverProt
             tab_bar.customContextMenuRequested.connect(self._show_context_menu) # TODO: right clicking clicks tab, even if not switched to
             # 2025-10-29 21:51:29,570 - CRITICAL - Uncaught exception, application will terminate.
             # AttributeError: Slot 'RTabWidget::' not found.
-            self._tab_widget.tabBarClicked.connect(self._tab_clicked)
+            tab_bar.tabBarClicked.connect(self._tab_clicked)
         
         self._add_card_button = PushButton(None, self._add_resource)
         

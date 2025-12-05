@@ -26,7 +26,7 @@ class DataSourceRecentPublished(DataSourceCachedHistory, TransmissionReceiverPro
         self._observation_tower.subscribe(self, PublishStagedCardResourcesEvent)
     
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
-        if type(event) == PublishStagedCardResourcesEvent and event.event_type == PublishStagedCardResourcesEvent.EventType.FINISHED:
+        if type(event) is PublishStagedCardResourcesEvent and event.event_type == PublishStagedCardResourcesEvent.EventType.FINISHED:
             for e in event.deployment_resources:
                 if e.staged_resource is not None:
                     self.add_resource(e.staged_resource, event.date_time)

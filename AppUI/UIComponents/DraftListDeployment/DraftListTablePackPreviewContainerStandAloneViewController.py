@@ -39,7 +39,7 @@ class DraftListTablePackPreviewContainerStandAloneViewController(RWidget, Transm
         self.setFixedSize(self._resource.window_configuration.window_width, self._resource.window_configuration.window_height)
         
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
-        if type(event) == DraftListWindowResourceUpdatedEvent:
+        if type(event) is DraftListWindowResourceUpdatedEvent:
             if self._resource == event.old_resource:
                 self._resource = event.new_resource
                 self._sync_ui()

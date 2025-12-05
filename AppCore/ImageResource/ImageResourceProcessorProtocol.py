@@ -15,7 +15,7 @@ class ImageResourceProcessorProtocol:
         raise Exception
     
     def down_scale_image(self, original_img: Image.Image, max_size: float) -> Image.Image:
-        return NotImplemented
+        raise NotImplementedError
 
     def generate_placeholder(self, local_resource: LocalCardResource, placeholder_image_path: Optional[str]) -> None:
         raise Exception
@@ -23,4 +23,4 @@ class ImageResourceProcessorProtocol:
 class ImageResourceProcessorProviding:
     @property
     def image_resource_processor(self) -> ImageResourceProcessorProtocol:
-        return NotImplemented
+        raise NotImplementedError

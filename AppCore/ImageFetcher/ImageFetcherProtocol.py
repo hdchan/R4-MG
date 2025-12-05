@@ -10,4 +10,4 @@ class ImageFetcherProtocol:
 class ImageFetcherProviding:
     @property
     def image_fetcher(self) -> ImageFetcherProtocol:
-        return NotImplemented
+        raise NotImplementedError

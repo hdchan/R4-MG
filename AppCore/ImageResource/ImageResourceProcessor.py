@@ -22,7 +22,7 @@ from .ImageResourceProcessorProtocol import (
 THUMBNAIL_SIZE = 256
 ROUNDED_CORNERS = 30
 NORMAL_CARD_HEIGHT = 468
-NORMAL_CARD_WIDTH = 652
+# NORMAL_CARD_WIDTH = 652
 ROUNDED_CORDERS_MULTIPLIER_RELATIVE_TO_HEIGHT = ROUNDED_CORNERS / NORMAL_CARD_HEIGHT
 
 ImageDownscaleCallback = Callable[[Image.Image], Image.Image]
@@ -133,7 +133,7 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol, ImageResourceProces
         
         if local_resource.is_ready or local_resource.is_local_only:
             # regenerate preview image if needed
-            if not local_resource.is_preview_ready:
+            if not local_resource.is_preview_ready and local_resource.is_ready:
                 self.regenerate_resource_preview(local_resource)
             return
         

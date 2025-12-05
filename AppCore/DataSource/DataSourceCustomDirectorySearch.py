@@ -3,16 +3,17 @@ import os
 from typing import Any, List, Optional, Tuple
 
 from AppCore.Config import Configuration
-from AppCore.CoreDependenciesInternalProviding import \
-    CoreDependenciesInternalProviding
+from AppCore.CoreDependenciesInternalProviding import CoreDependenciesInternalProviding
 from AppCore.DataFetcher import DataFetcherLocal
 from AppCore.Models import LocalCardResource, SearchConfiguration
-from AppCore.Models.LocalCardResource import LocalCardResource
 from AppCore.Observation.Events import (
-    CardSearchEvent, LocalCardResourceSelectedFromDataSourceEvent)
+    CardSearchEvent,
+    LocalCardResourceSelectedFromDataSourceEvent,
+)
 
-from ..Models.DataSourceSelectedLocalCardResource import \
-    DataSourceSelectedLocalCardResourceProtocol
+from ..Models.DataSourceSelectedLocalCardResource import (
+    DataSourceSelectedLocalCardResourceProtocol,
+)
 
 PNG_EXTENSION = 'png' # TODO: allow for other image formats
 
@@ -40,10 +41,6 @@ class CustomDirectorySearchDataSource(DataSourceSelectedLocalCardResourceProtoco
         @property
         def file_name(self) -> str:
             return self._file_name_components[0]
-        
-        @property
-        def _file_name_with_ext(self) -> str:
-            return f'{self.file_name}{self._file_name_components[1]}'
 
         @property
         def local_resource(self) -> LocalCardResource:
@@ -66,7 +63,7 @@ class CustomDirectorySearchDataSource(DataSourceSelectedLocalCardResourceProtoco
     def __init__(self,
                  core_dependencies_internal_provider: CoreDependenciesInternalProviding):
         self._configuration_manager = core_dependencies_internal_provider.configuration_manager
-        self._local_networker = DataFetcherLocal(DataFetcherLocal.Configuration(self._configuration_manager.configuration.network_delay_duration))
+        self._local_data_fetcher = DataFetcherLocal(DataFetcherLocal.Configuration(self._configuration_manager.configuration.network_delay_duration))
         self._platform_service_provider = core_dependencies_internal_provider.platform_service_provider
         self._observation_tower = core_dependencies_internal_provider.observation_tower
         self._image_resource_processor_provider = core_dependencies_internal_provider.image_resource_processor_provider
@@ -110,8 +107,6 @@ class CustomDirectorySearchDataSource(DataSourceSelectedLocalCardResourceProtoco
     
     def select_card_resource_for_card_selection(self, index: int):
         if index < len(self._trading_card_providers):
-            if self._selected_index == index:
-                return
             self._selected_index = index
             self._retrieve_card_resource_for_card_selection(index)
     
@@ -149,15 +144,19 @@ class CustomDirectorySearchDataSource(DataSourceSelectedLocalCardResourceProtoco
             finished_event.predecessor = initial_event
             self._observation_tower.notify(finished_event)
             
-        self._local_networker.load(self._perform_search, callback, search_configuration=search_configuration)
+        self._local_data_fetcher.load(self._perform_search, callback, search_configuration=search_configuration)
     
     # MARK: - async work
     def _perform_search(self, args: Any) -> Tuple[List[Tuple[str, str]], Optional[Exception]]:
         search_configuration: SearchConfiguration = args.get('search_configuration')
+
+        search_filtered_string = "".join(filter(str.isalnum, search_configuration.card_name.lower()))
+
         def filter_the_result(card: Tuple[str, str]):
-            if search_configuration.card_name.replace(" ", "") == '':
-                return True
-            return (search_configuration.card_name.lower() in card[0].lower())
+            # if search_configuration.card_name.replace(" ", "") == '':
+            #     return True
+            file_filtered_string = "".join(filter(str.isalnum, card[0].lower()))
+            return (search_filtered_string in file_filtered_string)
         def sort_the_result(card: Tuple[str, str]):
             return card[0]
         

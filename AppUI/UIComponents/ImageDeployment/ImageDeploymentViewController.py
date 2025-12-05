@@ -152,11 +152,11 @@ class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
             self.stage_button.setStyleSheet("")
     
     def handle_observation_tower_event(self, event: TransmissionProtocol):
-        if (type(event) == DeploymentCardResourceEvent or 
-            type(event) == PublishStagedCardResourcesEvent or 
-            type(event) == PublishStatusUpdatedEvent or 
-            type(event) == LocalCardResourceSelectedFromDataSourceEvent):
+        if (type(event) is DeploymentCardResourceEvent or 
+            type(event) is PublishStagedCardResourcesEvent or 
+            type(event) is PublishStatusUpdatedEvent or 
+            type(event) is LocalCardResourceSelectedFromDataSourceEvent):
             self._sync_state()
-        if type(event) == ConfigurationUpdatedEvent:
+        if type(event) is ConfigurationUpdatedEvent:
             self._sync_configuration_state()
         

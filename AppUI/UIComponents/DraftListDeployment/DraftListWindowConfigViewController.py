@@ -101,11 +101,11 @@ class DraftListWindowConfigViewController(RWidget, TransmissionReceiverProtocol)
             self._data_source_draft_list_window_resource_deployer.delete_window_resource(self._resource) 
     
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
-        if type(event) == DraftListWindowResourceUpdatedEvent:
+        if type(event) is DraftListWindowResourceUpdatedEvent:
             if event.old_resource == self._resource:
                 self._resource = event.new_resource
                 # self._reset_pack_list_combo_box()
-        if type(event) == DraftPackUpdatedEvent:
+        if type(event) is DraftPackUpdatedEvent:
             self._update_pack_list()
             self._reset_pack_list_combo_box()
             

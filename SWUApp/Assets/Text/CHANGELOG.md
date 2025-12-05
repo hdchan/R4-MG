@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.25.0
+### Feature
+- Deprecating Local Set option
+- Prevent empty space string search for local managed set
+- Ignore non-alphanumeric chars for local searches
+- Fix crash where image from history does not exist
+- Fix potential crash with tab widget slot
+- Fix melee.gg import to check for subtitle
+
+### Engineering
+- Removing unused assets
+- PySide fix for combobox
+- Moving async logic to data source
+- Remove PyQt5 dependencies
+- Fix fontMetrics.width migration to .horizontalAdvance
+- Refactor custom dir to use unified search table combo
+- Unifying search table for custom dir search and card search
+
+
+## 0.24.1
+### Hotfix
+- Fix search history dropdown
+
 ## 0.24.0
 ### Feature
 - Migrate to PySide6

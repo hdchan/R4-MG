@@ -12,7 +12,7 @@ class DataFetcherLocal:
             self.network_delay_duration = network_delay_duration
     
     def __init__(self, 
-                 configuration: 'DataFetcherLocal.Configuration'):
+                 configuration: Configuration = Configuration()):
         self._configuration = configuration
         self.pool = QThreadPool()
         self.workers: Set[QRunnable] = set()

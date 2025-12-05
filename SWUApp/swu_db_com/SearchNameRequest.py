@@ -21,9 +21,9 @@ class SearchNameRequest(DataFetcherRemoteRequestProtocol[DataSourceCardSearchCli
         def __eq__(self, other):  # type: ignore
             if not isinstance(other, SearchNameRequest):
                 # don't attempt to compare against unrelated types
-                return NotImplemented
+                raise NotImplementedError
 
-            return (self.search_configuration == other.search_configuration)
+            return (self.search_configuration.card_name == other.search_configuration.card_name and self.search_configuration.card_type == other.search_configuration.card_type)
         
         def request(self) -> Optional[Request]:
             params: List[str] = []

@@ -1,21 +1,31 @@
 import copy
+import time
 from datetime import datetime
 from functools import reduce
-from typing import List, Optional
-
+from typing import List, Optional, Tuple, Set, Generic, TypeVar, Callable
+from PySide6.QtCore import QObject, QRunnable, QThreadPool, Signal
 from AppCore.Config import Configuration
-from AppCore.CoreDependenciesInternalProviding import \
-    CoreDependenciesInternalProviding
-from AppCore.DataSource.DataSourceCardSearchClientProtocol import *
-from AppCore.DataSource.DataSourceRecentSearch import DataSourceRecentSearch
-from AppCore.ImageResource.ImageResourceProcessorProtocol import *
-from AppCore.Models import LocalCardResource, SearchConfiguration, TradingCard, DataSourceSelectedLocalCardResourceProtocol
+from AppCore.CoreDependenciesInternalProviding import CoreDependenciesInternalProviding
+from AppCore.DataSource import (
+    DataSourceCardSearchClientProtocol,
+    DataSourceCardSearchClientProviding,
+    DataSourceCardSearchClientSearchResult,
+    DataSourceRecentSearch,
+)
+from AppCore.ImageResource import ImageResourceProcessorProtocol
+from AppCore.Models import (
+    DataSourceSelectedLocalCardResourceProtocol,
+    LocalCardResource,
+    PaginationConfiguration,
+    SearchConfiguration,
+    TradingCard,
+)
 from AppCore.Models.CardResourceProvider import CardResourceProvider
-from AppCore.Models.LocalCardResource import LocalCardResource
-from AppCore.Models.TradingCard import TradingCard
-from AppCore.Observation import *
 from AppCore.Observation.Events import (
-    CardSearchEvent, LocalCardResourceSelectedFromDataSourceEvent)
+    CardSearchEvent,
+    LocalCardResourceSelectedFromDataSourceEvent,
+)
+T = TypeVar("T")
 
 class DataSourceCardSearchDelegate:
     def ds_started_search_with_result(self,
@@ -73,6 +83,9 @@ class DataSourceCardSearch(DataSourceSelectedLocalCardResourceProtocol):
         self._selected_resource: Optional[LocalCardResource] = None
         self._paginated_trading_card_providers: List[List[CardResourceProvider]] = []
         self._is_loading = False
+
+        self.pool = QThreadPool()
+        self.workers: Set[QRunnable] = set()
     
     @property
     def source_display_name(self) -> str:
@@ -214,10 +227,20 @@ class DataSourceCardSearch(DataSourceSelectedLocalCardResourceProtocol):
         assert(self._current_page == INITIAL_PAGE)
         assert(len(self._paginated_trading_card_providers) == 0)
         
-        self._api_client.search(search_configuration, 
-                                PaginationConfiguration(self._next_page, self._page_size), 
-                                completed_with_search_result)
-        
+        def _runnable_fn() -> DataSourceCardSearchClientSearchResult:
+            time.sleep(self._configuration.network_delay_duration) # for debugging
+            return self._api_client.search_with_result(search_configuration,
+                                                        PaginationConfiguration(self._next_page, self._page_size))
+
+        def _cleanup(identifier: QRunnable):
+            self.workers.remove(identifier)
+
+        worker = GeneralWorker(_runnable_fn)
+        worker.signals.finished.connect(completed_with_search_result)
+        worker.signals.cleanup.connect(_cleanup)
+        self.workers.add(worker)
+        self.pool.start(worker)
+
     def load_next_page(self):
         if self._is_loading:
             print('currently performing pagination')
@@ -257,10 +280,21 @@ class DataSourceCardSearch(DataSourceSelectedLocalCardResourceProtocol):
             self._is_loading = False
         
         self._is_loading = True
-        self._api_client.search(current_search_configuration, 
-                                PaginationConfiguration(self._next_page, self._page_size), 
-                                completed_with_search_result)
         print(f'loading next page: {self._next_page}')
+
+        def _runnable_fn() -> DataSourceCardSearchClientSearchResult:
+            time.sleep(self._configuration.network_delay_duration) # for debugging
+            return self._api_client.search_with_result(current_search_configuration,
+                                                        PaginationConfiguration(self._next_page, self._page_size))
+
+        def _cleanup(identifier: QRunnable):
+            self.workers.remove(identifier)
+
+        worker = GeneralWorker(_runnable_fn)
+        worker.signals.finished.connect(completed_with_search_result)
+        worker.signals.cleanup.connect(_cleanup)
+        self.workers.add(worker)
+        self.pool.start(worker)
 
     @property
     def current_previewed_trading_card_is_flippable(self) -> bool:
@@ -270,10 +304,8 @@ class DataSourceCardSearch(DataSourceSelectedLocalCardResourceProtocol):
 
     def select_card_resource_for_card_selection(self, index: int):
         if index < len(self._trading_card_providers):
-            if self._selected_index == index:
-                return
             self._selected_index = index
-            self._retrieve_card_resource_for_card_selection(index) # TODO: add separate out this logic to be parameterized?
+            self._retrieve_card_resource_for_card_selection(index)
 
     def flip_current_previewed_card(self):
         if self._selected_index is not None and self.current_previewed_trading_card_is_flippable:
@@ -292,3 +324,24 @@ class DataSourceCardSearch(DataSourceSelectedLocalCardResourceProtocol):
         self._image_resource_processor_provider.image_resource_processor.async_store_local_resource(selected_resource, retry)
         if self.delegate is not None:
             self.delegate.ds_did_retrieve_card_resource_for_card_selection(self)
+
+class WorkerSignals(QObject):
+    finished = Signal(object)
+    failed = Signal(Exception)
+    cleanup = Signal(object)
+
+
+class GeneralWorker(QRunnable, Generic[T]):
+    def __init__(self, runnable_fn: Callable[[], T]):
+        super().__init__()
+        self._runnable_fn = runnable_fn
+        self.signals = WorkerSignals()
+
+    def run(self):
+        try:
+            result = self._runnable_fn()
+            self.signals.finished.emit(result)
+        except Exception as error:
+            self.signals.failed.emit(error)
+        finally:
+            self.signals.cleanup.emit(self)

@@ -82,7 +82,7 @@ class ConfigurationManager(TransmissionReceiverProtocol):
             yaml.dump(data, outfile, default_flow_style=False, allow_unicode=True)
     
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
-        if type(event) == ApplicationEvent:
+        if type(event) is ApplicationEvent:
             if event.event_type == ApplicationEvent.EventType.APP_WILL_TERMINATE:
                 # self.save(notify=False)
                 pass

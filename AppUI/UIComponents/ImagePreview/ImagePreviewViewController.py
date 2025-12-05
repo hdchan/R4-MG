@@ -319,12 +319,12 @@ class ImagePreviewViewController(RWidget, TransmissionReceiverProtocol):
 
 
     def handle_observation_tower_event(self, event: TransmissionProtocol):
-        if (type(event) == ConfigurationUpdatedEvent or 
-            type(event) == PublishStatusUpdatedEvent or 
-            type(event) == CacheClearedEvent):
+        if (type(event) is ConfigurationUpdatedEvent or 
+            type(event) is PublishStatusUpdatedEvent or 
+            type(event) is CacheClearedEvent):
             self._sync_image_view_state()
             
-        if type(event) == LocalCardResourceFetchEvent:
+        if type(event) is LocalCardResourceFetchEvent:
             if self._local_resource is not None and self._local_resource.image_preview_path == event.local_resource.image_preview_path:
                 self._sync_image_view_state()
                 if event.event_type == LocalCardResourceFetchEvent.EventType.FAILED:

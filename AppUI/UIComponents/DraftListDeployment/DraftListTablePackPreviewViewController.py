@@ -201,11 +201,11 @@ class DraftListTablePackPreviewViewController(QWidget, TransmissionReceiverProto
         self._sync_styles()
        
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
-        if type(event) == ConfigurationUpdatedEvent:
+        if type(event) is ConfigurationUpdatedEvent:
             # TODO: needs to optimize?
             self._sync_ui()
             
-        if type(event) == DraftListUpdatedEvent:
+        if type(event) is DraftListUpdatedEvent:
             self._sync_ui()
             return
             if self._delegate is not None:

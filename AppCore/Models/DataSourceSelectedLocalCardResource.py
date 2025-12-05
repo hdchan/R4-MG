@@ -11,4 +11,4 @@ class DataSourceSelectedLocalCardResourceProtocol:
 class LocalResourceDataSourceProviding:
     @property
     def data_source(self) -> DataSourceSelectedLocalCardResourceProtocol:
-        return NotImplemented
+        raise NotImplementedError

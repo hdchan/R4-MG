@@ -142,5 +142,5 @@ class DraftListImagePreviewViewController(RWidget, TransmissionReceiverProtocol,
                 self._start_generate_image_timer()
         if type(event) is DraftListUpdatedEvent or type(event) is DraftPackUpdatedEvent:
             self._start_generate_image_timer()
-        if type(event) == LocalCardResourceFetchEvent:
+        if type(event) is LocalCardResourceFetchEvent:
             self._sync_spinner() # spinner does not sync when downloading images

@@ -23,7 +23,7 @@ class LocalAssetResource():
     def __eq__(self, other):  # type: ignore
         if not isinstance(other, LocalAssetResource):
             # don't attempt to compare against unrelated types
-            return NotImplemented
+            raise NotImplementedError
 
         return (self.asset_path == other.asset_path)
     

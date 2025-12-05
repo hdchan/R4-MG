@@ -1,19 +1,19 @@
 from typing import List, Optional
-from PySide6.QtCore import Qt
+
 from PySide6 import QtGui, QtWidgets
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QHBoxLayout, QListWidget, QPushButton,
-                             QVBoxLayout, QWidget)
+                               QVBoxLayout, QWidget)
 
 from AppCore.Models import SearchConfiguration
-from AppUI.AppDependenciesInternalProviding import \
-    AppDependenciesInternalProviding
 from AppUI.ExternalAppDependenciesProviding import SearchQueryBarViewProviding
-from R4UI import HorizontalBoxLayout, LineEditText, RComboBox
+from R4UI import HorizontalBoxLayout, LineEditText, RComboBox, RWidget
 
 from ..Base.LoadingSpinner import LoadingSpinner
 
 
 class SearchTableComboViewControllerDelegate:
+    # Required
     def stc_select_card_resource_for_card_selection(self, stc: 'SearchTableComboViewController', index: int) -> None:
         raise Exception
     
@@ -27,6 +27,11 @@ class SearchTableComboViewControllerDelegate:
     def stc_tapped_flip_button(self, stc: 'SearchTableComboViewController') -> None:
         raise Exception
     
+    # Optional
+    @property
+    def stc_query_view(self) -> Optional[RWidget]:
+        return None
+
     @property
     def stc_history_list(self) -> List[str]:
         return []
@@ -37,10 +42,6 @@ class SearchTableComboViewControllerDelegate:
     @property
     def stc_search_button_text(self) -> str:
         return "Search"
-    
-    @property
-    def is_only_text_search(self) -> bool:
-        return False
     
     @property
     def stc_is_flippable(self) -> bool:
@@ -59,11 +60,7 @@ class SearchTableComboViewControllerDelegate:
     
     @property
     def stc_is_flip_button_hidden(self) -> bool:
-        return False
-    
-    @property 
-    def stc_is_history_dropdown_hidden(self) -> bool:
-        return False
+        return True
 
 
 # https://stackoverflow.com/a/65830989
@@ -77,7 +74,7 @@ class ComboBox(RComboBox):
         # draw the combobox frame, focusrect and selected etc.
         opt = QtWidgets.QStyleOptionComboBox()
         self.initStyleOption(opt)
-        painter.drawComplexControl(QtWidgets.QStyle.CC_ComboBox, opt)
+        painter.drawComplexControl(QtWidgets.QStyle.ComplexControl.CC_ComboBox, opt)
 
         if self.currentIndex() < 0:
             opt.palette.setBrush(
@@ -88,7 +85,8 @@ class ComboBox(RComboBox):
                 opt.currentText = self.placeholderText()
 
         # draw the icon and text
-        painter.drawControl(QtWidgets.QStyle.CE_ComboBoxLabel, opt)
+        painter.drawControl(QtWidgets.QStyle.ControlElement.CE_ComboBoxLabel, opt)
+        painter.end()
 
     # https://forum.qt.io/topic/105012/qcombobox-specify-width-less-than-content/11?_=1750960881253
     def showPopup(self):
@@ -110,7 +108,7 @@ class ComboBox(RComboBox):
         # which makes items show full width under Windows
         view = self.view()
         fm = self.fontMetrics()
-        maxWidth = max([fm.width(self.itemText(i)) for i in range(self.count())])
+        maxWidth = max([fm.horizontalAdvance(self.itemText(i)) for i in range(self.count())])
         if maxWidth:
             view.setMinimumWidth(maxWidth + 50)
 
@@ -120,13 +118,19 @@ class DefaultSearchQueryBarViewController(SearchQueryBarViewProviding):
 
         self._query_text: Optional[str] = None
 
+        self._query_search_bar = LineEditText(triggered_fn=self._set_text,
+                         placeholder_text="Lookup by card name (Ctrl+L)")
+
         HorizontalBoxLayout([
-            LineEditText(triggered_fn=self._set_text,
-                         placeholder_text="Lookup by card name (Ctrl+L)"),
+            self._query_search_bar,
         ]).set_uniform_content_margins(0).set_layout_to_widget(self)
 
     def _set_text(self, text: str):
         self._query_text = text
+
+    def set_search_focus(self):
+        self._query_search_bar.setFocus()
+        self._query_search_bar.selectAll()
 
     @property
     def search_configuration(self) -> SearchConfiguration:
@@ -137,7 +141,6 @@ class DefaultSearchQueryBarViewController(SearchQueryBarViewProviding):
             
 class SearchTableComboViewController(QWidget):
     def __init__(self,
-                 app_dependencies_provider: AppDependenciesInternalProviding,
                  delegate: SearchTableComboViewControllerDelegate):
         super().__init__()
         self._delegate = delegate
@@ -169,9 +172,8 @@ class SearchTableComboViewController(QWidget):
 
 
         self._query_view = DefaultSearchQueryBarViewController()
-
-        external_query_view = app_dependencies_provider.external_app_dependencies_provider.provide_card_search_query_view()
-        if external_query_view is not None and delegate.is_only_text_search == False:
+        external_query_view = delegate.stc_query_view
+        if external_query_view is not None:
             self._query_view = external_query_view
         
         layout.addWidget(self._query_view)
@@ -215,7 +217,7 @@ class SearchTableComboViewController(QWidget):
         self._search_history_selection.clear()
         history_list = self._delegate.stc_history_list
         self._search_history_selection.addItems(history_list)
-        self._search_history_selection.setHidden(len(history_list) == 0 or self._delegate.stc_is_history_dropdown_hidden)
+        self._search_history_selection.setHidden(len(history_list) == 0)
         
     def set_item_active(self, index: int):
         if self.result_list.count() > 0:

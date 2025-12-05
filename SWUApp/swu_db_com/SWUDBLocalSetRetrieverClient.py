@@ -1,18 +1,18 @@
 import json
 from io import TextIOWrapper
-from typing import Any, List, Optional
+from typing import List, Optional
 
 from AppCore.DataFetcher import DataFetcherLocal
 from AppCore.DataSource import DataSourceLocallyManagedSets
 from AppCore.DataSource.DataSourceCardSearchClientProtocol import (
     DataSourceCardSearchClientProtocol,
-    DataSourceCardSearchClientSearchCallback,
     DataSourceCardSearchClientSearchResponse,
-    DataSourceCardSearchClientSearchResult)
-from AppCore.DataSource.DataSourceLocallyManagedSets import \
-    DataSourceLocallyManagedSetsClientProtocol
-from AppCore.Models import (PaginationConfiguration, SearchConfiguration,
-                            TradingCard)
+    DataSourceCardSearchClientSearchResult,
+)
+from AppCore.DataSource.DataSourceLocallyManagedSets import (
+    DataSourceLocallyManagedSetsClientProtocol,
+)
+from AppCore.Models import PaginationConfiguration, SearchConfiguration, TradingCard
 
 from ..Models.CardType import CardType
 from ..Models.SWUCardSearchConfiguration import SWUCardSearchConfiguration
@@ -29,27 +29,30 @@ class SWUDBLocalCardRetrieverClient(DataSourceCardSearchClientProtocol):
     @property
     def source_display_name(self) -> str:
         return "Locally managed sets"
+
+    @property
+    def can_auto_search(self) -> bool:
+        return True
     
     # MARK: - DataSourceCardSearchClientProtocol
-    def search(self, 
+    def search_with_result(self, 
                search_configuration: SearchConfiguration,
-               pagination_configuration: Optional[PaginationConfiguration],
-               callback: DataSourceCardSearchClientSearchCallback):
+               pagination_configuration: Optional[PaginationConfiguration]) -> DataSourceCardSearchClientSearchResult:
         print(f'Local search www.swu-db.com. card_name: {search_configuration.card_name}, search_configuration: {search_configuration}')
-        def completed_search(result: DataSourceCardSearchClientSearchResult):
-            callback(result)
-        self._local_fetcher.load(self._perform_search, completed_search, search_configuration=search_configuration)
-    
-    def _perform_search(self, args: Any) -> DataSourceCardSearchClientSearchResult:
-        # TODO: implement more performant search
-        search_configuration: SearchConfiguration = args.get('search_configuration')
         swu_search_config = SWUCardSearchConfiguration.from_search_configuration(search_configuration)
+        swu_search_filtered_string = "".join(filter(str.isalnum, swu_search_config.card_name.lower()))
+
+        # TODO: need to filter by subtitle as well? for melee.gg
         def filter_the_result(card: TradingCard):
             if swu_search_config.card_set is not None and swu_search_config.card_number is not None:
                 return (card.number == swu_search_config.card_number and card.set == swu_search_config.card_set)
             else:
-                return (swu_search_config.card_name.lower() in card.name.lower() and 
+                if swu_search_config.card_name.strip() == "":
+                    return False # don't return all cards if no search string
+                card_filtered_string = "".join(filter(str.isalnum, card.name.lower()))
+                return (swu_search_filtered_string in card_filtered_string and 
                         (swu_search_config.card_type.value.lower() == card.type.lower() or swu_search_config.card_type == CardType.UNSPECIFIED))
+
         def sort_the_result(card: TradingCard):
             return card.name
         try:

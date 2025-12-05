@@ -17,7 +17,7 @@ class AboutViewController(QWidget):
         super().__init__()
         self.setWindowTitle("About")
         self.configuration_manager = configuration_manager
-        self.asset_provider = asset_provider
+        self._asset_provider = asset_provider
         self.sound_effect = None
         
         v_layout = QVBoxLayout()
@@ -25,7 +25,7 @@ class AboutViewController(QWidget):
         
         image = QPixmap()
         
-        image.load(self.asset_provider.image.logo_path)
+        image.load(self._asset_provider.image.logo_path)
         image = image.scaled(50, 50, Qt.AspectRatioMode.KeepAspectRatio)
         image_view = Label()
         image_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
@@ -41,7 +41,7 @@ class AboutViewController(QWidget):
         label.setText(f'{configuration.app_display_name}')
         v_layout.addWidget(label)
 
-        with open(self.asset_provider.text.change_log_path, 'r') as file:
+        with open(self._asset_provider.text.change_log_path, 'r') as file:
             data = file.read()
         markdown = QTextEdit()
         markdown.setMarkdown(data)
@@ -56,8 +56,15 @@ class AboutViewController(QWidget):
         menu.exec_(self.mapToGlobal(pos))
 
     def _pressed_sound(self):
-        self.sound_effect = QSoundEffect()
-        self.sound_effect.setVolume(0.5)
-        self.sound_effect.setSource(QUrl.fromLocalFile(self.asset_provider.audio.r4_effect_path))
-        print(f'playing sound effect: {self.asset_provider.audio.r4_effect_path}')
-        self.sound_effect.play()
+        try:
+            if self.sound_effect is not None:
+                self.sound_effect.stop()
+            else:
+                self.sound_effect = QSoundEffect()
+                self.sound_effect.setVolume(0.5)
+            # self.sound_effect.setLoopCount(0)
+            self.sound_effect.setSource(QUrl.fromLocalFile(self._asset_provider.audio.r4_effect_path))
+            print(f'playing sound effect: {self._asset_provider.audio.r4_effect_path}')
+            self.sound_effect.play()
+        except Exception as error:
+            print(error)

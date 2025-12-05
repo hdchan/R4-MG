@@ -2,7 +2,6 @@ from typing import List, Union
 
 from ..SWUAppDependenciesProviding import SWUAppDependenciesProviding
 from .ExportImportFormattable import ExportFormattable, Importable
-from .Handlers.CSVHandler import CSVHandler
 from .Handlers.MeleeGGHandler import MGGHandler
 from .Handlers.SWUDBHandler import SWUDBHandler
 

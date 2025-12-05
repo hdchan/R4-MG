@@ -3,12 +3,12 @@ from typing import Any, Dict, Optional
 
 from AppCore.Models import LocalCardResource, TradingCard
 
-from ..starwarsunlimited_com.StarWarsUnlimitedTradingCard import \
-    StarWarsUnlimitedTradingCard
+from ..starwarsunlimited_com.StarWarsUnlimitedTradingCard import (
+    StarWarsUnlimitedTradingCard,
+)
 from ..swu_db_com.SWUDBTradingCard import SWUDBTradingCard
 from .SWUTradingCard import SWUTradingCard
-from .SWUTradingCardBackedLocalCardResource import \
-    SWUTradingCardBackedLocalCardResource
+from .SWUTradingCardBackedLocalCardResource import SWUTradingCardBackedLocalCardResource
 
 
 class SWUTradingCardModelMapper:
@@ -37,12 +37,12 @@ class SWUTradingCardModelMapper:
     def from_trading_card(trading_card: TradingCard) -> Optional[SWUTradingCard]:
         try:
             return SWUDBTradingCard.from_trading_card(trading_card)
-        except:
+        except Exception:
             pass
         
         try:
             return StarWarsUnlimitedTradingCard.from_trading_card(trading_card)
-        except:
+        except Exception:
             pass
         
         return None
@@ -51,12 +51,12 @@ class SWUTradingCardModelMapper:
     def from_json_response(json: Dict[str, Any]) -> Optional[SWUTradingCard]:
         try:
             return SWUTradingCardModelMapper.from_trading_card(SWUDBTradingCard.from_swudb_response(json))
-        except:
+        except Exception:
             pass
 
         try:
             return SWUTradingCardModelMapper.from_trading_card(StarWarsUnlimitedTradingCard.from_swudb_response(json))
-        except:
+        except Exception:
             pass
 
         return None

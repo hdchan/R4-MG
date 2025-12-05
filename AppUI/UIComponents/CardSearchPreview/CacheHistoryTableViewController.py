@@ -67,10 +67,10 @@ class CacheHistoryTableViewController(RWidget,
             self._history_list.addItem(item)
     
     def handle_observation_tower_event(self, event: TransmissionProtocol):
-        if type(event) == CacheHistoryUpdatedEvent:
+        if type(event) is CacheHistoryUpdatedEvent:
             self._update_history_list()
 
-        if type(event) == LocalCardResourceSelectedFromDataSourceEvent:
+        if type(event) is LocalCardResourceSelectedFromDataSourceEvent:
             if event.datasource == self._cache_history_data_source:
                 if self.delegate is not None:
                     self.delegate.ch_did_retrieve_card()

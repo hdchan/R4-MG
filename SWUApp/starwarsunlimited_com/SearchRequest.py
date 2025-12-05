@@ -55,7 +55,6 @@ class SearchRequest(DataFetcherRemoteRequestProtocol[DataSourceCardSearchClientS
         
         request = Request(url, headers=headers)
         return request
-        # return Request('https://admin.starwarsunlimited.com/api/card-list?locale=en&orderBy[title][id]=asc&filters[$and][0][variantOf][id][$null]=true&filters[$and][1][$or][0][type][id][$in][0]=4&filters[$and][1][$or][1][type2][id][$in][0]=4&filters[$and][2][$or][0][title][$containsi]=luke&pagination[page]=1&pagination[pageSize]=100')
     
     def response(self, json: Dict[str, Any]) -> DataSourceCardSearchClientSearchResponse:
         data = json['data']

@@ -7,10 +7,9 @@ from PySide6.QtWidgets import QMenu, QVBoxLayout
 
 from AppCore.Models import LocalResourceDataSourceProviding
 
-from AppCore.Models import LocalCardResource, TradingCard, DraftPack
+from AppCore.Models import LocalCardResource, TradingCard, DraftPack, DeploymentCardResource
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppCore.Config.Configuration import Configuration
-from AppCore.Models import LocalCardResource, TradingCard, DraftPack, DeploymentCardResource
 
 from AppUI.Models.DraftListStyleSheet import DraftListStyleSheet
 from R4UI import RWidget, Label

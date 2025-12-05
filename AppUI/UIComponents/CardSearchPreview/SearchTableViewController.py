@@ -1,15 +1,18 @@
-from typing import Optional
+from typing import List, Optional
 from urllib.error import HTTPError
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QSizePolicy
 
 from AppCore.Config import Configuration
+from AppCore.DataSource.DataSourceCardSearch import (
+    DataSourceCardSearch, DataSourceCardSearchDelegate)
 from AppCore.Models import (DataSourceSelectedLocalCardResourceProtocol,
-                                LocalResourceDataSourceProviding)
-from AppCore.DataSource.DataSourceCardSearch import *
-from AppCore.Models import SearchConfiguration
-from AppCore.Observation import *
+                            LocalCardResource,
+                            LocalResourceDataSourceProviding,
+                            SearchConfiguration)
+from AppCore.Observation import (TransmissionProtocol,
+                                 TransmissionReceiverProtocol)
 from AppCore.Observation.Events import (CardSearchEvent,
                                         ConfigurationUpdatedEvent,
                                         LocalCardResourceFetchEvent)
@@ -54,15 +57,18 @@ class SearchTableViewController(RWidget,
                                                                                                      ds_configuration=ds_configuration)
         self._observation_tower = app_dependencies_provider.observation_tower
         self._router = app_dependencies_provider.router
+        self._external_app_dependencies_provider = app_dependencies_provider.external_app_dependencies_provider
 
         self.delegate: Optional[SearchTableViewControllerDelegate] = None
+        
+        self._latest_search_config: Optional[SearchConfiguration] = None
         
         self._shift_pressed = False
         self._ctrl_pressed = False
         self._configuration_manager = app_dependencies_provider.configuration_manager
 
         layout = VerticalBoxLayout().set_layout_to_widget(self)
-        search_table_combo_view = SearchTableComboViewController(app_dependencies_provider, self)
+        search_table_combo_view = SearchTableComboViewController(self)
         layout.add_widget(search_table_combo_view)
         self._search_table_combo_view = search_table_combo_view
     
@@ -144,12 +150,20 @@ class SearchTableViewController(RWidget,
                                       search_configuration: SearchConfiguration):
         self._search_table_combo_view.set_search_components_enabled(False)
         self._search_table_combo_view.set_configuration(search_configuration)
+        self._latest_search_config = search_configuration
 
     def ds_completed_search_with_result(self, 
                                         ds: DataSourceCardSearch,
                                         search_configuration: SearchConfiguration,
                                         error: Optional[Exception], 
                                         is_initial_load: bool):
+
+        if self._latest_search_config is not None:
+            if self._latest_search_config != search_configuration:
+                # may not be needed since UI protects multiple calls
+                return # Don't process if not latest search
+        self._latest_search_config = None
+
         try:
             status = "🟢 OK"
             if error is not None:
@@ -174,6 +188,10 @@ class SearchTableViewController(RWidget,
             
         
     # MARK: - SearchTableComboViewControllerDelegate
+    @property
+    def stc_query_view(self) -> Optional[RWidget]:
+        return self._external_app_dependencies_provider.provide_card_search_query_view()
+
     @property
     def stc_history_list(self) -> List[str]:
         return self._card_search_data_source.search_list_history_display
@@ -229,10 +247,6 @@ class SearchTableViewController(RWidget,
     def stc_is_flip_button_hidden(self) -> bool:
         return self._search_table_view_controller_config.is_flip_button_hidden
 
-    @property
-    def stc_is_history_dropdown_hidden(self) -> bool:
-        return self._search_table_view_controller_config.search_history_identifier is None
-
     # MARK: - LocalResourceDataSourceProviding, DataSourceSelectedLocalCardResourceProtocol
     @property
     def data_source(self) -> DataSourceSelectedLocalCardResourceProtocol:
@@ -244,13 +258,13 @@ class SearchTableViewController(RWidget,
 
     # MARK: - Observation Tower
     def handle_observation_tower_event(self, event: TransmissionProtocol):
-        if type(event) == CardSearchEvent:
+        if type(event) is CardSearchEvent:
             if event.source_type is not CardSearchEvent.SourceType.REMOTE:
                 return # dont'process local searches
             if event.seconds_since_predecessor is not None:
                 print(f"Search took :{event.seconds_since_predecessor}s")
                     
-        if type(event) == KeyboardEvent:
+        if type(event) is KeyboardEvent:
             if event.action == KeyboardEvent.Action.PRESSED:
                 if event.event.key() == Qt.Key.Key_Shift:
                     self._shift_pressed = True
@@ -265,5 +279,5 @@ class SearchTableViewController(RWidget,
                     self._ctrl_pressed = False
             self._search_table_combo_view.sync_ui()
 
-        if type(event) == ConfigurationUpdatedEvent:
+        if type(event) is ConfigurationUpdatedEvent:
             self._load_source_labels()

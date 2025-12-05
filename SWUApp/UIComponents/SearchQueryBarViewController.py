@@ -41,7 +41,7 @@ class SearchQueryBarViewController(SearchQueryBarViewProviding):
             index = self._card_type_selection.currentIndex()
             card_type = list(CardType)[index]
             config.card_type = card_type
-        except:
+        except Exception:
             pass
         return config
     
@@ -54,7 +54,7 @@ class SearchQueryBarViewController(SearchQueryBarViewProviding):
             index = self._card_type_selection.currentIndex()
             card_type = list(CardType)[index]
             config.card_type = card_type
-        except:
+        except Exception:
             pass
         config.card_type = CardType.LEADER
         return config
@@ -69,7 +69,7 @@ class SearchQueryBarViewController(SearchQueryBarViewProviding):
             index = self._card_type_selection.currentIndex()
             card_type = list(CardType)[index]
             config.card_type = card_type
-        except:
+        except Exception:
             pass
         config.card_type = CardType.BASE
         return config

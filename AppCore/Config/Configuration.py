@@ -12,7 +12,7 @@ from PySide6.QtCore import QStandardPaths
 class Configuration():
     
     APP_NAME = 'R4-MG'
-    APP_VERSION = '0.24.0'
+    APP_VERSION = '0.25.0'
     SETTINGS_VERSION = '1.0'
     
     class Toggles:
@@ -66,7 +66,7 @@ class Configuration():
 
         class SearchSource(int, Enum):
             SWUDBAPI = 0
-            LOCAL = 1 # NOTE: keep but dont reuse
+            # LOCAL = 1 # NOTE: keep but dont reuse
             STARWARSUNLIMITED_FFG = 2
             LOCALLY_MANAGED_DECKS = 3
             DEFAULT = SWUDBAPI
@@ -90,7 +90,7 @@ class Configuration():
     def __eq__(self, other):  # type: ignore
         if not isinstance(other, Configuration):
             # don't attempt to compare against unrelated types
-            return NotImplemented
+            raise NotImplementedError
 
         return self._underlying_json == other._underlying_json
     
@@ -203,7 +203,12 @@ class Configuration():
 
     @property 
     def search_source(self) -> Settings.SearchSource:
-        return self.Settings.SearchSource(self._get_with_default_settings(self.Settings.Keys.SEARCH_SOURCE))
+        try:
+            return self.Settings.SearchSource(self._get_with_default_settings(self.Settings.Keys.SEARCH_SOURCE))
+        except Exception:
+            # deprecated LOCAL, return default if it was set previously
+            # TODO: this should probably be handled in default settings function
+            return self.Settings.SearchSource.DEFAULT
     
     @property 
     def custom_directory_search_path(self) -> Optional[str]:

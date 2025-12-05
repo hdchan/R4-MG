@@ -1,26 +1,26 @@
-from typing import Optional
+from typing import Optional, List
 
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import (QHBoxLayout, QLineEdit, QListWidget,
-                             QPushButton, QSizePolicy, QVBoxLayout, QWidget)
+                               QPushButton, QSizePolicy, QVBoxLayout, QWidget)
 
 from AppCore.Config import Configuration
-from AppCore.Models import DataSourceSelectedLocalCardResourceProtocol
-from AppCore.DataSource.DataSourceCardSearch import *
 from AppCore.DataSource.DataSourceCustomDirectorySearch import (
     CustomDirectorySearchDataSource, CustomDirectorySearchDataSourceDelegate)
-from AppCore.Models import LocalCardResource, SearchConfiguration
-from AppCore.Observation import *
+from AppCore.Models import (DataSourceSelectedLocalCardResourceProtocol,
+                            LocalCardResource, SearchConfiguration)
+from AppCore.Observation import (TransmissionProtocol,
+                                 TransmissionReceiverProtocol)
 from AppCore.Observation.Events import (CardSearchEvent,
                                         ConfigurationUpdatedEvent,
                                         LocalCardResourceFetchEvent)
 from AppUI.AppDependenciesInternalProviding import \
     AppDependenciesInternalProviding
 from AppUI.Observation.Events import KeyboardEvent
-from R4UI import RWidget, Label
-
-from ..Base.LoadingSpinner import LoadingSpinner
-
+from R4UI import Label, RWidget
+from .SearchTableComboViewController import (
+    SearchTableComboViewController, SearchTableComboViewControllerDelegate)
+from R4UI import VerticalBoxLayout
 
 class CustomDirectorySearchTableViewControllerDelegate:
     def cds_did_retrieve_card(self) -> None:
@@ -29,7 +29,8 @@ class CustomDirectorySearchTableViewControllerDelegate:
 class CustomDirectorySearchTableViewController(RWidget, 
                                                TransmissionReceiverProtocol, 
                                                CustomDirectorySearchDataSourceDelegate, 
-                                               DataSourceSelectedLocalCardResourceProtocol):
+                                               DataSourceSelectedLocalCardResourceProtocol, 
+                                               SearchTableComboViewControllerDelegate):
     def __init__(self, 
                  app_dependencies_provider: AppDependenciesInternalProviding):
         super().__init__()
@@ -40,33 +41,11 @@ class CustomDirectorySearchTableViewController(RWidget,
         self._configuration_manager = app_dependencies_provider.configuration_manager
         self.delegate: Optional[CustomDirectorySearchTableViewControllerDelegate] = None
 
-        layout = QVBoxLayout()
-        self.setLayout(layout)
+        layout = VerticalBoxLayout().set_layout_to_widget(self)
         
-        
-        query_layout = QHBoxLayout()
-        query_layout.setContentsMargins(0, 0, 0, 0)
-        query_widget = QWidget()
-        query_widget.setLayout(query_layout)
-        layout.addWidget(query_widget)
-        
-        card_name_search_bar = QLineEdit(self)
-        card_name_search_bar.setPlaceholderText("Lookup by file name (Ctrl+L)")
-        self.card_name_search_bar = card_name_search_bar
-        query_layout.addWidget(card_name_search_bar, 1)
-        
-        result_list = QListWidget()
-        result_list.itemSelectionChanged.connect(self.get_selection)
-        result_list.itemClicked.connect(self.get_selection)
-        self.result_list = result_list
-        layout.addWidget(result_list, 1)
-        
-        
-        search_button = QPushButton()
-        search_button.clicked.connect(self.search)
-        self.search_button = search_button
-        self._sync_search_button_text()
-        layout.addWidget(search_button)
+        search_table_combo_view = SearchTableComboViewController(self)
+        layout.add_widget(search_table_combo_view)
+        self._search_table_combo_view = search_table_combo_view
         
         
         search_source_label = Label()
@@ -74,25 +53,22 @@ class CustomDirectorySearchTableViewController(RWidget,
         search_source_label.setMinimumSize(QSize(1, 1))
         search_source_label.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Preferred)
         search_source_label.linkActivated.connect(self._handle_link_activated)
-        layout.addWidget(search_source_label)
+        layout.add_widget(search_source_label)
         self.search_source_label = search_source_label
 
         self._load_source_labels()
-        
-        
-        self._loading_spinner = LoadingSpinner(self)
-        
+
+        self._search_table_combo_view.sync_ui()
         
         app_dependencies_provider.observation_tower.subscribe_multi(self, [CardSearchEvent,
                                                                          KeyboardEvent,
                                                                          ConfigurationUpdatedEvent, 
                                                                          LocalCardResourceFetchEvent]) 
         
-        app_dependencies_provider.shortcut_action_coordinator.bind_focus_search(self._set_search_focus, self)
-        app_dependencies_provider.shortcut_action_coordinator.bind_reset_search(self._reset_search, self)
+        app_dependencies_provider.shortcut_action_coordinator.bind_focus_search(self._search_table_combo_view.set_search_focus, self)
+        app_dependencies_provider.shortcut_action_coordinator.bind_reset_search(self._search_table_combo_view.reset_search, self)
         app_dependencies_provider.shortcut_action_coordinator.bind_search(self.search, self)
         
-        self._sync_ui()
     
     @property
     def data_source(self) -> DataSourceSelectedLocalCardResourceProtocol:
@@ -102,6 +78,8 @@ class CustomDirectorySearchTableViewController(RWidget,
     def _configuration(self) -> Configuration:
         return self._configuration_manager.configuration
     
+    # MARK: - CustomDirectorySearchDataSourceDelegate
+
     def ds_completed_search_with_result(self, 
                                         ds: CustomDirectorySearchDataSource,
                                         search_configuration: SearchConfiguration,
@@ -110,7 +88,8 @@ class CustomDirectorySearchTableViewController(RWidget,
             status = "🟢 OK"
             if error is not None:
                 status = f"🔴 {error}"
-            self._load_list()
+            self._search_table_combo_view.load_list()
+            self._search_table_combo_view.set_item_active(0)
             self._load_source_labels(status_string=status)
         except Exception as error:
             print(error)
@@ -121,65 +100,26 @@ class CustomDirectorySearchTableViewController(RWidget,
         if self.delegate is not None:
             self.delegate.cds_did_retrieve_card()
 
-    def get_selection(self):
-        selected_indexes = self.result_list.selectedIndexes()
-        if len(selected_indexes) > 0:
-            self._card_search_data_source.select_card_resource_for_card_selection(selected_indexes[0].row())
+    # MARK: - SearchTableComboViewControllerDelegate
+    def stc_select_card_resource_for_card_selection(self, stc: 'SearchTableComboViewController', index: int) -> None:
+        self._card_search_data_source.select_card_resource_for_card_selection(index)
+    
+    def stc_did_click_search(self, stc: 'SearchTableComboViewController') -> None:
+        self._search()
+    
+    @property
+    def stc_list_items(self) -> List[str]:
+        return self._card_search_data_source.resource_display_names
 
-    def _set_search_focus(self):
-        self.card_name_search_bar.setFocus()
-        self.card_name_search_bar.selectAll()
-
-    def _reset_search(self):
-        self.card_name_search_bar.clear()
-        self.card_name_search_bar.setFocus()
-
-    def set_item_active(self, index: int):
-        self.result_list.setCurrentRow(index)
+    @property
+    def stc_search_button_text(self) -> str:
+        return "Search (Enter)"
 
     def search(self):
         self._search()
 
     def _search(self, config_modifier: ... = None):
-        # prevent query errors
-        stripped_text = self.card_name_search_bar.text().strip()
-        self.card_name_search_bar.setText(stripped_text)
-        
-        search_configuration = SearchConfiguration()
-        search_configuration.card_name = stripped_text
-                
-        if config_modifier is not None:
-            search_configuration = config_modifier(search_configuration)
-        
-        self._card_search_data_source.search(search_configuration)
-        
-    def _load_list(self):
-        selected_indexes = self.result_list.selectedIndexes()
-        selected_index = 0
-        if len(selected_indexes) > 0:
-            selected_index = selected_indexes[0].row()
-
-        trading_cards = self._card_search_data_source.resource_display_names
-        self.result_list.clear()
-        for i in trading_cards:
-            self.result_list.addItem(i)
-        
-        self.result_list.addItem('No more results')
-        
-        self.set_item_active(selected_index)
-        self._set_search_components_enabled(True)
-            
-
-    def _set_search_components_enabled(self, is_on: bool):
-        self.card_name_search_bar.setEnabled(is_on)
-        self.search_button.setEnabled(is_on)
-        if is_on:
-            self._loading_spinner.stop()
-        else:
-            self._loading_spinner.start()
-            
-    def _sync_ui(self):
-        pass
+        self._card_search_data_source.search(self._search_table_combo_view.search_configuration)
 
     def _load_source_labels(self, status_string: str = ""):
         self.search_source_label.setText(f'Search source: <a href="#open-directory">{self._card_search_data_source.source_display_name}</a> {status_string}')
@@ -190,24 +130,21 @@ class CustomDirectorySearchTableViewController(RWidget,
                 self._card_search_data_source.open_directory_path()
             except Exception as error:
                 self._router.show_error(error)
-    
-    def _sync_search_button_text(self):
-        self.search_button.setText("Search (Enter)")
         
     def handle_observation_tower_event(self, event: TransmissionProtocol):
-        if type(event) == CardSearchEvent:
+        if type(event) is CardSearchEvent:
             if event.event_type == CardSearchEvent.EventType.STARTED:
-                self._set_search_components_enabled(False)
+                self._search_table_combo_view.set_search_components_enabled(False)
 
             elif event.event_type == CardSearchEvent.EventType.FINISHED:
-                self._set_search_components_enabled(True)
+                self._search_table_combo_view.set_search_components_enabled(True)
 
             if event.seconds_since_predecessor is not None and event.source_type is CardSearchEvent.SourceType.LOCAL:
                 print(f"Custom search took :{event.seconds_since_predecessor}s")
                     
-        if type(event) == KeyboardEvent:
-            self._sync_search_button_text()
+        if type(event) is KeyboardEvent:
+            self._search_table_combo_view.sync_ui()
 
-        if type(event) == ConfigurationUpdatedEvent:
+
+        if type(event) is ConfigurationUpdatedEvent:
             self._load_source_labels()
-            self._sync_ui()

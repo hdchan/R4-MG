@@ -4,10 +4,8 @@ from typing import Optional
 from urllib.parse import urlparse
 
 from AppCore.Config import ConfigurationManager
-from AppCore.Models import LocalCardResource, TradingCard
+from AppCore.Models import TradingCard
 from AppCore.Models.LocalCardResource import LocalCardResource
-from AppCore.Models.TradingCard import TradingCard
-from AppCore.Observation import *
 
 
 class CardResourceProvider:

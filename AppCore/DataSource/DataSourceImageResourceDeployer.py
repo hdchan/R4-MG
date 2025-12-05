@@ -7,7 +7,6 @@ from typing import List, Optional
 from PIL import Image
 
 from AppCore.Config import Configuration, ConfigurationManager
-from AppCore.ImageFetcher.ImageFetcherProvider import *
 from AppCore.Models import DeploymentCardResource, LocalCardResource
 from AppCore.Observation import ObservationTower
 from AppCore.Observation.Events import (
@@ -175,7 +174,7 @@ class DataSourceImageResourceDeployer:
                             shutil.copy(r.staged_resource.image_path, production_dir_path)
                         try:
                             shutil.copy(r.staged_resource.image_preview_path, production_preview_dir_path) # raises exception can ignore
-                        except:
+                        except Exception:
                             Path(production_preview_dir_path).unlink() # remove previous preview file
                             # gets regenerated from reload
                             # do nothing because preview file is not critical, or maybe can regenerate file

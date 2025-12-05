@@ -1,4 +1,4 @@
-from .ImageResourceProcessorProtocol import *
+from .ImageResourceProcessorProtocol import ImageResourceProcessorProviding, ImageResourceProcessorProtocol
 
 class ImageResourceProcessorProvider(ImageResourceProcessorProviding):
 

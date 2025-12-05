@@ -85,10 +85,10 @@ class DraftListTablePackPreviewContainerViewController(RWidget,
         self._pack_preview.sync_ui()
     
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
-        if type(event) == DraftListWindowResourceUpdatedEvent:
+        if type(event) is DraftListWindowResourceUpdatedEvent:
             if self._resource == event.old_resource:
                 self._resource = event.new_resource
                 self._draft_pack = self._data_source_draft_list.pack_for_draft_pack_identifier(event.new_resource.window_configuration.draft_pack_identifier)
             self._sync_ui()
-        if type(event) == DraftPackUpdatedEvent:
+        if type(event) is DraftPackUpdatedEvent:
             self._sync_ui()

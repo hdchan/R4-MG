@@ -39,7 +39,7 @@ class TradingCard():
     def __eq__(self, other):  # type: ignore
         if not isinstance(other, TradingCard):
             # don't attempt to compare against unrelated types
-            return NotImplemented
+            raise NotImplementedError
 
         return self.set == other.set and \
             self.number == other.number
@@ -85,8 +85,8 @@ class TradingCard():
     
     @property
     def front_art_url(self) -> str:
-        return NotImplemented
+        raise NotImplementedError
     
     @property
     def back_art_url(self) -> Optional[str]:
-        return NotImplemented
+        raise NotImplementedError

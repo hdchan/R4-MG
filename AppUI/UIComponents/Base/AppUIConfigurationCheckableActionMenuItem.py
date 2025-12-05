@@ -31,5 +31,5 @@ class AppUIConfigurationCheckableRActionMenuItem(QAction, TransmissionReceiverPr
         self._app_ui_configuration_manager.save_configuration(new_config)
     
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
-        if type(event) == ConfigurationUpdatedEvent:
+        if type(event) is ConfigurationUpdatedEvent:
             self._sync_ui()

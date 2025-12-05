@@ -52,7 +52,7 @@ class SWUTradingCard(TradingCard):
         for a in aspects:
             try:
                 result.append(CardAspect(a.lower()))
-            except:
+            except Exception:
                 continue
         return sorted(result)
     
@@ -63,7 +63,7 @@ class SWUTradingCard(TradingCard):
         for v in variants:
             try:
                 result.append(CardVariant(v.lower()))
-            except:
+            except Exception:
                 continue
         return sorted(result)
     
@@ -75,7 +75,7 @@ class SWUTradingCard(TradingCard):
     def card_type(self) -> CardType:
         try:
             return CardType(self.type.lower())
-        except:
+        except Exception:
             return CardType.UNSPECIFIED
         
     @property
@@ -99,5 +99,5 @@ class SWUTradingCard(TradingCard):
             if self.cost is None:
                 return 0
             return int(self.cost)
-        except:
+        except Exception:
             return 0

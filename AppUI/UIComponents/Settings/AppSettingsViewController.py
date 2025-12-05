@@ -1,7 +1,7 @@
 from typing import List, Tuple
 
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
-from AppUI.UIComponents.Settings.SettingsContainerChildProtocol import *
+from AppUI.UIComponents.Settings.SettingsContainerChildProtocol import SettingsContainerChildProtocol
 from R4UI import (HorizontalBoxLayout, PushButton, RWidget, RTabWidget,
                   VerticalBoxLayout)
 

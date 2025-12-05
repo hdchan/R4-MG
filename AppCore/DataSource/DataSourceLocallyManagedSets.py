@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Callable, Dict, Generic, List, Optional, Set, Tuple, TypeVar
 from urllib import request
 
-from PySide6.QtCore import QObject, QRunnable, QThreadPool, Signal, QMutex
+from PySide6.QtCore import QMutex, QObject, QRunnable, QThreadPool, Signal
 
 from AppCore.Config import Configuration, ConfigurationManager
 from AppCore.Models import LocalAssetResource, TradingCard
@@ -17,7 +17,7 @@ T = TypeVar("T")
 
 class DataSourceLocallyManagedSetsClientProtocol:
     def parse_asset(self, file: TextIOWrapper) -> List[TradingCard]:
-        return NotImplemented
+        raise NotImplementedError
     
     def remote_url(self, deck_identifier: str) -> str:
         return  NotImplemented
@@ -25,11 +25,11 @@ class DataSourceLocallyManagedSetsClientProtocol:
     # should be constant, and not change
     @property
     def domain_identifier(self) -> str:
-        return NotImplemented
+        raise NotImplementedError
     
     @property
     def file_extension(self) -> str:
-        return NotImplemented
+        raise NotImplementedError
 
 ASSET_TYPE_IDENTIFIER = 'managed_deck'
 
@@ -87,7 +87,7 @@ class DataSourceLocallyManagedSets:
         try:
             with open(resource.asset_path, 'r') as f:
                 return self._client.parse_asset(f)
-        except:
+        except Exception:
             raise Exception(f'Invalid deck: "{resource.display_name}"')
         
     

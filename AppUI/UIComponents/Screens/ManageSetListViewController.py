@@ -88,13 +88,13 @@ class ManageSetListViewController(QWidget, TransmissionReceiverProtocol):
             self._router.open_locally_managed_deck_preview(self._resource)
         
         def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
-            if type(event) == LocalAssetResourceFetchEvent:
+            if type(event) is LocalAssetResourceFetchEvent:
                 if event.local_resource == self._resource:
                     self._sync_ui()
     
     class AddListItemViewControllerDelegate:
         def did_save(self) -> None:
-            raise NotImplemented
+            raise NotImplementedError
     
     
 

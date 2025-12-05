@@ -15,13 +15,6 @@
 
 See the [Changelog](./AppUI/Assets/Text/CHANGELOG.md) for recent updates.
 
-## Requirements
-
-- Windows OS
-- Python 3.9+
-- PyQt5
-- See `requirements.txt` for all dependencies
-
 ## Installation
 
 1. Download the [latest release build](https://github.com/hdchan/R4-MG/releases)
@@ -44,7 +37,7 @@ See the [Changelog](./AppUI/Assets/Text/CHANGELOG.md) for recent updates.
 
 ![Dashboard](./resources/dashboard.png)
 
-### OBS Integration
+### OBS Usage
 
 - Source images from the `production/` folder in OBS
 - Images update automatically when staged cards are sent to production
@@ -66,4 +59,4 @@ This project is licensed under the MIT License.
 ## Attributions
 
 - [SWU-DB.com](https://www.swu-db.com/api)
-- [PyQt5](https://www.riverbankcomputing.com/static/Docs/PyQt5/)
+- [PySide6](https://doc.qt.io/qtforpython-6/)

@@ -1,6 +1,7 @@
-from typing import List, Optional
+from typing import List, Optional, Sequence
 
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QWidget
 from PySide6.QtWidgets import (QBoxLayout, QGridLayout, QHBoxLayout, QSpacerItem,
                              QVBoxLayout)
 
@@ -10,9 +11,9 @@ from .RWidget import RWidget
 class BoxLayout(RWidget):
     def __init__(self, 
                  layout: QBoxLayout,  
-                 widgets: List[RWidget] = [], weights: List[Optional[int]] = []):
+                 widgets: Sequence[QWidget] = [], weights: List[Optional[int]] = []):
         super().__init__()
-        self._widgets: List[RWidget] = []
+        self._widgets: Sequence[QWidget] = []
         self._layout = layout
         self.setLayout(self._layout)
         self.add_widgets(widgets, weights)
@@ -25,15 +26,17 @@ class BoxLayout(RWidget):
     def set_alignment_top(self) -> 'BoxLayout':
         return self.set_alignment_for_all_widgets(Qt.AlignmentFlag.AlignTop)
     
-    def add_widgets(self, widgets: List[RWidget], weights: List[Optional[int]] = []):
+    def add_widgets(self, widgets: Sequence[QWidget], weights: List[Optional[int]] = []):
         for i, w in enumerate(widgets):
             if i < len(weights):
                 self.add_widget(w, weight=weights[i])
             else:
                 self.add_widget(w)
 
-    def add_widget(self, widget: RWidget, weight: Optional[int] = None):
-        self._widgets.append(widget)
+    def add_widget(self, widget: QWidget, weight: Optional[int] = None):
+        temp_list = list(self._widgets)
+        temp_list.append(widget)
+        self._widgets = temp_list
         if weight is not None:
             self._layout.addWidget(widget, weight)
         else:
@@ -43,8 +46,10 @@ class BoxLayout(RWidget):
         self._layout.addSpacerItem(spacer_item)
         return self
         
-    def set_layout_to_widget(self, layout: RWidget) -> 'BoxLayout':
-        layout.setLayout(self.layout())
+    def set_layout_to_widget(self, layout: QWidget) -> 'BoxLayout':
+        the_layout = self.layout()
+        if the_layout is not None:
+            layout.setLayout(the_layout)
         return self
     
     def set_spacing(self, spacing: int) -> 'BoxLayout':
@@ -61,11 +66,10 @@ class BoxLayout(RWidget):
     def _clear_widgets(self):
         for i in reversed(range(self._layout.count())):
             layout_item = self._layout.takeAt(i)
-            if layout_item is not None:
-                widget = layout_item.widget()
-                if widget is not None:
-                    widget.deleteLater()
-                    widget = None
+            widget = layout_item.widget()
+            if widget is not None:
+                widget.deleteLater()
+                widget = None
         self._widgets = []
                     
     def replace_all_widgets(self, widgets: List[RWidget]):
@@ -81,16 +85,17 @@ class BoxLayout(RWidget):
             # and returns it.
             item = self._layout.takeAt(index_to_remove)
 
-            if item is not None:
-                widget = item.widget()
-                if widget is not None:
-                    # It's good practice to call deleteLater() to properly
-                    # destroy the widget and free its resources.
-                    widget.deleteLater()
-                    # You might also want to remove it from your internal list
-                    # if you're tracking widgets this way.
-                    if widget in self._widgets:
-                        self._widgets.remove(widget)
+            widget = item.widget()
+            if widget is not None:
+                # It's good practice to call deleteLater() to properly
+                # destroy the widget and free its resources.
+                widget.deleteLater()
+                # You might also want to remove it from your internal list
+                # if you're tracking widgets this way.
+                if widget in self._widgets:
+                    widget_list = list(self._widgets)
+                    widget_list.remove(widget)
+                    self._widgets = widget_list
     
     def swap_widgets(self, index_1: int, index_2: int):
         # Remove widgets
@@ -107,13 +112,13 @@ class BoxLayout(RWidget):
         self._layout.insertItem(index_2, item_1)
 
 class HorizontalBoxLayout(BoxLayout):
-    def __init__(self, widgets: List[RWidget] = [], weights: List[Optional[int]] = []):
+    def __init__(self, widgets: Sequence[QWidget] = [], weights: List[Optional[int]] = []):
         super().__init__(QHBoxLayout(), widgets, weights)
         pass
     
             
 class VerticalBoxLayout(BoxLayout):
-    def __init__(self, widgets: List[RWidget] = [], weights: List[Optional[int]] = []):
+    def __init__(self, widgets: Sequence[QWidget] = [], weights: List[Optional[int]] = []):
         super().__init__(QVBoxLayout(), widgets, weights)
         pass
 
@@ -133,11 +138,10 @@ class GridLayout(RWidget):
     def _clear_widgets(self):
         for i in reversed(range(self._layout.count())):
             layout_item = self._layout.takeAt(i)
-            if layout_item is not None:
-                widget = layout_item.widget()
-                if widget is not None:
-                    widget.deleteLater()
-                    widget = None
+            widget = layout_item.widget()
+            if widget is not None:
+                widget.deleteLater()
+                widget = None
         self._widgets = []
                     
     def replace_all_widgets(self, widgets: List[tuple[RWidget, tuple[int, int]]]):
@@ -145,9 +149,11 @@ class GridLayout(RWidget):
         self.add_widgets(widgets)
         
     def set_layout_to_widget(self, layout: RWidget) -> 'GridLayout':
-        layout.setLayout(self.layout())
+        the_layout = self.layout()
+        if the_layout is not None:
+            layout.setLayout(the_layout)
         return self
     
-    def set_content_margins(self, left: int, top: int, right: int, bottom: int) -> 'HorizontalBoxLayout':
+    def set_content_margins(self, left: int, top: int, right: int, bottom: int) -> 'GridLayout':
         self._layout.setContentsMargins(left, top, right, bottom)
         return self

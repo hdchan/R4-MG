@@ -156,19 +156,19 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
 
 
     def handle_observation_tower_event(self, event: TransmissionProtocol):
-        if (type(event) == PublishStatusUpdatedEvent or 
-            type(event) == LocalCardResourceFetchEvent or 
-            type(event) == PublishStagedCardResourcesEvent):
+        if (type(event) is PublishStatusUpdatedEvent or 
+            type(event) is LocalCardResourceFetchEvent or 
+            type(event) is PublishStagedCardResourcesEvent):
             can_publish_staged_resources = self._data_source_image_resource_deployer.can_publish_staged_resources
             self.set_production_button_enabled(can_publish_staged_resources)
-        if type(event) == ProductionCardResourcesLoadEvent:
+        if type(event) is ProductionCardResourcesLoadEvent:
             if event.event_type == ProductionCardResourcesLoadEvent.EventType.STARTED:
                 self.loading_spinner.start()
             elif event.event_type == ProductionCardResourcesLoadEvent.EventType.FINISHED:
                 self._reload_production_resources_list()
                 self.loading_spinner.stop()
             
-        if type(event) == ConfigurationUpdatedEvent:
+        if type(event) is ConfigurationUpdatedEvent:
             self._sync_configuration_related_components()
             
             if (event.configuration.deployment_list_sort_is_desc_order != event.old_configuration.deployment_list_sort_is_desc_order or 

@@ -26,7 +26,7 @@ class ImageDeploymentSettingsViewController(SettingsContainerChildProtocol):
                 RButtonGroup([
                     ("https://www.starwarsunlimited.com/", Configuration.Settings.SearchSource.STARWARSUNLIMITED_FFG),
                     ("https://www.swu-db.com/", Configuration.Settings.SearchSource.SWUDBAPI),
-                    ("Local Search + www.swu-db.com Images (Set 1-5) [NOTE: Will be removed]", Configuration.Settings.SearchSource.LOCAL),
+                    # ("Local Search + www.swu-db.com Images (Set 1-5) [NOTE: Will be removed]", Configuration.Settings.SearchSource.LOCAL),
                     ("Locally managed sets", Configuration.Settings.SearchSource.LOCALLY_MANAGED_DECKS)
                 ], lambda x: self._mutable_configuration.set_search_source(x)) \
                 .set_object_checked(self._mutable_configuration.search_source)

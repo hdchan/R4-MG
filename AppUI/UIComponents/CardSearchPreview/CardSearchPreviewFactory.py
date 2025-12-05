@@ -1,5 +1,6 @@
+from typing import List
+
 from AppCore.Config import Configuration
-from AppCore.ImageResource.ImageResourceProcessorProtocol import *
 from AppCore.Models import (DataSourceSelectedLocalCardResourceProtocol,
                             LocalAssetResource,
                             LocalResourceDataSourceProviding)
@@ -154,8 +155,8 @@ class CardSearchPreviewFactory:
                 self._status_label.set_text(url)
 
             def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
-                if type(event) == ConfigurationUpdatedEvent or \
-                    type(event) == SocketRouterUpdatedEvent :
+                if type(event) is ConfigurationUpdatedEvent or \
+                    type(event) is SocketRouterUpdatedEvent :
                     self._sync_ui()
 
 

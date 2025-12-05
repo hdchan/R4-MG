@@ -3,14 +3,18 @@ from collections import deque
 from typing import Dict, List, Optional
 
 from AppCore.DataSource.DataSourceCardSearch import (
-    DataSourceCardSearch, DataSourceCardSearchDelegate)
+    DataSourceCardSearch,
+    DataSourceCardSearchDelegate,
+)
 from AppCore.Models import SearchConfiguration
 
-from ...Models import (CardType, ParsedDeckList, SWUCardSearchConfiguration,
-                       SWUTradingCardBackedLocalCardResource,
-                       SWUTradingCardModelMapper)
-from ...Models.SWUTradingCardBackedLocalCardResource import \
-    SWUTradingCardBackedLocalCardResource
+from ...Models import (
+    CardType,
+    ParsedDeckList,
+    SWUCardSearchConfiguration,
+    SWUTradingCardBackedLocalCardResource,
+    SWUTradingCardModelMapper,
+)
 from ...SWUAppDependenciesProviding import SWUAppDependenciesProviding
 from ..ExportImportFormattable import ExportFormattable, Importable
 
@@ -25,7 +29,7 @@ class MGGHandler(ExportFormattable, Importable, DataSourceCardSearchDelegate):
 
         self._search_queue: deque[SWUCardSearchConfiguration] = deque([])
         self._result: List[SWUTradingCardBackedLocalCardResource] = []
-        self._not_found: List[SearchConfiguration] = []
+        self._not_found: List[SWUCardSearchConfiguration] = []
 
     @property
     def file_format(self) -> str:
@@ -89,7 +93,7 @@ class MGGHandler(ExportFormattable, Importable, DataSourceCardSearchDelegate):
         if len(self._search_queue) == 0:
             # finish processing
             if len(self._not_found) > 0:
-                not_found_card_string = ", ".join(map(lambda x: x.card_name, self._not_found))
+                not_found_card_string = ", ".join(map(lambda x: f'{x.card_name} {x.subtitle}', self._not_found))
                 self._router.show_error(Exception(f'Could not find: {not_found_card_string}'))
             else:
                 self._data_source_draft_list.create_new_pack_from_list("Imported MGG deck", self._result)
@@ -105,6 +109,15 @@ class MGGHandler(ExportFormattable, Importable, DataSourceCardSearchDelegate):
                                         is_initial_load: bool) -> None:
         local_resources = list(filter(None, list(map(lambda x: SWUTradingCardModelMapper.from_card_resource(x), ds.local_card_resources))))
         swu_search_configuration = SWUCardSearchConfiguration.from_search_configuration(search_configuration)
+        
+        # Need to ensure that subtitles match as well
+        def subtitle_filter(resource: SWUTradingCardBackedLocalCardResource):
+            if swu_search_configuration.subtitle is None:
+                return True
+            return resource.guaranteed_trading_card.subtitle == swu_search_configuration.subtitle
+
+        local_resources = list(filter(subtitle_filter, local_resources))
+
         if len(local_resources) > 0:
             current_resource = local_resources[0]
             current_number = int(current_resource.guaranteed_trading_card.number)
@@ -119,7 +132,7 @@ class MGGHandler(ExportFormattable, Importable, DataSourceCardSearchDelegate):
             for _ in range(quantity):
                 self._result.append(current_resource)
         else:
-            self._not_found.append(search_configuration)
+            self._not_found.append(swu_search_configuration)
 
                         
         self._continue_processing_search_queue()

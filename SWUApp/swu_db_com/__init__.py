@@ -1,3 +1,2 @@
 from .SWUDBAPIRemoteClient import SWUDBAPIRemoteClient
-from .SWUDBAPILocalClient import SWUDBAPILocalClient
 from .SWUDBLocalSetRetrieverClient import SWUDBLocalSetRetrieverClient, SWUDBLocalCardRetrieverClient

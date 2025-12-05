@@ -26,7 +26,7 @@ class DraftPack():
         def __eq__(self, other):  # type: ignore
             if not isinstance(other, DraftPack):
                 # don't attempt to compare against unrelated types
-                return NotImplemented
+                raise NotImplementedError
 
             return self._pack_identifier == other._pack_identifier
         

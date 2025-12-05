@@ -108,26 +108,6 @@ class AssetProvider:
     
     class Data:
         @property
-        def sor_set_path(self):
-            return self._data_path('sor.json')
-        
-        @property
-        def shd_set_path(self):
-            return self._data_path('shd.json')
-        
-        @property
-        def twi_set_path(self):
-            return self._data_path('twi.json')
-        
-        @property
-        def jtl_set_path(self):
-            return self._data_path('jtl.json')
-        
-        @property
-        def lof_set_path(self):
-            return self._data_path('lof.json')
-        
-        @property
         def starwarsunlimited_com_filter_path(self):
             return self._data_path('starwarsunlimited_com_filters.json')
         

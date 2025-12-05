@@ -1,20 +1,22 @@
 from typing import Any, Dict
+from uuid import UUID, uuid4
 
 class SearchConfiguration():
     def __init__(self):
+        self.search_id: UUID = uuid4()
         self.card_name: str = ""
         self.metadata: Dict[str, Any] = {}
         
     def __eq__(self, other):  # type: ignore
         if not isinstance(other, SearchConfiguration):
             # don't attempt to compare against unrelated types
-            return NotImplemented
+            raise NotImplementedError
 
-        return (self.card_name == other.card_name and 
-                self.metadata == other.metadata)
+        return (self.search_id == other.search_id)
     
     def __str__(self):
         return f"""
+        search_id: {self.search_id},
         card_name: {self.card_name},
         metadata: {self.metadata}
         """

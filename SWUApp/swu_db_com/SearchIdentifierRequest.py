@@ -18,9 +18,9 @@ class SearchIdentifierRequest(DataFetcherRemoteRequestProtocol[DataSourceCardSea
         def __eq__(self, other):  # type: ignore
             if not isinstance(other, SearchIdentifierRequest):
                 # don't attempt to compare against unrelated types
-                return NotImplemented
+                raise NotImplementedError
 
-            return (self.search_configuration == other.search_configuration)
+            return (self.search_configuration.card_set == other.search_configuration.card_set and self.search_configuration.card_number == other.search_configuration.card_number)
         
         def request(self) -> Optional[Request]:
             

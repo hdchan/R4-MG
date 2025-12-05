@@ -9,7 +9,7 @@ from AppCore.DataSource.DataSourceCardSearch import (
     DataSourceCardSearchDelegate)
 from AppCore.DataSource.DataSourceCustomDirectorySearch import (
     CustomDirectorySearchDataSource, CustomDirectorySearchDataSourceDelegate)
-from AppCore.DataSource.DataSourceRecentPublished import \
+from AppCore.DataSource.DataSourceCachedHistory import \
     DataSourceCachedHistory
 from AppCore.ImageResource import ImageResourceProcessorProviding
 from AppCore.Observation.ObservationTower import ObservationTower

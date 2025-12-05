@@ -1,23 +1,31 @@
 from typing import Any, List, Optional
 
 from AppCore.DataFetcher import DataFetcherLocal
-from AppCore.Models import (DataSourceSelectedLocalCardResourceProtocol,
-                                LocalResourceDataSourceProviding)
-from AppCore.DataSource.DataSourceCardSearch import (
-    DataSourceCardSearch, DataSourceCardSearchClientProtocol,
+from AppCore.DataSource import (
+    DataSourceCardSearch,
+    DataSourceCardSearchClientProtocol,
     DataSourceCardSearchClientProviding,
     DataSourceCardSearchClientSearchCallback,
     DataSourceCardSearchClientSearchResponse,
-    DataSourceCardSearchClientSearchResult, DataSourceCardSearchDelegate)
-from AppCore.Models import (LocalAssetResource, LocalCardResource,
-                            PaginationConfiguration, SearchConfiguration,
-                            TradingCard)
-from AppUI.AppDependenciesInternalProviding import \
-    AppDependenciesInternalProviding
-from R4UI import RWidget, HorizontalBoxLayout
+    DataSourceCardSearchClientSearchResult,
+    DataSourceCardSearchDelegate,
+)
+from AppCore.Models import (
+    DataSourceSelectedLocalCardResourceProtocol,
+    LocalAssetResource,
+    LocalCardResource,
+    LocalResourceDataSourceProviding,
+    PaginationConfiguration,
+    SearchConfiguration,
+    TradingCard,
+)
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
+from R4UI import HorizontalBoxLayout, RWidget
 
 from .SearchTableComboViewController import (
-    SearchTableComboViewController, SearchTableComboViewControllerDelegate)
+    SearchTableComboViewController,
+    SearchTableComboViewControllerDelegate,
+)
 
 
 class LocallyManagedSetPreviewViewControllerDelegate:
@@ -37,6 +45,7 @@ class LocallyManagedSetPreviewViewController(RWidget,
                  resource: LocalAssetResource):
         super().__init__()
         self._resource = resource
+        self._external_app_dependencies_provider = app_dependencies_provider.external_app_dependencies_provider
         self._card_search_data_source = app_dependencies_provider.new_instance_card_search_data_source(self, self)
         self._local_managed_sets_data_source = app_dependencies_provider.local_managed_sets_data_source
         self._local_fetcher = DataFetcherLocal(DataFetcherLocal.Configuration(app_dependencies_provider.configuration_manager.configuration.network_delay_duration))
@@ -47,7 +56,7 @@ class LocallyManagedSetPreviewViewController(RWidget,
         
         self.setWindowTitle(f'Set preview: {resource.display_name.upper()} ({len(self._card_resources)} cards)') # TODO: why does this not show?
 
-        self._search_table_combo_view = SearchTableComboViewController(app_dependencies_provider, self)
+        self._search_table_combo_view = SearchTableComboViewController(self)
 
         HorizontalBoxLayout([
             self._search_table_combo_view
@@ -64,16 +73,9 @@ class LocallyManagedSetPreviewViewController(RWidget,
     def source_display_name(self) -> str:
         return self._resource.display_name.upper()
         
-    def search(self,
+    def search_with_result(self,
                 search_configuration: SearchConfiguration,
-                pagination_configuration: PaginationConfiguration,
-                callback: DataSourceCardSearchClientSearchCallback) -> None:
-        def completed_search(result: DataSourceCardSearchClientSearchResult):
-            callback(result)
-        self._local_fetcher.load(self._perform_search, completed_search, search_configuration=search_configuration)
-
-    def _perform_search(self, args: Any) -> DataSourceCardSearchClientSearchResult:
-        search_configuration: SearchConfiguration = args.get('search_configuration')
+                pagination_configuration: PaginationConfiguration) -> DataSourceCardSearchClientSearchResult:
         def filter_the_result(card: TradingCard):
             return (search_configuration.card_name.lower() in card.name.lower())
         def sort_the_result(card: TradingCard):
@@ -129,7 +131,3 @@ class LocallyManagedSetPreviewViewController(RWidget,
     @property
     def stc_is_flippable(self) -> bool:
         return self._card_search_data_source.current_previewed_trading_card_is_flippable
-    
-    @property
-    def is_only_text_search(self) -> bool:
-        return True

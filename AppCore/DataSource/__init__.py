@@ -7,3 +7,5 @@ from .DataSourceDraftList import DataSourceDraftList
 from .DataSourceImageResourceDeployer import DataSourceImageResourceDeployer
 from .DataSourceDraftListWindowResourceDeployer import DataSourceDraftListWindowResourceDeployer
 from .DataSourceSocketIOHistory import DataSourceSocketIOHistory
+from .DataSourceRecentSearch import DataSourceRecentSearch
+from .DataSourceCardSearch import DataSourceCardSearchDelegate, DataSourceCardSearch
