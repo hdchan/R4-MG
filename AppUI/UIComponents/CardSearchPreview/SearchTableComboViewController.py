@@ -110,7 +110,7 @@ class ComboBox(RComboBox):
         # which makes items show full width under Windows
         view = self.view()
         fm = self.fontMetrics()
-        maxWidth = max([fm.width(self.itemText(i)) for i in range(self.count())])
+        maxWidth = max([fm.horizontalAdvance(self.itemText(i)) for i in range(self.count())])
         if maxWidth:
             view.setMinimumWidth(maxWidth + 50)
 

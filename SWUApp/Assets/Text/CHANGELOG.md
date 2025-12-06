@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.24.1
+### Hotfix
+- Fix search history dropdown
+
 ## 0.24.0
 ### Feature
 - Migrate to PySide6
