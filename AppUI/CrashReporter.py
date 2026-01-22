@@ -23,6 +23,8 @@ class CustomDialog(QDialog):
 class CrashReporter:
 
     def __init__(self, application_dependencies_provider: AppDependenciesInternalProviding):
+        if application_dependencies_provider.configuration_manager.configuration.is_developer_mode:
+            return
         # https://www.google.com/search?q=how+to+log+crashes+python+for+app+uncaught+exception&client=firefox-b-1-d&sca_esv=679517c3ba0a5d08&sxsrf=AE3TifM2i-CVy1Fu2aSTEM7fy4faAwAxNw%3A1760131746901&ei=onrpaObnNvK0ptQPweiGmAs&oq=how+to+log+crashes+python+for+app+uncaugh&gs_lp=Egxnd3Mtd2l6LXNlcnAiKWhvdyB0byBsb2cgY3Jhc2hlcyBweXRob24gZm9yIGFwcCB1bmNhdWdoKgIIATIFECEYoAEyBRAhGKABMgUQIRigATIFECEYoAEyBRAhGKABSL0XUI0CWKUQcAF4AZABAJgBdKAB7wWqAQM1LjO4AQPIAQD4AQGYAgmgAocGwgIKEAAYsAMY1gQYR8ICBRAhGKsCwgIFECEYnwWYAwCIBgGQBgSSBwM2LjOgB44vsgcDNS4zuAeFBsIHBTAuOC4xyAcO&sclient=gws-wiz-serp
     
         def handle_uncaught_exception(exc_type, exc_value, exc_traceback):

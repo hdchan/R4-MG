@@ -33,7 +33,7 @@ class DraftListItemHeader(QWidget):
         cell_widget.setPalette(palette)
         
         palette = QPalette()
-        palette.setColor(QPalette.ColorRole.Base, QColor(self._stylesheet.cell_header_font_color))
+        palette.setColor(QPalette.ColorRole.WindowText, QColor(self._stylesheet.cell_header_font_color))
             
             
         label = Label()

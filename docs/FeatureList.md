@@ -24,3 +24,8 @@
 - [ ] Sync via network
 - [ ] auto-complete (not important)
 - [ ] OBS can read text files
+
+## Websockets
+- [ ] remote push cards to production
+    - separate laptop ok
+    - manipulate existing images only

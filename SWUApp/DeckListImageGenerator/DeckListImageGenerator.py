@@ -179,7 +179,7 @@ class DeckListImageGenerator(BaseDeckListImageGenerator, DeckListImageGeneratorP
                 mapped = list(map(lambda x: Image.open(context.image_path_for_resource(x)), cards))
                 card_stack = self._create_overlapping_cards(mapped, context, location='deck')
                 return card_stack
-            all_units_resources = parsed_deck_list.all_units_with_cost(v, context.styles.is_sorted_alphabetically)
+            all_units_resources = parsed_deck_list.all_main_deck_units_with_cost(v, context.styles.is_sorted_alphabetically)
             unit_card_stack_cols.append(create(all_units_resources))
 
             all_non_units_resources = parsed_deck_list.all_main_deck_upgrades_and_events_with_cost(v, context.styles.is_sorted_alphabetically)

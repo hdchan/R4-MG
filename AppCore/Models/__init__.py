@@ -10,3 +10,4 @@ from .Codeable import Encodable
 from .LocalResourceDraftListWindow import DraftListWindowConfiguration, LocalResourceDraftListWindow
 from .DataSourceSelectedLocalCardResource import DataSourceSelectedLocalCardResourceProtocol, LocalResourceDataSourceProviding
 from .ModelTransformer import ModelTransformer
+from .WebSocketPayload import WebSocketPayload

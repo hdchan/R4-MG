@@ -28,7 +28,7 @@ class ObservationTower:
         for key in self._subscribers:
             dead_subscribers[key] = []
             for s in self._subscribers[key]:
-                if s() == None:
+                if s() is None:
                     dead_subscribers[key].append(s)
         for key in dead_subscribers:
             for s in dead_subscribers[key]:
@@ -39,8 +39,8 @@ class ObservationTower:
             for s in event_subscribers:
                 try:
                     s().handle_observation_tower_event(event) # type: ignore
-                except:
-                    pass
+                except Exception as e:
+                    print(str(e))
         if self._is_debug:
             self._debug_log(event)
 

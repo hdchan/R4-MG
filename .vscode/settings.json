@@ -15,35 +15,13 @@
     "python.testing.pytestArgs": [
         "Tests"
     ],
-    "python.analysis.typeCheckingMode": "strict",
-    "python.analysis.completeFunctionParens": true,
-    "python.analysis.diagnosticSeverityOverrides": {
-        "reportUnusedFunction": "warning",
-        "reportUnusedImport": "error",
-        "reportUnusedVariable": "warning"
-    },
-    "python.analysis.exclude": [
-        "**/node_modules",
-        "**/__pycache__",
-        "**/build",
-        "**/__init__.py",
-        ".git",
-        ".venv/**" // Excludes a virtual environment named 'myenv'
-    ],
-
-    "python.experiments.optInto": [
-        "pythonTestAdapter"
-    ],
     "cSpell.words": [
         "Pixmap"
     ],
-     "editor.semanticTokenColorCustomizations": {
-        "[Default Dark Modern]": {
-            "rules": {
-                "variable.instance": {
-                    "foreground": "#FFD700" // Gold color for instance variables
-                }
-            }
-        }
-    }
+    "python.testing.autoTestDiscoverOnSaveEnabled": true,
+    "mypy-type-checker.reportingScope": "file",
+    "mypy-type-checker.preferDaemon": false,
+    "mypy-type-checker.args": [
+        "--check-untyped-defs"
+    ]
 }

@@ -17,19 +17,23 @@ from ...Models import (
 )
 from ...SWUAppDependenciesProviding import SWUAppDependenciesProviding
 from ..ExportImportFormattable import ExportFormattable, Importable
-
+from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
 
 class MGGHandler(ExportFormattable, Importable, DataSourceCardSearchDelegate):
     def __init__(self, 
                  swu_app_dependencies_provider: SWUAppDependenciesProviding):
         self._swu_app_dependencies_provider = swu_app_dependencies_provider
         self._search_data_source = swu_app_dependencies_provider.new_data_source_card_search(self)
-        self._data_source_draft_list = swu_app_dependencies_provider.data_source_draft_list
+        self._data_source_draft_list_provider = swu_app_dependencies_provider.data_source_draft_list_provider
         self._router = swu_app_dependencies_provider.router
 
         self._search_queue: deque[SWUCardSearchConfiguration] = deque([])
         self._result: List[SWUTradingCardBackedLocalCardResource] = []
         self._not_found: List[SWUCardSearchConfiguration] = []
+
+    @property
+    def _data_source_draft_list(self) -> DataSourceDraftListProtocol:
+        return self._data_source_draft_list_provider.draft_list_data_source
 
     @property
     def file_format(self) -> str:

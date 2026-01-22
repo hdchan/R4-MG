@@ -13,7 +13,7 @@ class MainWindow(AppWindow):
                          default_width=500, 
                          default_height=400)
         self._router = app_dependencies_provider.router
-        self._data_source_draft_list = app_dependencies_provider.data_source_draft_list
+        # self._data_source_draft_list = app_dependencies_provider.data_source_draft_list
         self._external_app_dependencies_provider = app_dependencies_provider.external_app_dependencies_provider
         self._observation_tower = app_dependencies_provider.observation_tower
         self._configuration_manager = app_dependencies_provider.configuration_manager

@@ -76,7 +76,7 @@ class DataSourceCachedHistory(DataSourceSelectedLocalCardResourceProtocol):
         selected_resource = self._cached_history[index][0]
         self._selected_resource = selected_resource
         self._observation_tower.notify(LocalCardResourceSelectedFromDataSourceEvent(deepcopy(selected_resource), self))
-        self._image_resource_processor_provider.image_resource_processor.async_store_local_resource(selected_resource, retry)
+        self._image_resource_processor_provider.image_resource_processor.async_store_local_resource(selected_resource, retry=retry)
     
     def add_resource_and_save(self, local_resource: LocalCardResource, datetime: datetime = datetime.now()):
         self.add_resource(local_resource, datetime)

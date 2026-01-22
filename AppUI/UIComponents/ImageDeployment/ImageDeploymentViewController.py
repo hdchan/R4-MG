@@ -11,6 +11,7 @@ from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.UIComponents.ImagePreview.ImagePreviewViewController import *
 from R4UI import Label
+from AppCore.DataSource.ImageResourceDeployer.DataSourceImageResourceDeployerProtocol import DataSourceImageResourceDeployerProtocol
 
 class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
     def __init__(self, 
@@ -19,9 +20,10 @@ class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
                  local_resource_data_source_provider: LocalResourceDataSourceProviding, 
                  is_horizontal: bool):
         super().__init__()
+        self._app_dependencies_provider = app_dependencies_provider
         self._deployment_resource = deployment_resource
         self._local_resource_data_source_provider = local_resource_data_source_provider
-        self._data_source_image_resource_deployer = app_dependencies_provider.data_source_image_resource_deployer
+        # self._data_source_image_resource_deployer = app_dependencies_provider.data_source_image_resource_deployer
         self._configuration_manager = app_dependencies_provider.configuration_manager
         
         vertical_layout = QVBoxLayout()
@@ -95,6 +97,10 @@ class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
     
         self._sync_state()
     
+    @property
+    def _data_source_image_resource_deployer(self) -> DataSourceImageResourceDeployerProtocol:
+        return self._app_dependencies_provider.data_source_image_resource_deployer
+
     @property
     def _local_resource_data_source(self) -> DataSourceSelectedLocalCardResourceProtocol:
         return self._local_resource_data_source_provider.data_source

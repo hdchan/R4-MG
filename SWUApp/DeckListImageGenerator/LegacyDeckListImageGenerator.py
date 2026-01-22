@@ -123,13 +123,13 @@ class LegacyDeckListImageGenerator(DeckListImageGeneratorProtocol):
         color = (0, 0, 0, 0)
         if self._core_configuration.is_developer_mode and self._deck_list_image_generator_styles().is_visual_debug:
             if location == 'leader-base':
-                color = (255, 0, 0)
+                color = (255, 0, 0, 1)
             if location == 'main-deck-col':
-                color = (255, 0, 0)
+                color = (255, 0, 0, 1)
             if location == 'main-deck-row':
-                color = (0, 0, 255)
+                color = (0, 0, 255, 1)
             if location == 'entire-deck':
-                color = (128, 128, 128)
+                color = (128, 128, 128, 1)
         return Image.new('RGBA', (width, height), color)
     
     # Assumes cards are horizontal
@@ -286,7 +286,7 @@ class LegacyDeckListImageGenerator(DeckListImageGeneratorProtocol):
             return combined_image
         
         main_deck_image = stack_rows([
-            create_card_type_row(lambda x: parsed_deck_list.all_units_with_cost(x, self._deck_list_image_generator_styles(scale_factor).is_sorted_alphabetically), lambda x: parsed_deck_list.main_deck_with_cost(x)),
+            create_card_type_row(lambda x: parsed_deck_list.all_main_deck_units_with_cost(x, self._deck_list_image_generator_styles(scale_factor).is_sorted_alphabetically), lambda x: parsed_deck_list.main_deck_with_cost(x)),
             create_card_type_row(lambda x: parsed_deck_list.all_main_deck_upgrades_and_events_with_cost(x, self._deck_list_image_generator_styles(scale_factor).is_sorted_alphabetically), lambda x: parsed_deck_list.main_deck_with_cost(x)),
         ])
         

@@ -1,7 +1,6 @@
 import datetime
 from typing import Optional
 
-
 class TransmissionProtocol:
     def __init__(self):
         self._predecessor: Optional['TransmissionProtocol'] = None

@@ -1,7 +1,6 @@
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.UIComponents.Base import AppWindow
 
-\
 from AppUI.UIComponents.Menu.AppMenuBarBuilder import AppMenuBarBuilder
 
 from .MainProgramViewController import MainProgramViewController

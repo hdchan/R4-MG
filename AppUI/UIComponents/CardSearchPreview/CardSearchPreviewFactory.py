@@ -6,8 +6,7 @@ from AppCore.Models import (DataSourceSelectedLocalCardResourceProtocol,
                             LocalResourceDataSourceProviding)
 from AppCore.Observation import (TransmissionProtocol,
                                  TransmissionReceiverProtocol)
-from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
-                                        SocketRouterUpdatedEvent)
+from AppCore.Observation.Events import (ConfigurationUpdatedEvent)
 from AppUI.AppDependenciesInternalProviding import \
     AppDependenciesInternalProviding
 from R4UI import Label, PushButton, RWidget, VerticalBoxLayout

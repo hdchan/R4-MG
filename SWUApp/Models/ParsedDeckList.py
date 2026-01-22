@@ -162,7 +162,7 @@ class ParsedDeckList:
         result = list(filter(lambda x: x.guaranteed_trading_card.card_type != CardType.LEADER and x.guaranteed_trading_card.card_type != CardType.BASE, self._swu_backed_resources))
         return result
 
-    def all_units_with_cost(self, cost: int, is_alphabetical: bool = False) -> List[SWUTradingCardBackedLocalCardResource]:
+    def all_main_deck_units_with_cost(self, cost: int, is_alphabetical: bool = False) -> List[SWUTradingCardBackedLocalCardResource]:
         result = FilterCriteriaBuilder() \
             .add(FilterCriteria.all_units()) \
             .add(FilterCriteria.cost(cost)) \

@@ -115,7 +115,7 @@ class CustomDirectorySearchDataSource(DataSourceSelectedLocalCardResourceProtoco
         selected_resource = trading_card_resource_provider.local_resource
         self._selected_resource = selected_resource
         self._observation_tower.notify(LocalCardResourceSelectedFromDataSourceEvent(copy.deepcopy(selected_resource), self))
-        self._image_resource_processor_provider.image_resource_processor.async_store_local_resource(selected_resource, retry)
+        self._image_resource_processor_provider.image_resource_processor.async_store_local_resource(selected_resource, retry=retry)
         if self.delegate is not None:
             self.delegate.ds_did_retrieve_card_resource_for_card_selection(self, copy.deepcopy(selected_resource))
     

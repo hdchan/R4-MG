@@ -7,7 +7,8 @@ from PySide6.QtWidgets import (QHBoxLayout, QPushButton, QScrollArea,
 from AppCore.Config import Configuration
 from AppCore.Models.DataSourceSelectedLocalCardResource import *
 from AppCore.ImageResource.ImageResourceProcessorProtocol import *
-from AppCore.Observation import *
+from AppCore.Observation import TransmissionReceiverProtocol, TransmissionProtocol
+from AppCore.DataSource.ImageResourceDeployer.DataSourceImageResourceDeployerProtocol import DataSourceImageResourceDeployerProtocol
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         LocalCardResourceFetchEvent,
                                         ProductionCardResourcesLoadEvent,
@@ -25,7 +26,7 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
         super().__init__()
         self._app_dependencies_provider = app_dependencies_provider
         self._observation_tower = app_dependencies_provider.observation_tower
-        self._data_source_image_resource_deployer = app_dependencies_provider.data_source_image_resource_deployer
+        # self._data_source_image_resource_deployer = app_dependencies_provider.data_source_image_resource_deployer
         self._local_resource_data_source_provider = local_resource_data_source_provider
         self._router = app_dependencies_provider.router
         self._external_app_dependencies_provider = app_dependencies_provider.external_app_dependencies_provider
@@ -39,7 +40,11 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
                                                       ConfigurationUpdatedEvent])
         
         app_dependencies_provider.shortcut_action_coordinator.bind_publish(self.tapped_production_button, self)
-        
+    
+    @property
+    def _data_source_image_resource_deployer(self) -> DataSourceImageResourceDeployerProtocol:
+        return self._app_dependencies_provider.data_source_image_resource_deployer
+
     def _setup_view(self):
         outer_container_layout = QVBoxLayout()
         self.setLayout(outer_container_layout)
@@ -57,7 +62,7 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
         self._deployment_cells_layout = deployment_cells_layout
         cells_container_layout.addWidget(deployment_cells_widget)
         
-        
+        # TODO: might need dynamicaly provide resource deployer
         image_deployer_banner_cta = self._external_app_dependencies_provider.provide_image_deployer_banner_cta(self._data_source_image_resource_deployer, self._router)
         if image_deployer_banner_cta is not None:
             self.add_image_cta = image_deployer_banner_cta
@@ -158,7 +163,7 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
     def handle_observation_tower_event(self, event: TransmissionProtocol):
         if (type(event) is PublishStatusUpdatedEvent or 
             type(event) is LocalCardResourceFetchEvent or 
-            type(event) is PublishStagedCardResourcesEvent):
+            type(event) is PublishStagedCardResourcesEvent or type(event) is ProductionCardResourcesLoadEvent):
             can_publish_staged_resources = self._data_source_image_resource_deployer.can_publish_staged_resources
             self.set_production_button_enabled(can_publish_staged_resources)
         if type(event) is ProductionCardResourcesLoadEvent:

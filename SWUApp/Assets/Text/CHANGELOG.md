@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.26.0
+### Feature
+-
+
+### Engineering
+-
+
+## 0.25.1
+### Hotfix
+- Fix: header text color not changing
+- Fixing; creating new packs unassigns packs from the windows
+
 ## 0.25.0
 ### Feature
 - Deprecating Local Set option

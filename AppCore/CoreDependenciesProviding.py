@@ -1,25 +1,30 @@
 from typing import Optional
 
 from AppCore.Config import ConfigurationManager
-from AppCore.DataSource import (DataSourceDraftList,
-                                DataSourceDraftListWindowResourceDeployer,
-                                DataSourceImageResourceDeployer)
+from AppCore.DataSource import (
+    DataSourceDraftListWindowResourceDeployer,
+)
+from AppCore.DataSource.ImageResourceDeployer import DataSourceImageResourceDeployerProtocol
+from AppCore.DataSource.DataSourceCachedHistory import DataSourceCachedHistory
 from AppCore.DataSource.DataSourceCardSearch import (
-    DataSourceCardSearch, DataSourceCardSearchClientProviding,
-    DataSourceCardSearchDelegate)
+    DataSourceCardSearch,
+    DataSourceCardSearchClientProviding,
+    DataSourceCardSearchDelegate,
+)
 from AppCore.DataSource.DataSourceCustomDirectorySearch import (
-    CustomDirectorySearchDataSource, CustomDirectorySearchDataSourceDelegate)
-from AppCore.DataSource.DataSourceCachedHistory import \
-    DataSourceCachedHistory
+    CustomDirectorySearchDataSource,
+    CustomDirectorySearchDataSourceDelegate,
+)
+from AppCore.DataSource.DraftList import DataSourceDraftListProviding
 from AppCore.ImageResource import ImageResourceProcessorProviding
 from AppCore.Observation.ObservationTower import ObservationTower
-from AppCore.Service import (DataSerializer, PlatformServiceProvider,
-                             StringFormatter)
-from AppCore.SocketIO import SocketRouter
+from AppCore.Service import DataSerializer, PlatformServiceProvider, StringFormatter
+from AppCore.Service.WebSocket import WebSocketServiceProtocol
+
 
 class CoreDependenciesProviding:
     @property
-    def data_source_image_resource_deployer(self) -> DataSourceImageResourceDeployer:
+    def data_source_image_resource_deployer(self) -> DataSourceImageResourceDeployerProtocol:
          raise Exception
 
     @property
@@ -57,7 +62,7 @@ class CoreDependenciesProviding:
         raise Exception
     
     @property
-    def data_source_draft_list(self) -> DataSourceDraftList:
+    def data_source_draft_list_provider(self) -> DataSourceDraftListProviding:
         raise Exception
     
     @property
@@ -67,11 +72,7 @@ class CoreDependenciesProviding:
     @property
     def data_source_draft_list_window_resource_deployer(self) -> DataSourceDraftListWindowResourceDeployer:
         raise Exception
-    
+
     @property
-    def socket_router(self) -> SocketRouter:
-        raise Exception
-    
-    @property
-    def data_source_socket_io(self) -> DataSourceCachedHistory:
+    def websocket_service(self) -> WebSocketServiceProtocol:
         raise Exception

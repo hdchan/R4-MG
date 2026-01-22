@@ -6,6 +6,7 @@ from PIL import Image
 
 from .LocalAssetResource import LocalAssetResource
 from .TradingCard import TradingCard
+import io
 
 Width = int
 Height = int
@@ -24,7 +25,7 @@ class LocalCardResource(LocalAssetResource):
                  remote_image_url: Optional[str] = None, 
                  can_generate_placeholder: bool = False, 
                  trading_card: Optional[TradingCard] = None, 
-                 metadata: Dict[str, Any] = {}):
+                 metadata: Optional[Dict[str, Any]] = None):
         super().__init__(asset_dir=image_dir, 
                          file_name=file_name, 
                          file_extension=PNG_EXTENSION, 
@@ -35,7 +36,10 @@ class LocalCardResource(LocalAssetResource):
         self.display_name_detailed = display_name_detailed
         self._can_generate_placeholder = can_generate_placeholder
         self.trading_card = trading_card
-        self.metadata = metadata
+        if metadata is None:
+            self.metadata = {}
+        else:
+            self.metadata = metadata
 
         assert(self.image_dir is not None)
         assert(self.image_preview_dir is not None)
@@ -119,6 +123,11 @@ class LocalCardResource(LocalAssetResource):
     @property
     def image_preview_path(self) -> str:
         return f'{self.image_preview_dir}{self.file_name_with_ext}'
+
+    @property
+    def image_preview_binary(self):
+        if 'binary_image_preview' in self.metadata:
+            return io.BytesIO(self.metadata['binary_image_preview'])
     
     @property
     def image_temp_path(self):

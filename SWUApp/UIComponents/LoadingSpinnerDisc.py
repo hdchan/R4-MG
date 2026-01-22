@@ -30,6 +30,12 @@ class LoadingSpinnerDisc(QWidget):
         self.shine_animation.setLoopCount(-1)
         # self.shine_animation.start()
 
+    def enterEvent(self, event):
+        self.start()
+
+    def leaveEvent(self, event):
+        self.stop()
+
     def start(self):
         self.rotatione_animation.start()
         

@@ -22,7 +22,8 @@ from R4UI import (RBoldLabel, RComboBox, HorizontalBoxLayout, PushButton,
 from .DraftListTablePackPreviewViewController import (
     DraftListTablePackPreviewViewController,
     DraftListTablePackPreviewViewControllerDelegate)
-
+from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
+from AppCore.DataSource.ImageResourceDeployer.DataSourceImageResourceDeployerProtocol import DataSourceImageResourceDeployerProtocol
 
 class DraftListTabbedPackPreviewViewControllerDraftListTablePackPreviewViewControllerDelegate(DraftListTablePackPreviewViewControllerDelegate):
     def __init__(self, pack_identifier: str):
@@ -43,9 +44,9 @@ class DraftListTabbedPackPreviewViewController(RWidget, TransmissionReceiverProt
                  data_source_local_resource_provider: LocalResourceDataSourceProviding):
         super().__init__()
         self._app_dependencies_provider = app_dependencies_provider
-        self._data_source_draft_list = app_dependencies_provider.data_source_draft_list
         self._data_source_local_resource_provider = data_source_local_resource_provider
-        self._data_source_image_resource_deployer = app_dependencies_provider.data_source_image_resource_deployer
+        # self._data_source_image_resource_deployer = app_dependencies_provider.data_source_image_resource_deployer
+        self._data_source_draft_list_provider = app_dependencies_provider.data_source_draft_list_provider
         self._configuration_manager = app_dependencies_provider.configuration_manager
         self._router = app_dependencies_provider.router
         self._selected_tab = -1
@@ -56,10 +57,19 @@ class DraftListTabbedPackPreviewViewController(RWidget, TransmissionReceiverProt
                                                                            LocalCardResourceFetchEvent,
                                                                            LocalCardResourceSelectedFromDataSourceEvent,
                                                                            ProductionCardResourcesLoadEvent, 
-                                                                           ConfigurationUpdatedEvent, PublishStagedCardResourcesEvent])
+                                                                           ConfigurationUpdatedEvent, 
+                                                                           PublishStagedCardResourcesEvent])
         
         app_dependencies_provider.shortcut_action_coordinator.bind_add_card_to_draft_list(self._add_resource, self)
-        
+    
+    @property
+    def _data_source_image_resource_deployer(self) -> DataSourceImageResourceDeployerProtocol:
+        return self._app_dependencies_provider.data_source_image_resource_deployer
+    
+    @property
+    def _data_source_draft_list(self) -> DataSourceDraftListProtocol:
+        return self._data_source_draft_list_provider.draft_list_data_source
+
     def _setup_view(self):
         self._tab_widget = QTabWidget() # TODO: replace with RTabWidget
         tab_bar = self._tab_widget.tabBar()
@@ -92,9 +102,9 @@ class DraftListTabbedPackPreviewViewController(RWidget, TransmissionReceiverProt
 
     def _reset_deployment_destination_selection(self):
         try:
-            # TODO: monitor this to ensure no memory leak
-            self._deployment_destination_selection.disconnect()
-        except:
+            # we need to specify what we want to disconnect, otherwise it won't disconnect
+            self._deployment_destination_selection.currentIndexChanged.disconnect(self._deployment_destination_selection_changed)
+        except Exception:
             pass
         self._deployment_destination_selection.clear()
         self._deployment_destination_selection.addItems(
@@ -124,6 +134,7 @@ class DraftListTabbedPackPreviewViewController(RWidget, TransmissionReceiverProt
         if self._is_publishing:
             return
         # print("got through!")
+        self._is_publishing = True
         selected_pack = self._tab_widget.currentIndex()
         selected_resource = self._data_source_local_resource_provider.data_source.selected_local_resource
         if selected_resource is not None:
@@ -131,29 +142,7 @@ class DraftListTabbedPackPreviewViewController(RWidget, TransmissionReceiverProt
                 self._data_source_draft_list.add_resource_to_pack(selected_pack, selected_resource)
             except Exception as error:
                 self._router.show_error(Exception(error))
-                return
-            
-            destination_file_name = self._configuration.draft_list_add_card_deployment_destination
-            if destination_file_name is None:
-                return
-            
-            matching_deployment_resource = self._data_source_image_resource_deployer.deployment_resource_for_file_name(destination_file_name)
-            
-            if matching_deployment_resource is None:
-                self._reset_deployment_destination_selection()
-                return
-            
-            add_card_mode = self._configuration.draft_list_add_card_mode
-            
-            if add_card_mode == Configuration.Settings.DraftListAddCardMode.STAGE or add_card_mode == Configuration.Settings.DraftListAddCardMode.STAGE_AND_PUBLISH:
-                self._data_source_image_resource_deployer.stage_resource(matching_deployment_resource, selected_resource)
-            if add_card_mode == Configuration.Settings.DraftListAddCardMode.STAGE_AND_PUBLISH:
-                try:
-                    self._is_publishing = True
-                    self._data_source_image_resource_deployer.publish_staged_resources()
-                except Exception as error:
-                    self._router.show_error(error)
-                self._is_publishing = False
+        self._is_publishing = False
     
     # MARK: - Tab bar context menu
     def _tab_clicked(self, index: int):

@@ -121,7 +121,7 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol, ImageResourceProces
         self.workers.add(worker)
         self.pool.start(worker)
 
-    def async_store_local_resource(self, local_resource: LocalCardResource, retry: bool = False):
+    def async_store_local_resource(self, local_resource: LocalCardResource, retry: bool = False, is_async: bool = True):
         # TODO: implement stale cache
         if retry and local_resource.remote_image_url is not None:
             # We should maybe guard against retry if no internet connection?
@@ -144,6 +144,17 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol, ImageResourceProces
         Path(local_resource.image_preview_dir).mkdir(parents=True, exist_ok=True)
         # create temp file for loading state
         # prevent multiple jobs from running on the same resource
+        worker = StoreImageWorker(local_resource,
+                                      self.image_fetcher_provider,
+                                      self._generate_preview_image,
+                                      self._add_corners)
+        
+        if not is_async:
+            self._lock_resource_and_notify(local_resource)
+            worker.run()
+            self._unlock_resource_and_notify((local_resource, None))
+            return
+
         if self._lock_resource_and_notify(local_resource):
             def _cleanup(identifier: QRunnable):
                 self.workers.remove(identifier)

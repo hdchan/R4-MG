@@ -10,6 +10,7 @@ from PySide6.QtWidgets import (QButtonGroup, QCheckBox, QComboBox,
 
 from .BoxLayouts import HorizontalBoxLayout, VerticalBoxLayout
 from .RWidget import RWidget
+from .SharedWidgetFunctions import SharedWidgetFunctions
 
 
 T = TypeVar("T")
@@ -166,7 +167,7 @@ class ScrollArea(QScrollArea):
         self.setWidgetResizable(True)
         self.setWidget(widget)
 
-class PushButton(QPushButton):
+class PushButton(QPushButton, SharedWidgetFunctions):
     def __init__(self, 
                  text: Optional[str], 
                  triggered_fn: Callable[[], None], 
@@ -458,3 +459,13 @@ class RHorizontallyExpandingSpacer(RSpacer):
     def __init__(self, width: int = 0, height: int = 0):
         super().__init__(width, height, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         pass
+
+class RVerticallyExpandingSpacerWidget(RWidget):
+    def __init__(self):
+        super().__init__()
+        VerticalBoxLayout().add_spacer(RVerticallyExpandingSpacer()).set_layout_to_widget(self)
+
+class RHorizontalExpandingSpacerWidget(RWidget):
+    def __init__(self):
+        super().__init__()
+        HorizontalBoxLayout().add_spacer(RHorizontallyExpandingSpacer()).set_layout_to_widget(self)

@@ -21,7 +21,9 @@ class ToggleSettingsViewController(SettingsContainerChildProtocol):
                 HorizontalLabeledInputRow("Remote socket connection URL", 
                                           LineEditText(self._mutable_configuration.core_configuration.remote_socket_url, self._mutable_configuration.core_mutable_configuration.set_remote_socket_connection_url)),
                 HorizontalLabeledInputRow("Use legacy deck list image generator", 
-                                          RCheckBox(lambda x: self._mutable_configuration.core_mutable_configuration.set_is_using_legacy_deck_list_image_generation(x), self._mutable_configuration.core_configuration.is_using_legacy_deck_image_generation))
+                                          RCheckBox(lambda x: self._mutable_configuration.core_mutable_configuration.set_is_using_legacy_deck_list_image_generation(x), self._mutable_configuration.core_configuration.is_using_legacy_deck_image_generation)),
+                HorizontalLabeledInputRow("Use SQLite for managed set search", 
+                                          RCheckBox(lambda x: self._mutable_configuration.core_mutable_configuration.set_is_using_sqlite_search_for_managed_set_search(x), self._mutable_configuration.core_configuration.is_using_sqlite_search_for_managed_set_search))
             ])
         ]).set_layout_to_widget(self).add_spacer(RVerticallyExpandingSpacer())
 
@@ -31,5 +33,6 @@ class ToggleSettingsViewController(SettingsContainerChildProtocol):
         mutable_app_ui_configuration.core_mutable_configuration.set_is_remote_socket_connection_enabled(self._mutable_configuration.core_configuration.is_remote_socket_connection_enabled)
         mutable_app_ui_configuration.core_mutable_configuration.set_remote_socket_connection_url(self._mutable_configuration.core_configuration.remote_socket_url)
         mutable_app_ui_configuration.core_mutable_configuration.set_is_using_legacy_deck_list_image_generation(self._mutable_configuration.core_configuration.is_using_legacy_deck_image_generation)
+        mutable_app_ui_configuration.core_mutable_configuration.set_is_using_sqlite_search_for_managed_set_search(self._mutable_configuration.core_configuration.is_using_sqlite_search_for_managed_set_search)
 
         return mutable_app_ui_configuration

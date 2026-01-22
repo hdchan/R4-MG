@@ -1,6 +1,6 @@
 from typing import Optional
 
-from PySide6.QtCore import QPoint, Qt
+from PySide6.QtCore import QPoint, Qt, QByteArray
 from PySide6.QtGui import QClipboard, QGuiApplication, QPixmap, QAction
 from PySide6.QtWidgets import QMenu, QVBoxLayout
 
@@ -16,7 +16,7 @@ from AppCore.Service.PlatformServiceProvider import *
 from AppUI.AppDependenciesInternalProviding import \
     AppDependenciesInternalProviding
 from R4UI import RWidget, Label
-
+from AppCore.DataSource.ImageResourceDeployer.DataSourceImageResourceDeployerProtocol import DataSourceImageResourceDeployerProtocol
 from ..Base.LoadingSpinner import LoadingSpinner
 
 MAX_PREVIEW_SIZE = 256
@@ -26,6 +26,7 @@ class ImagePreviewViewController(RWidget, TransmissionReceiverProtocol):
                  # whether we can manipulate images
                  can_post_process: bool = True):
         super().__init__()
+        self._app_dependencies_provider = app_dependencies_provider
         self._can_post_process = can_post_process
         self._observation_tower = app_dependencies_provider.observation_tower
         self._configuration_manager = app_dependencies_provider.configuration_manager
@@ -33,7 +34,7 @@ class ImagePreviewViewController(RWidget, TransmissionReceiverProtocol):
         self._image_resource_processor_provider = app_dependencies_provider.image_resource_processor_provider
         self._platform_service_provider = app_dependencies_provider.platform_service_provider
         self._router = app_dependencies_provider.router
-        self._data_source_image_resource_deployer = app_dependencies_provider.data_source_image_resource_deployer
+        # self._data_source_image_resource_deployer = app_dependencies_provider.data_source_image_resource_deployer
         self._external_app_dependencies_provider = app_dependencies_provider.external_app_dependencies_provider
         self._local_resource: Optional[LocalCardResource] = None
         
@@ -93,7 +94,10 @@ class ImagePreviewViewController(RWidget, TransmissionReceiverProtocol):
                                                  PublishStatusUpdatedEvent, 
                                                  CacheClearedEvent])
     
-    
+    @property
+    def _data_source_image_resource_deployer(self) -> DataSourceImageResourceDeployerProtocol:
+        return self._app_dependencies_provider.data_source_image_resource_deployer
+
     def set_image(self, local_resource: LocalCardResource):
         self._local_resource = local_resource
         self._sync_image_view_state()
@@ -123,7 +127,7 @@ class ImagePreviewViewController(RWidget, TransmissionReceiverProtocol):
                 
         def _notify_delegate_redownload_resource():
             if self._local_resource is not None:
-                self._image_resource_processor.async_store_local_resource(self._local_resource, True)
+                self._image_resource_processor.async_store_local_resource(self._local_resource, retry=True)
        
         def _notify_delegate_rotate_right_image():
             if self._local_resource is not None:
@@ -234,6 +238,16 @@ class ImagePreviewViewController(RWidget, TransmissionReceiverProtocol):
         self._image_view.clear()
         self._clear_image_info()
 
+        if self._local_resource.image_preview_binary is not None:
+            # giving binary image previews priority if from web socket
+            image = QPixmap()
+            binary = self._local_resource.image_preview_binary.getvalue()
+            byte_array = QByteArray(binary)
+            success = image.loadFromData(byte_array)
+            if success:
+                self._image_view.setPixmap(image)
+                return
+
         if self._local_resource.is_loading:
             if self.loading_spinner.is_spinning is False:
                 self.loading_spinner.start()
@@ -285,7 +299,7 @@ class ImagePreviewViewController(RWidget, TransmissionReceiverProtocol):
     def _handle_link_activated(self, link: str):
         if self._local_resource is not None:
             if link == self.LinkKey.REDOWNLOAD_IMAGE:
-                self._image_resource_processor.async_store_local_resource(self._local_resource, True)
+                self._image_resource_processor.async_store_local_resource(self._local_resource, retry=True)
             elif link == self.LinkKey.REGENERATE_PREVIEW:
                 self._image_resource_processor
                 self._image_resource_processor.regenerate_resource_preview(self._local_resource)

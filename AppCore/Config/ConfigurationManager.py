@@ -7,7 +7,7 @@ import yaml
 from AppCore.Config.Configuration import MutableConfiguration, Configuration
 from AppCore.Observation.Events import (ApplicationEvent,
                                         ConfigurationUpdatedEvent)
-from AppCore.Observation.ObservationTower import *
+from AppCore.Observation.ObservationTower import TransmissionReceiverProtocol, ObservationTower, TransmissionProtocol
 
 # from PySide6.QtCore import QTimer
 

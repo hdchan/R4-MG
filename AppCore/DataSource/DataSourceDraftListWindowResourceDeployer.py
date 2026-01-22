@@ -13,7 +13,7 @@ from AppCore.Observation.Events import (DraftListUpdatedEvent,
                                         DraftListWindowResourceUpdatedEvent)
 from AppCore.Service.DataSerializer import DataSerializer
 
-from .DataSourceDraftList import DataSourceDraftList
+from .DraftList import DataSourceDraftListProviding, DataSourceDraftListProtocol
 
 JSON_EXTENSION = 'json'
 
@@ -23,20 +23,24 @@ class DataSourceDraftListWindowResourceDeployer(TransmissionReceiverProtocol):
     def __init__(self, 
                  configuration_manager: ConfigurationManager, 
                  observation_tower: ObservationTower, 
-                 data_source_draft_list: DataSourceDraftList, 
+                 data_source_draft_list_provider: DataSourceDraftListProviding, 
                  data_serializer: DataSerializer):
         self._configuration_manager = configuration_manager
         self._observation_tower = observation_tower
-        self._data_source_draft_list = data_source_draft_list
+        self._data_source_draft_list_provider = data_source_draft_list_provider
         self._data_serializer = data_serializer
         self._draft_list_windows: List[LocalResourceDraftListWindow] = []
         self._observation_tower.subscribe(self, DraftListUpdatedEvent)
         self.load_resources()
-        
+    
     @property
     def _configuration(self) -> Configuration:
         return self._configuration_manager.configuration
     
+    @property
+    def _data_source_draft_list(self) -> DataSourceDraftListProtocol:
+        return self._data_source_draft_list_provider.draft_list_data_source
+
     @property
     def draft_list_windows(self) -> List[LocalResourceDraftListWindow]:
         return sorted(copy.deepcopy(self._draft_list_windows), key=lambda x: x.created_date)
@@ -110,7 +114,7 @@ class DataSourceDraftListWindowResourceDeployer(TransmissionReceiverProtocol):
         self._update_window_configuration(resource, new_config)
         
     def update_window_draft_pack(self, resource: LocalResourceDraftListWindow, draft_pack_identifier: Optional[str]):
-        old_config = copy.deepcopy(resource.window_configuration)
+        old_config = resource.window_configuration
         new_config = old_config
         new_config.draft_pack_identifier = draft_pack_identifier
         self._update_window_configuration(resource, new_config)

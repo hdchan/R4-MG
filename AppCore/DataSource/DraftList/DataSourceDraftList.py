@@ -1,14 +1,14 @@
 import copy
-from typing import Any, List, Optional
+from typing import Any, List
 
 from AppCore.Config import ConfigurationManager
 from AppCore.Models import DraftPack, LocalCardResource
 from AppCore.Observation import ObservationTower
 from AppCore.Observation.Events import DraftListUpdatedEvent, DraftPackUpdatedEvent
 from AppCore.Service.DataSerializer import DataSerializer
+from .DataSourceDraftListProtocol import DataSourceDraftListProtocol
 
-
-class DataSourceDraftList:
+class DataSourceDraftList(DataSourceDraftListProtocol):
     
     def __init__(self, 
                  configuration_manager: ConfigurationManager,
@@ -26,44 +26,9 @@ class DataSourceDraftList:
             for pack_json in loaded:
                 self._packs.append(DraftPack.from_json(pack_json))
 
-    def resource_at_index(self, pack_index: int, resource_index: int) -> Optional[LocalCardResource]:
-        if pack_index >= 0 and pack_index < len(self._packs):
-                pack = self._packs[pack_index]
-                return pack.resource_at_index(resource_index)
-
     @property
     def draft_packs(self) -> List[DraftPack]:
         return copy.deepcopy(self._packs)
-
-    @property
-    def draft_pack_flat_list(self) -> List[LocalCardResource]:
-        return [item for sublist in self.draft_packs for item in sublist.draft_list]
-    
-    @property
-    def pack_list_count(self) -> int:
-        return len(self._packs)
-    
-    @property
-    def pack_names(self) -> List[str]:
-        return list(map(lambda x: x.pack_name, self._packs))
-    
-    def pack_name(self, pack_index: int) -> Optional[str]:
-        if pack_index >= 0 and pack_index < len(self._packs):
-            return self.pack_names[pack_index]
-        
-    def pack_for_draft_pack_identifier(self, draft_pack_identifier: Optional[str]) -> Optional[DraftPack]:
-        if draft_pack_identifier is None:
-            return None
-        found: List[DraftPack] = list(filter(lambda x: x.pack_identifier == draft_pack_identifier, self._packs))
-        if len(found) > 0:
-            return found[0]
-        return None
-    
-    def pack_index_for_draft_pack_identifier(self, draft_pack_identifier: str) -> Optional[int]:
-        found: List[DraftPack] = list(filter(lambda x: x.pack_identifier == draft_pack_identifier, self._packs))
-        if len(found) > 0:
-            return self._packs.index(found[0])
-        return None
     
     # MARK: - modify packs
     def clear_entire_draft_list(self):
@@ -129,44 +94,56 @@ class DataSourceDraftList:
             raise Exception("No underlying trading card. Use another.")
         if pack_index >= 0 and pack_index < len(self._packs):
             self._packs[pack_index].add_resource(local_resource)
-            event_type = DraftListUpdatedEvent.AddedResource(len(self._packs) - 1, copy.deepcopy(local_resource))
+            event_type = DraftListUpdatedEvent.AddedResource(pack_index=pack_index, 
+                                                             index=len(self._packs) - 1, 
+                                                             local_resource=copy.deepcopy(local_resource))
             self._save_and_notify_draft_list_update(self._packs[pack_index], event_type)
             
     def remove_resource(self, pack_index: int, resource_index: int):
         if pack_index >= 0 and pack_index < len(self._packs):
             self._packs[pack_index].remove_resource(resource_index)
-            event_type = DraftListUpdatedEvent.RemovedResource(index=resource_index)
+            event_type = DraftListUpdatedEvent.RemovedResource(pack_index=pack_index,
+                                                               index=resource_index)
             self._save_and_notify_draft_list_update(self._packs[pack_index], event_type)
 
     def move_up(self, pack_index: int, resource_index: int):
         if pack_index >= 0 and pack_index < len(self._packs):
             self._packs[pack_index].move_up(resource_index)
-            event_type = DraftListUpdatedEvent.SwappedResources(index_1=resource_index, index_2=resource_index - 1)
+            event_type = DraftListUpdatedEvent.SwappedResources(pack_index=pack_index,
+                                                                index_1=resource_index, 
+                                                                index_2=resource_index - 1) 
             self._save_and_notify_draft_list_update(self._packs[pack_index], event_type)
         
     def move_down(self, pack_index: int, resource_index: int):
         if pack_index >= 0 and pack_index < len(self._packs):
             self._packs[pack_index].move_down(resource_index)
-            event_type = DraftListUpdatedEvent.SwappedResources(index_1=resource_index, index_2=resource_index + 1)
+            event_type = DraftListUpdatedEvent.SwappedResources(pack_index=pack_index,
+                                                                index_1=resource_index, 
+                                                                index_2=resource_index + 1)
             self._save_and_notify_draft_list_update(self._packs[pack_index], event_type)
         
         
     def insert_above(self, pack_index: int, resource_index: int, local_resource: LocalCardResource):
         if pack_index >= 0 and pack_index < len(self._packs):
             self._packs[pack_index].insert_above(resource_index, local_resource)
-            event_type = DraftListUpdatedEvent.InsertedResource(index=resource_index, local_resource=copy.deepcopy(local_resource))
+            event_type = DraftListUpdatedEvent.InsertedResource(pack_index=pack_index,
+                                                                index=resource_index, 
+                                                                local_resource=copy.deepcopy(local_resource))
             self._save_and_notify_draft_list_update(self._packs[pack_index], event_type)
         
     def insert_below(self, pack_index: int, resource_index: int, local_resource: LocalCardResource):
         if pack_index >= 0 and pack_index < len(self._packs):
             self._packs[pack_index].insert_below(resource_index, local_resource)
-            event_type = DraftListUpdatedEvent.InsertedResource(index=resource_index + 1, local_resource=copy.deepcopy(local_resource))
+            event_type = DraftListUpdatedEvent.InsertedResource(pack_index=pack_index,
+                                                                index=resource_index + 1, 
+                                                                local_resource=copy.deepcopy(local_resource))
             self._save_and_notify_draft_list_update(self._packs[pack_index], event_type)
     
     def mark_resource_as_sideboard(self, pack_index: int, resource_index: int, key: str, value: Any):
         if pack_index >= 0 and pack_index < len(self._packs):
             self._packs[pack_index].mark_resource_as_sideboard(resource_index, key, value)
-            event_type = DraftListUpdatedEvent.UpdateResource(resource_index)
+            event_type = DraftListUpdatedEvent.UpdateResource(pack_index=pack_index, 
+                                                              index=resource_index)
             self._save_and_notify_draft_list_update(self._packs[pack_index], event_type)
     
     def _save_and_notify_draft_pack_update(self):
@@ -175,4 +152,4 @@ class DataSourceDraftList:
         
     def _save_and_notify_draft_list_update(self, draft_pack: DraftPack, event_type: DraftListUpdatedEvent.EventType):
         self._data_serializer.save_json_data(self._file_path, self._packs)
-        self._observation_tower.notify(DraftListUpdatedEvent(copy.deepcopy(draft_pack), event_type))
+        self._observation_tower.notify(DraftListUpdatedEvent(event_type))

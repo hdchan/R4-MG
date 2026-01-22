@@ -6,8 +6,9 @@ from PySide6.QtWidgets import QTextEdit, QWidget
 from AppCore.Config import ConfigurationManager
 from AppCore.DataFetcher import *
 from AppCore.DataSource import (DataSourceCardSearchClientProviding,
-                                DataSourceImageResourceDeployer,
+                                
                                 DataSourceLocallyManagedSets)
+from AppCore.DataSource.ImageResourceDeployer import DataSourceImageResourceDeployer
 from AppCore.DataSource.DataSourceLocallyManagedSets import \
     DataSourceLocallyManagedSetsClientProtocol
 from AppCore.Models import LocalCardResource

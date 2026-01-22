@@ -1,18 +1,18 @@
 from typing import Optional
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QBrush, QColor, QPalette, QPixmap, QResizeEvent
-from PySide6.QtWidgets import (QFrame, QScrollArea, QSizePolicy, QSpacerItem,
+from PySide6.QtGui import QBrush, QColor, QPalette, QPixmap
+from PySide6.QtWidgets import (QFrame, QScrollArea,
                              QVBoxLayout, QWidget)
 
 from AppCore.Models import LocalResourceDataSourceProviding
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         DraftListUpdatedEvent)
-from AppCore.Observation.ObservationTower import *
+from AppCore.Observation.ObservationTower import TransmissionReceiverProtocol, TransmissionProtocol
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.Models.DraftListStyleSheet import DraftListStyleSheet
 from R4UI import VerticalBoxLayout, RVerticallyExpandingSpacer
-
+from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
 from .DraftListLineItemHeaderViewController import \
     DraftListLineItemHeaderViewController
 from .DraftListLineItemViewController import (
@@ -38,7 +38,7 @@ class DraftListTablePackPreviewViewController(QWidget, TransmissionReceiverProto
                  data_source_local_resource_provider: Optional[LocalResourceDataSourceProviding]):
         super().__init__()
         self._app_dependencies_provider = app_dependencies_provider
-        self._data_source_draft_list = app_dependencies_provider.data_source_draft_list
+        self._data_source_draft_list_provider = app_dependencies_provider.data_source_draft_list_provider
         self._data_source_local_resource_provider = data_source_local_resource_provider
         self._app_ui_configuration_manager = app_dependencies_provider.app_ui_configuration_manager
         self._external_app_dependencies_provider = app_dependencies_provider.external_app_dependencies_provider
@@ -49,6 +49,10 @@ class DraftListTablePackPreviewViewController(QWidget, TransmissionReceiverProto
                                                                            DraftListUpdatedEvent])
     
     
+    @property
+    def _data_source_draft_list(self) -> DataSourceDraftListProtocol:
+        return self._data_source_draft_list_provider.draft_list_data_source
+
     @property
     def _stylesheet(self) -> DraftListStyleSheet:
         return self._app_ui_configuration_manager.configuration.draft_list_styles
@@ -67,15 +71,6 @@ class DraftListTablePackPreviewViewController(QWidget, TransmissionReceiverProto
         outer_container_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(outer_container_layout)
         
-        # self.setContentsMargins(0, 0, 0, 0)
-        # cells_container_layout = QVBoxLayout()
-        # cells_container_widget = QWidget()
-        # the below code was causing line item to get squashed, adding a spacer below all line items
-        # cells_container_widget.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed) # prevent stretching of container in scroll view
-        # cells_container_widget.setLayout(cells_container_layout)
-        # self._cells_container_layout = cells_container_layout
-        # self._cells_container_layout.setContentsMargins(0, 0, 0, 0)
-        
         self._cells_container = VerticalBoxLayout().set_uniform_content_margins(0)
         
         self._cells_container_container = VerticalBoxLayout([
@@ -93,13 +88,6 @@ class DraftListTablePackPreviewViewController(QWidget, TransmissionReceiverProto
     
     def clear_list(self):
         self._cells_container.replace_all_widgets([])
-        # for i in reversed(range(self._cells_container_layout.count())):
-        #     layout_item = self._cells_container_layout.takeAt(i)
-        #     if layout_item is not None:
-        #         widget = layout_item.widget()
-        #         if widget is not None:
-        #             widget.deleteLater()
-        #             widget = None
     
     def _sync_list(self):
         vertical_scroll_bar = self._scroll_view.verticalScrollBar()
@@ -162,7 +150,6 @@ class DraftListTablePackPreviewViewController(QWidget, TransmissionReceiverProto
             self._scroll_view.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
             
         palette = self.palette()
-        # background_image = self._stylesheet.container_background_image_path
         background_image = None
         if background_image is not None:
             pixmap = QPixmap(background_image)
@@ -204,55 +191,55 @@ class DraftListTablePackPreviewViewController(QWidget, TransmissionReceiverProto
         if type(event) is ConfigurationUpdatedEvent:
             # TODO: needs to optimize?
             self._sync_ui()
-            
+
         if type(event) is DraftListUpdatedEvent:
             self._sync_ui()
             return
-            if self._delegate is not None:
-                if event.draft_pack.pack_identifier == self._delegate.dlp_pack_identifier:
-                    # self._sync_ui()
-                    event_type = event.event_type
-                    draft_pack = event.draft_pack
-                    if type(event_type) == DraftListUpdatedEvent.AddedResource:
-                        trading_card = event_type.local_resource.trading_card
-                        pack_index = self._data_source_draft_list.pack_index_for_draft_pack_identifier(draft_pack.pack_identifier)
+            # if self._delegate is not None:
+            #     if event.draft_pack.pack_identifier == self._delegate.dlp_pack_identifier:
+            #         # self._sync_ui()
+            #         event_type = event.event_type
+            #         draft_pack = event.draft_pack
+            #         if type(event_type) is DraftListUpdatedEvent.AddedResource:
+            #             trading_card = event_type.local_resource.trading_card
+            #             pack_index = self._data_source_draft_list.pack_index_for_draft_pack_identifier(draft_pack.pack_identifier)
                         
-                        if trading_card is None or pack_index is None:
-                            return
+            #             if trading_card is None or pack_index is None:
+            #                 return
                         
-                        line_item = DraftListLineItemViewController(self._app_dependencies_provider,
-                                                                    self._stylesheet,
-                                                                    trading_card,
-                                                                    event_type.local_resource,
-                                                                    self._data_source_local_resource_provider,
-                                                                    pack_index,
-                                                                    draft_pack,
-                                                                    event_type.index)
+            #             line_item = DraftListLineItemViewController(self._app_dependencies_provider,
+            #                                                         self._stylesheet,
+            #                                                         trading_card,
+            #                                                         event_type.local_resource,
+            #                                                         self._data_source_local_resource_provider,
+            #                                                         pack_index,
+            #                                                         draft_pack,
+            #                                                         event_type.index)
                         
-                        self._cells_container.add_widget(line_item)
+            #             self._cells_container.add_widget(line_item)
                         
-                    elif type(event_type) == DraftListUpdatedEvent.SwappedResources:
-                        self._cells_container.swap_widgets(event_type.index_1, event_type.index_2)
+            #         elif type(event_type) is DraftListUpdatedEvent.SwappedResources:
+            #             self._cells_container.swap_widgets(event_type.index_1, event_type.index_2)
                     
-                    elif type(event_type) == DraftListUpdatedEvent.RemovedResource:
-                        self._cells_container.remove_widget_at_index(event_type.index)
+            #         elif type(event_type) is DraftListUpdatedEvent.RemovedResource:
+            #             self._cells_container.remove_widget_at_index(event_type.index)
                     
-                    elif type(event_type) == DraftListUpdatedEvent.InsertedResource:
-                        trading_card = event_type.local_resource.trading_card
-                        pack_index = self._data_source_draft_list.pack_index_for_draft_pack_identifier(draft_pack.pack_identifier)
+            #         elif type(event_type) is DraftListUpdatedEvent.InsertedResource:
+            #             trading_card = event_type.local_resource.trading_card
+            #             pack_index = self._data_source_draft_list.pack_index_for_draft_pack_identifier(draft_pack.pack_identifier)
                         
-                        if trading_card is None or pack_index is None:
-                            return
+            #             if trading_card is None or pack_index is None:
+            #                 return
                         
-                        line_item = DraftListLineItemViewController(self._app_dependencies_provider,
-                                                                    self._stylesheet,
-                                                                    trading_card,
-                                                                    event_type.local_resource,
-                                                                    self._data_source_local_resource_provider,
-                                                                    pack_index,
-                                                                    draft_pack,
-                                                                    event_type.index)
-                        self._cells_container.insert_widget(event_type.index, line_item)
+            #             line_item = DraftListLineItemViewController(self._app_dependencies_provider,
+            #                                                         self._stylesheet,
+            #                                                         trading_card,
+            #                                                         event_type.local_resource,
+            #                                                         self._data_source_local_resource_provider,
+            #                                                         pack_index,
+            #                                                         draft_pack,
+            #                                                         event_type.index)
+            #             self._cells_container.insert_widget(event_type.index, line_item)
                     # TODO: make only necessary updates to table, get more granular changes from DS event
                 
             
