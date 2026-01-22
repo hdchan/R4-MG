@@ -286,7 +286,7 @@ class LegacyDeckListImageGenerator(DeckListImageGeneratorProtocol):
             return combined_image
         
         main_deck_image = stack_rows([
-            create_card_type_row(lambda x: parsed_deck_list.all_units_with_cost(x, self._deck_list_image_generator_styles(scale_factor).is_sorted_alphabetically), lambda x: parsed_deck_list.main_deck_with_cost(x)),
+            create_card_type_row(lambda x: parsed_deck_list.all_main_deck_units_with_cost(x, self._deck_list_image_generator_styles(scale_factor).is_sorted_alphabetically), lambda x: parsed_deck_list.main_deck_with_cost(x)),
             create_card_type_row(lambda x: parsed_deck_list.all_main_deck_upgrades_and_events_with_cost(x, self._deck_list_image_generator_styles(scale_factor).is_sorted_alphabetically), lambda x: parsed_deck_list.main_deck_with_cost(x)),
         ])
         

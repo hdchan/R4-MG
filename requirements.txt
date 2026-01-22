@@ -26,3 +26,5 @@ urllib3==2.5.0
 websocket-client==1.9.0
 wsproto==1.2.0
 zipp==3.23.0
+pytest==8.0.0
+pytest-cov==4.1.0

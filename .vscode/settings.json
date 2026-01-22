@@ -11,7 +11,7 @@
         "*_test.py"
     ],
     "python.testing.pytestEnabled": true,
-    "python.testing.unittestEnabled": false,
+    "python.testing.unittestEnabled": true,
     "python.testing.pytestArgs": [
         "Tests"
     ],
