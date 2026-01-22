@@ -116,13 +116,13 @@ class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesIntern
         ds = DataSourceCardSearch(self,
                                   search_client_provider,
                                   ds_configuration)
-        ds.delegate = delegate # TODO: remove delegate in favor of observation event
+        ds.delegate = delegate
         return ds
     
     def new_instance_custom_directory_search_data_source(self, 
                                                          delegate: CustomDirectorySearchDataSourceDelegate) -> CustomDirectorySearchDataSource:
         ds = CustomDirectorySearchDataSource(self)
-        ds.delegate = delegate # TODO: remove delegate in favor of observation event
+        ds.delegate = delegate
         return ds
     
     @property

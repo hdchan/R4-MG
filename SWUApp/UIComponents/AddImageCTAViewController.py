@@ -134,7 +134,8 @@ class AddImageCTAViewController(RWidget, TransmissionReceiverProtocol):
         
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
         if type(event) is CardSearchEvent:
-            if event.event_type == CardSearchEvent.EventType.STARTED:
-                self._loading_spinner.start()
-            else:
-                self._loading_spinner.stop()
+            pass
+            # if event.event_type == CardSearchEvent.EventType.STARTED:
+            #     self._loading_spinner.start()
+            # else:
+            #     self._loading_spinner.stop()
