@@ -5,3 +5,4 @@ __pycache__
 .empty
 *.yaml
 .coverage
+.mypy_cache

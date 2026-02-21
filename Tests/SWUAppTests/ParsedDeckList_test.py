@@ -4,7 +4,7 @@ import random
 from SWUApp.Models import ParsedDeckList, CardType
 
 
-from Tests.SWUAppTests.Mocks.Models import RandomModels
+from .Mocks.Models import RandomModels
 
 class ParsedDeckList_test(unittest.TestCase):
 

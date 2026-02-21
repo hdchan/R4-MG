@@ -118,7 +118,7 @@ class CustomDirectorySearchTableViewController(RWidget,
     def search(self):
         self._search()
 
-    def _search(self, config_modifier: ... = None):
+    def _search(self, config_modifier):
         self._card_search_data_source.search(self._search_table_combo_view.search_configuration)
 
     def _load_source_labels(self, status_string: str = ""):
