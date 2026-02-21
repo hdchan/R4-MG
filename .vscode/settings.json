@@ -18,8 +18,6 @@
     "cSpell.words": [
         "Pixmap"
     ],
-    "mypy-type-checker.enabled": true,
-    "mypy-type-checker.reportingScope": "workspace",
-    "mypy-type-checker.preferDaemon": true,
-    "mypy-type-checker.extraArguments": ["--strict"]
+    "mypy-type-checker.reportingScope": "file",
+    "mypy-type-checker.preferDaemon": true
 }
