@@ -110,7 +110,7 @@ class DataSourceDraftListWindowResourceDeployer(TransmissionReceiverProtocol):
         self._update_window_configuration(resource, new_config)
         
     def update_window_draft_pack(self, resource: LocalResourceDraftListWindow, draft_pack_identifier: Optional[str]):
-        old_config = copy.deepcopy(resource.window_configuration)
+        old_config = resource.window_configuration
         new_config = old_config
         new_config.draft_pack_identifier = draft_pack_identifier
         self._update_window_configuration(resource, new_config)
