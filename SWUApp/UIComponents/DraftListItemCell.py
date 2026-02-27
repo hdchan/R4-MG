@@ -49,7 +49,7 @@ class DraftListItemCell(QWidget):
         
         palette = QPalette()
         if cell_style is not None:
-            palette.setColor(QPalette.ColorRole.Base, QColor(cell_style.cell_font_color))
+            palette.setColor(QPalette.ColorRole.WindowText, QColor(cell_style.cell_font_color))
             
             
         label = Label()
@@ -57,7 +57,7 @@ class DraftListItemCell(QWidget):
         label.setPalette(palette)
 
         label_text = self._trading_card.name
-        if self._is_presentation == False:
+        if not self._is_presentation:
             # if self._resource.is_ready == False:
             #     label_text = f"⛔{label_text}"
             if self._resource.guaranteed_trading_card.card_type == CardType.LEADER:

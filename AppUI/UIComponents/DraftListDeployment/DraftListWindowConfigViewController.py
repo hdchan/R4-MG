@@ -83,9 +83,7 @@ class DraftListWindowConfigViewController(RWidget, TransmissionReceiverProtocol)
         selected_pack = self._data_source_draft_list.pack_for_draft_pack_identifier(self._resource.window_configuration.draft_pack_identifier)
         if selected_pack is not None:
             self._pack_list_combo_box.setCurrentText(selected_pack.pack_name)
-
         
-    
     def _update_pack_list(self):
         selected_pack: Optional[DraftPack] = self._pack_list_combo_box.current_data
         pack_identifier = None
