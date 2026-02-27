@@ -70,8 +70,9 @@ class DraftListWindowConfigViewController(RWidget, TransmissionReceiverProtocol)
     
     def _reset_pack_list_combo_box(self):
         try:
-            self._pack_list_combo_box.disconnect()
-        except:
+            # we need to specify what we want to disconnect, otherwise it won't disconnect
+            self._pack_list_combo_box.currentIndexChanged.disconnect(self._update_pack_list)
+        except Exception:
             pass
         
         mapped_values = list(map(lambda x: (x.pack_name, x), self._data_source_draft_list.draft_packs))
@@ -82,6 +83,8 @@ class DraftListWindowConfigViewController(RWidget, TransmissionReceiverProtocol)
         selected_pack = self._data_source_draft_list.pack_for_draft_pack_identifier(self._resource.window_configuration.draft_pack_identifier)
         if selected_pack is not None:
             self._pack_list_combo_box.setCurrentText(selected_pack.pack_name)
+
+        
     
     def _update_pack_list(self):
         selected_pack: Optional[DraftPack] = self._pack_list_combo_box.current_data
