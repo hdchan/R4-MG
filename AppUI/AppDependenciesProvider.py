@@ -33,7 +33,8 @@ class AppDependenciesProvider(CoreDependenciesProvider, AppDependenciesProviding
             self._local_managed_sets_data_source = DataSourceLocallyManagedSets(self._configuration_manager,
                                                                                 self._observation_tower,
                                                                                 self._data_serializer,
-                                                                                client=self._external_app_dependencies_provider.locally_managed_sets_client)
+                                                                                client=self._external_app_dependencies_provider.locally_managed_sets_client, 
+                                                                                model_transformer=model_transformer)
             
             self._router = Router(ScreenWidgetProvider(self, self))
 

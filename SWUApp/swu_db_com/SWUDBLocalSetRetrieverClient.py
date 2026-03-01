@@ -38,30 +38,41 @@ class SWUDBLocalCardRetrieverClient(DataSourceCardSearchClientProtocol):
     def search_with_result(self, 
                search_configuration: SearchConfiguration,
                pagination_configuration: Optional[PaginationConfiguration]) -> DataSourceCardSearchClientSearchResult:
+
         print(f'Local search www.swu-db.com. card_name: {search_configuration.card_name}, search_configuration: {search_configuration}')
         swu_search_config = SWUCardSearchConfiguration.from_search_configuration(search_configuration)
         swu_search_filtered_string = "".join(filter(str.isalnum, swu_search_config.card_name.lower()))
 
-        # TODO: need to filter by subtitle as well? for melee.gg
-        def filter_the_result(card: TradingCard):
-            if swu_search_config.card_set is not None and swu_search_config.card_number is not None:
-                return (card.number == swu_search_config.card_number and card.set == swu_search_config.card_set)
-            else:
-                if swu_search_config.card_name.strip() == "":
-                    return False # don't return all cards if no search string
-                card_filtered_string = "".join(filter(str.isalnum, card.name.lower()))
-                return (swu_search_filtered_string in card_filtered_string and 
-                        (swu_search_config.card_type.value.lower() == card.type.lower() or swu_search_config.card_type == CardType.UNSPECIFIED))
-
-        def sort_the_result(card: TradingCard):
-            return card.name
-        try:
-            filtered_list = list(filter(filter_the_result, self._response_card_list))
-            filtered_list.sort(key=sort_the_result)
+        # IF feature enabled
+        if swu_search_config.card_set is not None and swu_search_config.card_number is not None:
+            filtered_list = self._data_source_local_managed_sets.search_by_card_set_and_number(swu_search_config.card_set, swu_search_config.card_number)
             result = DataSourceCardSearchClientSearchResponse(filtered_list)
             return (result, None)
-        except Exception as error:
-            return (DataSourceCardSearchClientSearchResponse([]), error)
+        else:
+            filtered_list = self._data_source_local_managed_sets.search_by_card_name(swu_search_config.card_name.strip())
+            result = DataSourceCardSearchClientSearchResponse(filtered_list)
+            return (result, None)
+        
+        # TODO: need to filter by subtitle as well? for melee.gg
+        # def filter_the_result(card: TradingCard):
+        #     if swu_search_config.card_set is not None and swu_search_config.card_number is not None:
+        #         return (card.number == swu_search_config.card_number and card.set == swu_search_config.card_set)
+        #     else:
+        #         if swu_search_config.card_name.strip() == "":
+        #             return False # don't return all cards if no search string
+        #         card_filtered_string = "".join(filter(str.isalnum, card.name.lower()))
+        #         return (swu_search_filtered_string in card_filtered_string and 
+        #                 (swu_search_config.card_type.value.lower() == card.type.lower() or swu_search_config.card_type == CardType.UNSPECIFIED))
+
+        # def sort_the_result(card: TradingCard):
+        #     return card.name
+        # try:
+        #     filtered_list = list(filter(filter_the_result, self._response_card_list))
+        #     filtered_list.sort(key=sort_the_result)
+        #     result = DataSourceCardSearchClientSearchResponse(filtered_list)
+        #     return (result, None)
+        # except Exception as error:
+        #     return (DataSourceCardSearchClientSearchResponse([]), error)
     
     @property
     def _response_card_list(self) -> List[TradingCard]:

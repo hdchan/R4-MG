@@ -18,6 +18,7 @@
     "cSpell.words": [
         "Pixmap"
     ],
+    "python.testing.autoTestDiscoverOnSaveEnabled": true,
     "mypy-type-checker.reportingScope": "file",
     "mypy-type-checker.preferDaemon": true
 }

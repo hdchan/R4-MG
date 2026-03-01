@@ -1,5 +1,7 @@
+import json
 import os
 import re
+import sqlite3
 from io import TextIOWrapper
 from pathlib import Path
 from typing import Callable, Dict, Generic, List, Optional, Set, Tuple, TypeVar
@@ -12,7 +14,7 @@ from AppCore.Models import LocalAssetResource, TradingCard
 from AppCore.Observation import ObservationTower
 from AppCore.Observation.Events import LocalAssetResourceFetchEvent
 from AppCore.Service import DataSerializer
-
+from AppCore.Models import ModelTransformer
 T = TypeVar("T")
 
 class DataSourceLocallyManagedSetsClientProtocol:
@@ -43,11 +45,13 @@ class DataSourceLocallyManagedSets:
                  configuration_manager: ConfigurationManager,
                  observation_tower: ObservationTower,
                  data_serializer: DataSerializer,
-                 client: DataSourceLocallyManagedSetsClientProtocol):
+                 client: DataSourceLocallyManagedSetsClientProtocol, 
+                 model_transformer: ModelTransformer):
         self._configuration_manager = configuration_manager
         self._observation_tower = observation_tower
         self._data_serializer = data_serializer
         self._client = client
+        self._model_transforer = model_transformer
         self.pool = QThreadPool()
         self.mutex = QMutex()
         self.workers: Set[QRunnable] = set()
@@ -101,6 +105,73 @@ class DataSourceLocallyManagedSets:
         
         # temp files may be the same as ready files...need to get a set from the list
         return list(set(sorted(ready_resources + loading_resources, key=lambda resource: resource.display_name)))
+
+    def search_by_card_set_and_number(self, card_set: str, card_number: str) -> List[TradingCard]:
+        conn = sqlite3.connect('locally_managed_sets.db')
+        rows = []
+        try:
+            with conn:
+                cursor = conn.cursor()
+                cursor.execute('''
+                    SELECT json FROM cards
+                    WHERE card_set = ?
+                    AND card_number = ?
+                    ORDER BY card_set, card_number, card_name
+                    ''', (card_set, card_number,))
+                rows = cursor.fetchall()
+                conn.commit()
+        except sqlite3.Error as e:
+            return []
+        result = list(map(lambda x: self._model_transforer.transform_json_to_trading_card(json.loads(x[0])), rows))
+        return result
+
+    def search_by_card_name(self, card_name: str) -> List[TradingCard]:
+        conn = sqlite3.connect('locally_managed_sets.db')
+        rows = []
+        search_term = f"%{card_name}%"
+        try:
+            with conn:
+                cursor = conn.cursor()
+                cursor.execute('''
+                    SELECT json FROM cards
+                    WHERE card_name LIKE ?
+                    ORDER BY card_set, card_number, card_name
+                    ''', (search_term,))
+                rows = cursor.fetchall()
+                conn.commit()
+        except sqlite3.Error as e:
+            return []
+        result = list(map(lambda x: self._model_transforer.transform_json_to_trading_card(json.loads(x[0])), rows))
+        return result
+
+    def _rebuild_locally_managed_sets_db(self):
+        response_card_list = self.retrieve_card_list()
+        mapped = list(map(lambda x: (x.set, x.number, x.name, json.dumps(x.json)), response_card_list))
+
+        conn = sqlite3.connect('locally_managed_sets.db')
+
+        try:
+            with conn:
+                cursor = conn.cursor()
+                cursor.execute('DROP TABLE IF EXISTS cards;')
+                cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS cards (
+                        card_set TEXT,
+                        card_number TEXT,
+                        card_name TEXT,
+                        json TEXT
+                    );
+                    ''')
+                # cursor.execute('CREATE UNIQUE INDEX unique_card ON cards (card_set, card_number);')
+                insert_query = """
+                INSERT INTO Cards (card_set, card_number, card_name, json)
+                VALUES (?, ?, ?, ?);
+                """
+                cursor.executemany(insert_query, mapped)
+
+                conn.commit()
+        except sqlite3.Error as e:
+            print(f"An error occurred: {e}")
     
     def download(self, deck_identifier: str, force_download: bool = False):
         domain_identifier = self._replace_non_alphanumeric(self._client.domain_identifier, "_")
@@ -124,6 +195,7 @@ class DataSourceLocallyManagedSets:
         
         
         def finished(result: Tuple[LocalAssetResource, Optional[Exception]]):
+            self._rebuild_locally_managed_sets_db()
             resource, error = result
             Path(resource.asset_temp_path).unlink() # remote temp file
             if error is None:
@@ -216,7 +288,6 @@ class DataSourceLocallyManagedSets:
         
     def _replace_non_alphanumeric(self, text: str, replacement: str = '') -> str:
         return re.sub(r'[^a-zA-Z0-9]', replacement, text)
-        
 
 class WorkerSignals(QObject):
     finished = Signal(object)

@@ -21,7 +21,7 @@ class RandomModels:
             hp=None,
             json={},
             metadata={},
-            aspects={},
+            aspects=[],
             subtitle=None,
             front_art_url="",
             back_art_url=None,
