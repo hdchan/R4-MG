@@ -144,7 +144,11 @@ class DataSourceLocallyManagedSets:
         result = list(map(lambda x: self._model_transforer.transform_json_to_trading_card(json.loads(x[0])), rows))
         return result
 
+    def rebuild_locally_managed_sets_db(self):
+        self._rebuild_locally_managed_sets_db()
+
     def _rebuild_locally_managed_sets_db(self):
+        print("Rebuilding database")
         response_card_list = self.retrieve_card_list()
         mapped = list(map(lambda x: (x.set, x.number, x.name, json.dumps(x.json)), response_card_list))
 

@@ -1,15 +1,18 @@
 from typing import Optional, Tuple
+
 from PySide6.QtGui import QValidator
 from PySide6.QtWidgets import (QHBoxLayout, QLineEdit, QPushButton,
-                             QScrollArea, QSizePolicy, QVBoxLayout, QWidget)
+                               QScrollArea, QSizePolicy, QVBoxLayout, QWidget)
 
 from AppCore.Models import LocalAssetResource
 from AppCore.Observation import (TransmissionProtocol,
                                  TransmissionReceiverProtocol)
 from AppCore.Observation.Events import LocalAssetResourceFetchEvent
-from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
+from AppUI.AppDependenciesInternalProviding import \
+    AppDependenciesInternalProviding
+from R4UI import HorizontalBoxLayout, Label, PushButton, VerticalBoxLayout, LineEditText
 
-from R4UI import Label
+
 class ManageSetListViewController(QWidget, TransmissionReceiverProtocol):
     
     class ListItemViewControllerDelegate:
@@ -29,30 +32,17 @@ class ManageSetListViewController(QWidget, TransmissionReceiverProtocol):
             self._resource = resource
             self.delegate: Optional[ManageSetListViewController.ListItemViewControllerDelegate] = None
             
-            v_layout = QHBoxLayout()
-            self.setLayout(v_layout)
-            
-            text_edit = Label()
-            v_layout.addWidget(text_edit)
-            self._text_edit = text_edit
-            
-            preview = QPushButton()
-            preview.setText("Preview")
-            preview.clicked.connect(self._did_click_preview)
-            v_layout.addWidget(preview)
-            self._preview = preview
-            
-            redownload = QPushButton()
-            redownload.setText("Redownload")
-            redownload.clicked.connect(self._did_click_redownload)
-            v_layout.addWidget(redownload)
-            self._redownload = redownload
-            
-            delete = QPushButton()
-            delete.setText("Delete")
-            delete.clicked.connect(self._delete_deck)
-            v_layout.addWidget(delete)
-            self._delete = delete
+            self._text_edit = Label()
+            self._preview = PushButton("Preview", self._did_click_preview)
+            self._redownload = PushButton("Redownload", self._did_click_redownload)
+            self._delete = PushButton("Delete", self._delete_deck)
+
+            HorizontalBoxLayout([
+                self._text_edit,
+                self._preview,
+                self._redownload,
+                self._delete
+            ]).set_layout_to_widget(self)
 
             self._sync_ui()
             
@@ -114,32 +104,20 @@ class ManageSetListViewController(QWidget, TransmissionReceiverProtocol):
             self._asset_provider = app_dependencies_provider.asset_provider
             self.delegate: Optional[ManageSetListViewController.AddListItemViewControllerDelegate] = None
             
-            v_layout = QVBoxLayout()
-            self.setLayout(v_layout)
-            
-            helper_text = Label()
-            helper_text.setWordWrap(True)
-            helper_text.setText("Enter set identifier below to save and download a deck to use for locally managed set search. These identifiers can be found on the bottom right of a card within its set.")
-            v_layout.addWidget(helper_text)
-            
-            h_layout = QHBoxLayout()
-            h_layout_widget = QWidget()
-            h_layout_widget.setLayout(h_layout)
-            v_layout.addWidget(h_layout_widget)
-            
-            text_edit = QLineEdit()
-            validator = self.Validator()
-            text_edit.setValidator(validator)
-            text_edit.textChanged.connect(self._text_edit_text_changed)
-            text_edit.setPlaceholderText('e.g. "SOR" for Spark of the Rebellion')
-            h_layout.addWidget(text_edit)
-            self._text_edit = text_edit
-            
-            save_download = QPushButton()
-            save_download.setText("Save")
-            save_download.clicked.connect(self._add_and_download)
-            h_layout.addWidget(save_download)
-            self._save_download = save_download
+            helper_text = "Enter set identifier below to save and download a deck to use for locally managed set search. These identifiers can be found on the bottom right of a card within its set."
+
+            self._text_edit = LineEditText(triggered_fn=self._text_edit_text_changed, placeholder_text='e.g. "SOR" for Spark of the Rebellion')
+
+            self._save_download = PushButton("Save", self._add_and_download)
+
+            VerticalBoxLayout([
+                Label(helper_text).set_word_wrap(True),
+                HorizontalBoxLayout([
+                    self._text_edit,
+                    self._save_download
+                ]),
+                PushButton("Rebuild database", self._rebuild_db)
+            ]).set_layout_to_widget(self)
 
             self._sync_save_button()
         
@@ -157,8 +135,10 @@ class ManageSetListViewController(QWidget, TransmissionReceiverProtocol):
             self._save_download.setEnabled(not text_empty and stripped_text not in existing_deck_identifiers)
             
         def _text_edit_text_changed(self, new_text: str):
-
             self._sync_save_button()
+
+        def _rebuild_db(self):
+            self._set_list_data_source.rebuild_locally_managed_sets_db()
     
     def __init__(self, 
                  app_dependencies_provider: AppDependenciesInternalProviding):
