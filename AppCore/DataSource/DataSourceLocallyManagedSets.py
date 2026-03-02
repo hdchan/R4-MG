@@ -10,11 +10,11 @@ from urllib import request
 from PySide6.QtCore import QMutex, QObject, QRunnable, QThreadPool, Signal
 
 from AppCore.Config import Configuration, ConfigurationManager
-from AppCore.Models import LocalAssetResource, TradingCard
+from AppCore.Models import LocalAssetResource, ModelTransformer, TradingCard
 from AppCore.Observation import ObservationTower
 from AppCore.Observation.Events import LocalAssetResourceFetchEvent
 from AppCore.Service import DataSerializer
-from AppCore.Models import ModelTransformer
+
 T = TypeVar("T")
 
 class DataSourceLocallyManagedSetsClientProtocol:
