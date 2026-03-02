@@ -21,6 +21,7 @@ class Configuration():
             DRAFT_LIST_IMAGE_PREVIEW = 'draft_list_image_preview'
             REMOTE_SOCKET_CONNECTION = "remote_socket_connection"
             USES_LEGACY_DECK_IMAGE_GENERATION = 'uses_legacy_deck_image_generation'
+            USES_SQLITE_FOR_MANAGE_SET_SEARCH = 'uses_sqlite_for_manage_set_search'
 
     class Settings:
         class Keys:
@@ -102,7 +103,8 @@ class Configuration():
                 Configuration.Toggles.Keys.DEVELOPER_MODE: False,
                 Configuration.Toggles.Keys.DRAFT_LIST_IMAGE_PREVIEW: False,
                 Configuration.Toggles.Keys.REMOTE_SOCKET_CONNECTION: False,
-                Configuration.Toggles.Keys.USES_LEGACY_DECK_IMAGE_GENERATION: False
+                Configuration.Toggles.Keys.USES_LEGACY_DECK_IMAGE_GENERATION: False,
+                Configuration.Toggles.Keys.USES_SQLITE_FOR_MANAGE_SET_SEARCH: True,
             },
             Configuration.Keys.SETTINGS: {
                 Configuration.Settings.Keys.SEARCH_SOURCE: Configuration.Settings.SearchSource.DEFAULT.value,
@@ -273,6 +275,10 @@ class Configuration():
     @property
     def is_using_legacy_deck_image_generation(self) -> bool:
         return self._get_with_default_toggles(self.Toggles.Keys.USES_LEGACY_DECK_IMAGE_GENERATION)
+
+    @property
+    def is_using_sqlite_search_for_managed_set_search(self) -> bool:
+        return self._get_with_default_toggles(self.Toggles.Keys.USES_SQLITE_FOR_MANAGE_SET_SEARCH)
 
     # MARK: - Developer settings
     @property
@@ -469,6 +475,9 @@ class MutableConfiguration(Configuration):
 
     def set_is_using_legacy_deck_list_image_generation(self, value: bool):
         self._toggles[self.Toggles.Keys.USES_LEGACY_DECK_IMAGE_GENERATION] = value
+
+    def set_is_using_sqlite_search_for_managed_set_search(self, value: bool):
+        self._toggles[self.Toggles.Keys.USES_SQLITE_FOR_MANAGE_SET_SEARCH] = value
     
     # MARK: - Developer settings
     def set_is_mock_data(self, value: bool):
