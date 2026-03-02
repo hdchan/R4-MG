@@ -1,8 +1,7 @@
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 from PySide6.QtGui import QValidator
-from PySide6.QtWidgets import (QHBoxLayout, QLineEdit, QPushButton,
-                               QScrollArea, QSizePolicy, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import QSizePolicy
 
 from AppCore.Models import LocalAssetResource
 from AppCore.Observation import (TransmissionProtocol,
@@ -10,16 +9,17 @@ from AppCore.Observation import (TransmissionProtocol,
 from AppCore.Observation.Events import LocalAssetResourceFetchEvent
 from AppUI.AppDependenciesInternalProviding import \
     AppDependenciesInternalProviding
-from R4UI import HorizontalBoxLayout, Label, PushButton, VerticalBoxLayout, LineEditText
+from R4UI import (HorizontalBoxLayout, Label, LineEditText, PushButton,
+                  RWidget, ScrollArea, VerticalBoxLayout)
 
 
-class ManageSetListViewController(QWidget, TransmissionReceiverProtocol):
+class ManageSetListViewController(RWidget, TransmissionReceiverProtocol):
     
     class ListItemViewControllerDelegate:
         def did_delete(self) -> None:
             raise Exception
     
-    class ListItemViewController(QWidget, TransmissionReceiverProtocol):
+    class ListItemViewController(RWidget, TransmissionReceiverProtocol):
         
         def __init__(self, 
                      app_dependencies_provider: AppDependenciesInternalProviding, 
@@ -88,7 +88,7 @@ class ManageSetListViewController(QWidget, TransmissionReceiverProtocol):
     
     
 
-    class AddListItemViewController(QWidget):
+    class AddListItemViewController(RWidget):
         class Validator(QValidator):
             def validate(self, a0: Optional[str], a1: int) -> Tuple['QValidator.State', str, int]:
                 # TODO: Assuming alphanumeric chars. Might want to abstract this to client level
@@ -98,11 +98,11 @@ class ManageSetListViewController(QWidget, TransmissionReceiverProtocol):
                 return (QValidator.State.Acceptable, result, len(result))
             
         def __init__(self, 
-                     app_dependencies_provider: AppDependenciesInternalProviding):
+                     app_dependencies_provider: AppDependenciesInternalProviding, delegate: Optional['ManageSetListViewController'.AddListItemViewControllerDelegate] = None):
             super().__init__()
             self._set_list_data_source = app_dependencies_provider.local_managed_sets_data_source
             self._asset_provider = app_dependencies_provider.asset_provider
-            self.delegate: Optional[ManageSetListViewController.AddListItemViewControllerDelegate] = None
+            self.delegate: Optional[ManageSetListViewController.AddListItemViewControllerDelegate] = delegate
             
             helper_text = "Enter set identifier below to save and download a deck to use for locally managed set search. These identifiers can be found on the bottom right of a card within its set."
 
@@ -120,7 +120,7 @@ class ManageSetListViewController(QWidget, TransmissionReceiverProtocol):
             ]).set_layout_to_widget(self)
 
             self._sync_save_button()
-        
+
         def _add_and_download(self):
             # sanitize input
             self._set_list_data_source.download(self._text_edit.text())
@@ -151,41 +151,26 @@ class ManageSetListViewController(QWidget, TransmissionReceiverProtocol):
         self.setWindowTitle("Manage set list")
         self.setMinimumSize(400, 400)
         
-        outer_container_layout = QVBoxLayout()
-        self.setLayout(outer_container_layout)
-
-        cells_container_layout = QVBoxLayout()
-        cells_container_layout.setContentsMargins(0, 0, 0, 0)
-        cells_container_widget = QWidget()
+        cells_container_widget = RWidget()
         cells_container_widget.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed) # prevent stretching of container in scroll view
-        cells_container_widget.setLayout(cells_container_layout)
-        self._cells_container_layout = cells_container_layout
+        self._cells_container_layout = VerticalBoxLayout([
+            
+        ]).set_uniform_content_margins(0).set_layout_to_widget(cells_container_widget)
 
-        self.scroll_view = QScrollArea(self)
-        self.scroll_view.setWidget(cells_container_widget)
-        self.scroll_view.setWidgetResizable(True)
-        outer_container_layout.addWidget(self.scroll_view)
-        
-        add_list_item_row = self.AddListItemViewController(self._app_dependencies_provider)
-        add_list_item_row.delegate = self
-        outer_container_layout.addWidget(add_list_item_row)
-        
+        VerticalBoxLayout([
+            ScrollArea(cells_container_widget),
+            self.AddListItemViewController(self._app_dependencies_provider, self)
+        ]).set_layout_to_widget(self)
+
         self._load_set_list()
-    
-    def _clear_list(self):
-        for i in reversed(range(self._cells_container_layout.count())):
-            layout_item = self._cells_container_layout.takeAt(i)
-            if layout_item is not None:
-                widget = layout_item.widget()
-                if widget is not None:
-                    widget.deleteLater()
       
     def _load_set_list(self):
-        self._clear_list()
+        widgets: List[RWidget] = []
         for resource in self._set_list_data_source.deck_resources:
             row = self.ListItemViewController(self._app_dependencies_provider, resource)
             row.delegate = self
-            self._cells_container_layout.addWidget(row)
+            widgets.append(row)
+        self._cells_container_layout.replace_all_widgets(widgets)
             
     def _sync_ui(self):
         self._load_set_list()
