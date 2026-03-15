@@ -2,6 +2,7 @@
 from typing import Any, List, Optional
 
 from AppCore.Models import DraftPack, LocalCardResource
+from enum import Enum
 
 class DataSourceDraftListProtocol:
     def resource_at_index(self, pack_index: int, resource_index: int) -> Optional[LocalCardResource]:
@@ -79,7 +80,29 @@ class DataSourceDraftListProtocol:
     def mark_resource_as_sideboard(self, pack_index: int, resource_index: int, key: str, value: Any):
         raise Exception
 
+class DataSourceDraftListProviderConnectionStatus(int, Enum):
+    NONE = 0
+    IS_HOST = 1
+    IS_CLIENT = 2
+
 class DataSourceDraftListProviding:
     @property
     def draft_list_data_source(self) -> DataSourceDraftListProtocol:
+        raise Exception
+
+    def connect_as_host(self) -> None:
+        raise Exception
+
+    def connect_as_client(self, ip: str, port: int) -> None:
+        raise Exception
+
+    def disconnect(self) -> None:
+        raise Exception
+
+    @property
+    def state(self) -> DataSourceDraftListProviderConnectionStatus:
+        raise Exception
+
+    @property
+    def ip_address(self) -> str:
         raise Exception

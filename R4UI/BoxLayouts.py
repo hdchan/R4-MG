@@ -11,7 +11,8 @@ from .RWidget import RWidget
 class BoxLayout(RWidget):
     def __init__(self, 
                  layout: QBoxLayout,  
-                 widgets: Sequence[QWidget] = [], weights: List[Optional[int]] = []):
+                 widgets: Sequence[QWidget] = [], 
+                 weights: List[Optional[int]] = []):
         super().__init__()
         self._widgets: Sequence[QWidget] = []
         self._layout = layout

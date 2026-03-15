@@ -54,7 +54,8 @@ class SWUDBLocalCardRetrieverClient(DataSourceCardSearchClientProtocol):
             search_configuration)
 
         # TODO: conditional should probably be moved into app core
-        if self._core_configuration.is_using_sqlite_search_for_managed_set_search:
+        enabled = False
+        if self._core_configuration.is_using_sqlite_search_for_managed_set_search and enabled:
             print("Using SQLite search")
             if swu_search_config.card_set is not None and swu_search_config.card_number is not None:
                 filtered_list = self._data_source_local_managed_sets.search_by_card_set_and_number(

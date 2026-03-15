@@ -104,7 +104,7 @@ class Configuration():
                 Configuration.Toggles.Keys.DRAFT_LIST_IMAGE_PREVIEW: False,
                 Configuration.Toggles.Keys.REMOTE_SOCKET_CONNECTION: False,
                 Configuration.Toggles.Keys.USES_LEGACY_DECK_IMAGE_GENERATION: False,
-                # Configuration.Toggles.Keys.USES_SQLITE_FOR_MANAGE_SET_SEARCH: True,
+                Configuration.Toggles.Keys.USES_SQLITE_FOR_MANAGE_SET_SEARCH: True,
             },
             Configuration.Keys.SETTINGS: {
                 Configuration.Settings.Keys.SEARCH_SOURCE: Configuration.Settings.SearchSource.DEFAULT.value,
