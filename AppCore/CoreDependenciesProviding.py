@@ -4,7 +4,7 @@ from AppCore.Config import ConfigurationManager
 from AppCore.DataSource import (
                                 DataSourceDraftListWindowResourceDeployer,
                                 DataSourceImageResourceDeployer)
-from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
+from AppCore.DataSource.DraftList import DataSourceDraftListProviding
 from AppCore.DataSource.DataSourceCardSearch import (
     DataSourceCardSearch, DataSourceCardSearchClientProviding,
     DataSourceCardSearchDelegate)
@@ -58,7 +58,7 @@ class CoreDependenciesProviding:
         raise Exception
     
     @property
-    def data_source_draft_list(self) -> DataSourceDraftListProtocol:
+    def data_source_draft_list_provider(self) -> DataSourceDraftListProviding:
         raise Exception
     
     @property

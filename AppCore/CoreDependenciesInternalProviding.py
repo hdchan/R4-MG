@@ -2,7 +2,7 @@
 from abc import ABC, abstractmethod
 
 from AppCore.Config import ConfigurationManager
-from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
+from AppCore.DataSource.DraftList import DataSourceDraftListProvider
 from AppCore.DataSource.DataSourceImageResourceDeployer import DataSourceImageResourceDeployer
 from AppCore.ImageResource import ImageResourceProcessorProviding
 from AppCore.Models import ModelTransformer
@@ -53,5 +53,5 @@ class CoreDependenciesInternalProviding(ABC):
     
     @property
     @abstractmethod
-    def data_source_draft_list(self) -> DataSourceDraftListProtocol:
+    def data_source_draft_list_provider(self) -> DataSourceDraftListProvider:
         raise Exception

@@ -22,7 +22,7 @@ from R4UI import (RBoldLabel, RComboBox, HorizontalBoxLayout, PushButton,
 from .DraftListTablePackPreviewViewController import (
     DraftListTablePackPreviewViewController,
     DraftListTablePackPreviewViewControllerDelegate)
-
+from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
 
 class DraftListTabbedPackPreviewViewControllerDraftListTablePackPreviewViewControllerDelegate(DraftListTablePackPreviewViewControllerDelegate):
     def __init__(self, pack_identifier: str):
@@ -43,9 +43,9 @@ class DraftListTabbedPackPreviewViewController(RWidget, TransmissionReceiverProt
                  data_source_local_resource_provider: LocalResourceDataSourceProviding):
         super().__init__()
         self._app_dependencies_provider = app_dependencies_provider
-        self._data_source_draft_list = app_dependencies_provider.data_source_draft_list
         self._data_source_local_resource_provider = data_source_local_resource_provider
         self._data_source_image_resource_deployer = app_dependencies_provider.data_source_image_resource_deployer
+        self._data_source_draft_list_provider = app_dependencies_provider.data_source_draft_list_provider
         self._configuration_manager = app_dependencies_provider.configuration_manager
         self._router = app_dependencies_provider.router
         self._selected_tab = -1
@@ -59,7 +59,11 @@ class DraftListTabbedPackPreviewViewController(RWidget, TransmissionReceiverProt
                                                                            ConfigurationUpdatedEvent, PublishStagedCardResourcesEvent])
         
         app_dependencies_provider.shortcut_action_coordinator.bind_add_card_to_draft_list(self._add_resource, self)
-        
+    
+    @property
+    def _data_source_draft_list(self) -> DataSourceDraftListProtocol:
+        return self._data_source_draft_list_provider.draft_list_data_source
+
     def _setup_view(self):
         self._tab_widget = QTabWidget() # TODO: replace with RTabWidget
         tab_bar = self._tab_widget.tabBar()
@@ -94,7 +98,7 @@ class DraftListTabbedPackPreviewViewController(RWidget, TransmissionReceiverProt
         try:
             # TODO: monitor this to ensure no memory leak
             self._deployment_destination_selection.disconnect()
-        except:
+        except Exception:
             pass
         self._deployment_destination_selection.clear()
         self._deployment_destination_selection.addItems(

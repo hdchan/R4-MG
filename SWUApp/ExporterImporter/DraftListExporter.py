@@ -47,7 +47,7 @@ class DraftListExporterDialog(QDialog):
 
 class DraftListExporter:
     def export_draft_list(self, swu_app_dependencies_provider: SWUAppDependenciesProviding):
-        draft_packs = swu_app_dependencies_provider.data_source_draft_list.draft_packs
+        draft_packs = swu_app_dependencies_provider.data_source_draft_list_provider.data_source_draft_list.draft_packs
         parsed_deck_list = ParsedDeckList.from_draft_packs(draft_packs)
         
         if len(parsed_deck_list.first_leader_and_first_base) < 2:

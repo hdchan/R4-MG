@@ -11,7 +11,7 @@ from AppCore.DataSource import (
     DataSourceRecentPublished,
     DataSourceSocketIOHistory,
 )
-from AppCore.DataSource.DraftList import DataSourceDraftListProtocol, DataSourceDraftList
+from AppCore.DataSource.DraftList import DataSourceDraftListProtocol, DataSourceDraftListProviding, DataSourceDraftListProvider
 from AppCore.DataSource.DataSourceCardSearch import DataSourceCardSearch, DataSourceCardSearchClientProviding, DataSourceCardSearchDelegate
 from AppCore.ImageFetcher import ImageFetcherProvider
 from AppCore.ImageResource import (
@@ -50,9 +50,9 @@ class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesIntern
                                                               self._observation_tower,
                                                               self._image_resource_processor_provider)
         
-        self._data_source_draft_list = DataSourceDraftList(self._configuration_manager,
-                                                           self._observation_tower, 
-                                                           self._data_serializer)
+        self._data_source_draft_list_provider = DataSourceDraftListProvider(self._configuration_manager,
+                                                                            self._observation_tower, 
+                                                                            self._data_serializer)
         
         self._data_source_recent_published = DataSourceRecentPublished(self._observation_tower, 
                                                                        self._image_resource_processor_provider, 
@@ -61,7 +61,7 @@ class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesIntern
         
         self._data_source_draft_list_window_resource_deployer = DataSourceDraftListWindowResourceDeployer(self._configuration_manager, 
                                                                                                           self._observation_tower, 
-                                                                                                          self._data_source_draft_list, 
+                                                                                                          self._data_source_draft_list_provider, 
                                                                                                           self._data_serializer)
         
         
@@ -126,8 +126,8 @@ class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesIntern
         return ds
     
     @property
-    def data_source_draft_list(self) -> DataSourceDraftListProtocol:
-        return self._data_source_draft_list
+    def data_source_draft_list_provider(self) -> DataSourceDraftListProviding:
+        return self._data_source_draft_list_provider
     
     @property
     def data_source_recent_published(self) -> DataSourceCachedHistory:

@@ -8,17 +8,21 @@ from AppUI.AppDependenciesInternalProviding import \
     AppDependenciesInternalProviding
 from AppUI.UIComponents import AppUIConfigurationCheckableRActionMenuItem
 from R4UI import RActionMenuItem, RMenuBarBuilder, RMenuListBuilder
-
+from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
 
 class AppMenuBarBuilder:
     def __init__(self, app_dependencies_provider: AppDependenciesInternalProviding):
         self._app_dependencies_provider = app_dependencies_provider
         self._router = app_dependencies_provider.router
         self._external_app_dependencies_provider = app_dependencies_provider.external_app_dependencies_provider
-        self._data_source_draft_list = app_dependencies_provider.data_source_draft_list
+        self._data_source_draft_list_provider = app_dependencies_provider.data_source_draft_list_provider
         self._app_ui_configuration_manager = app_dependencies_provider.app_ui_configuration_manager
         self._platform_service_provider = app_dependencies_provider.platform_service_provider
         self._data_source_image_resource_deployer = app_dependencies_provider.data_source_image_resource_deployer
+
+    @property
+    def _data_source_draft_list(self) -> DataSourceDraftListProtocol:
+        return self._data_source_draft_list_provider.draft_list_data_source
 
     @property
     def _platform_service(self) -> PlatformServiceProtocol:

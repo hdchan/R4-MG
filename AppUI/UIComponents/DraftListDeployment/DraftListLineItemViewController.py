@@ -10,7 +10,7 @@ from AppCore.Models import LocalResourceDataSourceProviding
 from AppCore.Models import LocalCardResource, TradingCard, DraftPack, DeploymentCardResource
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppCore.Config.Configuration import Configuration
-
+from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
 from AppUI.Models.DraftListStyleSheet import DraftListStyleSheet
 from R4UI import RWidget, Label
 
@@ -33,7 +33,7 @@ class DraftListLineItemViewController(RWidget):
         super().__init__()
         self._stylesheet = stylesheet
         self._asset_provider = app_dependencies_provider.asset_provider
-        self._data_source_draft_list = app_dependencies_provider.data_source_draft_list
+        self._data_source_draft_list_provider = app_dependencies_provider.data_source_draft_list_provider
         self._data_source_local_resource_provider = data_source_local_resource_provider
         self._data_source_image_resource_deployer = app_dependencies_provider.data_source_image_resource_deployer
         self._app_ui_configuration_manager = app_dependencies_provider.app_ui_configuration_manager
@@ -52,6 +52,10 @@ class DraftListLineItemViewController(RWidget):
     def set_delegate(self, delegate: DraftListLineItemViewControllerDelegate):
         self._delegate = weakref.ref(delegate)
     
+    @property
+    def _data_source_draft_list(self) -> DataSourceDraftListProtocol:
+        return self._data_source_draft_list_provider.draft_list_data_source
+
     @property
     def _configuration(self) -> Configuration:
         return self._app_ui_configuration_manager.configuration.core_configuration
@@ -86,7 +90,7 @@ class DraftListLineItemViewController(RWidget):
         
     def contextMenuEvent(self, a0: Optional[QContextMenuEvent]):
         
-        if self._can_edit == False:
+        if self._can_edit is False:
             return
         
         # dynamically retrieves trading card from source

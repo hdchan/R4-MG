@@ -27,13 +27,13 @@ from .DraftListImagePreviewInspectorPanelViewController import (
     DraftListImagePreviewInspectorPanelViewController,
     DraftListImagePreviewInspectorPanelViewControllerDelegate)
 from .PhotoViewer import PhotoViewer
-
+from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
 
 class DraftListImagePreviewViewController(RWidget, TransmissionReceiverProtocol, DraftListImagePreviewInspectorPanelViewControllerDelegate):
     def __init__(self, swu_app_dependencies_provider: SWUAppDependenciesProviding):
         super().__init__()
         self._observation_tower = swu_app_dependencies_provider.observation_tower
-        self._draft_list_data_source = swu_app_dependencies_provider.data_source_draft_list
+        self._data_source_draft_list_provider = swu_app_dependencies_provider.data_source_draft_list_provider
         self._configuration_manager = swu_app_dependencies_provider.configuration_manager
         self._image_generator_provider = DeckListImageGeneratorProvider(swu_app_dependencies_provider)
         
@@ -49,6 +49,10 @@ class DraftListImagePreviewViewController(RWidget, TransmissionReceiverProtocol,
                                                        DraftPackUpdatedEvent, 
                                                        LocalCardResourceFetchEvent])
     
+    @property
+    def _data_source_draft_list(self) -> DataSourceDraftListProtocol:
+        return self._data_source_draft_list_provider.draft_list_data_source
+
     @property
     def _image_generator(self) -> DeckListImageGeneratorProtocol:
         return self._image_generator_provider.image_generator
@@ -77,7 +81,7 @@ class DraftListImagePreviewViewController(RWidget, TransmissionReceiverProtocol,
 
     @property
     def _parsed_deck(self) -> ParsedDeckList:
-        return ParsedDeckList.from_draft_packs(copy.deepcopy(self._draft_list_data_source.draft_packs))
+        return ParsedDeckList.from_draft_packs(copy.deepcopy(self._data_source_draft_list.draft_packs))
 
     # MARK: - DraftListImagePreviewInspectorPanelViewControllerDelegate
     def option_did_update(self):
@@ -100,7 +104,7 @@ class DraftListImagePreviewViewController(RWidget, TransmissionReceiverProtocol,
             self._save_async_timer.start(self.debounce_time)
     
     def _generate_image(self):
-        if self._parsed_deck.has_cards == False:
+        if self._parsed_deck.has_cards is False:
             self._image_view.setPhoto(None)
             return
         
@@ -127,7 +131,7 @@ class DraftListImagePreviewViewController(RWidget, TransmissionReceiverProtocol,
                 file_path, ok = QFileDialog.getSaveFileName(None, 
                                                         "Save File", 
                                                         "", 
-                                                        f"PNG (*.png);;All Files (*)")
+                                                        "PNG (*.png);;All Files (*)")
                 if ok:
                     image.save(file_path)
             except Exception as error:
@@ -138,7 +142,7 @@ class DraftListImagePreviewViewController(RWidget, TransmissionReceiverProtocol,
     # MARK: - Observation
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
         if type(event) is LocalAssetResourceFetchEvent:
-            if event.local_resource in self._draft_list_data_source.draft_pack_flat_list:
+            if event.local_resource in self._data_source_draft_list.draft_pack_flat_list:
                 self._start_generate_image_timer()
         if type(event) is DraftListUpdatedEvent or type(event) is DraftPackUpdatedEvent:
             self._start_generate_image_timer()

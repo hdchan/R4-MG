@@ -70,7 +70,6 @@ class DataSourceDraftListProtocol:
     def move_down(self, pack_index: int, resource_index: int):
         raise Exception
         
-        
     def insert_above(self, pack_index: int, resource_index: int, local_resource: LocalCardResource):
         raise Exception
         
@@ -78,4 +77,9 @@ class DataSourceDraftListProtocol:
         raise Exception
     
     def mark_resource_as_sideboard(self, pack_index: int, resource_index: int, key: str, value: Any):
+        raise Exception
+
+class DataSourceDraftListProviding:
+    @property
+    def draft_list_data_source(self) -> DataSourceDraftListProtocol:
         raise Exception

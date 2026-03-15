@@ -10,7 +10,7 @@ from AppUI.AppDependenciesInternalProviding import \
 from R4UI import (HorizontalBoxLayout, HorizontalLabeledInputRow, Label,
                   LineEditInt, RObjectComboBox, PushButton, RWidget,
                   VerticalBoxLayout)
-
+from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
 from .DraftListTablePackPreviewContainerViewController import \
     DraftListTablePackPreviewContainerViewController
 
@@ -21,7 +21,7 @@ class DraftListWindowConfigViewController(RWidget, TransmissionReceiverProtocol)
                  resource: LocalResourceDraftListWindow):
         super().__init__()
         self._app_dependencies_provider = app_dependencies_provider
-        self._data_source_draft_list = app_dependencies_provider.data_source_draft_list
+        self._data_source_draft_list_provider = app_dependencies_provider.data_source_draft_list_provider
         self._data_source_draft_list_window_resource_deployer = app_dependencies_provider.data_source_draft_list_window_resource_deployer
         self._resource = resource
         self._router = app_dependencies_provider.router
@@ -31,6 +31,10 @@ class DraftListWindowConfigViewController(RWidget, TransmissionReceiverProtocol)
         
         self._setup_view()
         
+    @property
+    def _data_source_draft_list(self) -> DataSourceDraftListProtocol:
+        return self._data_source_draft_list_provider.draft_list_data_source
+    
     def _setup_view(self):
         self._pack_list_combo_box = RObjectComboBox()
         

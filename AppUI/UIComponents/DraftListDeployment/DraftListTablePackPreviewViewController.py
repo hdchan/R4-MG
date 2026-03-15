@@ -8,11 +8,11 @@ from PySide6.QtWidgets import (QFrame, QScrollArea, QSizePolicy, QSpacerItem,
 from AppCore.Models import LocalResourceDataSourceProviding
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
                                         DraftListUpdatedEvent)
-from AppCore.Observation.ObservationTower import *
+from AppCore.Observation.ObservationTower import TransmissionReceiverProtocol, TransmissionProtocol
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.Models.DraftListStyleSheet import DraftListStyleSheet
 from R4UI import VerticalBoxLayout, RVerticallyExpandingSpacer
-
+from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
 from .DraftListLineItemHeaderViewController import \
     DraftListLineItemHeaderViewController
 from .DraftListLineItemViewController import (
@@ -38,7 +38,7 @@ class DraftListTablePackPreviewViewController(QWidget, TransmissionReceiverProto
                  data_source_local_resource_provider: Optional[LocalResourceDataSourceProviding]):
         super().__init__()
         self._app_dependencies_provider = app_dependencies_provider
-        self._data_source_draft_list = app_dependencies_provider.data_source_draft_list
+        self._data_source_draft_list_provider = app_dependencies_provider.data_source_draft_list_provider
         self._data_source_local_resource_provider = data_source_local_resource_provider
         self._app_ui_configuration_manager = app_dependencies_provider.app_ui_configuration_manager
         self._external_app_dependencies_provider = app_dependencies_provider.external_app_dependencies_provider
@@ -49,6 +49,10 @@ class DraftListTablePackPreviewViewController(QWidget, TransmissionReceiverProto
                                                                            DraftListUpdatedEvent])
     
     
+    @property
+    def _data_source_draft_list(self) -> DataSourceDraftListProtocol:
+        return self._data_source_draft_list_provider.draft_list_data_source
+
     @property
     def _stylesheet(self) -> DraftListStyleSheet:
         return self._app_ui_configuration_manager.configuration.draft_list_styles
@@ -213,7 +217,7 @@ class DraftListTablePackPreviewViewController(QWidget, TransmissionReceiverProto
                     # self._sync_ui()
                     event_type = event.event_type
                     draft_pack = event.draft_pack
-                    if type(event_type) == DraftListUpdatedEvent.AddedResource:
+                    if type(event_type) is DraftListUpdatedEvent.AddedResource:
                         trading_card = event_type.local_resource.trading_card
                         pack_index = self._data_source_draft_list.pack_index_for_draft_pack_identifier(draft_pack.pack_identifier)
                         
@@ -231,13 +235,13 @@ class DraftListTablePackPreviewViewController(QWidget, TransmissionReceiverProto
                         
                         self._cells_container.add_widget(line_item)
                         
-                    elif type(event_type) == DraftListUpdatedEvent.SwappedResources:
+                    elif type(event_type) is DraftListUpdatedEvent.SwappedResources:
                         self._cells_container.swap_widgets(event_type.index_1, event_type.index_2)
                     
-                    elif type(event_type) == DraftListUpdatedEvent.RemovedResource:
+                    elif type(event_type) is DraftListUpdatedEvent.RemovedResource:
                         self._cells_container.remove_widget_at_index(event_type.index)
                     
-                    elif type(event_type) == DraftListUpdatedEvent.InsertedResource:
+                    elif type(event_type) is DraftListUpdatedEvent.InsertedResource:
                         trading_card = event_type.local_resource.trading_card
                         pack_index = self._data_source_draft_list.pack_index_for_draft_pack_identifier(draft_pack.pack_identifier)
                         
