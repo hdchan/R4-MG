@@ -93,7 +93,7 @@ class DataSourceDraftListProviding:
     def connect_as_host(self) -> None:
         raise Exception
 
-    def connect_as_client(self, ip: str, port: int) -> None:
+    def connect_as_client(self, ip: str, port: Optional[int]) -> None:
         raise Exception
 
     def disconnect(self) -> None:

@@ -14,7 +14,7 @@ from AppCore.DataSource.DraftList import (
 )
 from AppCore.Observation.Events import DataSourceDraftListProviderStatusUpdatedEvent
 from AppCore.Observation import TransmissionProtocol, TransmissionReceiverProtocol
-
+from typing import Optional
 
 class DraftListWebSocketConfigurationViewController(
     RWidget, TransmissionReceiverProtocol
@@ -31,52 +31,31 @@ class DraftListWebSocketConfigurationViewController(
 
     def _setup_view(self):
         self._config_view_container = HorizontalBoxLayout().set_layout_to_widget(self)
-
+        self._line_edit_ip_address: Optional[LineEditText] = None
         self._sync_ui()
 
     def _sync_ui(self):
         if (self._data_source_draft_list_provider.state == DataSourceDraftListProviderConnectionStatus.IS_HOST):
-            _disconnect_button = PushButton(
-                "Disconnect", self._disconnect
-            ).set_size_policy(horizontal_policy=QSizePolicy.Policy.Maximum)
-            self._config_view_container.replace_all_widgets(
-                [
+            self._config_view_container.replace_all_widgets([
                     RHorizontalExpandingSpacerWidget(),
-                    Label(
-                        f"Server: {self._data_source_draft_list_provider.ip_address}"
-                    ),
-                    _disconnect_button,
-                ]
-            )
+                    Label(f"Server IP: {self._data_source_draft_list_provider.ip_address}"),
+                    PushButton("Copy", self._copy_ip).set_size_policy(horizontal_policy=QSizePolicy.Policy.Maximum),
+                    PushButton("Disconnect", self._disconnect).set_size_policy(horizontal_policy=QSizePolicy.Policy.Maximum),
+                ])
         elif (self._data_source_draft_list_provider.state == DataSourceDraftListProviderConnectionStatus.IS_CLIENT):
-            _disconnect_button = PushButton(
-                "Disconnect", self._disconnect
-            ).set_size_policy(horizontal_policy=QSizePolicy.Policy.Maximum)
-            self._config_view_container.replace_all_widgets(
-                [
+            self._config_view_container.replace_all_widgets([
                     RHorizontalExpandingSpacerWidget(),
-                    Label(
-                        f"Client: {self._data_source_draft_list_provider.ip_address}"
-                    ),
-                    _disconnect_button,
-                ]
-            )
+                    Label("Connected to server"),
+                    PushButton("Disconnect", self._disconnect).set_size_policy(horizontal_policy=QSizePolicy.Policy.Maximum),
+                ])
         else:
-            _start_server_button = PushButton(
-                "Start Server", self._start_server
-            ).set_size_policy(horizontal_policy=QSizePolicy.Policy.Maximum)
-            _connect_to_server_button = PushButton(
-                "Connect to Server", self._connect_to_server
-            ).set_size_policy(horizontal_policy=QSizePolicy.Policy.Maximum)
-            _line_edit_ip_address = LineEditText(placeholder_text="Server IP address")
-            self._config_view_container.replace_all_widgets(
-                [
+            self._line_edit_ip_address = LineEditText(placeholder_text="Server IP address")
+            self._config_view_container.replace_all_widgets([
                     RHorizontalExpandingSpacerWidget(),
-                    _start_server_button,
-                    _connect_to_server_button,
-                    _line_edit_ip_address,
-                ]
-            )
+                    PushButton("Start Server", self._start_server).set_size_policy(horizontal_policy=QSizePolicy.Policy.Maximum),
+                    PushButton("Connect to Server", self._connect_to_server).set_size_policy(horizontal_policy=QSizePolicy.Policy.Maximum),
+                    self._line_edit_ip_address,
+                ])
 
     @property
     def _data_source_draft_list_provider(self) -> DataSourceDraftListProviding:
@@ -86,9 +65,14 @@ class DraftListWebSocketConfigurationViewController(
         self._data_source_draft_list_provider.connect_as_host()
 
     def _connect_to_server(self):
-        self._data_source_draft_list_provider.connect_as_client(
-            self._line_edit_ip_address.text()
-        )
+        if self._line_edit_ip_address is not None:
+            self._data_source_draft_list_provider.connect_as_client(
+                self._line_edit_ip_address.text(),
+                None
+            )
+
+    def _copy_ip(self):
+        pass
 
     def _disconnect(self):
         self._data_source_draft_list_provider.disconnect()

@@ -15,7 +15,9 @@ class DataSourceDraftListWebSocketClientDecorator(QWebSocket, DataSourceDraftLis
         self.connected.connect(self.on_connect)
         self.textMessageReceived.connect(self.on_message)
 
-    def connect(self, ip: str, port: int = 80):
+    def connect(self, ip: str, port: Optional[int]):
+        if port is None:
+            port = 80
         self.open(QUrl(f'ws://{ip}:{port}'))
 
     def disconnect(self):

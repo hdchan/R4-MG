@@ -87,7 +87,7 @@ class DataSourceDraftListProvider(DataSourceDraftListProviding):
         self._state = DataSourceDraftListProviderConnectionStatus.IS_HOST
         self._host_decorated.start_server()
 
-    def connect_as_client(self, ip: str, port: int):
+    def connect_as_client(self, ip: str, port: Optional[int]):
         self._state = DataSourceDraftListProviderConnectionStatus.IS_CLIENT
         self._client_decorated.connect(ip, port)
 
