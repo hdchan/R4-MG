@@ -6,9 +6,9 @@ from AppCore.Models import DraftPack, LocalCardResource
 from AppCore.Observation import ObservationTower
 from AppCore.Observation.Events import DraftListUpdatedEvent, DraftPackUpdatedEvent
 from AppCore.Service.DataSerializer import DataSerializer
+from .DataSourceDraftListProtocol import DataSourceDraftListProtocol
 
-
-class DataSourceDraftList:
+class DataSourceDraftList(DataSourceDraftListProtocol):
     
     def __init__(self, 
                  configuration_manager: ConfigurationManager,

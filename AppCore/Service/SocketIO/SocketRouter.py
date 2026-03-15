@@ -1,7 +1,7 @@
 from typing import Any
 
 from .SocketWorker import SocketWorker
-from ..Config import ConfigurationManager, Configuration
+from AppCore.Config import ConfigurationManager, Configuration
 from AppCore.Observation.Events import SocketRouterUpdatedEvent, SocketIOReceivedCardEvent
 from AppCore.Observation import ObservationTower
 from AppCore.DataSource import DataSourceCachedHistory

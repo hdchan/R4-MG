@@ -1,5 +1,5 @@
 
-from AppCore.DataSource import DataSourceDraftList
+from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
 from AppCore.DataSource.DataSourceCardSearch import (
     DataSourceCardSearch, DataSourceCardSearchDelegate)
 from AppCore.ImageResource import ImageResourceProcessorProviding
@@ -31,7 +31,7 @@ class SWUAppDependenciesProviding:
         raise Exception
 
     @property
-    def data_source_draft_list(self) -> DataSourceDraftList:
+    def data_source_draft_list(self) -> DataSourceDraftListProtocol:
         raise Exception
     
     def new_data_source_card_search(self,

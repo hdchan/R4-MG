@@ -6,12 +6,12 @@ from AppCore.DataSource import (
     CustomDirectorySearchDataSource,
     CustomDirectorySearchDataSourceDelegate,
     DataSourceCachedHistory,
-    DataSourceDraftList,
     DataSourceDraftListWindowResourceDeployer,
     DataSourceImageResourceDeployer,
     DataSourceRecentPublished,
     DataSourceSocketIOHistory,
 )
+from AppCore.DataSource.DraftList import DataSourceDraftListProtocol, DataSourceDraftList
 from AppCore.DataSource.DataSourceCardSearch import DataSourceCardSearch, DataSourceCardSearchClientProviding, DataSourceCardSearchDelegate
 from AppCore.ImageFetcher import ImageFetcherProvider
 from AppCore.ImageResource import (
@@ -22,7 +22,7 @@ from AppCore.Models import ModelTransformer
 from AppCore.Observation.Events import ApplicationEvent
 from AppCore.Observation.ObservationTower import ObservationTower
 from AppCore.Service import DataSerializer, PlatformServiceProvider, StringFormatter
-from AppCore.SocketIO.SocketRouter import SocketRouter
+from AppCore.Service.SocketIO.SocketRouter import SocketRouter
 
 from .CoreDependenciesInternalProviding import CoreDependenciesInternalProviding
 from .CoreDependenciesProviding import CoreDependenciesProviding
@@ -126,7 +126,7 @@ class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesIntern
         return ds
     
     @property
-    def data_source_draft_list(self) -> DataSourceDraftList:
+    def data_source_draft_list(self) -> DataSourceDraftListProtocol:
         return self._data_source_draft_list
     
     @property

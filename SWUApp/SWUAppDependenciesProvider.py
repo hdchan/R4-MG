@@ -1,7 +1,7 @@
 
 from typing import Callable, Optional
 
-from AppCore.DataSource import DataSourceDraftList
+from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
 from AppCore.DataSource.DataSourceCardSearch import (
     DataSourceCardSearch, DataSourceCardSearchDelegate)
 from AppCore.ImageResource import ImageResourceProcessorProviding
@@ -49,7 +49,7 @@ class SWUAppDependenciesProvider(SWUAppDependenciesProviding):
         return self._app_ui_dependencies_provider.image_resource_processor_provider
 
     @property
-    def data_source_draft_list(self) -> DataSourceDraftList:
+    def data_source_draft_list(self) -> DataSourceDraftListProtocol:
         return self._app_ui_dependencies_provider.data_source_draft_list
     
     def new_data_source_card_search(self,

@@ -13,7 +13,7 @@ from AppCore.Observation.Events import (DraftListUpdatedEvent,
                                         DraftListWindowResourceUpdatedEvent)
 from AppCore.Service.DataSerializer import DataSerializer
 
-from .DataSourceDraftList import DataSourceDraftList
+from .DraftList import DataSourceDraftListProtocol
 
 JSON_EXTENSION = 'json'
 
@@ -23,7 +23,7 @@ class DataSourceDraftListWindowResourceDeployer(TransmissionReceiverProtocol):
     def __init__(self, 
                  configuration_manager: ConfigurationManager, 
                  observation_tower: ObservationTower, 
-                 data_source_draft_list: DataSourceDraftList, 
+                 data_source_draft_list: DataSourceDraftListProtocol, 
                  data_serializer: DataSerializer):
         self._configuration_manager = configuration_manager
         self._observation_tower = observation_tower

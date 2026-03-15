@@ -1,9 +1,10 @@
 from typing import Optional
 
 from AppCore.Config import ConfigurationManager
-from AppCore.DataSource import (DataSourceDraftList,
+from AppCore.DataSource import (
                                 DataSourceDraftListWindowResourceDeployer,
                                 DataSourceImageResourceDeployer)
+from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
 from AppCore.DataSource.DataSourceCardSearch import (
     DataSourceCardSearch, DataSourceCardSearchClientProviding,
     DataSourceCardSearchDelegate)
@@ -15,7 +16,7 @@ from AppCore.ImageResource import ImageResourceProcessorProviding
 from AppCore.Observation.ObservationTower import ObservationTower
 from AppCore.Service import (DataSerializer, PlatformServiceProvider,
                              StringFormatter)
-from AppCore.SocketIO import SocketRouter
+from AppCore.Service.SocketIO import SocketRouter
 
 class CoreDependenciesProviding:
     @property
@@ -57,7 +58,7 @@ class CoreDependenciesProviding:
         raise Exception
     
     @property
-    def data_source_draft_list(self) -> DataSourceDraftList:
+    def data_source_draft_list(self) -> DataSourceDraftListProtocol:
         raise Exception
     
     @property
