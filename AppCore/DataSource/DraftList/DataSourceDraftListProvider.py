@@ -1,6 +1,6 @@
 from AppCore.Config import ConfigurationManager
 from AppCore.Observation import ObservationTower
-from AppCore.Observation.Events import DataSourceDraftListProviderStatusUpdatedEvent
+from AppCore.Observation.Events import DataSourceDraftListProviderStatusUpdatedEvent, DraftListShouldReloadEvent
 from AppCore.Service import DataSerializer
 
 from .DataSourceDraftList import DataSourceDraftList
@@ -14,13 +14,16 @@ from typing import Optional
 from .DataSourceDraftListWebSocketClientDecorator import DataSourceDraftListWebSocketClientDecorator
 from .DataSourceDraftListWebSocketHostDecorator import DataSourceDraftListWebSocketHostDecorator
 import socket
+from .DataSourceDraftListWebSocketHostDecoratorDelegate import DataSourceDraftListWebSocketHostDecoratorDelegate
+from .DataSourceDraftListWebSocketClientDecoratorDelegate import DataSourceDraftListWebSocketClientDecoratorDelegate
 
-class DataSourceDraftListProvider(DataSourceDraftListProviding):
+class DataSourceDraftListProvider(DataSourceDraftListProviding, DataSourceDraftListWebSocketHostDecoratorDelegate, DataSourceDraftListWebSocketClientDecoratorDelegate):
     def __init__(self, 
                  configuration_manager: ConfigurationManager,
                  observation_tower: ObservationTower, 
                  data_serializer: DataSerializer):
         self._observation_tower = observation_tower
+        self._data_serializer = data_serializer
         self._draft_list_data_source = DataSourceDraftList(configuration_manager,
                                                            observation_tower, 
                                                            data_serializer)
@@ -70,7 +73,7 @@ class DataSourceDraftListProvider(DataSourceDraftListProviding):
     @property
     def _host_decorated(self) -> DataSourceDraftListWebSocketHostDecorator:
         if self._lazy_host_decorated is None:
-            controller = DataSourceDraftListWebSocketHostDecorator(self._draft_list_data_source)
+            controller = DataSourceDraftListWebSocketHostDecorator(self._draft_list_data_source, self._data_serializer)
             controller.delegate = self
             self._lazy_host_decorated = controller
         return self._lazy_host_decorated
@@ -78,21 +81,34 @@ class DataSourceDraftListProvider(DataSourceDraftListProviding):
     @property
     def _client_decorated(self) -> DataSourceDraftListWebSocketClientDecorator:
         if self._lazy_client_decorated is None:
-            controller = DataSourceDraftListWebSocketClientDecorator(self._draft_list_data_source)
+            controller = DataSourceDraftListWebSocketClientDecorator()
             controller.delegate = self
             self._lazy_client_decorated = controller
         return self._lazy_client_decorated
 
     def connect_as_host(self):
-        self._state = DataSourceDraftListProviderConnectionStatus.IS_HOST
         self._host_decorated.start_server()
 
     def connect_as_client(self, ip: str, port: Optional[int]):
-        self._state = DataSourceDraftListProviderConnectionStatus.IS_CLIENT
-        self._client_decorated.connect(ip, port)
+        self._client_decorated.connect_to_server(ip, port)
 
     def disconnect(self):
         self._client_decorated.disconnect()
         self._host_decorated.stop_server()
 
+    # MARK: - DataSourceDraftListWebSocketHostDecoratorDelegate
+    def server_started(self, is_started: bool) -> None:
+        self._state = DataSourceDraftListProviderConnectionStatus.IS_HOST if is_started else DataSourceDraftListProviderConnectionStatus.ERROR
+
+    def server_stopped(self) -> None:
         self._state = DataSourceDraftListProviderConnectionStatus.NONE
+
+    # MARK: - DataSourceDraftListWebSocketClientDecoratorDelegate
+    def client_connected(self) -> None:
+        self._state = DataSourceDraftListProviderConnectionStatus.IS_CLIENT
+
+    def client_disconnected(self) -> None:
+        self._state = DataSourceDraftListProviderConnectionStatus.NONE
+
+    def client_sync_with_server(self) -> None:
+        self._observation_tower.notify(DraftListShouldReloadEvent())

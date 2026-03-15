@@ -7,7 +7,7 @@ from PySide6.QtWidgets import (QFrame, QScrollArea, QSizePolicy, QSpacerItem,
 
 from AppCore.Models import LocalResourceDataSourceProviding
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
-                                        DraftListUpdatedEvent)
+                                        DraftListUpdatedEvent, DraftListShouldReloadEvent)
 from AppCore.Observation.ObservationTower import TransmissionReceiverProtocol, TransmissionProtocol
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.Models.DraftListStyleSheet import DraftListStyleSheet
@@ -46,7 +46,8 @@ class DraftListTablePackPreviewViewController(QWidget, TransmissionReceiverProto
         self._setup_view()
         
         app_dependencies_provider.observation_tower.subscribe_multi(self, [ConfigurationUpdatedEvent,
-                                                                           DraftListUpdatedEvent])
+                                                                           DraftListUpdatedEvent, 
+                                                                           DraftListShouldReloadEvent])
     
     
     @property
@@ -208,7 +209,10 @@ class DraftListTablePackPreviewViewController(QWidget, TransmissionReceiverProto
         if type(event) is ConfigurationUpdatedEvent:
             # TODO: needs to optimize?
             self._sync_ui()
-            
+        
+        if type(event) is DraftListShouldReloadEvent:
+            self._sync_list()
+
         if type(event) is DraftListUpdatedEvent:
             self._sync_ui()
             return

@@ -16,7 +16,7 @@ class DataSerializer:
                     return o.to_data()
                 else:
                     return json.JSONEncoder.default(self, o)
-            except:
+            except Exception:
                 return super().default(o)
     
     def save_buffer_data(self, file_path: str, buffer_data: Any):
@@ -32,7 +32,7 @@ class DataSerializer:
         Path(Path(file_path).parent).mkdir(parents=True, exist_ok=True)
         
         with open(file_path, "w") as f:
-            json.dump(json_data, f, cls=self.ModelEncoder)
+            json.dump(json_data, fp=f, cls=self.ModelEncoder)
             
     def load(self, file_path: str) -> Optional[Any]:
         my_file = Path(file_path)
@@ -41,5 +41,5 @@ class DataSerializer:
                 try:
                     loaded = json.load(f)
                     return loaded
-                except:
+                except Exception:
                     return None

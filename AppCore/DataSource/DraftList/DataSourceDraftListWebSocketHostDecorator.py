@@ -2,30 +2,35 @@
 # receives messages from clients, which will call functions as normal and respond with full updated list
 # actions will also send full updated list
 
-from .DataSourceDraftListProtocol import DataSourceDraftListProtocol
-from PySide6.QtWebSockets import QWebSocketServer
-from PySide6.QtNetwork import QHostAddress
-from PySide6.QtCore import QObject, Slot
 from typing import Optional
 
-class DataSourceDraftListWebSocketHostDecoratorDelegate:
-    pass
+from PySide6.QtCore import QObject, Slot
+from PySide6.QtNetwork import QHostAddress
+from PySide6.QtWebSockets import QWebSocketServer
+
+from AppCore.Service import DataSerializer
+
+from .DataSourceDraftListProtocol import DataSourceDraftListProtocol
+from .DataSourceDraftListWebSocketHostDecoratorDelegate import \
+    DataSourceDraftListWebSocketHostDecoratorDelegate
+
 
 class DataSourceDraftListWebSocketHostDecorator(QObject, DataSourceDraftListProtocol):
-    def __init__(self, draft_list_data_source: DataSourceDraftListProtocol):
+    def __init__(self, 
+                 draft_list_data_source: DataSourceDraftListProtocol, 
+                 data_serializer: DataSerializer):
         super().__init__()
         self._draft_list_data_source = draft_list_data_source
+        self._data_serializer = data_serializer
         self.server = QWebSocketServer("MyServer", QWebSocketServer.NonSecureMode, self)
         self.server.newConnection.connect(self.on_new_connection)
         self.delegate: Optional[DataSourceDraftListWebSocketHostDecoratorDelegate] = None
         self.clients = []
 
     def start_server(self, port: int = 80):
-        if self.server.listen(QHostAddress.Any, port):
-            # print(f"Server started on port {self.get_ip()}:{port}. Waiting for client...")
-            pass
-        else:
-            print("Server failed to start.")
+        is_started = self.server.listen(QHostAddress.Any, port)
+        if self.delegate is not None:
+            self.delegate.server_started(is_started)
 
     def stop_server(self):
         if self.server.isListening():
@@ -42,6 +47,8 @@ class DataSourceDraftListWebSocketHostDecorator(QObject, DataSourceDraftListProt
         # 3. Clear your local list of clients
         self.clients.clear()
         print("All clients disconnected and server stopped.")
+        if self.delegate is not None:
+            self.delegate.server_stopped()
 
     @Slot()
     def on_new_connection(self):
@@ -52,6 +59,8 @@ class DataSourceDraftListWebSocketHostDecorator(QObject, DataSourceDraftListProt
         
         self.clients.append(client_socket)
         print("A client just connected!")
+        json_string = self._data_serializer.to_string(self._draft_list_data_source.draft_packs)
+        client_socket.sendTextMessage(json_string)
 
     @Slot(str)
     def process_message(self, message):

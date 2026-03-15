@@ -17,3 +17,4 @@ from .CacheHistoryUpdatedEvent import CacheHistoryUpdatedEvent
 from .SocketRouterUpdatedEvent import SocketRouterUpdatedEvent
 from .SocketIOReceivedCardEvent import SocketIOReceivedCardEvent
 from .DataSourceDraftListProviderStatusUpdatedEvent import DataSourceDraftListProviderStatusUpdatedEvent
+from .DraftListShouldReloadEvent import DraftListShouldReloadEvent

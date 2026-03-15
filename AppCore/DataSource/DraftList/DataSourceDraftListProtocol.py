@@ -5,33 +5,44 @@ from AppCore.Models import DraftPack, LocalCardResource
 from enum import Enum
 
 class DataSourceDraftListProtocol:
-    def resource_at_index(self, pack_index: int, resource_index: int) -> Optional[LocalCardResource]:
-        raise Exception
-
     @property
     def draft_packs(self) -> List[DraftPack]:
         raise Exception
 
+    def resource_at_index(self, pack_index: int, resource_index: int) -> Optional[LocalCardResource]:
+        if pack_index >= 0 and pack_index < len(self.draft_packs):
+                pack = self.draft_packs[pack_index]
+                return pack.resource_at_index(resource_index)
+
     @property
     def draft_pack_flat_list(self) -> List[LocalCardResource]:
-        raise Exception
+        return [item for sublist in self.draft_packs for item in sublist.draft_list]
     
     @property
     def pack_list_count(self) -> int:
-        raise Exception
+        return len(self.draft_packs)
     
     @property
     def pack_names(self) -> List[str]:
-        raise Exception
+        return list(map(lambda x: x.pack_name, self.draft_packs))
     
     def pack_name(self, pack_index: int) -> Optional[str]:
-        raise Exception
+        if pack_index >= 0 and pack_index < len(self.draft_packs):
+            return self.pack_names[pack_index]
         
     def pack_for_draft_pack_identifier(self, draft_pack_identifier: Optional[str]) -> Optional[DraftPack]:
-        raise Exception
+        if draft_pack_identifier is None:
+            return None
+        found: List[DraftPack] = list(filter(lambda x: x.pack_identifier == draft_pack_identifier, self.draft_packs))
+        if len(found) > 0:
+            return found[0]
+        return None
     
     def pack_index_for_draft_pack_identifier(self, draft_pack_identifier: str) -> Optional[int]:
-        raise Exception
+        found: List[DraftPack] = list(filter(lambda x: x.pack_identifier == draft_pack_identifier, self._packs))
+        if len(found) > 0:
+            return self.draft_packs.index(found[0])
+        return None
 
     # MARK: - modify packs
     def clear_entire_draft_list(self):
@@ -84,6 +95,7 @@ class DataSourceDraftListProviderConnectionStatus(int, Enum):
     NONE = 0
     IS_HOST = 1
     IS_CLIENT = 2
+    ERROR = 3
 
 class DataSourceDraftListProviding:
     @property
