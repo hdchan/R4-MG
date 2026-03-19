@@ -1,11 +1,25 @@
 # Changelog
 
-## 0.26.0
+## 0.26.0-beta
 ### Feature
--
+- Fixing; creating new packs unassign packs from the windows
+- Fix: header text color not changing
+- Adding db rebuild functionality for local set search
+- adding sync image download option for automatic stage and publish if resource is missing
+
 
 ### Engineering
--
+- Add unit tests for parse deck
+- Updating dependencies
+- Adding mypy
+- Refactor layout to use R4UI components
+- Add toggle configuration for sqlite search
+- ing protocol for DataSourceDraftListProtocol
+- Adding draftlist provider
+- moving datasource interaction logic for draft cards to be published to app core
+- removing old socket io implementation
+- saving working sync of bare minium for image deployment websocket
+- saving mem leak fix for combo box slot disconnection
 
 ## 0.25.1
 ### Hotfix
