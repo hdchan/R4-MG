@@ -14,14 +14,18 @@ from .DataSourceImageResourceDeployerProtocol import \
     DataSourceImageResourceDeployerProtocol
 from AppCore.Models import LocalCardResource
 
+
 class DataSourceImageResourceDeployerWebSocketHost(DataSourceImageResourceDeployerProtocol, WebSocketHostObjectProtocol, WebSocketMessageReceiverProtocol):
-    def __init__(self, websocket_service: WebSocketServiceProtocol, data_source_image_resource_deployer: DataSourceImageResourceDeployer):
+    def __init__(self,
+                 websocket_service: WebSocketServiceProtocol,
+                 data_source_image_resource_deployer: DataSourceImageResourceDeployer):
         self._websocket_service = websocket_service
         self._data_source_image_resource_deployer = data_source_image_resource_deployer
 
         self._websocket_service.register_as_host(self)
 
     def handle_new_connection(self) -> WebSocketMessageProtocol:
+        self._data_source_image_resource_deployer.attach_preview_binary_to_prod_resources()
         return ClientConnectedMessage('stuff', self._data_source_image_resource_deployer)
 
     def handle_websocket_message(self, message: WebSocketMessageProtocol) -> None:
@@ -30,13 +34,11 @@ class DataSourceImageResourceDeployerWebSocketHost(DataSourceImageResourceDeploy
                 self, message.function_name)
             method(**message.kwargs)
 
-    # def __getattr__(self, name):
-    #     return getattr(self._data_source_image_resource_deployer, name)
-
     def _refresh_clients(self):
-        self._data_source_image_resource_deployer
+        # bind previews as binary to resources before sending them off
+        self._data_source_image_resource_deployer.attach_preview_binary_to_prod_resources()
         self._websocket_service.send_message(ClientConnectedMessage(
-                'stuff', self._data_source_image_resource_deployer))
+            'stuff', self._data_source_image_resource_deployer))
 
     @property
     def deployment_resources(self) -> List[DeploymentCardResource]:
@@ -51,11 +53,13 @@ class DataSourceImageResourceDeployerWebSocketHost(DataSourceImageResourceDeploy
         return self._data_source_image_resource_deployer.latest_deployment_resource(deployment_resource)
 
     def stage_resource(self, deployment_resource: DeploymentCardResource, selected_resource: LocalCardResource, is_async_store: bool = True):
-        self._data_source_image_resource_deployer.stage_resource(deployment_resource, selected_resource, is_async_store)
+        self._data_source_image_resource_deployer.stage_resource(
+            deployment_resource, selected_resource, is_async_store)
         self._refresh_clients()
-    
+
     def unstage_resource(self, deployment_resource: DeploymentCardResource):
-        self._data_source_image_resource_deployer.unstage_resource(deployment_resource)
+        self._data_source_image_resource_deployer.unstage_resource(
+            deployment_resource)
         self._refresh_clients()
 
     def publish_staged_resources(self):

@@ -10,7 +10,7 @@ class WebSocketClientObject(WebSocketClientObjectProtocol):
         self._websocket = websocket
 
     def send_message(self, message: WebSocketMessageProtocol):
-        message = jsonpickle.encode(message)
+        message = jsonpickle.encode(message, make_refs=False)
         self._websocket.sendTextMessage(message)
 
 class WebSocketHost(QObject):

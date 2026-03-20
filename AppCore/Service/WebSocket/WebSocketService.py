@@ -64,7 +64,7 @@ class WebSocketService(WebSocketServiceProtocol, WebSocketClientDelegate, WebSoc
         self._host.stop_server()
 
     def send_message(self, message: WebSocketMessageProtocol):
-        message_str: str = jsonpickle.encode(message)
+        message_str: str = jsonpickle.encode(message, make_refs=False)
         if self._state == WebSocketServiceStatus.IS_HOST:
             self._host.send_message(message_str)
         elif self._state == WebSocketServiceStatus.IS_CLIENT:

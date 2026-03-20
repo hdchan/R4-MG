@@ -73,6 +73,15 @@ class DataSourceImageResourceDeployer(DataSourceImageResourceDeployerProtocol):
     def _image_resource_processor(self) -> ImageResourceProcessorProtocol:
         return self._image_resource_processor_provider.image_resource_processor
 
+    def attach_preview_binary_to_prod_resources(self):
+        for r in self._deployment_resources:
+            prod_resource = r.production_resource
+            # should have previews at this point...
+            if prod_resource.is_preview_ready:
+                with open(prod_resource.image_preview_path, 'rb') as f:
+                    img_data = f.read()
+                    prod_resource.set_resource_metadata('binary_image_preview', img_data)
+
     def load_production_resources(self):
         """
         Will load images from production folder
@@ -102,13 +111,6 @@ class DataSourceImageResourceDeployer(DataSourceImageResourceDeployerProtocol):
                 if not resource.is_preview_ready:
                     self._image_resource_processor.regenerate_resource_preview(
                         resource)
-                
-                # TODO: refactor so we don't have to always add this
-                with open(resource.image_preview_path, 'rb') as f:
-                    img_data = f.read()
-                    # if resource.file_name == '1':
-                    resource.set_resource_metadata('binary_image_preview', img_data)
-                    resource.set_resource_metadata('hi', resource.file_name)
 
         # Maintains any existing staged resources when loading, removes any deleted prod files, and appends new prod files
         latest_prod_resources = list(
