@@ -12,7 +12,7 @@ from PySide6.QtCore import QStandardPaths
 class Configuration():
     
     APP_NAME = 'R4-MG'
-    APP_VERSION = '0.26.0-beta'
+    APP_VERSION = '0.26.0-beta-2'
     SETTINGS_VERSION = '1.0'
     
     class Toggles:
