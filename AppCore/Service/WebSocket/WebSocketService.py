@@ -1,18 +1,25 @@
 import socket
-from typing import Optional, Any, List
+from typing import List, Optional
+
+import jsonpickle # type: ignore
 
 from AppCore.Observation import ObservationTower
 from AppCore.Observation.Events import WebSocketStatusUpdatedEvent
 
 from .WebSocketClient import WebSocketClient
 from .WebSocketHost import WebSocketHost
-from .WebSocketServiceProtocol import (WebSocketClientDelegate,
-                                       WebSocketHostDelegate,
-                                       WebSocketServiceProtocol,
-                                       WebSocketServiceStatus, WebSocketMessageReceiverProtocol, WebSocketHostObjectProtocol, WebSocketClientObjectProtocol)
-import jsonpickle
 from .WebSocketMessageProtocol import WebSocketMessageProtocol
 from .WebSocketMessenger import WebSocketMessenger
+from .WebSocketServiceProtocol import (
+    WebSocketClientDelegate,
+    WebSocketClientObjectProtocol,
+    WebSocketHostDelegate,
+    WebSocketHostObjectProtocol,
+    WebSocketMessageReceiverProtocol,
+    WebSocketServiceProtocol,
+    WebSocketServiceStatus,
+)
+
 
 class WebSocketService(WebSocketServiceProtocol, WebSocketClientDelegate, WebSocketHostDelegate):
     def __init__(self, observation_tower: ObservationTower):
@@ -57,11 +64,11 @@ class WebSocketService(WebSocketServiceProtocol, WebSocketClientDelegate, WebSoc
         self._host.stop_server()
 
     def send_message(self, message: WebSocketMessageProtocol):
-        message = jsonpickle.encode(message)
+        message_str: str = jsonpickle.encode(message)
         if self._state == WebSocketServiceStatus.IS_HOST:
-            self._host.send_message(message)
+            self._host.send_message(message_str)
         elif self._state == WebSocketServiceStatus.IS_CLIENT:
-            self._client.send_message(message)
+            self._client.send_message(message_str)
 
     @property
     def ip_address(self) -> str:

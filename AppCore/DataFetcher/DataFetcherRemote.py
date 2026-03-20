@@ -1,7 +1,7 @@
 import json
 from typing import Any, Dict, Optional, Tuple, TypeVar
 from urllib.request import urlopen
-
+import ssl
 from .DataFetcherRemoteRequestProtocol import DataFetcherRemoteRequestProtocol
 
 T = TypeVar("T")
@@ -47,6 +47,7 @@ class DataFetcherRemote:
                 #         buf.write(chunk)
                 # json_response = json.loads(buf.getvalue())
                 # print(request.full_url)
+                # context = ssl._create_unverified_context()
                 print(actual_request.headers)
                 buf = urlopen(actual_request)
                 json_response = json.load(buf)

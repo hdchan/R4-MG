@@ -7,7 +7,7 @@ from AppCore.ImageResource.ImageResourceProcessorProtocol import *
 from AppCore.Models import DeploymentCardResource, LocalCardResource
 from AppCore.Observation import TransmissionProtocol
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
-                                        DeploymentCardResourceEvent)
+                                        DeploymentCardResourceEvent, PublishStagedCardResourcesEvent, LocalCardResourceSelectedFromDataSourceEvent)
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.UIComponents.ImagePreview.ImagePreviewViewController import *
 from R4UI import Label

@@ -19,7 +19,14 @@
             "console": "integratedTerminal",
             // https://stackoverflow.com/questions/71834240/how-to-debug-pyqt5-threads-in-visual-studio-code
             "qt": "pyside",
-            "justMyCode": false
+            "justMyCode": false,
+            "env": {
+                "http_proxy": "http://127.0.0.1:9090",
+                "https_proxy": "http://127.0.0.1:9090",
+                "PYTHONHTTPSVERIFY": "0"
+                // "REQUESTS_CA_BUNDLE": "C:\\Users\\henry\\AppData\\Roaming\\Proxyman\\certificate\\certs\\ca.pem",
+                // "SSL_CERT_FILE": "C:\\Users\\henry\\AppData\\Roaming\\Proxyman\\certificate\\certs\\ca.pem"
+            }
         }
     ]
 }

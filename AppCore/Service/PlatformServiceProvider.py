@@ -5,7 +5,7 @@ import subprocess
 
 from AppCore.Config import ConfigurationManager, Configuration
 from AppCore.Observation import ObservationTower
-from AppCore.Observation.Events import *
+from AppCore.Observation.Events import CacheClearedEvent
 
 
 class PlatformServiceProtocol:

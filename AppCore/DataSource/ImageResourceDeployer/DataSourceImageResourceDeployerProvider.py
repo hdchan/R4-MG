@@ -35,9 +35,10 @@ class DataSourceImageResourceDeployerProvider(DataSourceImageResourceDeployerPro
         observation_tower.subscribe(self, WebSocketStatusUpdatedEvent)
 
     @property
-    def data_source_image_resource_deployer(self) -> DataSourceImageResourceDeployerProtocol | None:
+    def data_source_image_resource_deployer(self) -> DataSourceImageResourceDeployerProtocol:
         if self._websocket_service.state == WebSocketServiceStatus.IS_CLIENT or self._websocket_service.state == WebSocketServiceStatus.IS_HOST:
-            return self._current_websocket_ds
+            if self._current_websocket_ds is not None:
+                return self._current_websocket_ds
         return self._data_source_image_resource_deployer
 
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
