@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from AppCore.Config import ConfigurationManager
-from AppCore.ImageResource.ImageResourceProcessorProvider import \
+from AppCore.ImageResourceProcessor.ImageResourceProcessorProvider import \
     ImageResourceProcessorProviding
 from AppCore.Models import LocalCardResource
 from AppCore.Observation import ObservationTower

@@ -1,0 +1,4 @@
+from AppCore.Observation.TransmissionProtocol import TransmissionProtocol
+
+class DataSourceImageResourceDeployerStateUpdatedEvent(TransmissionProtocol):
+    pass

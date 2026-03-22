@@ -7,25 +7,33 @@ from typing import List, Optional
 from PIL import Image
 
 from AppCore.Config import Configuration, ConfigurationManager
-from AppCore.Models import DeploymentCardResource, LocalCardResource
-from AppCore.Observation import ObservationTower
-from AppCore.Observation.Events import (
-    DeploymentCardResourceEvent,
-    ProductionCardResourcesLoadEvent,
-    PublishStagedCardResourcesEvent,
-    PublishStatusUpdatedEvent,
-)
-
-from AppCore.ImageResource.ImageResourceProcessorProtocol import (
+from AppCore.ImageResourceProcessor.Events import LocalCardResourceFetchEvent
+from AppCore.ImageResourceProcessor.ImageResourceProcessorProtocol import (
     ImageResourceProcessorProtocol,
     ImageResourceProcessorProviding,
 )
-from .DataSourceImageResourceDeployerProtocol import DataSourceImageResourceDeployerProtocol
+from AppCore.Models import DeploymentCardResource, LocalCardResource
+from AppCore.Observation import (
+    ObservationTower,
+    TransmissionProtocol,
+    TransmissionReceiverProtocol,
+)
+from AppCore.Service.WebSocket.WebSocketServiceProtocol import WebSocketServiceProtocol
+
+from .DataSourceImageResourceDeployerProtocol import (
+    DataSourceImageResourceDeployerProtocol,
+)
+from .Events import (
+    DataSourceImageResourceDeployerStateUpdatedEvent,
+    # PublishStagedCardResourcesEvent,
+    ProductionCardResourcesLoadEvent
+)
+from .DataSourceRecentPublished import DataSourceRecentPublished
 
 PNG_EXTENSION = 'png'
 
 
-class ProductionLocalCardResource(LocalCardResource):
+class ProductionLocalCardResource(LocalCardResource, TransmissionReceiverProtocol):
     def __init__(self,
                  image_dir: str,
                  image_preview_dir: str,
@@ -35,24 +43,30 @@ class ProductionLocalCardResource(LocalCardResource):
                  display_name_detailed: str):
         super().__init__(image_dir=image_dir,
                          image_preview_dir=image_preview_dir,
-                         file_name=file_name, 
+                         file_name=file_name,
                          display_name=display_name,
                          display_name_short=display_name_short,
                          display_name_detailed=display_name_detailed,
                          can_generate_placeholder=True)
 
 
-class DataSourceImageResourceDeployer(DataSourceImageResourceDeployerProtocol):
+class DataSourceImageResourceDeployer(DataSourceImageResourceDeployerProtocol, TransmissionReceiverProtocol):
     def __init__(self,
                  configuration_manager: ConfigurationManager,
                  observation_tower: ObservationTower,
-                 image_resource_processor_provider: ImageResourceProcessorProviding):
+                 image_resource_processor_provider: ImageResourceProcessorProviding,
+                 websocket_service: WebSocketServiceProtocol, 
+                 data_source_recent_published: DataSourceRecentPublished):
         self._observation_tower = observation_tower
+        self._websocket_service = websocket_service
         self._configuration_manager = configuration_manager
         self._image_resource_processor_provider = image_resource_processor_provider
+        self._data_source_recent_published = data_source_recent_published
         self._deployment_resources: List[DeploymentCardResource] = []
-        self._can_publish_state = len(self._deployment_resources) != 0
         self._is_publishing = False
+        self._can_publish_staged_resources = False
+
+        self._observation_tower.subscribe(self, LocalCardResourceFetchEvent)
 
     @property
     def deployment_resources(self) -> List[DeploymentCardResource]:
@@ -73,14 +87,20 @@ class DataSourceImageResourceDeployer(DataSourceImageResourceDeployerProtocol):
     def _image_resource_processor(self) -> ImageResourceProcessorProtocol:
         return self._image_resource_processor_provider.image_resource_processor
 
-    def attach_preview_binary_to_prod_resources(self):
+    def attach_preview_binary_to_prod_resources(self) -> None:
         for r in self._deployment_resources:
+            staging_resource = r.staged_resource
+            if staging_resource and staging_resource.is_preview_ready and staging_resource.is_ready:
+                with open(staging_resource.image_preview_path, 'rb') as f:
+                    img_data = f.read()
+                    staging_resource.set_image_preview_binary(img_data)
+
             prod_resource = r.production_resource
             # should have previews at this point...
             if prod_resource.is_preview_ready:
                 with open(prod_resource.image_preview_path, 'rb') as f:
                     img_data = f.read()
-                    prod_resource.set_resource_metadata('binary_image_preview', img_data)
+                    prod_resource.set_image_preview_binary(img_data)
 
     def load_production_resources(self):
         """
@@ -104,7 +124,7 @@ class DataSourceImageResourceDeployer(DataSourceImageResourceDeployerProtocol):
                                                        display_name=path.stem + path.suffix,
                                                        display_name_short=path.stem + path.suffix,
                                                        display_name_detailed=path.stem + path.suffix)
-                    
+
                 staged_resource = DeploymentCardResource(resource)
                 deployment_resources.append(staged_resource)
 
@@ -126,7 +146,7 @@ class DataSourceImageResourceDeployer(DataSourceImageResourceDeployerProtocol):
 
         if self._configuration.deployment_list_sort_criteria == Configuration.Settings.DeploymentListSortCriteria.FILE_NAME:
             self._deployment_resources.sort(
-                key=lambda x: x.production_resource.file_name, reverse=self._configuration.deployment_list_sort_is_desc_order)
+                key=lambda x: x.production_resource.file_name.lower(), reverse=self._configuration.deployment_list_sort_is_desc_order)
         elif self._configuration.deployment_list_sort_criteria == Configuration.Settings.DeploymentListSortCriteria.CREATED_DATE:
             self._deployment_resources.sort(key=lambda x: x.production_resource.created_date,
                                             reverse=self._configuration.deployment_list_sort_is_desc_order)
@@ -135,6 +155,7 @@ class DataSourceImageResourceDeployer(DataSourceImageResourceDeployerProtocol):
             ProductionCardResourcesLoadEvent.EventType.FINISHED)
         finish_load_event.predecessor = start_load_event
         self._observation_tower.notify(finish_load_event)
+        self._notify_state_changed()
 
     def latest_deployment_resource(self, deployment_resource: DeploymentCardResource) -> Optional[DeploymentCardResource]:
         for r in self._deployment_resources:
@@ -142,36 +163,56 @@ class DataSourceImageResourceDeployer(DataSourceImageResourceDeployerProtocol):
                 return deepcopy(r)
         return None
 
-    def stage_resource(self, deployment_resource: DeploymentCardResource, selected_resource: LocalCardResource, is_async_store: bool = True):
+    def stage_resource(self, deployment_resource: DeploymentCardResource, selected_resource: LocalCardResource):
         for r in self._deployment_resources:
             if r.production_resource == deployment_resource.production_resource:
                 r.stage(selected_resource)
-                self._observation_tower.notify(DeploymentCardResourceEvent(
-                    r, DeploymentCardResourceEvent.EventType.STAGED))
-                if not selected_resource.is_ready:
-                    self._image_resource_processor.async_store_local_resource(
-                        selected_resource, is_async=is_async_store)
-        self._notify_publish_status_changed_if_needed()
+        self._notify_state_changed()
 
     def unstage_resource(self, deployment_resource: DeploymentCardResource):
+        self._unstage_resource(deployment_resource)
+        self._notify_state_changed()
+
+    def unstage_all_resources(self):
+        self._unstage_all_resources()
+        self._notify_state_changed()
+    
+    # prevent unecessary observation calls for internal usage
+    def _unstage_resource(self, deployment_resource: DeploymentCardResource):
         for r in self._deployment_resources:
             if r.production_resource == deployment_resource.production_resource:
                 r.clear_staged_resource()
-                self._observation_tower.notify(DeploymentCardResourceEvent(
-                    r, DeploymentCardResourceEvent.EventType.CLEARED))
-        self._notify_publish_status_changed_if_needed()
 
-    def unstage_all_resources(self):
+    def _unstage_all_resources(self):
         for r in self._deployment_resources:
-            self.unstage_resource(r)
+            self._unstage_resource(r)
+
+    @property
+    def is_publishing(self) -> bool:
+        return self._is_publishing
 
     @property
     def can_publish_staged_resources(self) -> bool:
-        result = False
+        return self._can_publish_staged_resources
+        
+    def _update_can_publish_staged_resources(self):
+        if len(self._deployment_resources) <= 0:
+            self._can_publish_staged_resources = False
+            return
+
+        staged_resources = list(map(lambda x: x.staged_resource, self._deployment_resources))
+        valid_staged_resources = list(filter(None, staged_resources))
+        if len(valid_staged_resources) <= 0:
+            self._can_publish_staged_resources = False
+            return
+
+        result = True
         for i in self._deployment_resources:
-            if i.can_publish_staged_resource:
-                result = True
-        return result
+            if not i.can_publish_staged_resource:
+                result = False
+                break
+        
+        self._can_publish_staged_resources = result and len(self._deployment_resources) > 0 and len(valid_staged_resources) > 0
 
     def publish_staged_resources(self):
         """
@@ -180,10 +221,12 @@ class DataSourceImageResourceDeployer(DataSourceImageResourceDeployerProtocol):
         """
 
         self._is_publishing = True
+        self._notify_state_changed()
+
         deployment_resources_copy = deepcopy(self._deployment_resources)
-        initial_event = PublishStagedCardResourcesEvent(
-            PublishStagedCardResourcesEvent.EventType.STARTED, deployment_resources_copy)
-        self._observation_tower.notify(initial_event)
+        # initial_event = PublishStagedCardResourcesEvent(
+        #     PublishStagedCardResourcesEvent.EventType.STARTED, deployment_resources_copy)
+        # self._observation_tower.notify(initial_event)
         try:
             if self.can_publish_staged_resources:  # don't publish resources if one does not work
                 self._generate_directories_if_needed()
@@ -196,6 +239,7 @@ class DataSourceImageResourceDeployer(DataSourceImageResourceDeployerProtocol):
                         if self._configuration.resize_prod_images and not r.staged_resource.is_local_only:
                             # Don't resize local only resources, assume that these are custom assets
                             assert (not r.staged_resource.is_local_only)
+                            # TODO: with open close
                             cached_image = Image.open(
                                 r.staged_resource.image_path)
                             downscaled_image = self._image_resource_processor.down_scale_image(
@@ -214,38 +258,29 @@ class DataSourceImageResourceDeployer(DataSourceImageResourceDeployerProtocol):
                             # gets regenerated from reload
                             # do nothing because preview file is not critical, or maybe can regenerate file
 
-                        # TODO: refactor so we don't have to always add this
-                        resource = r.production_resource
-                        with open(resource.image_preview_path, 'rb') as f:
-                            img_data = f.read()
-                            # if resource.file_name == '1':
-                            resource.set_resource_metadata('binary_image_preview', img_data)
-                            resource.set_resource_metadata('hi', resource.file_name)
+                
 
-                self.unstage_all_resources()
-                finished_event = PublishStagedCardResourcesEvent(
-                    PublishStagedCardResourcesEvent.EventType.FINISHED, deployment_resources_copy)
-                finished_event.predecessor = initial_event
-                self._observation_tower.notify(finished_event)
+                self._unstage_all_resources()
+                # finished_event = PublishStagedCardResourcesEvent(
+                #     PublishStagedCardResourcesEvent.EventType.FINISHED, deployment_resources_copy)
+                # finished_event.predecessor = initial_event
+                # self._observation_tower.notify(finished_event)
+
+                self._is_publishing = False
+                self._notify_state_changed()
+
+                self._data_source_recent_published.save_published_resources(deployment_resources_copy)
 
                 # NOTE: background thread causing crash when spamming publish from draft list, may need to add state for process of publishing
             else:
-                self._notify_publish_status_changed_if_needed()
-                failed_event = PublishStagedCardResourcesEvent(
-                    PublishStagedCardResourcesEvent.EventType.FAILED, deployment_resources_copy)
-                failed_event.predecessor = initial_event
-                self._observation_tower.notify(failed_event)
                 self._is_publishing = False
+                self._notify_state_changed()
                 raise Exception(
                     "Failed to publish. Please redownload resources and retry.")
 
         except Exception as error:
-            self._notify_publish_status_changed_if_needed()
-            failed_event = PublishStagedCardResourcesEvent(
-                PublishStagedCardResourcesEvent.EventType.FAILED, deployment_resources_copy)
-            failed_event.predecessor = initial_event
-            self._observation_tower.notify(failed_event)
             self._is_publishing = False
+            self._notify_state_changed()
             raise Exception(error)
 
     def generate_new_file(self, file_name: str, placeholder_image_path: Optional[str]):
@@ -258,12 +293,21 @@ class DataSourceImageResourceDeployer(DataSourceImageResourceDeployerProtocol):
         self._image_resource_processor.generate_placeholder(
             local_resource, placeholder_image_path)
 
-    def _notify_publish_status_changed_if_needed(self):
-        if self._can_publish_state != self.can_publish_staged_resources:
-            self._can_publish_state = self.can_publish_staged_resources
-            self._observation_tower.notify(
-                PublishStatusUpdatedEvent(self._can_publish_state))
+    def _notify_state_changed(self):
+        # update state before notifying
+        self._update_can_publish_staged_resources()
+        self._observation_tower.notify(
+            DataSourceImageResourceDeployerStateUpdatedEvent())
 
     def _generate_directories_if_needed(self):
         Path(self._configuration.production_preview_dir_path).mkdir(
             parents=True, exist_ok=True)
+
+    def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
+        if type(event) is LocalCardResourceFetchEvent:
+            # event_type = event.event_type
+            # if event_type == LocalCardResourceFetchEvent.EventType.FINISHED:
+            staged_resources = list(map(lambda x: x.staged_resource, self._deployment_resources))
+            valid_staged_resources = list(filter(None, staged_resources))
+            if event.local_resource in valid_staged_resources:
+                self._notify_state_changed()

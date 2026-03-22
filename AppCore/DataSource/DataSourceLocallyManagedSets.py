@@ -56,6 +56,10 @@ class DataSourceLocallyManagedSets:
         self.mutex = QMutex()
         self.workers: Set[QRunnable] = set()
         self._hashed_cached_card_list: Dict[str, List[TradingCard]] = {}
+
+        if not os.path.isfile(self._path_to_locally_managed_sets_db):
+            print("DB does not exist")
+            self._rebuild_locally_managed_sets_db()
     
     @property
     def _configuration(self) -> Configuration:

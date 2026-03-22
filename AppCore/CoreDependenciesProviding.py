@@ -16,7 +16,7 @@ from AppCore.DataSource.DataSourceCustomDirectorySearch import (
     CustomDirectorySearchDataSourceDelegate,
 )
 from AppCore.DataSource.DraftList import DataSourceDraftListProviding
-from AppCore.ImageResource import ImageResourceProcessorProviding
+from AppCore.ImageResourceProcessor import ImageResourceProcessorProviding
 from AppCore.Observation.ObservationTower import ObservationTower
 from AppCore.Service import DataSerializer, PlatformServiceProvider, StringFormatter
 from AppCore.Service.WebSocket import WebSocketServiceProtocol

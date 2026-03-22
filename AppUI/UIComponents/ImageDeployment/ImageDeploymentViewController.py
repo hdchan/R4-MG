@@ -1,35 +1,51 @@
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (QHBoxLayout, QPushButton, QSizePolicy,
-                             QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (
+    QHBoxLayout,
+    QPushButton,
+    QSizePolicy,
+    QVBoxLayout,
+    QWidget,
+)
 
-from AppCore.Models.DataSourceSelectedLocalCardResource import *
-from AppCore.ImageResource.ImageResourceProcessorProtocol import *
+from AppCore.DataSource.ImageResourceDeployer.DataSourceImageResourceDeployerProtocol import (
+    DataSourceImageResourceDeployerProtocol,
+)
 from AppCore.Models import DeploymentCardResource, LocalCardResource
-from AppCore.Observation import TransmissionProtocol
-from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
-                                        DeploymentCardResourceEvent, PublishStagedCardResourcesEvent, LocalCardResourceSelectedFromDataSourceEvent)
+from AppCore.Models.DataSourceSelectedLocalCardResource import (
+    DataSourceSelectedLocalCardResourceProtocol,
+    LocalResourceDataSourceProviding,
+)
+from AppCore.Observation import TransmissionProtocol, TransmissionReceiverProtocol
+from AppCore.Observation.Events import (
+    ConfigurationUpdatedEvent,
+    LocalCardResourceSelectedFromDataSourceEvent
+)
+from AppCore.DataSource.ImageResourceDeployer.Events import DataSourceImageResourceDeployerStateUpdatedEvent
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
-from AppUI.UIComponents.ImagePreview.ImagePreviewViewController import *
+from AppUI.UIComponents.ImagePreview import (
+    ImagePreviewViewController, ImagePreviewViewControllerWebSocketClient
+)
 from R4UI import Label
-from AppCore.DataSource.ImageResourceDeployer.DataSourceImageResourceDeployerProtocol import DataSourceImageResourceDeployerProtocol
+from AppCore.Service.WebSocket.WebSocketServiceProtocol import WebSocketServiceStatus
 
 class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
-    def __init__(self, 
+    def __init__(self,
                  app_dependencies_provider: AppDependenciesInternalProviding,
-                 deployment_resource: DeploymentCardResource, 
-                 local_resource_data_source_provider: LocalResourceDataSourceProviding, 
+                 deployment_resource: DeploymentCardResource,
+                 local_resource_data_source_provider: LocalResourceDataSourceProviding,
                  is_horizontal: bool):
         super().__init__()
         self._app_dependencies_provider = app_dependencies_provider
+        self._websocket_service = app_dependencies_provider.websocket_service
         self._deployment_resource = deployment_resource
         self._local_resource_data_source_provider = local_resource_data_source_provider
-        # self._data_source_image_resource_deployer = app_dependencies_provider.data_source_image_resource_deployer
         self._configuration_manager = app_dependencies_provider.configuration_manager
-        
+
         vertical_layout = QVBoxLayout()
-        
+
         label = Label()
-        label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.MinimumExpanding)
+        label.setSizePolicy(QSizePolicy.Policy.Expanding,
+                            QSizePolicy.Policy.MinimumExpanding)
         label.setWordWrap(True)
         font = label.font()
         font.setBold(True)
@@ -45,10 +61,10 @@ class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
             layout = QVBoxLayout()
         layout_widget = QWidget()
         layout_widget.setLayout(layout)
-        
+
         vertical_layout.addWidget(label)
         vertical_layout.addWidget(layout_widget, 1)
-        
+
         first_column_layout = QVBoxLayout()
 
         stage_button = QPushButton()
@@ -57,7 +73,7 @@ class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
         stage_button.setEnabled(False)
         self.stage_button = stage_button
         first_column_layout.addWidget(stage_button)
-        
+
         unstage_button = QPushButton()
         # https://www.qtcentre.org/threads/18363-QScrollArea-How-to-avoid-automatic-scroll-actions?p=232187#post232187
         unstage_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
@@ -74,29 +90,40 @@ class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
         layout.addWidget(self._first_column_widget)
         self._sync_configuration_state()
 
-        staging_image_view = ImagePreviewViewController(app_dependencies_provider)
-        layout.addWidget(staging_image_view)
-        self.staging_image_view = staging_image_view
+        if self._websocket_service.state == WebSocketServiceStatus.IS_CLIENT:
+            staging_image_view = ImagePreviewViewControllerWebSocketClient(
+                app_dependencies_provider)
+            layout.addWidget(staging_image_view)
+            self.staging_image_view = staging_image_view
 
-        production_image_view = ImagePreviewViewController(app_dependencies_provider, False)
-        layout.addWidget(production_image_view)
-        self.production_image_view = production_image_view
+            production_image_view = ImagePreviewViewControllerWebSocketClient(
+                app_dependencies_provider)
+            layout.addWidget(production_image_view)
+            self.production_image_view = production_image_view
+        else:
+            staging_image_view = ImagePreviewViewController(
+                app_dependencies_provider)
+            layout.addWidget(staging_image_view)
+            self.staging_image_view = staging_image_view
+
+            production_image_view = ImagePreviewViewController(
+                app_dependencies_provider, False)
+            layout.addWidget(production_image_view)
+            self.production_image_view = production_image_view
 
         if not is_horizontal:
             # allows for spacing
             layout.addWidget(QWidget(), 1)
-        
+
         self.setLayout(vertical_layout)
 
-        
-        app_dependencies_provider.observation_tower.subscribe_multi(self, [DeploymentCardResourceEvent, 
-                                                                         PublishStagedCardResourcesEvent, 
-                                                                         PublishStatusUpdatedEvent, 
-                                                                         LocalCardResourceSelectedFromDataSourceEvent, 
-                                                                         ConfigurationUpdatedEvent])
-    
+        app_dependencies_provider.observation_tower.subscribe_multi(self, [
+            LocalCardResourceSelectedFromDataSourceEvent,
+            ConfigurationUpdatedEvent,
+            DataSourceImageResourceDeployerStateUpdatedEvent])
+
         self._sync_state()
-    
+
     @property
     def _data_source_image_resource_deployer(self) -> DataSourceImageResourceDeployerProtocol:
         return self._app_dependencies_provider.data_source_image_resource_deployer
@@ -104,65 +131,70 @@ class ImageDeploymentViewController(QWidget, TransmissionReceiverProtocol):
     @property
     def _local_resource_data_source(self) -> DataSourceSelectedLocalCardResourceProtocol:
         return self._local_resource_data_source_provider.data_source
-    
-    def set_staging_image(self, local_resource: LocalCardResource):
+
+    def _set_staging_image(self, local_resource: LocalCardResource):
         self.staging_image_view.set_image(local_resource)
-        self.set_unstage_button_enabled(True)
+        self._set_unstage_button_enabled(True)
 
-    def clear_staging_image(self):
+    def _clear_staging_image(self):
         self.staging_image_view.clear_image()
-        self.set_unstage_button_enabled(False)
+        self._set_unstage_button_enabled(False)
 
-    def set_production_image(self, local_resource: LocalCardResource):
+    def _set_production_image(self, local_resource: LocalCardResource):
         self.production_image_view.set_image(local_resource)
         self._local_resource = local_resource
         self.label.setText(local_resource.display_name)
-        
 
     def _sync_state(self):
-        latest_deployment_resource = self._data_source_image_resource_deployer.latest_deployment_resource(self._deployment_resource)
+        latest_deployment_resource = self._data_source_image_resource_deployer.latest_deployment_resource(
+            self._deployment_resource)
         selected_resource = self._local_resource_data_source.selected_local_resource
-        self.set_staging_button_enabled(selected_resource is not None)
-        
+        self._set_staging_button_enabled(selected_resource is not None)
+
         if latest_deployment_resource is not None:
-            self.set_unstage_button_enabled(latest_deployment_resource.staged_resource is not None)
+            self._set_unstage_button_enabled(
+                latest_deployment_resource.staged_resource is not None)
             if latest_deployment_resource.staged_resource is not None:
-                self.set_staging_image(latest_deployment_resource.staged_resource)
+                self._set_staging_image(
+                    latest_deployment_resource.staged_resource)
             else:
-                self.clear_staging_image()
-            self.set_production_image(latest_deployment_resource.production_resource)
+                self._clear_staging_image()
+            self._set_production_image(
+                latest_deployment_resource.production_resource)
 
     def _sync_configuration_state(self):
-        self._first_column_widget.setHidden(self._configuration_manager.configuration.hide_deployment_cell_controls)
+        self._first_column_widget.setHidden(
+            self._configuration_manager.configuration.hide_deployment_cell_controls)
 
     def tapped_staging_button(self):
         selected_resource = self._local_resource_data_source.selected_local_resource
         if selected_resource is not None:
-            self._data_source_image_resource_deployer.stage_resource(self._deployment_resource, selected_resource)
-    
-    def tapped_unstaging_button(self):
-        self._data_source_image_resource_deployer.unstage_resource(self._deployment_resource)
+            self._data_source_image_resource_deployer.stage_resource(
+                self._deployment_resource, selected_resource)
 
-    def set_unstage_button_enabled(self, enabled: bool):
+    def tapped_unstaging_button(self):
+        self._data_source_image_resource_deployer.unstage_resource(
+            self._deployment_resource)
+
+    def _set_unstage_button_enabled(self, enabled: bool):
         self.unstage_button.setEnabled(enabled)
         if enabled:
-            self.unstage_button.setStyleSheet("background-color : #d2232a; color: white;")
+            self.unstage_button.setStyleSheet(
+                "background-color : #d2232a; color: white;")
         else:
             self.unstage_button.setStyleSheet("")
 
-    def set_staging_button_enabled(self, enabled: bool):
+    def _set_staging_button_enabled(self, enabled: bool):
         self.stage_button.setEnabled(enabled)
         if enabled:
-            self.stage_button.setStyleSheet("background-color : #fdb933; color: black;")
+            self.stage_button.setStyleSheet(
+                "background-color : #fdb933; color: black;")
         else:
             self.stage_button.setStyleSheet("")
-    
+
     def handle_observation_tower_event(self, event: TransmissionProtocol):
-        if (type(event) is DeploymentCardResourceEvent or 
-            type(event) is PublishStagedCardResourcesEvent or 
-            type(event) is PublishStatusUpdatedEvent or 
-            type(event) is LocalCardResourceSelectedFromDataSourceEvent):
+        if (type(event) is DataSourceImageResourceDeployerStateUpdatedEvent or
+                type(event) is LocalCardResourceSelectedFromDataSourceEvent):
             self._sync_state()
         if type(event) is ConfigurationUpdatedEvent:
             self._sync_configuration_state()
-        

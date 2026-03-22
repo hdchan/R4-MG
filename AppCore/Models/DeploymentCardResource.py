@@ -17,4 +17,4 @@ class DeploymentCardResource:
         
     @property
     def can_publish_staged_resource(self) -> bool:
-        return self.staged_resource is not None and self.staged_resource.is_ready
+        return self.staged_resource is None or self.staged_resource is not None and self.staged_resource.is_ready

@@ -6,20 +6,18 @@ import jsonpickle # type: ignore
 from AppCore.Observation import ObservationTower
 from AppCore.Observation.Events import WebSocketStatusUpdatedEvent
 
-from .WebSocketClient import WebSocketClient
-from .WebSocketHost import WebSocketHost
+from .WebSocketClient import WebSocketClient, WebSocketClientDelegate
+from .WebSocketHost import WebSocketHost, WebSocketHostDelegate
 from .WebSocketMessageProtocol import WebSocketMessageProtocol
 from .WebSocketMessenger import WebSocketMessenger
 from .WebSocketServiceProtocol import (
-    WebSocketClientDelegate,
     WebSocketClientObjectProtocol,
-    WebSocketHostDelegate,
     WebSocketHostObjectProtocol,
     WebSocketMessageReceiverProtocol,
     WebSocketServiceProtocol,
     WebSocketServiceStatus,
 )
-
+from typing import Dict, Type
 
 class WebSocketService(WebSocketServiceProtocol, WebSocketClientDelegate, WebSocketHostDelegate):
     def __init__(self, observation_tower: ObservationTower):
@@ -32,6 +30,7 @@ class WebSocketService(WebSocketServiceProtocol, WebSocketClientDelegate, WebSoc
         self._messenger = WebSocketMessenger()
         self.__state: WebSocketServiceStatus = WebSocketServiceStatus.NONE
         self._host_objects: List[WebSocketHostObjectProtocol] = []
+        self._client_objects: List[WebSocketClientObjectProtocol] = []
 
     @property
     def state(self) -> WebSocketServiceStatus:
@@ -40,8 +39,12 @@ class WebSocketService(WebSocketServiceProtocol, WebSocketClientDelegate, WebSoc
     def register_as_host(self, host_object: WebSocketHostObjectProtocol):
         self._host_objects.append(host_object)
 
-    def register_for_messages(self, identifier: str, subscriber: WebSocketMessageReceiverProtocol):
-        self._messenger.register_for_messages(identifier, subscriber)
+    # def register_as_client(self, client_object: WebSocketClientObjectProtocol):
+    #     self._host_objects.append(client_object)
+
+
+    def register_for_messages(self, subscriber: WebSocketMessageReceiverProtocol, event_type: Type[WebSocketMessageProtocol]):
+        self._messenger.register_for_messages(subscriber, event_type)
 
     @property
     def _state(self) -> WebSocketServiceStatus:
@@ -60,10 +63,10 @@ class WebSocketService(WebSocketServiceProtocol, WebSocketClientDelegate, WebSoc
         self._client.connect_to_server(ip, port)
 
     def disconnect(self) -> None:
-        self._client.disconnect()
+        self._client.stop_client()
         self._host.stop_server()
 
-    def send_message(self, message: WebSocketMessageProtocol):
+    def send_websocket_message(self, message: WebSocketMessageProtocol):
         message_str: str = jsonpickle.encode(message, make_refs=False)
         if self._state == WebSocketServiceStatus.IS_HOST:
             self._host.send_message(message_str)
@@ -71,20 +74,22 @@ class WebSocketService(WebSocketServiceProtocol, WebSocketClientDelegate, WebSoc
             self._client.send_message(message_str)
 
     @property
-    def ip_address(self) -> str:
-        try:
-            hostname = socket.gethostname()
-            ip_address = socket.gethostbyname(hostname)
-            # Filters out loopback addresses, if necessary, but gethostbyname usually avoids this
-            if ip_address.startswith("127."):
-                # A more reliable method for the actual network IP (works by connecting to an external server like Google DNS without sending data)
-                s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                s.connect(('8.8.8.8', 80))
-                ip_address = s.getsockname()[0]
-                s.close()
-        except socket.error:
-            ip_address = "Could not get IP address"
-        return ip_address
+    def ip_address(self) -> Optional[str]:
+        if self._state == WebSocketServiceStatus.IS_HOST:
+            try:
+                hostname = socket.gethostname()
+                ip_address = socket.gethostbyname(hostname)
+                # Filters out loopback addresses, if necessary, but gethostbyname usually avoids this
+                if ip_address.startswith("127."):
+                    # A more reliable method for the actual network IP (works by connecting to an external server like Google DNS without sending data)
+                    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                    s.connect(('8.8.8.8', 80))
+                    ip_address = s.getsockname()[0]
+                    s.close()
+            except socket.error:
+                ip_address = "Could not get IP address"
+            return ip_address
+        return self._client.latest_ip
 
     # MARK: - DataSourceDraftListWebSocketHostDecoratorDelegate
     def host_started(self, is_started: bool) -> None:
@@ -96,10 +101,9 @@ class WebSocketService(WebSocketServiceProtocol, WebSocketClientDelegate, WebSoc
     def host_received_message(self, message: str) -> None:
         self._messenger.deliver_message(jsonpickle.decode(message))
 
-    def host_received_client_connection(self, client_object: WebSocketClientObjectProtocol):
+    def host_received_client_connection(self, client_object: WebSocketClientObjectProtocol) -> None:
         for i in self._host_objects:
-            message = i.handle_new_connection()
-            client_object.send_message(message)
+            i.wsh_handle_new_connection(client_object)
 
     # MARK: - DataSourceDraftListWebSocketClientDecoratorDelegate
     def client_connected(self) -> None:

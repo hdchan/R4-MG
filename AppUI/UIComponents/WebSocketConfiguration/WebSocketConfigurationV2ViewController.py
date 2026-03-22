@@ -13,7 +13,9 @@ from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProvid
 from AppCore.Observation.Events import WebSocketStatusUpdatedEvent
 from AppCore.Observation import TransmissionProtocol, TransmissionReceiverProtocol
 from typing import Optional
+from PySide6.QtGui import QPalette, QColor
 from AppCore.Service.WebSocket.WebSocketServiceProtocol import WebSocketServiceProtocol, WebSocketServiceStatus
+
 
 class WebSocketConfigurationV2ViewController(RWidget, TransmissionReceiverProtocol):
     def __init__(self, app_dependencies_provider: AppDependenciesInternalProviding):
@@ -32,27 +34,49 @@ class WebSocketConfigurationV2ViewController(RWidget, TransmissionReceiverProtoc
         self._sync_ui()
 
     def _sync_ui(self):
+        self._update_background_color()
         if (self._websocket_service.state == WebSocketServiceStatus.IS_HOST):
             self._config_view_container.replace_all_widgets([
-                    RHorizontalExpandingSpacerWidget(),
-                    Label(f"Host IP: {self._websocket_service.ip_address}"),
-                    PushButton("Copy", self._copy_ip).set_size_policy(horizontal_policy=QSizePolicy.Policy.Maximum),
-                    PushButton("Disconnect", self._disconnect).set_size_policy(horizontal_policy=QSizePolicy.Policy.Maximum),
-                ])
+                RHorizontalExpandingSpacerWidget(),
+                Label(f"Host IP: {self._websocket_service.ip_address}"),
+                PushButton("Copy", self._copy_ip).set_size_policy(
+                    horizontal_policy=QSizePolicy.Policy.Maximum),
+                PushButton("Disconnect", self._disconnect).set_size_policy(
+                    horizontal_policy=QSizePolicy.Policy.Maximum),
+            ])
         elif (self._websocket_service.state == WebSocketServiceStatus.IS_CLIENT):
             self._config_view_container.replace_all_widgets([
-                    RHorizontalExpandingSpacerWidget(),
-                    Label("Connected to host"),
-                    PushButton("Disconnect", self._disconnect).set_size_policy(horizontal_policy=QSizePolicy.Policy.Maximum),
-                ])
+                RHorizontalExpandingSpacerWidget(),
+                Label("Connected to host"),
+                PushButton("Disconnect", self._disconnect).set_size_policy(
+                    horizontal_policy=QSizePolicy.Policy.Maximum),
+            ])
         else:
-            self._line_edit_ip_address = LineEditText(placeholder_text="Server IP address")
+            self._line_edit_ip_address = LineEditText(text=self._websocket_service.ip_address, placeholder_text="Server IP address").set_size_policy(
+                horizontal_policy=QSizePolicy.Policy.Maximum)
+            self._line_edit_ip_address.setMinimumWidth(200)
             self._config_view_container.replace_all_widgets([
-                    RHorizontalExpandingSpacerWidget(),
-                    PushButton("Start Server", self._start_server).set_size_policy(horizontal_policy=QSizePolicy.Policy.Maximum),
-                    PushButton("Connect to Server", self._connect_to_server).set_size_policy(horizontal_policy=QSizePolicy.Policy.Maximum),
-                    self._line_edit_ip_address,
-                ])
+                RHorizontalExpandingSpacerWidget(),
+                PushButton("Start Server", self._start_server).set_size_policy(
+                    horizontal_policy=QSizePolicy.Policy.Maximum),
+                PushButton("Connect to Server", self._connect_to_server).set_size_policy(
+                    horizontal_policy=QSizePolicy.Policy.Maximum),
+                self._line_edit_ip_address,
+            ])
+
+    def _update_background_color(self):
+        if self._websocket_service.state == WebSocketServiceStatus.NONE:
+            self.setPalette(QPalette())
+        else:
+            self.setAutoFillBackground(True)
+
+            # 2. Get the current palette and change the 'Window' role
+            palette = self.palette()
+            palette.setColor(QPalette.Window, QColor("green"))
+
+            # 3. Apply the modified palette back to the widget
+            self.setPalette(palette)
+            
 
     @property
     def _websocket_service(self) -> WebSocketServiceProtocol:
@@ -71,7 +95,8 @@ class WebSocketConfigurationV2ViewController(RWidget, TransmissionReceiverProtoc
     def _copy_ip(self):
         cb = QGuiApplication.clipboard()
         cb.clear(mode=QClipboard.Mode.Clipboard)
-        cb.setText(self._websocket_service.ip_address, mode=QClipboard.Mode.Clipboard)
+        cb.setText(self._websocket_service.ip_address,
+                   mode=QClipboard.Mode.Clipboard)
 
     def _disconnect(self):
         self._websocket_service.disconnect()

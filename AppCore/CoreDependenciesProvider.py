@@ -8,10 +8,7 @@ from AppCore.DataSource import (
     DataSourceCachedHistory,
     DataSourceDraftListWindowResourceDeployer,
     DataSourceEventCoordinator,
-    DataSourceRecentPublished,
 )
-
-from AppCore.DataSource.ImageResourceDeployer import DataSourceImageResourceDeployerProvider, DataSourceImageResourceDeployerProtocol
 from AppCore.DataSource.DataSourceCardSearch import (
     DataSourceCardSearch,
     DataSourceCardSearchClientProviding,
@@ -21,8 +18,13 @@ from AppCore.DataSource.DraftList import (
     DataSourceDraftListProvider,
     DataSourceDraftListProviding,
 )
+from AppCore.DataSource.ImageResourceDeployer import (
+    DataSourceImageResourceDeployerProtocol,
+    DataSourceImageResourceDeployerProvider,
+    DataSourceRecentPublished,
+)
 from AppCore.ImageFetcher import ImageFetcherProvider
-from AppCore.ImageResource import (
+from AppCore.ImageResourceProcessor import (
     ImageResourceProcessor,
     ImageResourceProcessorProviding,
 )
@@ -56,19 +58,20 @@ class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesIntern
         self._image_resource_processor_provider = ImageResourceProcessor(ImageFetcherProvider(self._configuration_manager),
                                                                          self.observation_tower)
 
-        self._data_source_image_resource_deployer_provider = DataSourceImageResourceDeployerProvider(self._configuration_manager,
-                                                                                                     self._observation_tower,
-                                                                                                     self._image_resource_processor_provider, 
-                                                                                                     self._websocket_service)
-
-        self._data_source_draft_list_provider = DataSourceDraftListProvider(self._configuration_manager,
-                                                                            self._observation_tower,
-                                                                            self._data_serializer)
-
         self._data_source_recent_published = DataSourceRecentPublished(self._observation_tower,
                                                                        self._image_resource_processor_provider,
                                                                        self._configuration_manager,
                                                                        self._data_serializer)
+
+        self._data_source_image_resource_deployer_provider = DataSourceImageResourceDeployerProvider(self._configuration_manager,
+                                                                                                     self._observation_tower,
+                                                                                                     self._image_resource_processor_provider, 
+                                                                                                     self._websocket_service, 
+                                                                                                     self._data_source_recent_published)
+
+        self._data_source_draft_list_provider = DataSourceDraftListProvider(self._configuration_manager,
+                                                                            self._observation_tower,
+                                                                            self._data_serializer)
 
         self._data_source_draft_list_window_resource_deployer = DataSourceDraftListWindowResourceDeployer(self._configuration_manager,
                                                                                                           self._observation_tower,

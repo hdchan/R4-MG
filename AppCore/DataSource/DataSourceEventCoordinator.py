@@ -42,6 +42,6 @@ class DataSourceEventCoordinator(TransmissionReceiverProtocol):
         add_card_mode = self._configuration.draft_list_add_card_mode
         
         if add_card_mode == Configuration.Settings.DraftListAddCardMode.STAGE or add_card_mode == Configuration.Settings.DraftListAddCardMode.STAGE_AND_PUBLISH:
-            self._data_source_image_resource_deployer.stage_resource(matching_deployment_resource, selected_resource, is_async_store=False)
+            self._data_source_image_resource_deployer.stage_resource(matching_deployment_resource, selected_resource)
         if add_card_mode == Configuration.Settings.DraftListAddCardMode.STAGE_AND_PUBLISH:
             self._data_source_image_resource_deployer.publish_staged_resources()

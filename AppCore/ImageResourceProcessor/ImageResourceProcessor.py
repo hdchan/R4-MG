@@ -12,7 +12,7 @@ from AppCore.ImageFetcher.ImageFetcherProvider import (
 )
 from AppCore.Models import LocalCardResource
 from AppCore.Observation import ObservationTower
-from AppCore.Observation.Events import LocalCardResourceFetchEvent
+from .Events.LocalCardResourceFetchEvent import LocalCardResourceFetchEvent
 
 from .ImageResourceProcessorProtocol import (
     ImageResourceProcessorProtocol,
@@ -22,7 +22,6 @@ from .ImageResourceProcessorProtocol import (
 THUMBNAIL_SIZE = 256
 ROUNDED_CORNERS = 30
 NORMAL_CARD_HEIGHT = 468
-# NORMAL_CARD_WIDTH = 652
 ROUNDED_CORDERS_MULTIPLIER_RELATIVE_TO_HEIGHT = ROUNDED_CORNERS / NORMAL_CARD_HEIGHT
 
 ImageDownscaleCallback = Callable[[Image.Image], Image.Image]
@@ -94,6 +93,8 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol, ImageResourceProces
         return self
 
     def async_store_local_resources_multi(self, local_resources: List[LocalCardResource], completed: Callable[[], None]) -> None:
+        # TODO: handle failure
+        # TODO: should it be not (is_ready, etc..)?
         filtered_resources = list(filter(lambda x: not x.is_ready or x.is_preview_ready, local_resources)) # only process the ones that we need to
         self.mutex.lock()
         for resource in filtered_resources:
@@ -149,7 +150,7 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol, ImageResourceProces
                                       self._generate_preview_image,
                                       self._add_corners)
         
-        if not is_async:
+        if not is_async: # TODO: remove force sync
             self._lock_resource_and_notify(local_resource)
             worker.run()
             self._unlock_resource_and_notify((local_resource, None))
@@ -232,8 +233,11 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol, ImageResourceProces
         img = Image.new("RGB", (1, 1))
         if placeholder_image_path is not None:
             try:
-                img = Image.open(placeholder_image_path)
-            except:
+                with Image.open(placeholder_image_path) as opened_img:
+                # .load() pulls the data into RAM so the file can be closed
+                    opened_img.load() 
+                    img = opened_img.copy() 
+            except Exception as e:
                 pass
         img.save(local_resource.image_path, "PNG")
         
@@ -309,11 +313,24 @@ class RegenerateImageWorker(QRunnable):
         self.signals = WorkerSignals()
 
     def run(self):
-        large_img = Image.open(self.local_resource.image_path)
-        preview_img = self.downscale_fn(large_img)
-        preview_img.save(self.local_resource.image_preview_path)
-        self.signals.finished.emit((self.local_resource, None))
-        self.signals.cleanup.emit(self)
+        try:
+            # Use 'with' to ensure the file handle is closed as soon as the block ends
+            with Image.open(self.local_resource.image_path) as img:
+                # .load() forces Pillow to read the pixel data into memory
+                img.load()
+                # Pass the loaded image to your downscale function
+                preview_img = self.downscale_fn(img)
+                
+            # The file handle for image_path is now officially CLOSED here.
+            # You can now safely save, delete, or overwrite the original file.
+            preview_img.save(self.local_resource.image_preview_path)
+            
+            self.signals.finished.emit((self.local_resource, None))
+        except Exception as e:
+            # It's good practice to emit an error signal if something fails
+            print(f"Error regenerating image: {e}")
+        finally:
+            self.signals.cleanup.emit(self)
 
 class RotateImageWorker(QRunnable):
     def __init__(self, 
@@ -325,7 +342,24 @@ class RotateImageWorker(QRunnable):
         self.signals = WorkerSignals()
     
     def run(self):
-        Image.open(self.local_resource.image_path).rotate(self.angle, resample=Image.Resampling.BICUBIC, expand=True).save(self.local_resource.image_path)
-        Image.open(self.local_resource.image_preview_path).rotate(self.angle, resample=Image.Resampling.BICUBIC, expand=True).save(self.local_resource.image_preview_path)
-        self.signals.finished.emit((self.local_resource, None))
-        self.signals.cleanup.emit(self)
+        try:
+            # Rotate the main image
+            with Image.open(self.local_resource.image_path) as img:
+                # Load into RAM and rotate
+                rotated_main = img.rotate(self.angle, resample=Image.Resampling.BICUBIC, expand=True)
+                rotated_main.load() 
+            # File is closed here; safe to overwrite
+            rotated_main.save(self.local_resource.image_path)
+
+            # Rotate the preview image
+            with Image.open(self.local_resource.image_preview_path) as prev_img:
+                rotated_prev = prev_img.rotate(self.angle, resample=Image.Resampling.BICUBIC, expand=True)
+                rotated_prev.load()
+            # File is closed here; safe to overwrite
+            rotated_prev.save(self.local_resource.image_preview_path)
+
+            self.signals.finished.emit((self.local_resource, None))
+        except Exception as e:
+            print(f"Rotation error: {e}")
+        finally:
+            self.signals.cleanup.emit(self)

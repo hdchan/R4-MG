@@ -1,6 +1,6 @@
 from typing import Optional
 
-from AppCore.Models import LocalCardResource
+from AppCore.Models.LocalCardResource import LocalCardResource
 
 
 class DataSourceSelectedLocalCardResourceProtocol:

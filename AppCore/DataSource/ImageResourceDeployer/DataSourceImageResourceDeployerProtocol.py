@@ -27,7 +27,7 @@ class DataSourceImageResourceDeployerProtocol(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def stage_resource(self, deployment_resource: DeploymentCardResource, selected_resource: LocalCardResource, is_async_store: bool = True):
+    def stage_resource(self, deployment_resource: DeploymentCardResource, selected_resource: LocalCardResource):
         raise NotImplementedError
 
     @abstractmethod
@@ -42,6 +42,13 @@ class DataSourceImageResourceDeployerProtocol(ABC):
         raise NotImplementedError
 
     def generate_new_file(self, file_name: str, placeholder_image_path: Optional[str]):
+        raise NotImplementedError
+
+    @property
+    def is_publishing(self) -> bool:
+        raise NotImplementedError
+
+    def attach_preview_binary_to_prod_resources(self) -> None:
         raise NotImplementedError
 
 

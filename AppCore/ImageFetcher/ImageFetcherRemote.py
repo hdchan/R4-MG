@@ -44,6 +44,7 @@ class ImageFetcherRemote(ImageFetcherProtocol):
                 headers = {'User-Agent': ''} # python user agent being blocked
                 req = request.Request(image_url, headers=headers)
                 buf = request.urlopen(req)
+                # TODO: with open close
                 img = Image.open(buf) # type: ignore
                 return img
             except Exception as error:

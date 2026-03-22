@@ -2,7 +2,7 @@ from enum import Enum
 from typing import List
 
 from AppCore.Models.DeploymentCardResource import DeploymentCardResource
-from ..TransmissionProtocol import TransmissionProtocol
+from AppCore.Observation.TransmissionProtocol import TransmissionProtocol
 
 
 class PublishStagedCardResourcesEvent(TransmissionProtocol):

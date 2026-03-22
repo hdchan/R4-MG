@@ -284,15 +284,15 @@ class DeckListImageGenerator(BaseDeckListImageGenerator, DeckListImageGeneratorP
         color_value = (0, 0, 0, 0)
         if self._core_configuration.is_developer_mode and self._is_visual_debug:
             if location == 'leader-base':
-                color_value = 'green'
+                color_value = 'green' # type: ignore
             if location == 'deck':
-                color_value = 'red'
+                color_value = 'red' # type: ignore
             if location == 'sideboard':
-                color_value = 'green'
+                color_value = 'green' # type: ignore
             if location == 'stitch-columns':
-                color_value = 'grey'
+                color_value = 'grey' # type: ignore
             if location == 'stitch-rows':
-                color_value = 'blue'
+                color_value = 'blue' # type: ignore
         return Image.new('RGBA', (width, height), color_value)
 
     def _create_overlapping_cards(self, 

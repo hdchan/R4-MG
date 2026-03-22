@@ -2,3 +2,4 @@ from .ImagePreviewViewController import ImagePreviewViewController
 from .ImagePreviewLocalResourceDataSourceDecorator import \
     ImagePreviewLocalResourceDataSourceDecorator
 
+from .ImagePreviewViewControllerWebSocketClient import ImagePreviewViewControllerWebSocketClient

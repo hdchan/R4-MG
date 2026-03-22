@@ -1,7 +1,6 @@
 import json
 from pathlib import Path
 from typing import Any, Dict, Optional, TypeVar
-
 T = TypeVar("T")
 
 
@@ -12,6 +11,12 @@ class DataSerializer:
             try:
                 if hasattr(o, 'to_data'):
                     return o.to_data()
+                # Handle binary data (bytes or bytearray)
+                if isinstance(o, (bytes, bytearray)):
+                    # omitting binary so we don't take up so much space
+                    # base64.b64encode returns bytes, so .decode('utf-8') 
+                    # converts it to a standard string for JSON
+                    return None
                 else:
                     return json.JSONEncoder.default(self, o)
             except Exception:

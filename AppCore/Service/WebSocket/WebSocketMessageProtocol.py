@@ -1,3 +1,6 @@
+class WebSocketMessagePayloadType:
+    pass
+
 class WebSocketMessageProtocol:
-    def __init__(self, identifier: str):
-        self.identifier = identifier
+    def __init__(self, payload: WebSocketMessagePayloadType):
+        self.payload = payload

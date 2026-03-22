@@ -128,6 +128,9 @@ class LocalCardResource(LocalAssetResource):
     def image_preview_binary(self):
         if 'binary_image_preview' in self.metadata:
             return io.BytesIO(self.metadata['binary_image_preview'])
+
+    def set_image_preview_binary(self, image: Any):
+        self.metadata['binary_image_preview'] = image
     
     @property
     def image_temp_path(self):
@@ -135,4 +138,5 @@ class LocalCardResource(LocalAssetResource):
 
     @property
     def size(self) -> Tuple[int, int]:
-        return Image.open(self.image_path).size
+        with Image.open(self.image_path) as img:
+            return img.size

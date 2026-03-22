@@ -1,19 +1,21 @@
 from enum import Enum
-from typing import Optional
+from typing import Optional, Type
 from .WebSocketMessageProtocol import WebSocketMessageProtocol
 from typing import Protocol, runtime_checkable
 
 @runtime_checkable
 class WebSocketMessageReceiverProtocol(Protocol):
-    def handle_websocket_message(self, message: WebSocketMessageProtocol) -> None:
+    def wsmr_handle_websocket_message(self, message: WebSocketMessageProtocol) -> None:
         raise Exception()
 
 class WebSocketClientObjectProtocol:
-    def send_message(self, message: WebSocketMessageProtocol):
+    def wbc_send_message(self, message: WebSocketMessageProtocol):
         raise Exception()
 
+
+
 class WebSocketHostObjectProtocol:
-    def handle_new_connection(self) -> WebSocketMessageProtocol:
+    def wsh_handle_new_connection(self, client_object: WebSocketClientObjectProtocol) -> None:
         raise Exception()
 
 class WebSocketServiceStatus(int, Enum):
@@ -38,34 +40,17 @@ class WebSocketServiceProtocol(Protocol):
         raise Exception
 
     @property
-    def ip_address(self) -> str:
+    def ip_address(self) -> Optional[str]:
         raise Exception
 
-    def register_for_messages(self, identifier: str, subscriber: WebSocketMessageReceiverProtocol):
+    def register_for_messages(self, subscriber: WebSocketMessageReceiverProtocol, event_type: Type[WebSocketMessageProtocol]):
         raise Exception
 
     def register_as_host(self, host_object: WebSocketHostObjectProtocol):
         raise Exception
 
-    def send_message(self, message: WebSocketMessageProtocol):
+    # def register_as_client(self, client_object: WebSocketClientObjectProtocol):
+    #     raise Exception
+
+    def send_websocket_message(self, message: WebSocketMessageProtocol):
         raise Exception
-
-class WebSocketHostDelegate:
-    def host_started(self, is_started: bool) -> None:
-        return
-
-    def host_stopped(self) -> None:
-        return
-
-    def host_received_message(self, message: str) -> None:
-        return
-
-class WebSocketClientDelegate:
-    def client_connected(self) -> None:
-        return
-
-    def client_disconnected(self) -> None:
-        return
-
-    def client_received_message(self, message: str) -> None:
-        return

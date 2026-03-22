@@ -1,6 +1,6 @@
 from AppCore.Models import (DataSourceSelectedLocalCardResourceProtocol,
                                 LocalResourceDataSourceProviding)
-from AppCore.ImageResource.ImageResourceProcessorProtocol import *
+from AppCore.ImageResourceProcessor.ImageResourceProcessorProtocol import *
 from AppUI.AppDependenciesInternalProviding import \
     AppDependenciesInternalProviding
 

@@ -4,11 +4,10 @@ from typing import List, Optional
 from AppCore.DataSource import (DataSourceCardSearchClientProviding,
                                 
                                 DataSourceLocallyManagedSets)
-from AppCore.DataSource.ImageResourceDeployer import DataSourceImageResourceDeployer
+from AppCore.DataSource.ImageResourceDeployer import DataSourceImageResourceDeployerProtocol
 from AppCore.DataSource.DataSourceLocallyManagedSets import \
     DataSourceLocallyManagedSetsClientProtocol
 from AppCore.Models import LocalCardResource, SearchConfiguration
-from AppUI.ExternalAppDependenciesProviding import *
 from AppUI.Models import DraftListStyleSheet
 from AppUI.Router.Router import Router
 from R4UI import RWidget, RMenuListBuilder
@@ -70,7 +69,7 @@ class ExternalAppDependenciesProviding:
     
     # MARK: - Draft List
     def provide_image_deployer_banner_cta(self, 
-                                          data_source_image_resource_deployer: DataSourceImageResourceDeployer, 
+                                          data_source_image_resource_deployer: DataSourceImageResourceDeployerProtocol, 
                                           router: Router) -> Optional[RWidget]:
         return None
 

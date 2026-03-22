@@ -2,7 +2,7 @@
 from AppCore.DataSource.DraftList import DataSourceDraftListProviding
 from AppCore.DataSource.DataSourceCardSearch import (
     DataSourceCardSearch, DataSourceCardSearchDelegate)
-from AppCore.ImageResource import ImageResourceProcessorProviding
+from AppCore.ImageResourceProcessor import ImageResourceProcessorProviding
 from AppCore.Observation.ObservationTower import ObservationTower
 from AppUI.Router.Router import Router
 

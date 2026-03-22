@@ -5,41 +5,55 @@ from PySide6.QtCore import QPoint, Qt
 from PySide6.QtWidgets import QTabWidget
 
 from AppCore.Config import Configuration
+from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
+from AppCore.DataSource.ImageResourceDeployer.DataSourceImageResourceDeployerProtocol import (
+    DataSourceImageResourceDeployerProtocol,
+)
+from AppCore.ImageResourceProcessor.Events import LocalCardResourceFetchEvent
 from AppCore.Models import LocalResourceDataSourceProviding
-from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
-                                        DraftPackUpdatedEvent,
-                                        LocalCardResourceFetchEvent,
-                                        LocalCardResourceSelectedFromDataSourceEvent,
-                                        ProductionCardResourcesLoadEvent,
-                                        PublishStagedCardResourcesEvent)
-from AppCore.Observation.ObservationTower import TransmissionReceiverProtocol, TransmissionProtocol
-from AppUI.AppDependenciesInternalProviding import \
-    AppDependenciesInternalProviding
-from R4UI import (RBoldLabel, RComboBox, HorizontalBoxLayout, PushButton,
-                  RActionMenuItem, RMenuListBuilder, RWidget,
-                  VerticalBoxLayout)
+from AppCore.Observation.Events import (
+    ConfigurationUpdatedEvent,
+    DraftPackUpdatedEvent,
+    LocalCardResourceSelectedFromDataSourceEvent,
+)
+from AppCore.Observation.ObservationTower import (
+    TransmissionProtocol,
+    TransmissionReceiverProtocol,
+)
+from AppCore.DataSource.ImageResourceDeployer.Events import DataSourceImageResourceDeployerStateUpdatedEvent, ProductionCardResourcesLoadEvent
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
+from R4UI import (
+    HorizontalBoxLayout,
+    PushButton,
+    RActionMenuItem,
+    RBoldLabel,
+    RComboBox,
+    RMenuListBuilder,
+    RWidget,
+    VerticalBoxLayout,
+)
 
 from .DraftListTablePackPreviewViewController import (
     DraftListTablePackPreviewViewController,
-    DraftListTablePackPreviewViewControllerDelegate)
-from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
-from AppCore.DataSource.ImageResourceDeployer.DataSourceImageResourceDeployerProtocol import DataSourceImageResourceDeployerProtocol
+    DraftListTablePackPreviewViewControllerDelegate,
+)
+
 
 class DraftListTabbedPackPreviewViewControllerDraftListTablePackPreviewViewControllerDelegate(DraftListTablePackPreviewViewControllerDelegate):
     def __init__(self, pack_identifier: str):
         self._pack_identifier = pack_identifier
-    
+
     @property
     def dlp_pack_identifier(self) -> Optional[str]:
         return self._pack_identifier
-    
+
     @property
     def dlp_is_presentation(self) -> bool:
         return False
 
 
 class DraftListTabbedPackPreviewViewController(RWidget, TransmissionReceiverProtocol):
-    def __init__(self, 
+    def __init__(self,
                  app_dependencies_provider: AppDependenciesInternalProviding,
                  data_source_local_resource_provider: LocalResourceDataSourceProviding):
         super().__init__()
@@ -52,83 +66,91 @@ class DraftListTabbedPackPreviewViewController(RWidget, TransmissionReceiverProt
         self._selected_tab = -1
         self._is_publishing = False
         self._setup_view()
-        
+
         app_dependencies_provider.observation_tower.subscribe_multi(self, [DraftPackUpdatedEvent,
                                                                            LocalCardResourceFetchEvent,
                                                                            LocalCardResourceSelectedFromDataSourceEvent,
-                                                                           ProductionCardResourcesLoadEvent, 
-                                                                           ConfigurationUpdatedEvent, 
-                                                                           PublishStagedCardResourcesEvent])
-        
-        app_dependencies_provider.shortcut_action_coordinator.bind_add_card_to_draft_list(self._add_resource, self)
-    
+                                                                           ProductionCardResourcesLoadEvent,
+                                                                           ConfigurationUpdatedEvent,
+                                                                           DataSourceImageResourceDeployerStateUpdatedEvent])
+
+        app_dependencies_provider.shortcut_action_coordinator.bind_add_card_to_draft_list(
+            self._add_resource, self)
+
     @property
     def _data_source_image_resource_deployer(self) -> DataSourceImageResourceDeployerProtocol:
         return self._app_dependencies_provider.data_source_image_resource_deployer
-    
+
     @property
     def _data_source_draft_list(self) -> DataSourceDraftListProtocol:
         return self._data_source_draft_list_provider.draft_list_data_source
 
     def _setup_view(self):
-        self._tab_widget = QTabWidget() # TODO: replace with RTabWidget
+        self._tab_widget = QTabWidget()  # TODO: replace with RTabWidget
         tab_bar = self._tab_widget.tabBar()
         if tab_bar is not None:
-            tab_bar.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-            tab_bar.customContextMenuRequested.connect(self._show_context_menu) # TODO: right clicking clicks tab, even if not switched to
+            tab_bar.setContextMenuPolicy(
+                Qt.ContextMenuPolicy.CustomContextMenu)
+            # TODO: right clicking clicks tab, even if not switched to
+            tab_bar.customContextMenuRequested.connect(self._show_context_menu)
             # 2025-10-29 21:51:29,570 - CRITICAL - Uncaught exception, application will terminate.
             # AttributeError: Slot 'RTabWidget::' not found.
             tab_bar.tabBarClicked.connect(self._tab_clicked)
-        
+
         self._add_card_button = PushButton(None, self._add_resource)
-        
+
         self._deployment_destination_selection = RComboBox()
         self._reset_deployment_destination_selection()
-        
+
         VerticalBoxLayout([
             self._tab_widget,
             self._add_card_button,
             HorizontalBoxLayout([
                 RBoldLabel("Deployment Destination"),
                 self._deployment_destination_selection,
-                ]),
-            
+            ]),
+
         ]).set_layout_to_widget(self)
-        
+
         if self._data_source_draft_list.pack_list_count == 0:
             self._data_source_draft_list.create_new_pack()
-        
+
         self._sync_ui()
 
     def _reset_deployment_destination_selection(self):
         try:
             # we need to specify what we want to disconnect, otherwise it won't disconnect
-            self._deployment_destination_selection.currentIndexChanged.disconnect(self._deployment_destination_selection_changed)
+            self._deployment_destination_selection.currentIndexChanged.disconnect(
+                self._deployment_destination_selection_changed)
         except Exception:
             pass
         self._deployment_destination_selection.clear()
         self._deployment_destination_selection.addItems(
             ["None"] + [stuff.production_resource.file_name_with_ext for stuff in self._data_source_image_resource_deployer.deployment_resources])
         destination_string = self._configuration.draft_list_add_card_deployment_destination
-        self._deployment_destination_selection.setCurrentText(destination_string)
-        self._deployment_destination_selection.currentIndexChanged.connect(self._deployment_destination_selection_changed)
+        self._deployment_destination_selection.setCurrentText(
+            destination_string)
+        self._deployment_destination_selection.currentIndexChanged.connect(
+            self._deployment_destination_selection_changed)
 
     def _deployment_destination_selection_changed(self, val: int):
         # if self._deployment_destination_selection.count() == 0:
         #     return
         # set and save config
         new_config = self._configuration_manager.mutable_configuration()
-        destination_string: Optional[str] = None # first option is null
+        destination_string: Optional[str] = None  # first option is null
         if val > 0:
-            destination_string = self._deployment_destination_selection.itemText(val)
-        new_config.set_draft_list_add_card_deployment_destination(destination_string)
+            destination_string = self._deployment_destination_selection.itemText(
+                val)
+        new_config.set_draft_list_add_card_deployment_destination(
+            destination_string)
         self._configuration_manager.save_configuration(new_config)
         self._sync_ui()
 
     @property
     def _configuration(self) -> Configuration:
         return self._configuration_manager.configuration
-    
+
     def _add_resource(self):
         # TODO: protect action when staging is enabled
         if self._is_publishing:
@@ -139,11 +161,12 @@ class DraftListTabbedPackPreviewViewController(RWidget, TransmissionReceiverProt
         selected_resource = self._data_source_local_resource_provider.data_source.selected_local_resource
         if selected_resource is not None:
             try:
-                self._data_source_draft_list.add_resource_to_pack(selected_pack, selected_resource)
+                self._data_source_draft_list.add_resource_to_pack(
+                    selected_pack, selected_resource)
             except Exception as error:
                 self._router.show_error(Exception(error))
         self._is_publishing = False
-    
+
     # MARK: - Tab bar context menu
     def _tab_clicked(self, index: int):
         if index >= self._tab_widget.count() - 1:
@@ -155,41 +178,49 @@ class DraftListTabbedPackPreviewViewController(RWidget, TransmissionReceiverProt
         tab_index = -1
         if tab_bar is not None:
             tab_index = tab_bar.tabAt(a0)
-        
+
         RMenuListBuilder() \
             .add_separator() \
             .add_actions([
-                RActionMenuItem("Rename", lambda: self._prompt_rename_draft_list_pack(tab_index)),
-                RActionMenuItem("Move left", lambda: self._data_source_draft_list.move_pack_left(tab_index)),
-                RActionMenuItem("Move right", lambda: self._data_source_draft_list.move_pack_right(tab_index)),
-                RActionMenuItem(f"Delete - {self._data_source_draft_list.pack_name(tab_index)}", lambda: self._delete_pack(tab_index)),
+                RActionMenuItem(
+                    "Rename", lambda: self._prompt_rename_draft_list_pack(tab_index)),
+                RActionMenuItem(
+                    "Move left", lambda: self._data_source_draft_list.move_pack_left(tab_index)),
+                RActionMenuItem(
+                    "Move right", lambda: self._data_source_draft_list.move_pack_right(tab_index)),
+                RActionMenuItem(
+                    f"Delete - {self._data_source_draft_list.pack_name(tab_index)}", lambda: self._delete_pack(tab_index)),
             ]) \
             .exec_menu(self._tab_widget.mapToGlobal(a0))
-    
+
     def _prompt_rename_draft_list_pack(self, pack_index: int):
-        pack_name, ok = self._router.prompt_text_input('Rename', 'Enter pack name:')
+        pack_name, ok = self._router.prompt_text_input(
+            'Rename', 'Enter pack name:')
         if ok:
-            self._data_source_draft_list.update_pack_name(pack_index, pack_name)
-    
+            self._data_source_draft_list.update_pack_name(
+                pack_index, pack_name)
+
     def _delete_pack(self, pack_index: int):
         if self._router.prompt_accept("Delete Pack?", f"Are you sure you want to delete {self._data_source_draft_list.pack_name(pack_index)}"):
             self._data_source_draft_list.remove_pack(pack_index)
-    
+
     def _clear_tabs(self):
         while self._tab_widget.count() > 0:
             # properly clear tabs to remove references from observation tower
-            widget_to_delete = self._tab_widget.widget(0) # Get the widget of the first tab
-            self._tab_widget.removeTab(0) # Remove the tab
+            widget_to_delete = self._tab_widget.widget(
+                0)  # Get the widget of the first tab
+            self._tab_widget.removeTab(0)  # Remove the tab
             if widget_to_delete is not None:
-                widget_to_delete.deleteLater() # Schedule deletion of the widget
-                
+                widget_to_delete.deleteLater()  # Schedule deletion of the widget
+
     def _sync_draft_list(self):
         self._clear_tabs()
         for pack in self._data_source_draft_list.draft_packs:
-            
-            view_controller = DraftListTablePackPreviewViewController(self._app_dependencies_provider, 
-                                                                  self._data_source_local_resource_provider)
-            delegate = DraftListTabbedPackPreviewViewControllerDraftListTablePackPreviewViewControllerDelegate(pack.pack_identifier)
+
+            view_controller = DraftListTablePackPreviewViewController(self._app_dependencies_provider,
+                                                                      self._data_source_local_resource_provider)
+            delegate = DraftListTabbedPackPreviewViewControllerDraftListTablePackPreviewViewControllerDelegate(
+                pack.pack_identifier)
             view_controller.delegate = delegate
             self._tab_widget.addTab(view_controller, pack.pack_name)
         self._tab_widget.addTab(RWidget(), "+")
@@ -197,7 +228,7 @@ class DraftListTabbedPackPreviewViewController(RWidget, TransmissionReceiverProt
             self._tab_widget.setCurrentIndex(self._selected_tab - 1)
         else:
             self._tab_widget.setCurrentIndex(self._selected_tab)
-    
+
     def _sync_button(self):
         add_card_mode = self._configuration.draft_list_add_card_mode
         destination_string = self._configuration.draft_list_add_card_deployment_destination
@@ -211,27 +242,24 @@ class DraftListTabbedPackPreviewViewController(RWidget, TransmissionReceiverProt
         elif add_card_mode == Configuration.Settings.DraftListAddCardMode.STAGE_AND_PUBLISH:
             self._add_card_button.setText("Add Card and Publish (Ctrl+D)")
             selected_resource = self._data_source_local_resource_provider.data_source.selected_local_resource
-            self._add_card_button.setEnabled(selected_resource is not None and selected_resource.is_ready and not self._is_publishing)
-    
+            self._add_card_button.setEnabled(
+                selected_resource is not None and selected_resource.is_ready and not self._is_publishing)
+
     def _sync_ui(self):
         self._sync_draft_list()
         self._sync_button()
-        
+
     # MARK: - TransmissionReceiverProtocol
-    
+
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
         if type(event) is LocalCardResourceFetchEvent or type(event) is LocalCardResourceSelectedFromDataSourceEvent:
             if event.local_resource == self._data_source_local_resource_provider.data_source.selected_local_resource:
                 self._sync_button()
         if type(event) is DraftPackUpdatedEvent or \
-            type(event) is ConfigurationUpdatedEvent:
+                type(event) is ConfigurationUpdatedEvent:
             self._sync_ui()
-        if type(event) is PublishStagedCardResourcesEvent:
-            if event.event_type == PublishStagedCardResourcesEvent.EventType.STARTED:
-                self._is_publishing = True
-            else:
-                self._is_publishing = False
-            # print(self._is_publishing)
+        if type(event) is DataSourceImageResourceDeployerStateUpdatedEvent:
+            self._is_publishing = self._data_source_image_resource_deployer.is_publishing
             self._sync_ui()
         if type(event) is ProductionCardResourcesLoadEvent:
             self._reset_deployment_destination_selection()

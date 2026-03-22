@@ -12,7 +12,7 @@ from AppCore.DataSource import (
     DataSourceCardSearchClientSearchResult,
     DataSourceRecentSearch,
 )
-from AppCore.ImageResource import ImageResourceProcessorProtocol
+from AppCore.ImageResourceProcessor import ImageResourceProcessorProtocol
 from AppCore.Models import (
     DataSourceSelectedLocalCardResourceProtocol,
     LocalCardResource,

@@ -32,8 +32,8 @@ class AddImageCTAViewController(RWidget, TransmissionReceiverProtocol):
         self._observation_tower.subscribe(self, CardSearchEvent)
         self._router = router
 
-        self.setFixedHeight(150)
-        self.sound_effect = None
+        self.setFixedHeight(175)
+        self.sound_effect: Optional[QSoundEffect] = None
 
         pre_layout = QHBoxLayout()
         self.setLayout(pre_layout)

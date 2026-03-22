@@ -2,9 +2,9 @@
 from abc import ABC, abstractmethod
 
 from AppCore.Config import ConfigurationManager
-from AppCore.DataSource.DraftList import DataSourceDraftListProvider
+from AppCore.DataSource.DraftList import DataSourceDraftListProviding
 from AppCore.DataSource.ImageResourceDeployer import DataSourceImageResourceDeployerProtocol
-from AppCore.ImageResource import ImageResourceProcessorProviding
+from AppCore.ImageResourceProcessor import ImageResourceProcessorProviding
 from AppCore.Models import ModelTransformer
 from AppCore.Observation.ObservationTower import ObservationTower
 from AppCore.Service import DataSerializer, PlatformServiceProvider, StringFormatter
@@ -52,5 +52,5 @@ class CoreDependenciesInternalProviding(ABC):
     
     @property
     @abstractmethod
-    def data_source_draft_list_provider(self) -> DataSourceDraftListProvider:
+    def data_source_draft_list_provider(self) -> DataSourceDraftListProviding:
         raise Exception

@@ -255,7 +255,7 @@ class RMenuBarBuilder(QMenuBar):
         return self
 
 
-class LineEditInt(QLineEdit):
+class LineEditInt(QLineEdit, SharedWidgetFunctions):
     def __init__(self,
                  int: Optional[int] = None, 
                  triggered_fn: Optional[Callable[[int], None]] = None,
@@ -281,14 +281,14 @@ class LineEditInt(QLineEdit):
         try:
             return int(self.text())
         except Exception:
-            pass
+            return None
         
     def set_value(self, int: Optional[int]):
         if int is None:
             return
         self.setText(str(int))
 
-class LineEditFloat(QLineEdit):
+class LineEditFloat(QLineEdit, SharedWidgetFunctions):
     def __init__(self,
                  int: Optional[float] = None, 
                  triggered_fn: Optional[Callable[[float], None]] = None,
@@ -314,7 +314,7 @@ class LineEditFloat(QLineEdit):
         try:
             return float(self.text())
         except Exception:
-            pass
+            return None
         
     def set_value(self, int: Optional[float]):
         if int is None:
@@ -322,7 +322,7 @@ class LineEditFloat(QLineEdit):
         self.setText(str(int))
 
         
-class LineEditText(QLineEdit):
+class LineEditText(QLineEdit, SharedWidgetFunctions):
     def __init__(self,
                  text: Optional[str] = None, 
                  triggered_fn: Optional[Callable[[str], None]] = None, 
@@ -339,8 +339,8 @@ class LineEditText(QLineEdit):
             self._triggered_fn(text)
     
     @property
-    def value(self) -> Optional[int]:
-        self.text()
+    def value(self) -> Optional[str]:
+        return self.text()
     
     def set_value(self, value: Optional[str]):
         if value is None:

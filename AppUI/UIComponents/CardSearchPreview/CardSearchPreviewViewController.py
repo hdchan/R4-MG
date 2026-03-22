@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QSizePolicy
 
 from AppCore.Models import (DataSourceSelectedLocalCardResourceProtocol,
                                 LocalResourceDataSourceProviding)
-from AppCore.ImageResource.ImageResourceProcessorProtocol import *
+from AppCore.ImageResourceProcessor.ImageResourceProcessorProtocol import *
 from AppCore.Observation import (TransmissionProtocol,
                                  TransmissionReceiverProtocol)
 from AppCore.Observation.Events import (CardSearchEvent,

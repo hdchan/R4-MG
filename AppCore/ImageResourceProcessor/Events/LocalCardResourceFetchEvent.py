@@ -2,7 +2,7 @@ from enum import Enum
 
 from AppCore.Models.LocalCardResource import LocalCardResource
 
-from ..TransmissionProtocol import TransmissionProtocol
+from AppCore.Observation import TransmissionProtocol
 
 
 class LocalCardResourceFetchEvent(TransmissionProtocol):

@@ -3,7 +3,7 @@ from AppUI.AppDependenciesInternalProviding import \
 from AppUI.UIComponents.CardSearchPreview.CardSearchPreviewFactory import \
     CardSearchPreviewFactory
 from R4UI import HorizontalSplitter, RWidget, VerticalBoxLayout
-from AppUI.UIComponents.WebSocketConfiguration.WebSocketConfigurationViewController import WebSocketConfigurationViewController
+from AppUI.UIComponents.WebSocketConfiguration.WebSocketConfigurationV2ViewController import WebSocketConfigurationV2ViewController
 from .DraftListTabbedPackPreviewViewController import \
     DraftListTabbedPackPreviewViewController
 from .DraftListWindowDeployerViewController import \
@@ -18,7 +18,7 @@ class DraftListDeployerSearchComboViewController(RWidget):
         card_search = CardSearchPreviewFactory.DraftListCardSearchPreviewViewController(self._app_dependencies_provider)
 
         VerticalBoxLayout([
-            # WebSocketConfigurationViewController(self._app_dependencies_provider),
+            # WebSocketConfigurationV2ViewController(self._app_dependencies_provider),
             HorizontalSplitter([
                 card_search,
                 DraftListTabbedPackPreviewViewController(

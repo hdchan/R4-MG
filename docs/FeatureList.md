@@ -26,6 +26,13 @@
 - [ ] OBS can read text files
 
 ## Websockets
-- [ ] remote push cards to production
+- [x] remote push cards to production
     - separate laptop ok
     - manipulate existing images only
+
+
+2 issues
+cleared deck and generated new one but kept the old deck
+but worked after closing the window and opening it again
+
+typing with set included
