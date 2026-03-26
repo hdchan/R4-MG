@@ -101,7 +101,7 @@ class LocalResourceDraftListWindow(LocalAssetResource):
     
     @property
     def window_configuration(self) -> DraftListWindowConfiguration:
-        return copy.deepcopy(self._window_configuration)
+        return self._window_configuration
     
     @window_configuration.setter
     def window_configuration(self, value: DraftListWindowConfiguration):

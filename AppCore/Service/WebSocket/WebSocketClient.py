@@ -1,6 +1,7 @@
 from PySide6.QtCore import QUrl
 from typing import Optional
 from PySide6.QtWebSockets import QWebSocket
+from PySide6.QtCore import QByteArray
 
 class WebSocketClientDelegate:
     def client_connected(self) -> None:
@@ -10,6 +11,9 @@ class WebSocketClientDelegate:
         return
 
     def client_received_message(self, message: str) -> None:
+        return
+
+    def client_received_binary_message(self, message: QByteArray) -> None:
         return
 
 class WebSocketClient(QWebSocket):
@@ -22,6 +26,7 @@ class WebSocketClient(QWebSocket):
         self.errorOccurred.connect(self.handle_error)
         self.disconnected.connect(self.on_disconnected)
         self.textMessageReceived.connect(self.on_message)
+        self.binaryMessageReceived.connect(self.on_binary_message)
 
     @property
     def latest_ip(self) -> Optional[str]:
@@ -51,9 +56,16 @@ class WebSocketClient(QWebSocket):
         # Optional: Logic to retry connection or cleanup
         self.close()
         
-    def on_message(self, message):
+    def on_message(self, message: str):
         if self.delegate is not None:
             self.delegate.client_received_message(message)
 
+    def on_binary_message(self, message: QByteArray):
+        if self.delegate is not None:
+            self.delegate.client_received_binary_message(message)
+
     def send_message(self, message: str):
         self.sendTextMessage(message)
+
+    def send_binary_message(self, message: QByteArray):
+        self.sendBinaryMessage(message)

@@ -1,7 +1,7 @@
 import time
-from typing import Any, Callable, Dict, TypeVar, Set
+from typing import Any, Callable, Dict, TypeVar
 
-from PySide6.QtCore import QObject, QRunnable, QThreadPool, Signal
+from AppCore.Service.GeneralWorker import AsyncWorker
 
 T = TypeVar("T")
 
@@ -14,36 +14,11 @@ class DataFetcherLocal:
     def __init__(self, 
                  configuration: Configuration = Configuration()):
         self._configuration = configuration
-        self.pool = QThreadPool()
-        self.workers: Set[QRunnable] = set()
+        self._async_worker = AsyncWorker()
         
     def load(self, fn_work: Callable[[Dict[str, Any]], T], callback: Callable[[T], None], **kwargs: Any):
-        def _cleanup(identifier: QRunnable):
-            self.workers.remove(identifier)
+        def _runnable_fn():
+            time.sleep(self._configuration.network_delay_duration)
+            return fn_work(kwargs)
 
-        worker = RunnableWorker(fn_work, self._configuration.network_delay_duration, **kwargs)
-        worker.signals.finished.connect(callback)
-        worker.signals.cleanup.connect(_cleanup)
-        self.workers.add(worker)
-        self.pool.start(worker)
-    
-class WorkerSignals(QObject):
-    finished = Signal(object)
-    cleanup = Signal(object)
-
-class RunnableWorker(QRunnable):
-    def __init__(self, 
-                 fn_work: Callable[[Dict[str, Any]], T], 
-                 delay: int, 
-                 **kwargs: Any):
-        super(RunnableWorker, self).__init__()
-        self._fn_work = fn_work
-        self._delay = delay
-        self._kwargs = kwargs
-        self.signals = WorkerSignals()
-
-    def run(self):
-        time.sleep(self._delay)
-        result = self._fn_work(self._kwargs)
-        self.signals.finished.emit(result)
-        self.signals.cleanup.emit(self)
+        self._async_worker.run(_runnable_fn, callback)

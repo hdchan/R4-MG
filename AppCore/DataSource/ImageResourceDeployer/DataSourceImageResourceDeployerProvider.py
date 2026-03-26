@@ -3,37 +3,30 @@ from typing import Optional
 
 from AppCore.Config import ConfigurationManager
 from AppCore.ImageResourceProcessor import ImageResourceProcessorProviding
-from AppCore.Observation import (
-    ObservationTower,
-    TransmissionProtocol,
-    TransmissionReceiverProtocol,
-)
-from AppCore.Observation.Events import WebSocketStatusUpdatedEvent
+from AppCore.Observation import (ObservationTower, TransmissionProtocol,
+                                 TransmissionReceiverProtocol)
+from AppCore.Service.WebSocket.Events import WebSocketStatusUpdatedEvent
 from AppCore.Service.WebSocket.WebSocketServiceProtocol import (
-    WebSocketMessageReceiverProtocol,
-    WebSocketServiceProtocol,
-    WebSocketServiceStatus,
-)
+    WebSocketMessageReceiverProtocol, WebSocketServiceProtocol,
+    WebSocketServiceStatus)
 
 from .DataSourceImageResourceDeployer import DataSourceImageResourceDeployer
 from .DataSourceImageResourceDeployerProtocol import (
     DataSourceImageResourceDeployerProtocol,
-    DataSourceImageResourceDeployerProviding,
-)
-from .WebSocket.DataSourceImageResourceDeployerWebSocketClient import (
-    DataSourceImageResourceDeployerWebSocketClient,
-)
-from .WebSocket.DataSourceImageResourceDeployerWebSocketHost import (
-    DataSourceImageResourceDeployerWebSocketHost,
-)
+    DataSourceImageResourceDeployerProviding)
 from .DataSourceRecentPublished import DataSourceRecentPublished
+from .WebSocket.DataSourceImageResourceDeployerWebSocketClient import \
+    DataSourceImageResourceDeployerWebSocketClient
+from .WebSocket.DataSourceImageResourceDeployerWebSocketHost import \
+    DataSourceImageResourceDeployerWebSocketHost
+
 
 class DataSourceImageResourceDeployerProvider(DataSourceImageResourceDeployerProviding, TransmissionReceiverProtocol):
     def __init__(self,
                  configuration_manager: ConfigurationManager,
                  observation_tower: ObservationTower,
                  image_resource_processor_provider: ImageResourceProcessorProviding,
-                 websocket_service: WebSocketServiceProtocol, 
+                 websocket_service: WebSocketServiceProtocol,
                  data_source_recent_published: DataSourceRecentPublished):
         self._image_resource_processor_provider = image_resource_processor_provider
         self._websocket_service = websocket_service
@@ -50,9 +43,9 @@ class DataSourceImageResourceDeployerProvider(DataSourceImageResourceDeployerPro
 
     @property
     def data_source_image_resource_deployer(self) -> DataSourceImageResourceDeployerProtocol:
-        if self._websocket_service.state == WebSocketServiceStatus.IS_CLIENT or self._websocket_service.state == WebSocketServiceStatus.IS_HOST:
+        if self._websocket_service.state != WebSocketServiceStatus.NONE:
             if self._current_websocket_ds is not None:
-                return self._current_websocket_ds # type: ignore
+                return self._current_websocket_ds  # type: ignore
         return self._data_source_image_resource_deployer
 
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:

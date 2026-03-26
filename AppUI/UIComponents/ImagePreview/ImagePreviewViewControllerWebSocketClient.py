@@ -68,10 +68,13 @@ class ImagePreviewViewControllerWebSocketClient(RWidget):
             if self._local_resource.image_preview_binary is not None:
                 # giving binary image previews priority if from web socket
                 image = QPixmap()
-                binary = self._local_resource.image_preview_binary.getvalue()
-                byte_array = QByteArray(binary)
-                success = image.loadFromData(byte_array)
-                if success:
+                # binary = self._local_resource.image_preview_binary.getvalue()
+                # byte_array = QByteArray(binary)
+                # success = image.loadFromData(byte_array)
+                binary = self._local_resource.image_preview_binary
+                if hasattr(binary, 'getvalue'):
+                    binary = binary.getvalue()
+                if image.loadFromData(binary):
                     image_width = image.size().width()
                     image_height = image.size().height()
                     multiplier = MAX_PREVIEW_SIZE / \

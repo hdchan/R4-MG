@@ -2,12 +2,14 @@ import io
 from copy import deepcopy
 from pathlib import Path
 
-import yaml
+import yaml  # type: ignore
 
-from AppCore.Config.Configuration import MutableConfiguration, Configuration
+from AppCore.Config.Configuration import Configuration, MutableConfiguration
 from AppCore.Observation.Events import (ApplicationEvent,
                                         ConfigurationUpdatedEvent)
-from AppCore.Observation.ObservationTower import TransmissionReceiverProtocol, ObservationTower, TransmissionProtocol
+from AppCore.Observation.ObservationTower import (ObservationTower,
+                                                  TransmissionProtocol,
+                                                  TransmissionReceiverProtocol)
 
 # from PySide6.QtCore import QTimer
 
@@ -35,7 +37,7 @@ class ConfigurationManager(TransmissionReceiverProtocol):
         # self._save_async_timer.timeout.connect(self.save)
         # self.debounce_time = 5000
 
-        self._observation_tower.subscribe(self, ApplicationEvent)
+        self._observation_tower.subscribe_multi(self, [ApplicationEvent])
 
     @property
     def configuration(self) -> Configuration:

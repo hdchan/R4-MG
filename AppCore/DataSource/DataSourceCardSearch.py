@@ -2,8 +2,8 @@ import copy
 import time
 from datetime import datetime
 from functools import reduce
-from typing import List, Optional, Tuple, Set, Generic, TypeVar, Callable
-from PySide6.QtCore import QObject, QRunnable, QThreadPool, Signal
+from typing import List, Optional, Tuple, TypeVar
+
 from AppCore.Config import Configuration
 from AppCore.CoreDependenciesInternalProviding import CoreDependenciesInternalProviding
 from AppCore.DataSource import (
@@ -25,6 +25,8 @@ from AppCore.Observation.Events import (
     CardSearchEvent,
     LocalCardResourceSelectedFromDataSourceEvent,
 )
+from AppCore.Service.GeneralWorker import AsyncWorker
+
 T = TypeVar("T")
 
 class DataSourceCardSearchDelegate:
@@ -84,8 +86,7 @@ class DataSourceCardSearch(DataSourceSelectedLocalCardResourceProtocol):
         self._paginated_trading_card_providers: List[List[CardResourceProvider]] = []
         self._is_loading = False
 
-        self.pool = QThreadPool()
-        self.workers: Set[QRunnable] = set()
+        self._async_worker = AsyncWorker()
     
     @property
     def source_display_name(self) -> str:
@@ -153,7 +154,7 @@ class DataSourceCardSearch(DataSourceSelectedLocalCardResourceProtocol):
     @property
     def current_selected_card_search_resource(self) -> Optional[LocalCardResource]:
         if self._selected_resource is not None:
-            return copy.deepcopy(self._selected_resource)
+            return self._selected_resource
         return None
 
     def get_search_configuration_from_history(self, index: int) -> Optional[Tuple[SearchConfiguration, datetime]]:
@@ -167,7 +168,7 @@ class DataSourceCardSearch(DataSourceSelectedLocalCardResourceProtocol):
         self._is_loading = True
         initial_event = CardSearchEvent(CardSearchEvent.EventType.STARTED,
                                         CardSearchEvent.SourceType.REMOTE,
-                                        copy.deepcopy(search_configuration))
+                                        search_configuration)
         self._observation_tower.notify(initial_event)
         self._search_history_ds.save_search(search_configuration)
         if self.delegate is not None:
@@ -214,7 +215,7 @@ class DataSourceCardSearch(DataSourceSelectedLocalCardResourceProtocol):
             self._is_loading = False
             finished_event = CardSearchEvent(CardSearchEvent.EventType.FINISHED,
                                          CardSearchEvent.SourceType.REMOTE,
-                                         copy.deepcopy(search_configuration))
+                                         search_configuration)
             finished_event.predecessor = initial_event
             self._observation_tower.notify(finished_event)
             if self.delegate is not None:
@@ -232,14 +233,7 @@ class DataSourceCardSearch(DataSourceSelectedLocalCardResourceProtocol):
             return self._api_client.search_with_result(search_configuration,
                                                         PaginationConfiguration(self._next_page, self._page_size))
 
-        def _cleanup(identifier: QRunnable):
-            self.workers.remove(identifier)
-
-        worker = GeneralWorker(_runnable_fn)
-        worker.signals.finished.connect(completed_with_search_result)
-        worker.signals.cleanup.connect(_cleanup)
-        self.workers.add(worker)
-        self.pool.start(worker)
+        self._async_worker.run(_runnable_fn, completed_with_search_result)
 
     def load_next_page(self):
         if self._is_loading:
@@ -287,14 +281,7 @@ class DataSourceCardSearch(DataSourceSelectedLocalCardResourceProtocol):
             return self._api_client.search_with_result(current_search_configuration,
                                                         PaginationConfiguration(self._next_page, self._page_size))
 
-        def _cleanup(identifier: QRunnable):
-            self.workers.remove(identifier)
-
-        worker = GeneralWorker(_runnable_fn)
-        worker.signals.finished.connect(completed_with_search_result)
-        worker.signals.cleanup.connect(_cleanup)
-        self.workers.add(worker)
-        self.pool.start(worker)
+        self._async_worker.run(_runnable_fn, completed_with_search_result)
 
     @property
     def current_previewed_trading_card_is_flippable(self) -> bool:
@@ -320,28 +307,7 @@ class DataSourceCardSearch(DataSourceSelectedLocalCardResourceProtocol):
         trading_card_resource_provider = self._trading_card_providers[index]
         selected_resource = trading_card_resource_provider.local_resource
         self._selected_resource = selected_resource
-        self._observation_tower.notify(LocalCardResourceSelectedFromDataSourceEvent(copy.deepcopy(selected_resource), self))
+        self._observation_tower.notify(LocalCardResourceSelectedFromDataSourceEvent(selected_resource, self))
         self._image_resource_processor_provider.image_resource_processor.async_store_local_resource(selected_resource, retry=retry)
         if self.delegate is not None:
             self.delegate.ds_did_retrieve_card_resource_for_card_selection(self)
-
-class WorkerSignals(QObject):
-    finished = Signal(object)
-    failed = Signal(Exception)
-    cleanup = Signal(object)
-
-
-class GeneralWorker(QRunnable, Generic[T]):
-    def __init__(self, runnable_fn: Callable[[], T]):
-        super().__init__()
-        self._runnable_fn = runnable_fn
-        self.signals = WorkerSignals()
-
-    def run(self):
-        try:
-            result = self._runnable_fn()
-            self.signals.finished.emit(result)
-        except Exception as error:
-            self.signals.failed.emit(error)
-        finally:
-            self.signals.cleanup.emit(self)

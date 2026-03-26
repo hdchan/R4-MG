@@ -12,10 +12,10 @@ from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
 from AppCore.ImageResourceProcessor.Events import LocalCardResourceFetchEvent
 from AppCore.Observation import TransmissionProtocol, TransmissionReceiverProtocol
 from AppCore.Observation.Events import (
-    DraftListUpdatedEvent,
-    DraftPackUpdatedEvent,
+    
     LocalAssetResourceFetchEvent,
 )
+from AppCore.DataSource.DraftList.Events import DraftListUpdatedEvent, DraftPackUpdatedEvent
 from AppUI.UIComponents.Base.LoadingSpinner import LoadingSpinner
 from R4UI import HorizontalBoxLayout, HorizontalSplitter, RWidget
 
@@ -87,7 +87,7 @@ class DraftListImagePreviewViewController(RWidget, TransmissionReceiverProtocol,
 
     @property
     def _parsed_deck(self) -> ParsedDeckList:
-        return ParsedDeckList.from_draft_packs(copy.deepcopy(self._data_source_draft_list.draft_packs))
+        return ParsedDeckList.from_draft_packs(self._data_source_draft_list.draft_packs)
 
     # MARK: - DraftListImagePreviewInspectorPanelViewControllerDelegate
     def option_did_update(self):

@@ -2,16 +2,13 @@
 from typing import List, Optional
 
 from AppCore.Models import DeploymentCardResource, LocalCardResource
-from abc import ABC, abstractmethod
 
-class DataSourceImageResourceDeployerProtocol(ABC):
+class DataSourceImageResourceDeployerProtocol:
     @property
-    @abstractmethod
     def deployment_resources(self) -> List[DeploymentCardResource]:
         raise NotImplementedError
 
     @property
-    @abstractmethod
     def can_publish_staged_resources(self) -> bool:
         raise NotImplementedError
 
@@ -22,22 +19,18 @@ class DataSourceImageResourceDeployerProtocol(ABC):
     def load_production_resources(self):
         raise NotImplementedError
 
-    @abstractmethod
     def latest_deployment_resource(self, deployment_resource: DeploymentCardResource) -> Optional[DeploymentCardResource]:
         raise NotImplementedError
 
-    @abstractmethod
     def stage_resource(self, deployment_resource: DeploymentCardResource, selected_resource: LocalCardResource):
         raise NotImplementedError
 
-    @abstractmethod
     def unstage_resource(self, deployment_resource: DeploymentCardResource):
         raise NotImplementedError
 
     def unstage_all_resources(self):
         raise NotImplementedError
 
-    @abstractmethod
     def publish_staged_resources(self):
         raise NotImplementedError
 
@@ -54,5 +47,5 @@ class DataSourceImageResourceDeployerProtocol(ABC):
 
 class DataSourceImageResourceDeployerProviding:
     @property
-    def data_source_image_resource_deployer(self) -> DataSourceImageResourceDeployerProtocol | None:
+    def data_source_image_resource_deployer(self) -> DataSourceImageResourceDeployerProtocol:
         raise NotImplementedError

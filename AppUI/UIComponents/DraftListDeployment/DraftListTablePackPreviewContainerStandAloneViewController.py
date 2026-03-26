@@ -1,7 +1,7 @@
 from AppCore.Models import LocalResourceDraftListWindow
 from AppCore.Observation import (TransmissionProtocol,
                                  TransmissionReceiverProtocol)
-from AppCore.Observation.Events import DraftListWindowResourceUpdatedEvent
+from AppCore.DataSource.DraftListWindowResource.Events import DraftListWindowResourceUpdatedEvent
 from AppUI.AppDependenciesInternalProviding import \
     AppDependenciesInternalProviding
 from AppUI.UIComponents.DraftListDeployment.DraftListTablePackPreviewContainerViewController import \

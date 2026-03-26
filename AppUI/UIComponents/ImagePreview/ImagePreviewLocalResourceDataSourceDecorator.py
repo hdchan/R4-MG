@@ -17,8 +17,7 @@ class ImagePreviewLocalResourceDataSourceDecorator(ImagePreviewViewController,
 
     def set_image(self, local_resource: LocalCardResource):
         super().set_image(local_resource)
-        self._observation_tower.notify(LocalCardResourceSelectedFromDataSourceEvent(
-            copy.deepcopy(local_resource), self))
+        self._observation_tower.notify(LocalCardResourceSelectedFromDataSourceEvent(local_resource, self))
 
     # MARK: - LocalResourceDataSourceProviding
     @property

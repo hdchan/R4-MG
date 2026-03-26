@@ -1,6 +1,6 @@
 from AppCore.Models import LocalResourceDraftListWindow
 
-from ..TransmissionProtocol import TransmissionProtocol
+from AppCore.Observation.TransmissionProtocol import TransmissionProtocol
 
 
 class DraftListWindowResourceUpdatedEvent(TransmissionProtocol):

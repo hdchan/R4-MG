@@ -5,9 +5,7 @@ from AppCore.Config import ConfigurationManager
 from AppCore.DataSource import (
     CustomDirectorySearchDataSource,
     CustomDirectorySearchDataSourceDelegate,
-    DataSourceCachedHistory,
-    DataSourceDraftListWindowResourceDeployer,
-    DataSourceEventCoordinator,
+    DataSourceCachedHistory
 )
 from AppCore.DataSource.DataSourceCardSearch import (
     DataSourceCardSearch,
@@ -17,6 +15,10 @@ from AppCore.DataSource.DataSourceCardSearch import (
 from AppCore.DataSource.DraftList import (
     DataSourceDraftListProvider,
     DataSourceDraftListProviding,
+)
+from AppCore.DataSource.DraftListWindowResource import (
+    DataSourceDraftListWindowResourceDeployerProtocol,
+    DataSourceDraftListWindowResourceDeployerProvider,
 )
 from AppCore.DataSource.ImageResourceDeployer import (
     DataSourceImageResourceDeployerProtocol,
@@ -65,22 +67,21 @@ class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesIntern
 
         self._data_source_image_resource_deployer_provider = DataSourceImageResourceDeployerProvider(self._configuration_manager,
                                                                                                      self._observation_tower,
-                                                                                                     self._image_resource_processor_provider, 
-                                                                                                     self._websocket_service, 
+                                                                                                     self._image_resource_processor_provider,
+                                                                                                     self._websocket_service,
                                                                                                      self._data_source_recent_published)
 
         self._data_source_draft_list_provider = DataSourceDraftListProvider(self._configuration_manager,
                                                                             self._observation_tower,
-                                                                            self._data_serializer)
+                                                                            self._data_serializer,
+                                                                            self._websocket_service, 
+                                                                            self._data_source_image_resource_deployer_provider)
 
-        self._data_source_draft_list_window_resource_deployer = DataSourceDraftListWindowResourceDeployer(self._configuration_manager,
-                                                                                                          self._observation_tower,
-                                                                                                          self._data_source_draft_list_provider,
-                                                                                                          self._data_serializer)
-
-        self._data_source_event_coordinator = DataSourceEventCoordinator(self._observation_tower,
-                                                                         self._configuration_manager,
-                                                                         self._data_source_image_resource_deployer_provider)
+        self._data_source_draft_list_window_resource_deployer_provider = DataSourceDraftListWindowResourceDeployerProvider(self._configuration_manager,
+                                                                                                                           self._observation_tower,
+                                                                                                                           self._data_source_draft_list_provider,
+                                                                                                                           self._data_serializer,
+                                                                                                                           self._websocket_service)
 
         atexit.register(self._cleanup)
 
@@ -142,8 +143,8 @@ class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesIntern
         return self._data_source_recent_published
 
     @property
-    def data_source_draft_list_window_resource_deployer(self) -> DataSourceDraftListWindowResourceDeployer:
-        return self._data_source_draft_list_window_resource_deployer
+    def data_source_draft_list_window_resource_deployer(self) -> DataSourceDraftListWindowResourceDeployerProtocol:
+        return self._data_source_draft_list_window_resource_deployer_provider.draft_list_window_resource_data_source
 
     @property
     def websocket_service(self) -> WebSocketServiceProtocol:

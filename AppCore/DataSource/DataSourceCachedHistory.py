@@ -1,4 +1,3 @@
-from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -75,7 +74,7 @@ class DataSourceCachedHistory(DataSourceSelectedLocalCardResourceProtocol):
     def _retrieve_card_resource_for_card_selection(self, index: int, retry: bool = False):
         selected_resource = self._cached_history[index][0]
         self._selected_resource = selected_resource
-        self._observation_tower.notify(LocalCardResourceSelectedFromDataSourceEvent(deepcopy(selected_resource), self))
+        self._observation_tower.notify(LocalCardResourceSelectedFromDataSourceEvent(selected_resource, self))
         self._image_resource_processor_provider.image_resource_processor.async_store_local_resource(selected_resource, retry=retry)
     
     def add_resource_and_save(self, local_resource: LocalCardResource, datetime: datetime = datetime.now()):

@@ -1,5 +1,7 @@
-from ..TransmissionProtocol import TransmissionProtocol
 from enum import Enum
+
+from ..TransmissionProtocol import TransmissionProtocol
+
 
 class ApplicationEvent(TransmissionProtocol):
     class EventType(Enum):

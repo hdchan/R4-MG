@@ -88,7 +88,7 @@ class ParsedDeckList:
     
     @property
     def all_cards(self) -> List[SWUTradingCardBackedLocalCardResource]:
-        return copy.deepcopy(self._swu_backed_resources)
+        return self._swu_backed_resources
     
     def card_count_main_deck(self, resource: SWUTradingCardBackedLocalCardResource) -> int:
         filtered: List[SWUTradingCardBackedLocalCardResource] = list(filter(lambda x: x == resource, self.main_deck))

@@ -17,7 +17,6 @@ from AppCore.Observation import (TransmissionProtocol,
 from AppCore.Observation.Events import ConfigurationUpdatedEvent
 from AppUI.AppDependenciesInternalProviding import \
     AppDependenciesInternalProviding
-from PySide6.QtGui import QPalette, QColor
 from ..Base.LoadingSpinner import LoadingSpinner
 from .ImageDeploymentViewController import ImageDeploymentViewController
 from AppCore.Service.WebSocket.WebSocketServiceProtocol import WebSocketServiceProtocol, WebSocketServiceStatus
@@ -133,8 +132,8 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
                 self._app_dependencies_provider.shortcut_action_coordinator.bind_unstage(
                     item.tapped_unstaging_button, index, item)
             else:
-                item.stage_button.setText(f'Stage')
-                item.unstage_button.setText(f'Unstage')
+                item.stage_button.setText('Stage')
+                item.unstage_button.setText('Unstage')
 
             pal = item.palette()
             pal.setColor(item.backgroundRole(), Qt.GlobalColor.lightGray)

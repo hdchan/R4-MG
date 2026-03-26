@@ -1,4 +1,4 @@
-from copy import deepcopy
+
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -34,7 +34,7 @@ class DataSourceRecentSearch:
 
     @property
     def _search_list_history(self) -> List[Tuple[SearchConfiguration, datetime]]:
-        return deepcopy(self._search_history)
+        return self._search_history
 
     def get_search_configuration_from_history(self, index: int) -> Optional[Tuple[SearchConfiguration, datetime]]:
         if index < len(self._search_list_history):

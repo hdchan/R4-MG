@@ -1,7 +1,7 @@
-from typing import Optional
+from typing import List, Optional
 
 import jsonpickle  # type: ignore
-from PySide6.QtCore import QObject
+from PySide6.QtCore import QByteArray, QObject
 from PySide6.QtNetwork import QHostAddress
 from PySide6.QtWebSockets import QWebSocket, QWebSocketServer
 
@@ -30,6 +30,9 @@ class WebSocketHostDelegate:
     def host_received_message(self, message: str) -> None:
         return
 
+    def host_received_binary_message(self, message: QByteArray) -> None:
+        return
+
     def host_received_client_connection(self, client_object: WebSocketClientObjectProtocol) -> None:
         return
 
@@ -42,10 +45,15 @@ class WebSocketHost(QObject):
         self.server.newConnection.connect(self.on_new_connection)
         self.delegate: Optional[WebSocketHostDelegate] = None
 
-        self.clients = []
+        self.clients: List[QWebSocket] = []
+
+    @property
+    def has_clients(self) -> bool:
+        return len(self.clients) > 0
 
     def start_server(self, port: int = 80):
         is_started = self.server.listen(QHostAddress.SpecialAddress.Any, port)
+        print("Server listening for new clients.")
         if self.delegate is not None:
             self.delegate.host_started(is_started)
 
@@ -58,7 +66,6 @@ class WebSocketHost(QObject):
         # We create a copy of the list [:] because closing triggers a
         # signal that might modify the list while we loop.
         for client in self.clients[:]:
-            # client.sendTextMessage("Server shutting down...")
             client.close()
 
         # 3. Clear your local list of clients
@@ -71,6 +78,7 @@ class WebSocketHost(QObject):
         # Get the socket for the new client
         client_socket = self.server.nextPendingConnection()
         client_socket.textMessageReceived.connect(self.process_message)
+        client_socket.binaryMessageReceived.connect(self.process_binary_message)
         client_socket.disconnected.connect(self.on_disconnected)
 
         self.clients.append(client_socket)
@@ -78,7 +86,11 @@ class WebSocketHost(QObject):
             self.delegate.host_received_client_connection(
                 WebSocketClientObject(client_socket))
 
-    def process_message(self, message):
+    def process_binary_message(self, message: QByteArray):
+        if self.delegate is not None:
+            self.delegate.host_received_binary_message(message)
+
+    def process_message(self, message: str):
         if self.delegate is not None:
             self.delegate.host_received_message(message)
 
@@ -91,3 +103,7 @@ class WebSocketHost(QObject):
     def send_message(self, message: str):
         for client in self.clients:
             client.sendTextMessage(message)
+
+    def send_binary_message(self, message: QByteArray):
+        for client in self.clients:
+            client.sendBinaryMessage(message)

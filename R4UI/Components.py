@@ -419,6 +419,11 @@ class RTabWidget(RWidget):
         self._widgets: Sequence[QWidget] = []
         self.add_tabs(tabs)
     
+    def update_tab_visibility(self, callback: Callable[[int], bool]):
+        for i, w in enumerate(self._widgets):
+            result = callback(i)
+            self._tab_widget.setTabVisible(i, result)
+
     def set_current_index(self, index: int):
         if index < len(self._widgets):
             self._tab_widget.setCurrentIndex(index)

@@ -11,14 +11,11 @@ from AppCore.Observation import (
     TransmissionReceiverProtocol,
 )
 from AppCore.Service.WebSocket.Messages import (
-    WebSocketMessagePayloadOnLoadWithHost,
-    WebSocketMessagePayloadSyncWithHost,
     WebSocketMessagePayloadObservationTowerTransmission
 )
 from AppCore.Service.WebSocket.WebSocketServiceProtocol import (
     WebSocketClientObjectProtocol,
     WebSocketHostObjectProtocol,
-    WebSocketMessageProtocol,
     WebSocketMessageReceiverProtocol,
     WebSocketServiceProtocol,
 )
@@ -33,21 +30,18 @@ from ..Events import (
 from .DataSourceImageResourceDeployerWebSocketMessage import (
     DataSourceImageResourceDeployerWebSocketMessage,
 )
-from .DataSourceImageResourceDeployerWebSocketMessagePayloadAction import (
-    DataSourceImageResourceDeployerWebSocketMessagePayloadAction
-)
 
 
 class DataSourceImageResourceDeployerWebSocketHost(DataSourceImageResourceDeployerProtocol,
                                                    WebSocketHostObjectProtocol,
                                                    WebSocketMessageReceiverProtocol,
                                                    TransmissionReceiverProtocol):
+
     def __init__(self,
                  observation_tower: ObservationTower,
                  websocket_service: WebSocketServiceProtocol,
                  image_resource_processor_provider: ImageResourceProcessorProviding,
                  data_source_image_resource_deployer: DataSourceImageResourceDeployerProtocol):
-        self._observation_tower = observation_tower
         self._websocket_service = websocket_service
         self._data_source_image_resource_deployer = data_source_image_resource_deployer
         self._image_resource_processor_provider = image_resource_processor_provider
@@ -55,7 +49,7 @@ class DataSourceImageResourceDeployerWebSocketHost(DataSourceImageResourceDeploy
         self._websocket_service.register_as_host(self)
         self._websocket_service.register_for_messages(
             self, DataSourceImageResourceDeployerWebSocketMessage)
-        self._observation_tower.subscribe_multi(
+        observation_tower.subscribe_multi(
             self, [DataSourceImageResourceDeployerStateUpdatedEvent, ProductionCardResourcesLoadEvent])
 
     @property
@@ -72,15 +66,16 @@ class DataSourceImageResourceDeployerWebSocketHost(DataSourceImageResourceDeploy
     def can_publish_staged_resources(self) -> bool:
         return self._data_source_image_resource_deployer.can_publish_staged_resources
 
+    def deployment_resource_for_file_name(self, file_name: str) -> Optional[DeploymentCardResource]:
+        return self._data_source_image_resource_deployer.deployment_resource_for_file_name(file_name)
+
+    def load_production_resources(self):
+        self._data_source_image_resource_deployer.load_production_resources()
+
     def latest_deployment_resource(self, deployment_resource: DeploymentCardResource) -> Optional[DeploymentCardResource]:
         return self._data_source_image_resource_deployer.latest_deployment_resource(deployment_resource)
 
     def stage_resource(self, deployment_resource: DeploymentCardResource, selected_resource: LocalCardResource):
-        if not selected_resource.is_ready:
-            # IF we're a websocket host, override resource download to be sync, otherwise async
-            # TODO: can we do this without forcing sync?
-            self._image_resource_processor.async_store_local_resource(
-                selected_resource)
         self._data_source_image_resource_deployer.stage_resource(
             deployment_resource, selected_resource)
 
@@ -90,6 +85,16 @@ class DataSourceImageResourceDeployerWebSocketHost(DataSourceImageResourceDeploy
 
     def publish_staged_resources(self):
         self._data_source_image_resource_deployer.publish_staged_resources()
+
+    def generate_new_file(self, file_name: str, placeholder_image_path: Optional[str]):
+        self._data_source_image_resource_deployer.generate_new_file(file_name, placeholder_image_path)
+
+    @property
+    def is_publishing(self) -> bool:
+        return self._data_source_image_resource_deployer.is_publishing
+
+    def attach_preview_binary_to_prod_resources(self) -> None:
+        raise Exception("Not allowed")
 
     # MARK: - WebSocketHostObjectProtocol
     def wsh_handle_new_connection(self, client_object: WebSocketClientObjectProtocol) -> None:
@@ -105,14 +110,6 @@ class DataSourceImageResourceDeployerWebSocketHost(DataSourceImageResourceDeploy
                 data_source=self._data_source_image_resource_deployer,
                 payload=WebSocketMessagePayloadObservationTowerTransmission(e))
             client_object.wbc_send_message(message)
-
-    # MARK: - WebSocketMessageReceiverProtocol
-    def wsmr_handle_websocket_message(self, message: WebSocketMessageProtocol) -> None:
-        if type(message) is DataSourceImageResourceDeployerWebSocketMessage:
-            payload = message.payload
-            if type(payload) is DataSourceImageResourceDeployerWebSocketMessagePayloadAction:
-                payload.partial_action(
-                    self)
 
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
         # pass all datasource events to client

@@ -1,16 +1,12 @@
 from functools import partial
 from typing import List, Optional
 
-from AppCore.DataSource.ImageResourceDeployer.Events import (
-    DataSourceImageResourceDeployerStateUpdatedEvent,
-    ProductionCardResourcesLoadEvent,
-)
 from AppCore.ImageResourceProcessor.ImageResourceProcessorProtocol import (
     ImageResourceProcessorProviding,
 )
 from AppCore.Models import DeploymentCardResource, LocalCardResource
 from AppCore.Observation import ObservationTower
-from AppCore.Service.WebSocket.Messages import WebSocketMessagePayloadOnLoadWithHost, WebSocketMessagePayloadObservationTowerTransmission
+from AppCore.Service.WebSocket.Messages import WebSocketMessagePayloadClientAction, WebSocketMessagePayloadObservationTowerTransmission
 from AppCore.Service.WebSocket.WebSocketMessageProtocol import WebSocketMessageProtocol
 from AppCore.Service.WebSocket.WebSocketServiceProtocol import (
     WebSocketMessageReceiverProtocol,
@@ -23,15 +19,11 @@ from ..DataSourceImageResourceDeployerProtocol import (
 from .DataSourceImageResourceDeployerWebSocketMessage import (
     DataSourceImageResourceDeployerWebSocketMessage,
 )
-from .DataSourceImageResourceDeployerWebSocketMessagePayloadAction import (
-    DataSourceImageResourceDeployerWebSocketMessagePayloadAction,
-    stage_resource_action,
-    unstage_resource_action,
-    publish_staged_resources_action
-)
+from .DataSourceImageResourceDeployerWebSocketMessagePartials import DataSourceImageResourceDeployerWebSocketMessagePartials
 
 
-class DataSourceImageResourceDeployerWebSocketClient(DataSourceImageResourceDeployerProtocol, WebSocketMessageReceiverProtocol):
+class DataSourceImageResourceDeployerWebSocketClient(DataSourceImageResourceDeployerProtocol,
+                                                     WebSocketMessageReceiverProtocol):
     def __init__(self,
                  websocket_service: WebSocketServiceProtocol,
                  observation_tower: ObservationTower,
@@ -41,12 +33,14 @@ class DataSourceImageResourceDeployerWebSocketClient(DataSourceImageResourceDepl
         self._image_resource_processor_provider = image_resource_processor_provider
         self._latest_ds: Optional[DataSourceImageResourceDeployerProtocol] = None
 
-        # self._websocket_service.register_as_client(self)
         self._websocket_service.register_for_messages(
             self, DataSourceImageResourceDeployerWebSocketMessage)
 
-    # MARK: - DataSourceImageResourceDeployerProtocol
+    @property
+    def observation_tower(self) -> ObservationTower:
+        return self._observation_tower
 
+    # MARK: - DataSourceImageResourceDeployerProtocol
     @property
     def deployment_resources(self) -> List[DeploymentCardResource]:
         if self._latest_ds is None:
@@ -67,40 +61,53 @@ class DataSourceImageResourceDeployerWebSocketClient(DataSourceImageResourceDepl
             return False
         return self._latest_ds.can_publish_staged_resources
 
+    def deployment_resource_for_file_name(self, file_name: str) -> Optional[DeploymentCardResource]:
+        if self._latest_ds is None:
+            return None
+        return self._latest_ds.deployment_resource_for_file_name(file_name)
+
+    def load_production_resources(self):
+        raise Exception("Not allowed")
+
     def latest_deployment_resource(self, deployment_resource: DeploymentCardResource) -> Optional[DeploymentCardResource]:
         if self._latest_ds is None:
             return None
         return self._latest_ds.latest_deployment_resource(deployment_resource)
 
     def stage_resource(self, deployment_resource: DeploymentCardResource, selected_resource: LocalCardResource):
-        partial_action = partial(stage_resource_action, deployment_resource, selected_resource)
+        partial_action = partial(
+            DataSourceImageResourceDeployerWebSocketMessagePartials.stage_resource, deployment_resource, selected_resource)
         self._send_host_action(partial_action)
 
     def unstage_resource(self, deployment_resource: DeploymentCardResource):
-        partial_action = partial(unstage_resource_action, deployment_resource)
+        partial_action = partial(
+            DataSourceImageResourceDeployerWebSocketMessagePartials.unstage_resource, deployment_resource)
         self._send_host_action(partial_action)
 
     def publish_staged_resources(self):
-        partial_action = partial(publish_staged_resources_action)
+        partial_action = partial(
+            DataSourceImageResourceDeployerWebSocketMessagePartials.publish_staged_resources)
         self._send_host_action(partial_action)
 
+    def generate_new_file(self, file_name: str, placeholder_image_path: Optional[str]):
+        raise Exception("Not allowed")
+
+    @property
+    def is_publishing(self) -> bool:
+        if self._latest_ds is None:
+            return False
+        return self._latest_ds.is_publishing
+
+    def attach_preview_binary_to_prod_resources(self) -> None:
+        raise Exception("Not allowed")
+
     def _send_host_action(self, partial_action):
-        payload = DataSourceImageResourceDeployerWebSocketMessagePayloadAction(
+        payload = WebSocketMessagePayloadClientAction(
             partial_action=partial_action)
         message = DataSourceImageResourceDeployerWebSocketMessage(
             self, payload)
         self._websocket_service.send_websocket_message(message)
 
     # MARK: - WebSocketMessageReceiverProtocol
-    def wsmr_handle_websocket_message(self, message: WebSocketMessageProtocol) -> None:
-        if type(message) is DataSourceImageResourceDeployerWebSocketMessage:
-            self._latest_ds = message.data_source
-            payload = message.payload
-            # if type(payload) is WebSocketMessagePayloadOnLoadWithHost:
-            #     self._observation_tower.notify(ProductionCardResourcesLoadEvent(
-            #         event_type=ProductionCardResourcesLoadEvent.EventType.FINISHED))
-            if type(payload) is WebSocketMessagePayloadObservationTowerTransmission:
-                self._observation_tower.notify(payload.event)
-            # else:
-            #     self._observation_tower.notify(
-            #         DataSourceImageResourceDeployerStateUpdatedEvent())
+    def wsmr_will_handle_websocket_message(self, message: WebSocketMessageProtocol) -> None:
+        self._latest_ds = message.data_source

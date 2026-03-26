@@ -1,20 +1,17 @@
-from R4UI import (
-    RWidget,
-    HorizontalBoxLayout,
-    PushButton,
-    RHorizontalExpandingSpacerWidget,
-    LineEditText,
-    Label,
-)
-from PySide6.QtGui import QClipboard, QGuiApplication
-from PySide6.QtWidgets import QSizePolicy
-from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
-
-from AppCore.Observation.Events import WebSocketStatusUpdatedEvent
-from AppCore.Observation import TransmissionProtocol, TransmissionReceiverProtocol
 from typing import Optional
-from PySide6.QtGui import QPalette, QColor
-from AppCore.Service.WebSocket.WebSocketServiceProtocol import WebSocketServiceProtocol, WebSocketServiceStatus
+
+from PySide6.QtGui import QClipboard, QColor, QGuiApplication, QPalette
+from PySide6.QtWidgets import QSizePolicy
+
+from AppCore.Observation import (TransmissionProtocol,
+                                 TransmissionReceiverProtocol)
+from AppCore.Service.WebSocket.Events import WebSocketStatusUpdatedEvent
+from AppCore.Service.WebSocket.WebSocketServiceProtocol import (
+    WebSocketServiceProtocol, WebSocketServiceStatus)
+from AppUI.AppDependenciesInternalProviding import \
+    AppDependenciesInternalProviding
+from R4UI import (HorizontalBoxLayout, Label, LineEditText, PushButton,
+                  RHorizontalExpandingSpacerWidget, RWidget)
 
 
 class WebSocketConfigurationV2ViewController(RWidget, TransmissionReceiverProtocol):
@@ -72,11 +69,10 @@ class WebSocketConfigurationV2ViewController(RWidget, TransmissionReceiverProtoc
 
             # 2. Get the current palette and change the 'Window' role
             palette = self.palette()
-            palette.setColor(QPalette.Window, QColor("green"))
+            palette.setColor(QPalette.ColorRole.Window, QColor("green"))
 
             # 3. Apply the modified palette back to the widget
             self.setPalette(palette)
-            
 
     @property
     def _websocket_service(self) -> WebSocketServiceProtocol:
@@ -95,8 +91,10 @@ class WebSocketConfigurationV2ViewController(RWidget, TransmissionReceiverProtoc
     def _copy_ip(self):
         cb = QGuiApplication.clipboard()
         cb.clear(mode=QClipboard.Mode.Clipboard)
-        cb.setText(self._websocket_service.ip_address,
-                   mode=QClipboard.Mode.Clipboard)
+        text = self._websocket_service.ip_address
+        if text:
+            cb.setText(text,
+                       mode=QClipboard.Mode.Clipboard)
 
     def _disconnect(self):
         self._websocket_service.disconnect()

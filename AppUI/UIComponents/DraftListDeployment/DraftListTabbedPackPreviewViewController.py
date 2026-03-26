@@ -13,9 +13,10 @@ from AppCore.ImageResourceProcessor.Events import LocalCardResourceFetchEvent
 from AppCore.Models import LocalResourceDataSourceProviding
 from AppCore.Observation.Events import (
     ConfigurationUpdatedEvent,
-    DraftPackUpdatedEvent,
+    
     LocalCardResourceSelectedFromDataSourceEvent,
 )
+from AppCore.DataSource.DraftList.Events import DraftPackUpdatedEvent
 from AppCore.Observation.ObservationTower import (
     TransmissionProtocol,
     TransmissionReceiverProtocol,
@@ -38,6 +39,8 @@ from .DraftListTablePackPreviewViewController import (
     DraftListTablePackPreviewViewControllerDelegate,
 )
 
+from AppCore.Service.WebSocket.WebSocketServiceProtocol import WebSocketServiceStatus
+
 
 class DraftListTabbedPackPreviewViewControllerDraftListTablePackPreviewViewControllerDelegate(DraftListTablePackPreviewViewControllerDelegate):
     def __init__(self, pack_identifier: str):
@@ -59,7 +62,7 @@ class DraftListTabbedPackPreviewViewController(RWidget, TransmissionReceiverProt
         super().__init__()
         self._app_dependencies_provider = app_dependencies_provider
         self._data_source_local_resource_provider = data_source_local_resource_provider
-        # self._data_source_image_resource_deployer = app_dependencies_provider.data_source_image_resource_deployer
+        self._websocket_service = app_dependencies_provider.websocket_service
         self._data_source_draft_list_provider = app_dependencies_provider.data_source_draft_list_provider
         self._configuration_manager = app_dependencies_provider.configuration_manager
         self._router = app_dependencies_provider.router
@@ -102,13 +105,15 @@ class DraftListTabbedPackPreviewViewController(RWidget, TransmissionReceiverProt
         self._deployment_destination_selection = RComboBox()
         self._reset_deployment_destination_selection()
 
+        self._deployment_destination_configuration = HorizontalBoxLayout([
+                RBoldLabel("Deployment Destination"),
+                self._deployment_destination_selection,
+            ])
+
         VerticalBoxLayout([
             self._tab_widget,
             self._add_card_button,
-            HorizontalBoxLayout([
-                RBoldLabel("Deployment Destination"),
-                self._deployment_destination_selection,
-            ]),
+            self._deployment_destination_configuration,
 
         ]).set_layout_to_widget(self)
 
@@ -128,8 +133,10 @@ class DraftListTabbedPackPreviewViewController(RWidget, TransmissionReceiverProt
         self._deployment_destination_selection.addItems(
             ["None"] + [stuff.production_resource.file_name_with_ext for stuff in self._data_source_image_resource_deployer.deployment_resources])
         destination_string = self._configuration.draft_list_add_card_deployment_destination
-        self._deployment_destination_selection.setCurrentText(
-            destination_string)
+        if destination_string:
+            self._deployment_destination_selection.setCurrentText(destination_string)
+        else:
+            self._deployment_destination_selection.setCurrentText("")
         self._deployment_destination_selection.currentIndexChanged.connect(
             self._deployment_destination_selection_changed)
 
@@ -185,9 +192,9 @@ class DraftListTabbedPackPreviewViewController(RWidget, TransmissionReceiverProt
                 RActionMenuItem(
                     "Rename", lambda: self._prompt_rename_draft_list_pack(tab_index)),
                 RActionMenuItem(
-                    "Move left", lambda: self._data_source_draft_list.move_pack_left(tab_index)),
+                    "Move left", lambda: self._data_source_draft_list.swap_pack_positions(tab_index, tab_index - 1)),
                 RActionMenuItem(
-                    "Move right", lambda: self._data_source_draft_list.move_pack_right(tab_index)),
+                    "Move right", lambda: self._data_source_draft_list.swap_pack_positions(tab_index, tab_index + 1)),
                 RActionMenuItem(
                     f"Delete - {self._data_source_draft_list.pack_name(tab_index)}", lambda: self._delete_pack(tab_index)),
             ]) \
@@ -233,7 +240,12 @@ class DraftListTabbedPackPreviewViewController(RWidget, TransmissionReceiverProt
         add_card_mode = self._configuration.draft_list_add_card_mode
         destination_string = self._configuration.draft_list_add_card_deployment_destination
         # TODO: move to view model?
-        if add_card_mode == Configuration.Settings.DraftListAddCardMode.OFF or destination_string is None:
+        # TODO: refactor so this info is coming from the data source
+        if self._websocket_service.state == WebSocketServiceStatus.IS_CLIENT:
+            self._add_card_button.setText("Add Card to Host")
+            self._add_card_button.setEnabled(True)
+
+        elif add_card_mode == Configuration.Settings.DraftListAddCardMode.OFF or destination_string is None:
             self._add_card_button.setText("Add Card (Ctrl+D)")
             self._add_card_button.setEnabled(True)
         elif add_card_mode == Configuration.Settings.DraftListAddCardMode.STAGE:
@@ -249,8 +261,9 @@ class DraftListTabbedPackPreviewViewController(RWidget, TransmissionReceiverProt
         self._sync_draft_list()
         self._sync_button()
 
-    # MARK: - TransmissionReceiverProtocol
+        self._deployment_destination_configuration.setVisible(self._websocket_service.state != WebSocketServiceStatus.IS_CLIENT)
 
+    # MARK: - TransmissionReceiverProtocol
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
         if type(event) is LocalCardResourceFetchEvent or type(event) is LocalCardResourceSelectedFromDataSourceEvent:
             if event.local_resource == self._data_source_local_resource_provider.data_source.selected_local_resource:

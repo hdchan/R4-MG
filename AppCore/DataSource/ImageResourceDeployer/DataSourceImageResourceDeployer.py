@@ -29,7 +29,7 @@ from .Events import (
     ProductionCardResourcesLoadEvent
 )
 from .DataSourceRecentPublished import DataSourceRecentPublished
-
+import io
 PNG_EXTENSION = 'png'
 
 
@@ -70,7 +70,7 @@ class DataSourceImageResourceDeployer(DataSourceImageResourceDeployerProtocol, T
 
     @property
     def deployment_resources(self) -> List[DeploymentCardResource]:
-        return deepcopy(self._deployment_resources)
+        return self._deployment_resources
 
     def deployment_resource_for_file_name(self, file_name: str) -> Optional[DeploymentCardResource]:
         results = list(filter(lambda x: x.production_resource.file_name_with_ext ==
@@ -90,17 +90,26 @@ class DataSourceImageResourceDeployer(DataSourceImageResourceDeployerProtocol, T
     def attach_preview_binary_to_prod_resources(self) -> None:
         for r in self._deployment_resources:
             staging_resource = r.staged_resource
-            if staging_resource and staging_resource.is_preview_ready and staging_resource.is_ready:
-                with open(staging_resource.image_preview_path, 'rb') as f:
-                    img_data = f.read()
-                    staging_resource.set_image_preview_binary(img_data)
+            if staging_resource:
+                if staging_resource.is_preview_ready and staging_resource.is_ready:
+                    with Image.open(staging_resource.image_preview_path) as img:
+                        buffer = io.BytesIO()
+                        img.save(buffer, format="WEBP", quality=80)
+                        webp_data = buffer.getvalue()
+                        staging_resource.set_image_preview_binary(webp_data)
+                else:
+                    staging_resource.set_image_preview_binary(None)
 
             prod_resource = r.production_resource
             # should have previews at this point...
             if prod_resource.is_preview_ready:
-                with open(prod_resource.image_preview_path, 'rb') as f:
-                    img_data = f.read()
-                    prod_resource.set_image_preview_binary(img_data)
+                with Image.open(prod_resource.image_preview_path) as img:
+                    buffer = io.BytesIO()
+                    img.save(buffer, format="WEBP", quality=80)
+                    webp_data = buffer.getvalue()
+                    prod_resource.set_image_preview_binary(webp_data)
+            else:
+                prod_resource.set_image_preview_binary(None)
 
     def load_production_resources(self):
         """
@@ -160,7 +169,7 @@ class DataSourceImageResourceDeployer(DataSourceImageResourceDeployerProtocol, T
     def latest_deployment_resource(self, deployment_resource: DeploymentCardResource) -> Optional[DeploymentCardResource]:
         for r in self._deployment_resources:
             if r.production_resource == deployment_resource.production_resource:
-                return deepcopy(r)
+                return r
         return None
 
     def stage_resource(self, deployment_resource: DeploymentCardResource, selected_resource: LocalCardResource):

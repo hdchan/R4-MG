@@ -162,7 +162,7 @@ class SearchTableComboViewController(QWidget):
         top_button_layout.addWidget(flip_button)
 
         search_history_selection = ComboBox()
-        search_history_selection.setFixedWidth(50)
+        search_history_selection.setFixedWidth(75)
         search_history_selection.setPlaceholderText("🕙")
         search_history_selection.setMaxVisibleItems(25)
         search_history_selection.currentIndexChanged.connect(self._search_history_index_changed)

@@ -10,7 +10,7 @@
         "-p",
         "*_test.py"
     ],
-    "python.testing.pytestEnabled": true,
+    "python.testing.pytestEnabled": false,
     "python.testing.unittestEnabled": false,
     "python.testing.pytestArgs": [
         "Tests"
@@ -18,9 +18,9 @@
     "cSpell.words": [
         "Pixmap"
     ],
-    "python.testing.autoTestDiscoverOnSaveEnabled": true,
+    "python.testing.autoTestDiscoverOnSaveEnabled": false,
     "mypy-type-checker.reportingScope": "file",
-    "mypy-type-checker.preferDaemon": false,
+    "mypy-type-checker.preferDaemon": true,
     "mypy-type-checker.args": [
         "--check-untyped-defs"
     ]

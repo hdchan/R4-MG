@@ -23,7 +23,7 @@ class SWUTradingCard(TradingCard):
                  back_art_url: Optional[str], 
                  variants: List[str]):
         
-        merged_metadata: Dict[str, Any] = copy.deepcopy(metadata)
+        merged_metadata: Dict[str, Any] = metadata
         merged_metadata['aspects'] = list(map(lambda x: x.lower(), aspects))
         merged_metadata['subtitle'] = subtitle
         merged_metadata['front_art_url'] = front_art_url

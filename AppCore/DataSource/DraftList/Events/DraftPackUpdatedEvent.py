@@ -1,4 +1,4 @@
-from ..TransmissionProtocol import TransmissionProtocol
+from AppCore.Observation.TransmissionProtocol import TransmissionProtocol
 
 # TODO: futher break down events?
 class DraftPackUpdatedEvent(TransmissionProtocol):

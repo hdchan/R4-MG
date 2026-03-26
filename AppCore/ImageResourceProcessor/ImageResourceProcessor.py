@@ -1,10 +1,9 @@
 import os
-from multiprocessing import Process
 from pathlib import Path
-from typing import Callable, Generic, List, Optional, Set, Tuple, TypeVar
+from typing import Callable, List, Optional, Set, Tuple, TypeVar
 
 from PIL import Image, ImageDraw, ImageFile
-from PySide6.QtCore import QMutex, QObject, QRunnable, QThreadPool, Signal
+from PySide6.QtCore import QMutex, QRunnable, QThreadPool
 
 from AppCore.ImageFetcher.ImageFetcherProvider import (
     ImageFetcherProtocol,
@@ -12,8 +11,9 @@ from AppCore.ImageFetcher.ImageFetcherProvider import (
 )
 from AppCore.Models import LocalCardResource
 from AppCore.Observation import ObservationTower
-from .Events.LocalCardResourceFetchEvent import LocalCardResourceFetchEvent
+from AppCore.Service.GeneralWorker import GeneralWorker, WorkerSignals
 
+from .Events.LocalCardResourceFetchEvent import LocalCardResourceFetchEvent
 from .ImageResourceProcessorProtocol import (
     ImageResourceProcessorProtocol,
     ImageResourceProcessorProviding,
@@ -33,6 +33,7 @@ T = TypeVar("T")
 # prevents error being throw when retrieving image from importer
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
+
 def _down_scale_image(original_img: Image.Image, max_size: float) -> Image.Image:
     # TODO: recover from truncated image
     preview_img = original_img.copy().convert('RGBA')
@@ -40,8 +41,10 @@ def _down_scale_image(original_img: Image.Image, max_size: float) -> Image.Image
     downscaled_size = max_size
     if downscaled_size < THUMBNAIL_SIZE:
         downscaled_size = THUMBNAIL_SIZE
-    preview_img.thumbnail((downscaled_size, downscaled_size), Image.Resampling.BICUBIC)
+    preview_img.thumbnail(
+        (downscaled_size, downscaled_size), Image.Resampling.BICUBIC)
     return preview_img
+
 
 def _add_corners(im: Image.Image, rad: int) -> Image.Image:
     circle = Image.new('L', (rad * 2, rad * 2), 0)
@@ -57,10 +60,13 @@ def _add_corners(im: Image.Image, rad: int) -> Image.Image:
     return im
 
 # This is placed outside the scope of a class because multiprocessing requires a function to be pickle-able, which is difficult to do for image resource processor
+
+
 def _process(resource: LocalCardResource, image_fetcher: ImageFetcherProtocol):
     Path(resource.image_dir).mkdir(parents=True, exist_ok=True)
     Path(resource.image_preview_dir).mkdir(parents=True, exist_ok=True)
-    open(resource.image_temp_path, 'a').close() # generate 0kb file before notification
+    # generate 0kb file before notification
+    open(resource.image_temp_path, 'a').close()
     if not resource.is_ready:
         img = image_fetcher.fetch(resource)
         img_height = min(img.height, img.width)
@@ -75,8 +81,9 @@ def _process(resource: LocalCardResource, image_fetcher: ImageFetcherProtocol):
             preview_img.save(resource.image_preview_path)
     if os.path.exists(resource.image_temp_path):
         # prevent call to deletion from two successive calls
-        Path(resource.image_temp_path).unlink() # unlink before notification
-        
+        Path(resource.image_temp_path).unlink()  # unlink before notification
+
+
 class ImageResourceProcessor(ImageResourceProcessorProtocol, ImageResourceProcessorProviding):
     def __init__(self,
                  image_fetcher_provider: ImageFetcherProviding,
@@ -95,7 +102,9 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol, ImageResourceProces
     def async_store_local_resources_multi(self, local_resources: List[LocalCardResource], completed: Callable[[], None]) -> None:
         # TODO: handle failure
         # TODO: should it be not (is_ready, etc..)?
-        filtered_resources = list(filter(lambda x: not x.is_ready or x.is_preview_ready, local_resources)) # only process the ones that we need to
+        # only process the ones that we need to
+        filtered_resources = list(
+            filter(lambda x: not x.is_ready or x.is_preview_ready, local_resources))
         self.mutex.lock()
         for resource in filtered_resources:
             self.working_resources.add(resource.image_path)
@@ -126,31 +135,33 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol, ImageResourceProces
         # TODO: implement stale cache
         if retry and local_resource.remote_image_url is not None:
             # We should maybe guard against retry if no internet connection?
-            assert(local_resource.remote_image_url is not None) # prevent deletion of resources that don't have any remote URL
+            # prevent deletion of resources that don't have any remote URL
+            assert (local_resource.remote_image_url is not None)
             if os.path.exists(local_resource.image_path):
                 Path(local_resource.image_path).unlink()
             if os.path.exists(local_resource.image_preview_path):
                 Path(local_resource.image_preview_path).unlink()
-        
+
         if local_resource.is_ready or local_resource.is_local_only:
             # regenerate preview image if needed
             if not local_resource.is_preview_ready and local_resource.is_ready:
                 self.regenerate_resource_preview(local_resource)
             return
-        
-        assert(not local_resource.is_ready)
-        assert(not local_resource.is_local_only)
-        
+
+        assert (not local_resource.is_ready)
+        assert (not local_resource.is_local_only)
+
         Path(local_resource.image_dir).mkdir(parents=True, exist_ok=True)
-        Path(local_resource.image_preview_dir).mkdir(parents=True, exist_ok=True)
+        Path(local_resource.image_preview_dir).mkdir(
+            parents=True, exist_ok=True)
         # create temp file for loading state
         # prevent multiple jobs from running on the same resource
         worker = StoreImageWorker(local_resource,
-                                      self.image_fetcher_provider,
-                                      self._generate_preview_image,
-                                      self._add_corners)
-        
-        if not is_async: # TODO: remove force sync
+                                  self.image_fetcher_provider,
+                                  self._generate_preview_image,
+                                  self._add_corners)
+
+        if not is_async:  # TODO: remove force sync
             self._lock_resource_and_notify(local_resource)
             worker.run()
             self._unlock_resource_and_notify((local_resource, None))
@@ -179,14 +190,15 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol, ImageResourceProces
             worker.signals.cleanup.connect(_cleanup)
             self.workers.add(worker)
             self.pool.start(worker)
-    
+
     def regenerate_resource_preview(self, local_resource: LocalCardResource):
         if self._lock_resource_and_notify(local_resource):
             def _cleanup(identifier: QRunnable):
                 self.workers.remove(identifier)
 
             # should lock UI incase another job is added
-            worker = RegenerateImageWorker(local_resource, self._generate_preview_image)
+            worker = RegenerateImageWorker(
+                local_resource, self._generate_preview_image)
             worker.signals.finished.connect(self._unlock_resource_and_notify)
             worker.signals.cleanup.connect(_cleanup)
             self.workers.add(worker)
@@ -198,84 +210,70 @@ class ImageResourceProcessor(ImageResourceProcessorProtocol, ImageResourceProces
         self.mutex.lock()
         self.working_resources.add(local_resource.image_path)
         self.mutex.unlock()
-        Path(local_resource.image_preview_dir).mkdir(parents=True, exist_ok=True) # ensure directory exists
-        open(local_resource.image_temp_path, 'a').close() # generate 0kb file before notification
-        self.observation_tower.notify(LocalCardResourceFetchEvent(LocalCardResourceFetchEvent.EventType.STARTED, local_resource))
+        Path(local_resource.image_preview_dir).mkdir(
+            parents=True, exist_ok=True)  # ensure directory exists
+        # generate 0kb file before notification
+        open(local_resource.image_temp_path, 'a').close()
+        self.observation_tower.notify(LocalCardResourceFetchEvent(
+            LocalCardResourceFetchEvent.EventType.STARTED, local_resource))
         return True
-        
+
     def _unlock_resource_and_notify(self, result: Tuple[LocalCardResource, Optional[Exception]]):
         local_resource, exception = result
         if os.path.exists(local_resource.image_temp_path):
             # prevent call to deletion from two successive calls
-            Path(local_resource.image_temp_path).unlink() # unlink before notification
+            # unlink before notification
+            Path(local_resource.image_temp_path).unlink()
         if local_resource.image_path in self.working_resources:
             self.mutex.lock()
             self.working_resources.remove(local_resource.image_path)
             self.mutex.unlock()
         if exception is not None:
-            self.observation_tower.notify(LocalCardResourceFetchEvent(LocalCardResourceFetchEvent.EventType.FAILED, local_resource))
+            self.observation_tower.notify(LocalCardResourceFetchEvent(
+                LocalCardResourceFetchEvent.EventType.FAILED, local_resource))
         else:
-            self.observation_tower.notify(LocalCardResourceFetchEvent(LocalCardResourceFetchEvent.EventType.FINISHED, local_resource))
+            self.observation_tower.notify(LocalCardResourceFetchEvent(
+                LocalCardResourceFetchEvent.EventType.FINISHED, local_resource))
 
     def _generate_preview_image(self, original_img: Image.Image) -> Image.Image:
         return self.down_scale_image(original_img, THUMBNAIL_SIZE)
-    
+
     def down_scale_image(self, original_img: Image.Image, max_size: float) -> Image.Image:
         return _down_scale_image(original_img, max_size)
-    
-    def generate_placeholder(self, local_resource: LocalCardResource, placeholder_image_path: Optional[str]): 
+
+    def generate_placeholder(self, local_resource: LocalCardResource, placeholder_image_path: Optional[str]):
         existing_file = Path(local_resource.image_path)
         if existing_file.is_file():
-            raise Exception(f"File already exists: {local_resource.file_name_with_ext}")
-        
+            raise Exception(
+                f"File already exists: {local_resource.file_name_with_ext}")
+
         Path(local_resource.image_dir).mkdir(parents=True, exist_ok=True)
-        
+
         img = Image.new("RGB", (1, 1))
         if placeholder_image_path is not None:
             try:
                 with Image.open(placeholder_image_path) as opened_img:
-                # .load() pulls the data into RAM so the file can be closed
-                    opened_img.load() 
-                    img = opened_img.copy() 
+                    # .load() pulls the data into RAM so the file can be closed
+                    opened_img.load()
+                    img = opened_img.copy()
             except Exception as e:
                 pass
         img.save(local_resource.image_path, "PNG")
-        
-        Path(local_resource.image_preview_dir).mkdir(parents=True, exist_ok=True)
+
+        Path(local_resource.image_preview_dir).mkdir(
+            parents=True, exist_ok=True)
         preview_img = self._generate_preview_image(img)
         preview_img.save(local_resource.image_preview_path, "PNG")
-    
+
     def _add_corners(self, im: Image.Image, rad: int) -> Image.Image:
         return _add_corners(im, rad)
 
-# https://www.pythonguis.com/tutorials/multithreading-pyqt-applications-qthreadpool/
-# https://stackoverflow.com/questions/13909195/how-run-two-different-threads-simultaneously-in-pyqt
-class WorkerSignals(QObject):
-    finished = Signal(object)
-    failed = Signal(Exception)
-    cleanup = Signal(object)
-
-
-class GeneralWorker(QRunnable, Generic[T]):
-    def __init__(self, runnable_fn: Callable[[], T]):
-        super().__init__()
-        self._runnable_fn = runnable_fn
-        self.signals = WorkerSignals()
-
-    def run(self):
-        try:
-            result = self._runnable_fn()
-            self.signals.finished.emit(result)
-        except Exception as error:
-            self.signals.failed.emit(error)
-        finally:
-            self.signals.cleanup.emit(self)
 
 class StoreImageWorker(QRunnable):
-    def __init__(self, 
+    def __init__(self,
                  local_resource: LocalCardResource,
-                 image_fetcher_provider: ImageFetcherProviding, 
-                 downscale_fn: ImageDownscaleCallback, 
+                 image_fetcher_provider: ImageFetcherProviding,
+                 downscale_fn: ImageDownscaleCallback,
                  add_corners_fn: ImageAddCornersCallback):
         super(StoreImageWorker, self).__init__()
         self.local_resource = local_resource
@@ -287,9 +285,11 @@ class StoreImageWorker(QRunnable):
     def run(self):
         if self.local_resource.remote_image_url is not None:
             try:
-                img = self.image_fetcher_provider.image_fetcher.fetch(self.local_resource)
+                img = self.image_fetcher_provider.image_fetcher.fetch(
+                    self.local_resource)
                 img_height = min(img.height, img.width)
-                rad = int(img_height * ROUNDED_CORDERS_MULTIPLIER_RELATIVE_TO_HEIGHT)
+                rad = int(
+                    img_height * ROUNDED_CORDERS_MULTIPLIER_RELATIVE_TO_HEIGHT)
                 large_img = self.add_corners_fn(img.convert('RGB'), rad)
                 preview_img = self.downscale_fn(large_img)
                 large_img.save(self.local_resource.image_path)
@@ -300,12 +300,14 @@ class StoreImageWorker(QRunnable):
             finally:
                 self.signals.cleanup.emit(self)
         else:
-            self.signals.finished.emit((self.local_resource, Exception('No image url')))
+            self.signals.finished.emit(
+                (self.local_resource, Exception('No image url')))
             self.signals.cleanup.emit(self)
 
+
 class RegenerateImageWorker(QRunnable):
-    def __init__(self, 
-                 local_resource: LocalCardResource, 
+    def __init__(self,
+                 local_resource: LocalCardResource,
                  downscale_fn: ImageDownscaleCallback):
         super(RegenerateImageWorker, self).__init__()
         self.local_resource = local_resource
@@ -320,11 +322,11 @@ class RegenerateImageWorker(QRunnable):
                 img.load()
                 # Pass the loaded image to your downscale function
                 preview_img = self.downscale_fn(img)
-                
+
             # The file handle for image_path is now officially CLOSED here.
             # You can now safely save, delete, or overwrite the original file.
             preview_img.save(self.local_resource.image_preview_path)
-            
+
             self.signals.finished.emit((self.local_resource, None))
         except Exception as e:
             # It's good practice to emit an error signal if something fails
@@ -332,28 +334,31 @@ class RegenerateImageWorker(QRunnable):
         finally:
             self.signals.cleanup.emit(self)
 
+
 class RotateImageWorker(QRunnable):
-    def __init__(self, 
-                 local_resource: LocalCardResource, 
+    def __init__(self,
+                 local_resource: LocalCardResource,
                  angle: float):
         super(RotateImageWorker, self).__init__()
         self.local_resource = local_resource
         self.angle = angle
         self.signals = WorkerSignals()
-    
+
     def run(self):
         try:
             # Rotate the main image
             with Image.open(self.local_resource.image_path) as img:
                 # Load into RAM and rotate
-                rotated_main = img.rotate(self.angle, resample=Image.Resampling.BICUBIC, expand=True)
-                rotated_main.load() 
+                rotated_main = img.rotate(
+                    self.angle, resample=Image.Resampling.BICUBIC, expand=True)
+                rotated_main.load()
             # File is closed here; safe to overwrite
             rotated_main.save(self.local_resource.image_path)
 
             # Rotate the preview image
             with Image.open(self.local_resource.image_preview_path) as prev_img:
-                rotated_prev = prev_img.rotate(self.angle, resample=Image.Resampling.BICUBIC, expand=True)
+                rotated_prev = prev_img.rotate(
+                    self.angle, resample=Image.Resampling.BICUBIC, expand=True)
                 rotated_prev.load()
             # File is closed here; safe to overwrite
             rotated_prev.save(self.local_resource.image_preview_path)

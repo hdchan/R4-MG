@@ -18,7 +18,7 @@ class ObservationTower:
 
     @property
     def subscribers(self) -> Dict[Type[TransmissionProtocol], List[ReferenceType[TransmissionReceiverProtocol]]]:
-        return copy.deepcopy(self._subscribers)
+        return self._subscribers
 
     def notify(self, event: TransmissionProtocol):
         if event.__class__ not in self._subscribers:

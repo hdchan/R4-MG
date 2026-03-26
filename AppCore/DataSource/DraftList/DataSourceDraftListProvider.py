@@ -1,113 +1,56 @@
+from typing import Optional
+
 from AppCore.Config import ConfigurationManager
-from AppCore.Observation import ObservationTower
-from AppCore.Observation.Events import DataSourceDraftListProviderStatusUpdatedEvent
+from AppCore.Observation import ObservationTower, TransmissionProtocol, TransmissionReceiverProtocol
 from AppCore.Service import DataSerializer
+from AppCore.Service.WebSocket.Events import WebSocketStatusUpdatedEvent
+from AppCore.Service.WebSocket.WebSocketServiceProtocol import \
+    WebSocketMessageReceiverProtocol, WebSocketServiceStatus, WebSocketServiceProtocol
 
 from .DataSourceDraftList import DataSourceDraftList
-from .DataSourceDraftListProtocol import (
-    DataSourceDraftListProtocol,
-    DataSourceDraftListProviding,
-    DataSourceDraftListProviderConnectionStatus
-)
+from .DataSourceDraftListProtocol import (DataSourceDraftListProtocol,
+                                          DataSourceDraftListProviding)
+from .WebSocket.DataSourceDraftListWebSocketClient import DataSourceDraftListWebSocketClient
+from .WebSocket.DataSourceDraftListWebSocketHost import DataSourceDraftListWebSocketHost
+from .Events import DraftPackUpdatedEvent
+from AppCore.DataSource.ImageResourceDeployer.DataSourceImageResourceDeployerProtocol import DataSourceImageResourceDeployerProviding
 
-from typing import Optional
-from .DataSourceDraftListWebSocketClientDecorator import DataSourceDraftListWebSocketClientDecorator
-from .DataSourceDraftListWebSocketHostDecorator import DataSourceDraftListWebSocketHostDecorator
-import socket
-from .DataSourceDraftListWebSocketHostDecoratorDelegate import DataSourceDraftListWebSocketHostDecoratorDelegate
-from .DataSourceDraftListWebSocketClientDecoratorDelegate import DataSourceDraftListWebSocketClientDecoratorDelegate
-
-class DataSourceDraftListProvider(DataSourceDraftListProviding, DataSourceDraftListWebSocketHostDecoratorDelegate, DataSourceDraftListWebSocketClientDecoratorDelegate):
-    def __init__(self, 
+class DataSourceDraftListProvider(DataSourceDraftListProviding, TransmissionReceiverProtocol):
+    def __init__(self,
                  configuration_manager: ConfigurationManager,
-                 observation_tower: ObservationTower, 
-                 data_serializer: DataSerializer):
+                 observation_tower: ObservationTower,
+                 data_serializer: DataSerializer,
+                 websocket_service: WebSocketServiceProtocol, 
+                 data_source_image_resource_deployer_provider: DataSourceImageResourceDeployerProviding):
         self._observation_tower = observation_tower
         self._data_serializer = data_serializer
+        self._websocket_service = websocket_service
         self._draft_list_data_source = DataSourceDraftList(configuration_manager,
-                                                           observation_tower, 
-                                                           data_serializer)
-        self._lazy_host_decorated: Optional[DataSourceDraftListWebSocketHostDecorator] = None
-        self._lazy_client_decorated: Optional[DataSourceDraftListWebSocketClientDecorator] = None
+                                                           observation_tower,
+                                                           data_serializer, 
+                                                           data_source_image_resource_deployer_provider)
 
-        self.__state: DataSourceDraftListProviderConnectionStatus = DataSourceDraftListProviderConnectionStatus.NONE
+        self._current_websocket_ds: Optional[DataSourceDraftListProtocol |
+                                             WebSocketMessageReceiverProtocol] = None
 
-    @property
-    def state(self) -> DataSourceDraftListProviderConnectionStatus:
-        return self._state
-
-    @property
-    def _state(self) -> DataSourceDraftListProviderConnectionStatus:
-        return self.__state
-
-    @_state.setter
-    def _state(self, value: DataSourceDraftListProviderConnectionStatus):
-        if self.__state != value:
-            self.__state = value
-            self._observation_tower.notify(DataSourceDraftListProviderStatusUpdatedEvent())
-
-    @property
-    def ip_address(self) -> str:
-        try:
-            hostname = socket.gethostname()
-            ip_address = socket.gethostbyname(hostname)
-            # Filters out loopback addresses, if necessary, but gethostbyname usually avoids this
-            if ip_address.startswith("127."):
-                # A more reliable method for the actual network IP (works by connecting to an external server like Google DNS without sending data)
-                s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                s.connect(('8.8.8.8', 80))
-                ip_address = s.getsockname()[0]
-                s.close()
-        except socket.error:
-            ip_address = "Could not get IP address"
-        return ip_address
+        observation_tower.subscribe(self, WebSocketStatusUpdatedEvent)
 
     @property
     def draft_list_data_source(self) -> DataSourceDraftListProtocol:
-        if self._state == DataSourceDraftListProviderConnectionStatus.IS_HOST:
-            return self._host_decorated
-        elif self._state == DataSourceDraftListProviderConnectionStatus.IS_CLIENT:
-            return self._client_decorated
+        if self._websocket_service.state != WebSocketServiceStatus.NONE:
+            if self._current_websocket_ds is not None:
+                return self._current_websocket_ds  # type: ignore
         return self._draft_list_data_source
 
-    @property
-    def _host_decorated(self) -> DataSourceDraftListWebSocketHostDecorator:
-        if self._lazy_host_decorated is None:
-            controller = DataSourceDraftListWebSocketHostDecorator(self._draft_list_data_source, 
-                                                                   self._data_serializer, 
-                                                                   self._observation_tower)
-            controller.delegate = self
-            self._lazy_host_decorated = controller
-        return self._lazy_host_decorated
-
-    @property
-    def _client_decorated(self) -> DataSourceDraftListWebSocketClientDecorator:
-        if self._lazy_client_decorated is None:
-            controller = DataSourceDraftListWebSocketClientDecorator(self._observation_tower)
-            controller.delegate = self
-            self._lazy_client_decorated = controller
-        return self._lazy_client_decorated
-
-    def connect_as_host(self):
-        self._host_decorated.start_server()
-
-    def connect_as_client(self, ip: str, port: Optional[int]):
-        self._client_decorated.connect_to_server(ip, port)
-
-    def disconnect(self):
-        self._client_decorated.disconnect()
-        self._host_decorated.stop_server()
-
-    # MARK: - DataSourceDraftListWebSocketHostDecoratorDelegate
-    def server_started(self, is_started: bool) -> None:
-        self._state = DataSourceDraftListProviderConnectionStatus.IS_HOST if is_started else DataSourceDraftListProviderConnectionStatus.ERROR
-
-    def server_stopped(self) -> None:
-        self._state = DataSourceDraftListProviderConnectionStatus.NONE
-
-    # MARK: - DataSourceDraftListWebSocketClientDecoratorDelegate
-    def client_connected(self) -> None:
-        self._state = DataSourceDraftListProviderConnectionStatus.IS_CLIENT
-
-    def client_disconnected(self) -> None:
-        self._state = DataSourceDraftListProviderConnectionStatus.NONE
+    def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
+        if type(event) is WebSocketStatusUpdatedEvent:
+            if self._websocket_service.state == WebSocketServiceStatus.IS_CLIENT:
+                self._current_websocket_ds = DataSourceDraftListWebSocketClient(self._websocket_service,
+                                                                                self._observation_tower)
+            elif self._websocket_service.state == WebSocketServiceStatus.IS_HOST:
+                self._current_websocket_ds = DataSourceDraftListWebSocketHost(self._observation_tower,
+                                                                              self._websocket_service,
+                                                                              self._draft_list_data_source)
+            else:
+                self._current_websocket_ds = None
+            self._observation_tower.notify(DraftPackUpdatedEvent())

@@ -80,7 +80,7 @@ class DraftPack():
         
         def resource_at_index(self, resource_index: int) -> Optional[LocalCardResource]:
             if resource_index >= 0 and resource_index < len(self._draft_list):
-                return copy.deepcopy(self._draft_list[resource_index])
+                return self._draft_list[resource_index]
 
         def mark_resource_as_sideboard(self, resource_index: int, key: str, value: Any):
             if resource_index >= 0 and resource_index < len(self._draft_list):
@@ -102,22 +102,22 @@ class DraftPack():
             if resource_index >= 0 and resource_index < len(self._draft_list):
                 del self._draft_list[resource_index]
             
-        def move_up(self, resource_index: int):
-            self._swap_resources(resource_index, resource_index - 1)
+        # def move_up(self, resource_index: int):
+        #     self.swap_resources(resource_index, resource_index - 1)
             
-        def move_down(self, resource_index: int):
-            self._swap_resources(resource_index, resource_index + 1)
+        # def move_down(self, resource_index: int):
+        #     self.swap_resources(resource_index, resource_index + 1)
             
-        def _swap_resources(self, ri1: int, ri2: int):
+        def swap_resources(self, ri1: int, ri2: int):
             if (ri1 < len(self._draft_list) and ri1 >= 0) and (ri2 < len(self._draft_list) and ri2 >= 0):
                 self._draft_list[ri1], self._draft_list[ri2] = self._draft_list[ri2], self._draft_list[ri1]
                 
-        def insert_above(self, resource_index: int, local_resource: LocalCardResource):
-            self._insert_resource(resource_index, local_resource)
+        # def insert_above(self, resource_index: int, local_resource: LocalCardResource):
+        #     self.insert_resource(resource_index, local_resource)
             
-        def insert_below(self, resource_index: int, local_resource: LocalCardResource):
-            self._insert_resource(resource_index + 1, local_resource)
+        # def insert_below(self, resource_index: int, local_resource: LocalCardResource):
+        #     self.insert_resource(resource_index + 1, local_resource)
             
-        def _insert_resource(self, resource_index: int, local_resource: LocalCardResource):
+        def insert_resource(self, resource_index: int, local_resource: LocalCardResource):
             if resource_index < len(self.draft_list) + 1 and resource_index >= 0:
                 self._draft_list.insert(resource_index, local_resource)

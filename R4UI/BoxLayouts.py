@@ -73,7 +73,7 @@ class BoxLayout(RWidget):
                 widget = None
         self._widgets = []
                     
-    def replace_all_widgets(self, widgets: List[RWidget]):
+    def replace_all_widgets(self, widgets: List[RWidget | QWidget]):
         self._clear_widgets()
         self.add_widgets(widgets)
     

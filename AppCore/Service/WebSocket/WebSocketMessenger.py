@@ -12,8 +12,6 @@ class WebSocketMessenger:
                                 ReferenceType[WebSocketMessageReceiverProtocol]] = {}
 
     def register_for_messages(self, subscriber: WebSocketMessageReceiverProtocol, event_type: Type[WebSocketMessageProtocol]):
-        # if self._subscribers[identifier] is not None:
-        #     raise Exception("only one receiver of messages is allowed")
         self._subscribers[event_type] = weakref.ref(subscriber)
 
     def deliver_message(self, message: WebSocketMessageProtocol):

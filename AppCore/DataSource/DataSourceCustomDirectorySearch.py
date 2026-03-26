@@ -114,10 +114,10 @@ class CustomDirectorySearchDataSource(DataSourceSelectedLocalCardResourceProtoco
         trading_card_resource_provider = self._trading_card_providers[index]
         selected_resource = trading_card_resource_provider.local_resource
         self._selected_resource = selected_resource
-        self._observation_tower.notify(LocalCardResourceSelectedFromDataSourceEvent(copy.deepcopy(selected_resource), self))
+        self._observation_tower.notify(LocalCardResourceSelectedFromDataSourceEvent(selected_resource, self))
         self._image_resource_processor_provider.image_resource_processor.async_store_local_resource(selected_resource, retry=retry)
         if self.delegate is not None:
-            self.delegate.ds_did_retrieve_card_resource_for_card_selection(self, copy.deepcopy(selected_resource))
+            self.delegate.ds_did_retrieve_card_resource_for_card_selection(self, selected_resource)
     
     def search(self, search_configuration: SearchConfiguration):
         if self._directory_path is None:
@@ -127,7 +127,7 @@ class CustomDirectorySearchDataSource(DataSourceSelectedLocalCardResourceProtoco
         print(f'Custom directory search. card_name: {search_configuration.card_name}, search_configuration: {search_configuration}')
         initial_event = CardSearchEvent(CardSearchEvent.EventType.STARTED,
                                         CardSearchEvent.SourceType.LOCAL,
-                                        copy.deepcopy(search_configuration))
+                                        search_configuration)
         self._observation_tower.notify(initial_event)
         
         def callback(result: Tuple[List[Tuple[str, str]], Optional[Exception]]):
@@ -140,7 +140,7 @@ class CustomDirectorySearchDataSource(DataSourceSelectedLocalCardResourceProtoco
                 
             finished_event = CardSearchEvent(CardSearchEvent.EventType.FINISHED,
                                              CardSearchEvent.SourceType.LOCAL,
-                                             copy.deepcopy(search_configuration))
+                                             search_configuration)
             finished_event.predecessor = initial_event
             self._observation_tower.notify(finished_event)
             

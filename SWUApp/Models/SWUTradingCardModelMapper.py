@@ -30,7 +30,7 @@ class SWUTradingCardModelMapper:
             display_name_detailed=local_resource.display_name_detailed, 
             remote_image_url=local_resource.remote_image_url, 
             trading_card=swu_trading_card,
-            metadata=copy.deepcopy(local_resource.metadata) # not sure why this value gets shared
+            metadata=local_resource.metadata # not sure why this value gets shared
             )
     
     @staticmethod

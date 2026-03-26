@@ -3,8 +3,10 @@ from typing import Optional
 from AppCore.Models import DraftPack, LocalResourceDraftListWindow
 from AppCore.Observation import (TransmissionProtocol,
                                  TransmissionReceiverProtocol)
-from AppCore.Observation.Events import (DraftListWindowResourceUpdatedEvent,
-                                        DraftPackUpdatedEvent)
+from AppCore.DataSource.DraftListWindowResource.Events import (DraftListWindowResourceUpdatedEvent,
+                                        )
+from AppCore.DataSource.DraftListWindowResource import DataSourceDraftListWindowResourceDeployerProtocol
+from AppCore.DataSource.DraftList.Events import DraftPackUpdatedEvent
 from AppUI.AppDependenciesInternalProviding import \
     AppDependenciesInternalProviding
 from R4UI import (HorizontalBoxLayout, HorizontalLabeledInputRow, Label,
@@ -22,7 +24,6 @@ class DraftListWindowConfigViewController(RWidget, TransmissionReceiverProtocol)
         super().__init__()
         self._app_dependencies_provider = app_dependencies_provider
         self._data_source_draft_list_provider = app_dependencies_provider.data_source_draft_list_provider
-        self._data_source_draft_list_window_resource_deployer = app_dependencies_provider.data_source_draft_list_window_resource_deployer
         self._resource = resource
         self._router = app_dependencies_provider.router
         
@@ -30,7 +31,11 @@ class DraftListWindowConfigViewController(RWidget, TransmissionReceiverProtocol)
                                                                            DraftListWindowResourceUpdatedEvent])
         
         self._setup_view()
-        
+    
+    @property
+    def _data_source_draft_list_window_resource_deployer(self) -> DataSourceDraftListWindowResourceDeployerProtocol:
+        return self._app_dependencies_provider.data_source_draft_list_window_resource_deployer
+
     @property
     def _data_source_draft_list(self) -> DataSourceDraftListProtocol:
         return self._data_source_draft_list_provider.draft_list_data_source

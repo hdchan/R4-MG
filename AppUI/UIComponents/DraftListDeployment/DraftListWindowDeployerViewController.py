@@ -2,16 +2,17 @@ from typing import List
 
 from PySide6.QtWidgets import QSizePolicy
 
-from AppCore.Observation import (TransmissionProtocol,
-                                 TransmissionReceiverProtocol)
-from AppCore.Observation.Events import DraftListWindowResourceLoadEvent
-from AppUI.AppDependenciesInternalProviding import \
-    AppDependenciesInternalProviding
-from R4UI import (HorizontalBoxLayout, PushButton, RWidget, ScrollArea,
-                  VerticalBoxLayout)
+from AppCore.DataSource.DraftListWindowResource import (
+    DataSourceDraftListWindowResourceDeployerProtocol,
+)
+from AppCore.DataSource.DraftListWindowResource.Events import (
+    DraftListWindowResourceLoadEvent,
+)
+from AppCore.Observation import TransmissionProtocol, TransmissionReceiverProtocol
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
+from R4UI import HorizontalBoxLayout, PushButton, RWidget, ScrollArea, VerticalBoxLayout
 
-from .DraftListWindowConfigViewController import \
-    DraftListWindowConfigViewController
+from .DraftListWindowConfigViewController import DraftListWindowConfigViewController
 
 
 class DraftListWindowDeployerViewController(RWidget, TransmissionReceiverProtocol):
@@ -19,7 +20,6 @@ class DraftListWindowDeployerViewController(RWidget, TransmissionReceiverProtoco
                  app_dependencies_provider: AppDependenciesInternalProviding):
         super().__init__()
         self._app_dependencies_provider = app_dependencies_provider
-        self._data_source_draft_list_window_resource_deployer = app_dependencies_provider.data_source_draft_list_window_resource_deployer
         self._router = app_dependencies_provider.router
         self._observation_tower = app_dependencies_provider.observation_tower
         
@@ -27,7 +27,11 @@ class DraftListWindowDeployerViewController(RWidget, TransmissionReceiverProtoco
         
         self._setup_view()
         self._sync_ui()
-        
+    
+    @property
+    def _data_source_draft_list_window_resource_deployer(self) -> DataSourceDraftListWindowResourceDeployerProtocol:
+        return self._app_dependencies_provider.data_source_draft_list_window_resource_deployer
+
     def _setup_view(self):
         self._cell_container = HorizontalBoxLayout()
         self._cell_container.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)

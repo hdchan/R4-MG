@@ -1,18 +1,40 @@
 from enum import Enum
-from typing import Optional, Type
-from .WebSocketMessageProtocol import WebSocketMessageProtocol
-from typing import Protocol, runtime_checkable
+from typing import Optional, Protocol, Type, runtime_checkable
 
-@runtime_checkable
-class WebSocketMessageReceiverProtocol(Protocol):
+from AppCore.Observation import ObservationTower
+
+from .Messages.WebSocketMessagePayloadClientAction import \
+    WebSocketMessagePayloadClientAction
+from .Messages.WebSocketMessagePayloadObservationTowerTransmission import \
+    WebSocketMessagePayloadObservationTowerTransmission
+from .WebSocketMessageProtocol import WebSocketMessageProtocol
+
+
+class WebSocketMessageReceiverProtocol:
+    @property
+    def observation_tower(self) -> ObservationTower:
+        raise Exception
+        
+    def wsmr_will_handle_websocket_message(self, message: WebSocketMessageProtocol) -> None:
+        return
+
+    def wsmr_did_handle_websocket_message(self, message: WebSocketMessageProtocol) -> None:
+        return
+
     def wsmr_handle_websocket_message(self, message: WebSocketMessageProtocol) -> None:
-        raise Exception()
+        self.wsmr_will_handle_websocket_message(message)
+
+        payload = message.payload
+        if type(payload) is WebSocketMessagePayloadClientAction:
+            payload.partial_action(self)
+        elif type(payload) is WebSocketMessagePayloadObservationTowerTransmission:
+            self.observation_tower.notify(payload.event)
+
+        self.wsmr_did_handle_websocket_message(message)
 
 class WebSocketClientObjectProtocol:
     def wbc_send_message(self, message: WebSocketMessageProtocol):
         raise Exception()
-
-
 
 class WebSocketHostObjectProtocol:
     def wsh_handle_new_connection(self, client_object: WebSocketClientObjectProtocol) -> None:

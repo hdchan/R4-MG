@@ -4,16 +4,15 @@ import re
 import sqlite3
 from io import TextIOWrapper
 from pathlib import Path
-from typing import Callable, Dict, Generic, List, Optional, Set, Tuple, TypeVar
+from typing import Dict, List, Optional, Tuple, TypeVar
 from urllib import request
-
-from PySide6.QtCore import QMutex, QObject, QRunnable, QThreadPool, Signal
 
 from AppCore.Config import Configuration, ConfigurationManager
 from AppCore.Models import LocalAssetResource, ModelTransformer, TradingCard
 from AppCore.Observation import ObservationTower
 from AppCore.Observation.Events import LocalAssetResourceFetchEvent
 from AppCore.Service import DataSerializer
+from AppCore.Service.GeneralWorker import AsyncWorker
 
 T = TypeVar("T")
 
@@ -51,10 +50,8 @@ class DataSourceLocallyManagedSets:
         self._observation_tower = observation_tower
         self._data_serializer = data_serializer
         self._client = client
-        self._model_transforer = model_transformer
-        self.pool = QThreadPool()
-        self.mutex = QMutex()
-        self.workers: Set[QRunnable] = set()
+        self._model_transformer = model_transformer
+        self._async_worker = AsyncWorker()
         self._hashed_cached_card_list: Dict[str, List[TradingCard]] = {}
 
         if not os.path.isfile(self._path_to_locally_managed_sets_db):
@@ -130,26 +127,29 @@ class DataSourceLocallyManagedSets:
                 conn.commit()
         except sqlite3.Error as e:
             return []
-        result = list(map(lambda x: self._model_transforer.transform_json_to_trading_card(json.loads(x[0])), rows))
+        result = list(map(lambda x: self._model_transformer.transform_json_to_trading_card(json.loads(x[0])), rows))
         return result
 
-    def search_by_card_name(self, card_name: str) -> List[TradingCard]:
+    def search_by_card_name(self, query_string: str) -> List[TradingCard]:
         conn = sqlite3.connect(self._path_to_locally_managed_sets_db)
         rows = []
-        search_term = f"%{card_name}%"
+        keywords = query_string.split()
+        search_col = "(card_set || ' ' || card_name || ' ' || card_type || ' ' || card_number)"
+        where_clause = " AND ".join([f"{search_col} LIKE ?" for _ in keywords])
+        params = [f"%{word}%" for word in keywords]
         try:
             with conn:
                 cursor = conn.cursor()
-                cursor.execute('''
+                cursor.execute(f'''
                     SELECT json FROM cards
-                    WHERE card_name LIKE ?
+                    WHERE {where_clause}
                     ORDER BY card_set, card_number, card_name
-                    ''', (search_term,))
+                    ''', params)
                 rows = cursor.fetchall()
                 conn.commit()
         except sqlite3.Error as e:
             return []
-        result = list(map(lambda x: self._model_transforer.transform_json_to_trading_card(json.loads(x[0])), rows))
+        result = list(map(lambda x: self._model_transformer.transform_json_to_trading_card(json.loads(x[0])), rows))
         return result
 
     def rebuild_locally_managed_sets_db(self):
@@ -158,7 +158,7 @@ class DataSourceLocallyManagedSets:
     def _rebuild_locally_managed_sets_db(self):
         print("Rebuilding database")
         response_card_list = self.retrieve_card_list()
-        mapped = list(map(lambda x: (x.set, x.number, x.name, json.dumps(x.json)), response_card_list))
+        mapped = list(map(lambda x: (x.set, x.number, x.name, x.card_type, json.dumps(x.json)), response_card_list))
 
         conn = sqlite3.connect(self._path_to_locally_managed_sets_db)
 
@@ -171,13 +171,14 @@ class DataSourceLocallyManagedSets:
                         card_set TEXT,
                         card_number TEXT,
                         card_name TEXT,
+                        card_type TEXT,
                         json TEXT
                     );
                     ''')
                 # cursor.execute('CREATE UNIQUE INDEX unique_card ON cards (card_set, card_number);')
                 insert_query = """
-                INSERT INTO Cards (card_set, card_number, card_name, json)
-                VALUES (?, ?, ?, ?);
+                INSERT INTO Cards (card_set, card_number, card_name, card_type, json)
+                VALUES (?, ?, ?, ?, ?);
                 """
                 cursor.executemany(insert_query, mapped)
 
@@ -221,10 +222,6 @@ class DataSourceLocallyManagedSets:
                 failed_event.predecessor = initial_event
                 self._observation_tower.notify(failed_event)
             self._invalidate_cached_card_list()
-            
-        
-        def _cleanup(identifier: QRunnable):
-            self.workers.remove(identifier)
 
         _data_serializer = self._data_serializer
 
@@ -241,11 +238,7 @@ class DataSourceLocallyManagedSets:
             else:
                 return (asset_resource, Exception('No asset url'))
 
-        worker = GeneralWorker(_runnable_fn)
-        worker.signals.finished.connect(finished)
-        worker.signals.cleanup.connect(_cleanup)
-        self.workers.add(worker)
-        self.pool.start(worker)
+        self._async_worker.run(_runnable_fn, finished)
     
     def _invalidate_cached_card_list(self):
         self._hashed_cached_card_list = {}
@@ -300,24 +293,3 @@ class DataSourceLocallyManagedSets:
         
     def _replace_non_alphanumeric(self, text: str, replacement: str = '') -> str:
         return re.sub(r'[^a-zA-Z0-9]', replacement, text)
-
-class WorkerSignals(QObject):
-    finished = Signal(object)
-    failed = Signal(Exception)
-    cleanup = Signal(object)
-
-
-class GeneralWorker(QRunnable, Generic[T]):
-    def __init__(self, runnable_fn: Callable[[], T]):
-        super().__init__()
-        self._runnable_fn = runnable_fn
-        self.signals = WorkerSignals()
-
-    def run(self):
-        try:
-            result = self._runnable_fn()
-            self.signals.finished.emit(result)
-        except Exception as error:
-            self.signals.failed.emit(error)
-        finally:
-            self.signals.cleanup.emit(self)

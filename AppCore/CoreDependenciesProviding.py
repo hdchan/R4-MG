@@ -1,9 +1,7 @@
 from typing import Optional
 
 from AppCore.Config import ConfigurationManager
-from AppCore.DataSource import (
-    DataSourceDraftListWindowResourceDeployer,
-)
+from AppCore.DataSource.DraftListWindowResource import DataSourceDraftListWindowResourceDeployerProtocol
 from AppCore.DataSource.ImageResourceDeployer import DataSourceImageResourceDeployerProtocol
 from AppCore.DataSource.DataSourceCachedHistory import DataSourceCachedHistory
 from AppCore.DataSource.DataSourceCardSearch import (
@@ -70,7 +68,7 @@ class CoreDependenciesProviding:
         raise Exception
     
     @property
-    def data_source_draft_list_window_resource_deployer(self) -> DataSourceDraftListWindowResourceDeployer:
+    def data_source_draft_list_window_resource_deployer(self) -> DataSourceDraftListWindowResourceDeployerProtocol:
         raise Exception
 
     @property

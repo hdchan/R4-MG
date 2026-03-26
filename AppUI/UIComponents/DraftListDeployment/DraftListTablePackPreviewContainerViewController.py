@@ -1,17 +1,22 @@
 from typing import Optional
 
-from AppCore.Models import LocalResourceDraftListWindow
-from AppCore.Observation import (TransmissionProtocol,
-                                 TransmissionReceiverProtocol)
-from AppCore.Observation.Events import (DraftListWindowResourceUpdatedEvent,
-                                        DraftPackUpdatedEvent)
-from AppUI.AppDependenciesInternalProviding import \
-    AppDependenciesInternalProviding
-from R4UI import RWidget, VerticalBoxLayout
 from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
+from AppCore.DataSource.DraftList.Events import DraftPackUpdatedEvent
+from AppCore.DataSource.DraftListWindowResource import (
+    DataSourceDraftListWindowResourceDeployerProtocol,
+)
+from AppCore.DataSource.DraftListWindowResource.Events import (
+    DraftListWindowResourceUpdatedEvent,
+)
+from AppCore.Models import LocalResourceDraftListWindow
+from AppCore.Observation import TransmissionProtocol, TransmissionReceiverProtocol
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
+from R4UI import RWidget, VerticalBoxLayout
+
 from .DraftListTablePackPreviewViewController import (
     DraftListTablePackPreviewViewController,
-    DraftListTablePackPreviewViewControllerDelegate)
+    DraftListTablePackPreviewViewControllerDelegate,
+)
 
 
 class DraftListTablePackPreviewContainerViewController(RWidget,
@@ -32,7 +37,6 @@ class DraftListTablePackPreviewContainerViewController(RWidget,
         self._data_source_draft_list_provider = app_dependencies_provider.data_source_draft_list_provider
         self._configuration_manager = app_dependencies_provider.configuration_manager
         self._app_ui_configuration_manager = app_dependencies_provider.app_ui_configuration_manager
-        self._data_source_draft_list_window_resource_deployer = app_dependencies_provider.data_source_draft_list_window_resource_deployer
         self._vc_configuration = vc_configuration
         
         self._resource = resource
@@ -42,6 +46,10 @@ class DraftListTablePackPreviewContainerViewController(RWidget,
     
         app_dependencies_provider.observation_tower.subscribe_multi(self, [DraftListWindowResourceUpdatedEvent, DraftPackUpdatedEvent])
     
+    @property
+    def _data_source_draft_list_window_resource_deployer(self) -> DataSourceDraftListWindowResourceDeployerProtocol:
+        return self._app_dependencies_provider.data_source_draft_list_window_resource_deployer
+
     @property
     def _data_source_draft_list(self) -> DataSourceDraftListProtocol:
         return self._data_source_draft_list_provider.draft_list_data_source

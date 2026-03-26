@@ -24,7 +24,7 @@ from .LocallyManagedSetPreviewViewController import (
 from .SearchTableViewController import (SearchTableViewController,
                                         SearchTableViewControllerDelegate)
 
-
+from AppCore.Service.WebSocket.WebSocketServiceProtocol import WebSocketServiceStatus
 class CardSearchPreviewFactory:
 
     class ImageDeploymentCardSearchPreviewViewController(RWidget, 
@@ -36,9 +36,8 @@ class CardSearchPreviewFactory:
 
         def __init__(self, app_dependencies_provider: AppDependenciesInternalProviding):
             super().__init__()
-
             self._recent_published_data_source = app_dependencies_provider.data_source_recent_published
-
+            self._websocket_service = app_dependencies_provider.websocket_service
             self._custom_dir_search_table_view = CustomDirectorySearchTableViewController(app_dependencies_provider)
             self._custom_dir_search_table_view.delegate = self
             
@@ -46,8 +45,6 @@ class CardSearchPreviewFactory:
             self._search_table_view = SearchTableViewController(app_dependencies_provider,
                                                                 configuration)
             self._search_table_view.delegate = self
-            
-            
             
             self._publish_history_list = CacheHistoryTableViewController(app_dependencies_provider, 
                                                                         self._recent_published_data_source)
@@ -74,6 +71,13 @@ class CardSearchPreviewFactory:
         @property
         def data_source(self) -> DataSourceSelectedLocalCardResourceProtocol:
             return self._card_search_preview
+
+        def csp_is_tab_visible(self, index: int) -> bool:
+            if self._websocket_service.state == WebSocketServiceStatus.IS_CLIENT:
+                if index == self._vcs.index(self._search_table_view):
+                    return True
+                return False
+            return True
 
         @property
         def csp_tab_count(self) -> int:
@@ -108,8 +112,7 @@ class CardSearchPreviewFactory:
                 self._observation_tower = app_dependencies_provider.observation_tower
                 self._socket_router = app_dependencies_provider.socket_router
 
-                self._observation_tower.subscribe_multi(self, [ConfigurationUpdatedEvent, 
-                                                               SocketRouterUpdatedEvent])
+                self._observation_tower.subscribe_multi(self, [ConfigurationUpdatedEvent])
 
                 self._setup_view()
 
@@ -154,8 +157,7 @@ class CardSearchPreviewFactory:
                 self._status_label.set_text(url)
 
             def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
-                if type(event) is ConfigurationUpdatedEvent or \
-                    type(event) is SocketRouterUpdatedEvent :
+                if type(event) is ConfigurationUpdatedEvent:
                     self._sync_ui()
 
 
@@ -176,17 +178,6 @@ class CardSearchPreviewFactory:
             self._titles = [
                 "Card Search",
             ]
-
-            if self._configuration_manager.configuration.is_remote_socket_connection_enabled:
-                self._socket_io_history_list = app_dependencies_provider.data_source_socket_io
-
-                self._socket_io_history_list = CacheHistoryTableViewController(app_dependencies_provider, 
-                                                                            self._socket_io_history_list)
-                self._socket_io_history_list.delegate = self
-                self._socket_io_history_list.append_widget(self.StatusWidget(app_dependencies_provider))
-
-                self._vcs.insert(0, self._socket_io_history_list)
-                self._titles.insert(0, "Satellite")
 
             self._card_search_preview = CardSearchPreviewViewController(app_dependencies_provider, self)
 
@@ -210,9 +201,6 @@ class CardSearchPreviewFactory:
         
         def stvc_did_retrieve_card(self) -> None:
             self._card_search_preview.set_retrieved_resource_from_vc(self._vcs.index(self._search_table_view))
-
-        def ch_did_retrieve_card(self) -> None:
-            self._card_search_preview.set_retrieved_resource_from_vc(self._vcs.index(self._socket_io_history_list))
 
     class LocallyManagedSetPreviewViewController(RWidget,
                                                  CardSearchPreviewViewControllerDelegate,

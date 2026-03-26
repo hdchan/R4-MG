@@ -6,8 +6,8 @@ from PySide6.QtWidgets import (QFrame, QScrollArea,
                              QVBoxLayout, QWidget)
 
 from AppCore.Models import LocalResourceDataSourceProviding
-from AppCore.Observation.Events import (ConfigurationUpdatedEvent,
-                                        DraftListUpdatedEvent)
+from AppCore.DataSource.DraftList.Events import DraftListUpdatedEvent
+from AppCore.Observation.Events import (ConfigurationUpdatedEvent)
 from AppCore.Observation.ObservationTower import TransmissionReceiverProtocol, TransmissionProtocol
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.Models.DraftListStyleSheet import DraftListStyleSheet

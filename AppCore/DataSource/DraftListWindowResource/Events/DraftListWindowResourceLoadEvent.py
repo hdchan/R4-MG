@@ -1,4 +1,4 @@
-from ..TransmissionProtocol import TransmissionProtocol
+from AppCore.Observation.TransmissionProtocol import TransmissionProtocol
 from enum import Enum
 
 class DraftListWindowResourceLoadEvent(TransmissionProtocol):

@@ -110,6 +110,7 @@ class DraftListLineItemViewController(RWidget):
 
         SIDEBOARD_KEY = 'is_sideboard' # TODO: move this to external provider
         # Tags lower level LocalCardResource object with metadata
+        
         if SIDEBOARD_KEY in local_resource.metadata and local_resource.metadata[SIDEBOARD_KEY]:
             sideboard_action = QAction(f"Remove from sideboard - {trading_card.name}", self)
             sideboard_action.triggered.connect(lambda: self._data_source_draft_list.mark_resource_as_sideboard(self._pack_index, self._card_index, SIDEBOARD_KEY, False))
@@ -128,11 +129,11 @@ class DraftListLineItemViewController(RWidget):
         context_menu.addSeparator()
         
         move_up_action = QAction(f"Move Up - {trading_card.name}", self)
-        move_up_action.triggered.connect(lambda: self._data_source_draft_list.move_up(self._pack_index, self._card_index))
+        move_up_action.triggered.connect(lambda: self._data_source_draft_list.swap_resources(self._pack_index, self._card_index, self._card_index - 1))
         context_menu.addAction(move_up_action) # type: ignore
         
         move_down_action = QAction(f"Move Down - {trading_card.name}", self)
-        move_down_action.triggered.connect(lambda: self._data_source_draft_list.move_down(self._pack_index, self._card_index))
+        move_down_action.triggered.connect(lambda: self._data_source_draft_list.swap_resources(self._pack_index, self._card_index, self._card_index + 1))
         context_menu.addAction(move_down_action) # type: ignore
         
         
@@ -143,11 +144,11 @@ class DraftListLineItemViewController(RWidget):
                 context_menu.addSeparator()
                 
                 insert_above_action = QAction(f"Insert Above - {trading_card.name}", self)
-                insert_above_action.triggered.connect(lambda: self._data_source_draft_list.insert_above(self._pack_index, self._card_index, selected_resource))
+                insert_above_action.triggered.connect(lambda: self._data_source_draft_list.insert_resource(self._pack_index, self._card_index, selected_resource))
                 context_menu.addAction(insert_above_action) # type: ignore
                 
                 insert_below_action = QAction(f"Insert Below - {trading_card.name}", self)
-                insert_below_action.triggered.connect(lambda: self._data_source_draft_list.insert_below(self._pack_index, self._card_index, selected_resource))
+                insert_below_action.triggered.connect(lambda: self._data_source_draft_list.insert_resource(self._pack_index, self._card_index + 1, selected_resource))
                 context_menu.addAction(insert_below_action) # type: ignore
 
         deployment_resources = self._data_source_image_resource_deployer.deployment_resources

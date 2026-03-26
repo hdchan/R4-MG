@@ -12,14 +12,13 @@ from PySide6.QtCore import QStandardPaths
 class Configuration():
     
     APP_NAME = 'R4-MG'
-    APP_VERSION = '0.26.0-beta-4'
+    APP_VERSION = '0.26.0-beta-5'
     SETTINGS_VERSION = '1.0'
     
     class Toggles:
         class Keys:
             DEVELOPER_MODE = 'developer_mode'
             DRAFT_LIST_IMAGE_PREVIEW = 'draft_list_image_preview'
-            REMOTE_SOCKET_CONNECTION = "remote_socket_connection"
             USES_LEGACY_DECK_IMAGE_GENERATION = 'uses_legacy_deck_image_generation'
             USES_SQLITE_FOR_MANAGE_SET_SEARCH = 'uses_sqlite_for_manage_set_search'
 
@@ -48,8 +47,6 @@ class Configuration():
             DRAFT_LIST_STYLES = 'draft_list_styles'
             DRAFT_LIST_ADD_CARD_MODE = 'draft_list_add_card_mode'
             DRAFT_LIST_ADD_CARD_DEPLOYMENT_DESTINATION = 'draft_list_add_card_deployment_destination'
-            
-            REMOTE_SOCKET_URL = 'remote_socket_url'
 
             IS_MOCK_DATA = 'is_mock_data'
             IS_DELAY_NETWORK_MODE = 'is_delay_network_mode'
@@ -102,7 +99,6 @@ class Configuration():
             Configuration.Keys.TOGGLES: {
                 Configuration.Toggles.Keys.DEVELOPER_MODE: False,
                 Configuration.Toggles.Keys.DRAFT_LIST_IMAGE_PREVIEW: False,
-                Configuration.Toggles.Keys.REMOTE_SOCKET_CONNECTION: False,
                 Configuration.Toggles.Keys.USES_LEGACY_DECK_IMAGE_GENERATION: False,
                 Configuration.Toggles.Keys.USES_SQLITE_FOR_MANAGE_SET_SEARCH: True,
             },
@@ -130,8 +126,6 @@ class Configuration():
                 Configuration.Settings.Keys.DRAFT_LIST_STYLES: None,
                 Configuration.Settings.Keys.DRAFT_LIST_ADD_CARD_MODE: Configuration.Settings.DraftListAddCardMode.OFF.value,
                 Configuration.Settings.Keys.DRAFT_LIST_ADD_CARD_DEPLOYMENT_DESTINATION: None,
-                
-                Configuration.Settings.Keys.REMOTE_SOCKET_URL: None,
 
                 Configuration.Settings.Keys.IS_MOCK_DATA: False,
                 Configuration.Settings.Keys.IS_DELAY_NETWORK_MODE: False
@@ -258,19 +252,11 @@ class Configuration():
     @property
     def draft_list_add_card_deployment_destination(self) -> Optional[str]:
         return self._get_with_default_settings(self.Settings.Keys.DRAFT_LIST_ADD_CARD_DEPLOYMENT_DESTINATION)
-    
-    @property
-    def remote_socket_url(self) -> Optional[str]:
-        return self._get_with_default_settings(self.Settings.Keys.REMOTE_SOCKET_URL)
 
     # MARK: - Toggles
     @property
     def is_draft_list_image_preview_enabled(self) -> bool:
         return self._get_with_default_toggles(self.Toggles.Keys.DRAFT_LIST_IMAGE_PREVIEW)
-    
-    @property
-    def is_remote_socket_connection_enabled(self) -> bool:
-        return self._get_with_default_toggles(self.Toggles.Keys.REMOTE_SOCKET_CONNECTION)
     
     @property
     def is_using_legacy_deck_image_generation(self) -> bool:
@@ -459,9 +445,6 @@ class MutableConfiguration(Configuration):
     
     def set_draft_list_add_card_deployment_destination(self, value: Optional[str]):
         self._settings[self.Settings.Keys.DRAFT_LIST_ADD_CARD_DEPLOYMENT_DESTINATION] = value
-
-    def set_remote_socket_connection_url(self, value: Optional[str]):
-        self._settings[self.Settings.Keys.REMOTE_SOCKET_URL] = value
     
     def set_configuration_for_key(self, key: str, value: Any):
         self._settings[key] = value
@@ -469,9 +452,6 @@ class MutableConfiguration(Configuration):
     # MARK: - Toggles
     def set_is_draft_list_image_preview_enabled(self, value: bool):
         self._toggles[self.Toggles.Keys.DRAFT_LIST_IMAGE_PREVIEW] = value
-
-    def set_is_remote_socket_connection_enabled(self, value: bool):
-        self._toggles[self.Toggles.Keys.REMOTE_SOCKET_CONNECTION] = value
 
     def set_is_using_legacy_deck_list_image_generation(self, value: bool):
         self._toggles[self.Toggles.Keys.USES_LEGACY_DECK_IMAGE_GENERATION] = value
