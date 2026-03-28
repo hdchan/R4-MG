@@ -30,6 +30,7 @@ from ..Events import (
 from .DataSourceImageResourceDeployerWebSocketMessage import (
     DataSourceImageResourceDeployerWebSocketMessage,
 )
+from AppCore.Service.GeneralWorker import AsyncWorker
 
 
 class DataSourceImageResourceDeployerWebSocketHost(DataSourceImageResourceDeployerProtocol,
@@ -45,6 +46,7 @@ class DataSourceImageResourceDeployerWebSocketHost(DataSourceImageResourceDeploy
         self._websocket_service = websocket_service
         self._data_source_image_resource_deployer = data_source_image_resource_deployer
         self._image_resource_processor_provider = image_resource_processor_provider
+        self._async_worker = AsyncWorker()
 
         self._websocket_service.register_as_host(self)
         self._websocket_service.register_for_messages(
@@ -98,24 +100,33 @@ class DataSourceImageResourceDeployerWebSocketHost(DataSourceImageResourceDeploy
 
     # MARK: - WebSocketHostObjectProtocol
     def wsh_handle_new_connection(self, client_object: WebSocketClientObjectProtocol) -> None:
-        self._data_source_image_resource_deployer.attach_preview_binary_to_prod_resources()
-        # Send our individual client a message to load and update
-        new_connection_events = [
-            ProductionCardResourcesLoadEvent(
-            ProductionCardResourcesLoadEvent.EventType.FINISHED),
-            DataSourceImageResourceDeployerStateUpdatedEvent()
-        ]
-        for e in new_connection_events:
-            message = DataSourceImageResourceDeployerWebSocketMessage(
-                data_source=self._data_source_image_resource_deployer,
-                payload=WebSocketMessagePayloadObservationTowerTransmission(e))
-            client_object.wbc_send_message(message)
+        def _runnable_fn():
+            self._data_source_image_resource_deployer.attach_preview_binary_to_prod_resources()
+
+        def _finished():
+            new_connection_events = [
+                ProductionCardResourcesLoadEvent(
+                ProductionCardResourcesLoadEvent.EventType.FINISHED),
+                DataSourceImageResourceDeployerStateUpdatedEvent()
+            ]
+            for e in new_connection_events:
+                message = DataSourceImageResourceDeployerWebSocketMessage(
+                    data_source=self._data_source_image_resource_deployer,
+                    payload=WebSocketMessagePayloadObservationTowerTransmission(e))
+                client_object.wbc_send_message(message)
+
+        self._async_worker.run(_runnable_fn, _finished)
 
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
         # pass all datasource events to client
         # cannot call ds function because we're inside one right now from observation event, when can we attach preview?
-        self._data_source_image_resource_deployer.attach_preview_binary_to_prod_resources()
-        message = DataSourceImageResourceDeployerWebSocketMessage(
-            data_source=self._data_source_image_resource_deployer,
-            payload=WebSocketMessagePayloadObservationTowerTransmission(event))
-        self._websocket_service.send_websocket_message(message)
+        def _runnable_fn():
+            self._data_source_image_resource_deployer.attach_preview_binary_to_prod_resources()
+
+        def _finished():
+            message = DataSourceImageResourceDeployerWebSocketMessage(
+                data_source=self._data_source_image_resource_deployer,
+                payload=WebSocketMessagePayloadObservationTowerTransmission(event))
+            self._websocket_service.send_websocket_message(message)
+
+        self._async_worker.run(_runnable_fn, _finished)

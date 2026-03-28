@@ -30,9 +30,9 @@
     - separate laptop ok
     - manipulate existing images only
 
-
+- [x] typing with set included
 2 issues
 cleared deck and generated new one but kept the old deck
 but worked after closing the window and opening it again
 
-typing with set included
+
