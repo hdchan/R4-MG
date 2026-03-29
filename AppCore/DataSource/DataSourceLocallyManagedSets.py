@@ -208,7 +208,6 @@ class DataSourceLocallyManagedSets:
         
         
         def finished(result: Tuple[LocalAssetResource, Optional[Exception]]):
-            self._rebuild_locally_managed_sets_db()
             resource, error = result
             Path(resource.asset_temp_path).unlink() # remote temp file
             if error is None:
@@ -242,6 +241,7 @@ class DataSourceLocallyManagedSets:
     
     def _invalidate_cached_card_list(self):
         self._hashed_cached_card_list = {}
+        self._rebuild_locally_managed_sets_db()
     
     def remove(self, resource: LocalAssetResource):
         Path(resource.asset_path).unlink()

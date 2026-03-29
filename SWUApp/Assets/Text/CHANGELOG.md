@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.26.1
+### Hotfix
+- Fix: Move DB rebuild logic
+
 ## 0.26.0
 ### Feature
 - Add websocket functionality for draft list and image deployment
