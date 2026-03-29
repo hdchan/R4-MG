@@ -98,6 +98,10 @@ class CardSearchPreviewFactory:
         def ch_did_retrieve_card(self) -> None:
             self._card_search_preview.set_retrieved_resource_from_vc(self._vcs.index(self._publish_history_list))
 
+        @property
+        def csp_is_vertical_orientation(self) -> bool:
+            return False
+
 
     class DraftListCardSearchPreviewViewController(RWidget,
                                                    CardSearchPreviewViewControllerDelegate,
@@ -201,6 +205,10 @@ class CardSearchPreviewFactory:
         
         def stvc_did_retrieve_card(self) -> None:
             self._card_search_preview.set_retrieved_resource_from_vc(self._vcs.index(self._search_table_view))
+
+        @property
+        def csp_is_vertical_orientation(self) -> bool:
+            return False
 
     class LocallyManagedSetPreviewViewController(RWidget,
                                                  CardSearchPreviewViewControllerDelegate,

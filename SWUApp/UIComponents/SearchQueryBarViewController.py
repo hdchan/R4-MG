@@ -2,7 +2,7 @@ from typing import Optional
 
 from AppCore.Models import SearchConfiguration
 from AppUI.ExternalAppDependenciesProviding import SearchQueryBarViewProviding
-from R4UI import RComboBox, HorizontalBoxLayout, Label, LineEditText
+from R4UI import HorizontalBoxLayout, Label, LineEditText, RComboBox
 
 from ..Models.CardType import CardType
 from ..Models.SWUCardSearchConfiguration import SWUCardSearchConfiguration
@@ -11,16 +11,16 @@ from ..Models.SWUCardSearchConfiguration import SWUCardSearchConfiguration
 class SearchQueryBarViewController(SearchQueryBarViewProviding):
     def __init__(self):
         super().__init__()
-        
+
         self._query_text: Optional[str] = None
 
         self._query_search_bar = LineEditText(triggered_fn=self._set_text,
-                         placeholder_text="Lookup by card name (Ctrl+L)")
+                                              placeholder_text="Lookup by card name (Ctrl+L)")
         self._card_type_selection = RComboBox(list(CardType))
         HorizontalBoxLayout([
             self._query_search_bar,
             HorizontalBoxLayout([
-                Label("Type"),
+                Label("Type"),  # TODO: remove if we fully implement SQLite
                 self._card_type_selection
             ])
         ]).set_uniform_content_margins(0).set_layout_to_widget(self)
@@ -44,7 +44,7 @@ class SearchQueryBarViewController(SearchQueryBarViewProviding):
         except Exception:
             pass
         return config
-    
+
     @property
     def secondary_search_configuration(self) -> Optional[SearchConfiguration]:
         config = SWUCardSearchConfiguration()
@@ -58,7 +58,6 @@ class SearchQueryBarViewController(SearchQueryBarViewProviding):
             pass
         config.card_type = CardType.LEADER
         return config
-        
 
     @property
     def tertiary_search_configuration(self) -> Optional[SearchConfiguration]:
@@ -73,18 +72,19 @@ class SearchQueryBarViewController(SearchQueryBarViewProviding):
             pass
         config.card_type = CardType.BASE
         return config
-    
+
     def set_search_focus(self) -> None:
         self._query_search_bar.setFocus()
         self._query_search_bar.selectAll()
-    
+
     def reset_search(self) -> None:
         self._query_search_bar.clear()
         self.set_card_type_filter(None)
 
     def did_receive_configuration(self, search_configuration: SearchConfiguration) -> None:
         self.set_search_bar_text(search_configuration.card_name)
-        swu_search_config = SWUCardSearchConfiguration.from_search_configuration(search_configuration)
+        swu_search_config = SWUCardSearchConfiguration.from_search_configuration(
+            search_configuration)
         self.set_card_type_filter(swu_search_config.card_type)
 
     def set_card_type_filter(self, card_type: Optional[str]):
@@ -92,9 +92,9 @@ class SearchQueryBarViewController(SearchQueryBarViewProviding):
             found_index = self._card_type_selection.findText(card_type)
         else:
             found_index = self._card_type_selection.findText(list(CardType)[0])
-           
+
         if found_index >= 0:
-                self._card_type_selection.setCurrentIndex(found_index)
+            self._card_type_selection.setCurrentIndex(found_index)
         else:
             raise Exception("index not found")
 

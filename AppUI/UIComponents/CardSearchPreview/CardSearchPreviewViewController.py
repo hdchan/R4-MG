@@ -57,19 +57,24 @@ class CardSearchPreviewViewController(RWidget, TransmissionReceiverProtocol, Loc
         self._setup_view()
 
     def _setup_view(self):
-        self._box_layout = VerticalBoxLayout()
-        if self._delegate.csp_is_vertical_orientation is False:
-            self._box_layout = HorizontalBoxLayout()
-
-        self._box_layout.set_layout_to_widget(
-            self).set_uniform_content_margins(0)
 
         self._tab_widget_container = VerticalBoxLayout().set_uniform_content_margins(0)
 
-        self._box_layout.replace_all_widgets([
-            self._image_preview_view,
-            self._tab_widget_container
-        ])
+        if self._delegate.csp_is_vertical_orientation:
+            self._box_layout = VerticalBoxLayout([
+                self._image_preview_view,
+                self._tab_widget_container
+            ])
+        else:
+            # self._tab_widget_container.setMinimumWidth(400)
+            # self._image_preview_view.setMinimumWidth(270)
+            self._box_layout = HorizontalBoxLayout([
+                self._tab_widget_container,
+                self._image_preview_view
+            ])
+
+        self._box_layout.set_layout_to_widget(
+            self).set_uniform_content_margins(0)
 
         tab_count = self._delegate.csp_tab_count
         if tab_count > 1:
@@ -89,7 +94,8 @@ class CardSearchPreviewViewController(RWidget, TransmissionReceiverProtocol, Loc
 
     def _sync_ui(self):
         if self._tab_widget is not None:
-            self._tab_widget.update_tab_visibility(self._delegate.csp_is_tab_visible)
+            self._tab_widget.update_tab_visibility(
+                self._delegate.csp_is_tab_visible)
 
     @property
     def data_source(self) -> DataSourceSelectedLocalCardResourceProtocol:
