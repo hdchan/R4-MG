@@ -1,12 +1,14 @@
 # Changelog
 
-## 0.26.0-beta
+## 0.26.0
 ### Feature
+- Add websocket functionality for draft list and image deployment
 - Fixing; creating new packs unassign packs from the windows
 - Fix: header text color not changing
 - Adding db rebuild functionality for local set search
-- adding sync image download option for automatic stage and publish if resource is missing
-
+- Sort resource deployment resources by lower cased letters
+- Add ability to search by set and card name in search term
+- Moving card search image preview to right hand side
 
 ### Engineering
 - Add unit tests for parse deck
@@ -20,6 +22,24 @@
 - removing old socket io implementation
 - saving working sync of bare minium for image deployment websocket
 - saving mem leak fix for combo box slot disconnection
+- Moving LocalCardResourceFetchEvent to its module owner
+- adding ImageResourceDeployerStateUpdatedEvent
+- Removing DeploymentCardResourceEvent
+- Removing PublishStatusUpdatedEvent
+- Removing most implementation of PublishStagedCardResourcesEvent
+- Optimize state changed call
+- Refactoring websocket messaging service
+- Refactor to remove PublishStagedCardResourcesEvent and make recent published datasource to be dependent on history datasource
+- Adding ImagePreviewViewControllerWebSocketClient
+- Moving draft list events
+- Reducing draft list protocol function signature
+- compressing websocket message
+- Using WebP for image previews over websocket
+- centralizing generalworker
+- async websocket processing
+- enabling sqlite db search
+- Removing deep copy calls
+- Async attach binary images
 
 ## 0.25.1
 ### Hotfix
