@@ -25,6 +25,7 @@ from AppCore.Observation.Events import (
     CardSearchEvent,
     LocalCardResourceSelectedFromDataSourceEvent,
 )
+from AppCore.Service.Debouncer import Debouncer
 from AppCore.Service.GeneralWorker import AsyncWorker
 
 T = TypeVar("T")
@@ -87,6 +88,8 @@ class DataSourceCardSearch(DataSourceSelectedLocalCardResourceProtocol):
         self._is_loading = False
 
         self._async_worker = AsyncWorker()
+        self._incremental_search_debouncer = Debouncer()
+
     
     @property
     def source_display_name(self) -> str:
@@ -163,6 +166,17 @@ class DataSourceCardSearch(DataSourceSelectedLocalCardResourceProtocol):
     @property
     def search_list_history_display(self) -> List[str]:
         return self._search_history_ds.search_list_history_display
+
+    '''
+    Used for auto search
+    '''
+    def search_incrementally(self, search_configuration: SearchConfiguration):
+        if self._api_client.can_auto_search:
+            if len(search_configuration.card_name) < 3: # Don't auto search below char count threshold
+                return
+            def _runnable_fn():
+                self.search(search_configuration)
+            self._incremental_search_debouncer.trigger_fn(_runnable_fn, timeout_ms=500)
 
     def search(self, search_configuration: SearchConfiguration):
         self._is_loading = True

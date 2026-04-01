@@ -1,21 +1,22 @@
 
-import copy
 import time
 from typing import Optional
 
 from PIL import Image
-from PySide6.QtCore import QTimer
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QFileDialog
 
 from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
+from AppCore.DataSource.DraftList.Events import (
+    DraftListUpdatedEvent,
+    DraftPackUpdatedEvent,
+)
 from AppCore.ImageResourceProcessor.Events import LocalCardResourceFetchEvent
 from AppCore.Observation import TransmissionProtocol, TransmissionReceiverProtocol
 from AppCore.Observation.Events import (
-    
     LocalAssetResourceFetchEvent,
 )
-from AppCore.DataSource.DraftList.Events import DraftListUpdatedEvent, DraftPackUpdatedEvent
+from AppCore.Service.Debouncer import Debouncer
 from AppUI.UIComponents.Base.LoadingSpinner import LoadingSpinner
 from R4UI import HorizontalBoxLayout, HorizontalSplitter, RWidget
 
@@ -34,7 +35,9 @@ from .DraftListImagePreviewInspectorPanelViewController import (
 from .PhotoViewer import PhotoViewer
 
 
-class DraftListImagePreviewViewController(RWidget, TransmissionReceiverProtocol, DraftListImagePreviewInspectorPanelViewControllerDelegate):
+class DraftListImagePreviewViewController(RWidget,
+                                          TransmissionReceiverProtocol,
+                                          DraftListImagePreviewInspectorPanelViewControllerDelegate):
     def __init__(self, swu_app_dependencies_provider: SWUAppDependenciesProviding):
         super().__init__()
         self._observation_tower = swu_app_dependencies_provider.observation_tower
@@ -43,10 +46,7 @@ class DraftListImagePreviewViewController(RWidget, TransmissionReceiverProtocol,
         self._image_generator_provider = DeckListImageGeneratorProvider(
             swu_app_dependencies_provider)
 
-        self._save_async_timer = QTimer()
-        self._save_async_timer.setSingleShot(True)
-        self._save_async_timer.timeout.connect(self._generate_image)
-        self.debounce_time = 1000  # TODO: vary depending on preview or not
+        self._save_debouncer = Debouncer()
 
         self._setup_view()
 
@@ -105,9 +105,8 @@ class DraftListImagePreviewViewController(RWidget, TransmissionReceiverProtocol,
             # self._inspector_panel.regenerate_button.setEnabled(True)
 
     def _start_generate_image_timer(self):
-        self._save_async_timer.stop()
         if self._configuration_manager.configuration.deck_list_image_generator_styles.is_auto_generate_preview:
-            self._save_async_timer.start(self.debounce_time)
+            self._save_debouncer.trigger_fn(self._generate_image)  # TODO: vary depending on preview or not
 
     def _generate_image(self):
         if self._parsed_deck.has_cards is False:

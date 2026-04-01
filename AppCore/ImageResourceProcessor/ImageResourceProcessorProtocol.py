@@ -1,25 +1,30 @@
-from AppCore.Models import LocalCardResource
-from typing import Optional, List, Callable
+from typing import Callable, List, Optional
+
 from PIL import Image
+
+from AppCore.Models import LocalCardResource
+
+
 class ImageResourceProcessorProtocol:
     def async_store_local_resource(self, local_resource: LocalCardResource, retry: bool = False, is_async: bool = True) -> None:
         raise Exception
-    
+
     def async_store_local_resources_multi(self, local_resources: List[LocalCardResource], completed: Callable[[], None]) -> None:
         raise Exception
-    
+
     def rotate_and_save_resource(self, local_resource: LocalCardResource, angle: float) -> None:
         raise Exception
-    
+
     def regenerate_resource_preview(self, local_resource: LocalCardResource) -> None:
         raise Exception
-    
+
     def down_scale_image(self, original_img: Image.Image, max_size: float) -> Image.Image:
         raise NotImplementedError
 
     def generate_placeholder(self, local_resource: LocalCardResource, placeholder_image_path: Optional[str]) -> None:
         raise Exception
-    
+
+
 class ImageResourceProcessorProviding:
     @property
     def image_resource_processor(self) -> ImageResourceProcessorProtocol:

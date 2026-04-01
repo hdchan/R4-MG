@@ -9,34 +9,44 @@ from AppUI.CrashReporter import CrashReporter
 from SWUApp.DomainModelTransformer import DomainModelTransformer
 from SWUApp.SWUAppDelegate import SWUAppDelegate
 from SWUApp.SWUAppDependenciesProvider import SWUAppDependenciesProvider
+import sentry_sdk
 
 
 class MainAssembly:
     def __init__(self):
-        
         self.app = QApplication([])
+        sentry_sdk.init(
+            dsn="https://f6df9599469a9e8d048b230ec974fb58@o4511147837227008.ingest.us.sentry.io/4511147839717376",
+            # Safe to expose dsn, but may want to use configuration file in future
+            # Add data like request headers and IP for users,
+            # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
+            send_default_pii=True,
+        )
         # Ensure this is set before config manager writes out to settings file
         self.app.setApplicationName(Configuration.APP_NAME)
         self._style_app()
         # https://www.pythonguis.com/tutorials/packaging-pyqt5-pyside2-applications-windows-pyinstaller/#setting-an-application-icon
         # https://stackoverflow.com/a/35865441
         self._observation_tower = ObservationTower()
-        self._configuration_manager = ConfigurationManager(self._observation_tower)
-        self._observation_tower.set_debug(self._configuration_manager.configuration.is_developer_mode)
-        self._swu_app_dependencies_provider = SWUAppDependenciesProvider(self._lazy_app_ui_dependencies_provider)
+        self._configuration_manager = ConfigurationManager(
+            self._observation_tower)
+        self._observation_tower.set_debug(
+            self._configuration_manager.configuration.is_developer_mode)
+        self._swu_app_dependencies_provider = SWUAppDependenciesProvider(
+            self._lazy_app_ui_dependencies_provider)
         self._swu_app_delegate = SWUAppDelegate(self._swu_app_dependencies_provider,
                                                 self._configuration_manager)
         self._swu_model_transformer = DomainModelTransformer()
-        self._app_ui_dependencies_provider = AppDependenciesProvider(self._observation_tower, 
-                                                                  self._configuration_manager,
-                                                                  self._swu_model_transformer,
-                                                                  self._swu_app_delegate)
+        self._app_ui_dependencies_provider = AppDependenciesProvider(self._observation_tower,
+                                                                     self._configuration_manager,
+                                                                     self._swu_model_transformer,
+                                                                     self._swu_app_delegate)
         CrashReporter(self._app_ui_dependencies_provider)
         self._app_ui_dependencies_provider.router.open_image_deployment_view()
         self._app_ui_dependencies_provider.router.open_draft_list_deployment_view()
         if self._configuration_manager.configuration.is_draft_list_image_preview_enabled:
             self._app_ui_dependencies_provider.router.open_draft_list_image_preview_view()
-        
+
         self.app.setWindowIcon(QIcon(self._swu_app_delegate.logo_path))
         self.app.exec()
 
@@ -50,4 +60,4 @@ class MainAssembly:
 
 
 if __name__ == '__main__':
-        MainAssembly()
+    MainAssembly()

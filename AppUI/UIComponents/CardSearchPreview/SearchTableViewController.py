@@ -26,6 +26,7 @@ from .SearchTableComboViewController import (
     SearchTableComboViewControllerDelegate,
 )
 
+from AppUI.ExternalAppDependenciesProviding import SearchQueryBarViewProviderDelegate
 
 class SearchTableViewControllerDelegate:
     def stvc_did_retrieve_card(self) -> None:
@@ -118,8 +119,10 @@ class SearchTableViewController(RWidget,
         self._search_table_combo_view.get_selection()
 
     def _search(self):
-        self._card_search_data_source.search(
-            self._search_table_combo_view.search_configuration)
+        self._card_search_data_source.search(self._search_table_combo_view.search_configuration)
+
+    def _search_incrementally(self):
+        self._card_search_data_source.search_incrementally(self._search_table_combo_view.search_configuration)
 
     def _search_secondary(self):
         configuration = self._search_table_combo_view.secondary_search_configuration
@@ -201,9 +204,8 @@ class SearchTableViewController(RWidget,
 
     # MARK: - SearchTableComboViewControllerDelegate
 
-    @property
-    def stc_query_view(self) -> Optional[RWidget]:
-        return self._external_app_dependencies_provider.provide_card_search_query_view()
+    def stc_query_view(self, delegate: Optional[SearchQueryBarViewProviderDelegate]) -> Optional[RWidget]:
+        return self._external_app_dependencies_provider.provide_card_search_query_view(delegate)
 
     @property
     def stc_history_list(self) -> List[str]:
@@ -262,6 +264,9 @@ class SearchTableViewController(RWidget,
     @property
     def stc_is_flip_button_hidden(self) -> bool:
         return self._search_table_view_controller_config.is_flip_button_hidden
+
+    def stc_search_query_text_field_did_update(self, text: str) -> None:
+        self._search_incrementally()
 
     # MARK: - LocalResourceDataSourceProviding, DataSourceSelectedLocalCardResourceProtocol
     @property

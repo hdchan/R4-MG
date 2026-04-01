@@ -1,7 +1,6 @@
 
 from typing import Optional
 
-from PySide6.QtCore import QTimer
 from PySide6.QtGui import QCloseEvent, QKeyEvent, QResizeEvent, QGuiApplication
 from PySide6.QtWidgets import QMainWindow, QWidget
 
@@ -10,6 +9,7 @@ from AppCore.Observation.TransmissionReceiverProtocol import \
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.Observation.Events import KeyboardEvent
 from R4UI import RWidget
+from AppCore.Service.Debouncer import Debouncer
 
 class AppWindow(QMainWindow, TransmissionReceiverProtocol):
     
@@ -29,10 +29,7 @@ class AppWindow(QMainWindow, TransmissionReceiverProtocol):
         self._load_window()
         self._load_window_size()
 
-        self._save_async_timer = QTimer()
-        self._save_async_timer.setSingleShot(True)
-        self._save_async_timer.timeout.connect(self.save)
-        self.debounce_time = 500
+        self._save_debouncer = Debouncer()
         
         self._window_size = None
         
@@ -84,5 +81,5 @@ class AppWindow(QMainWindow, TransmissionReceiverProtocol):
         # must use event value here to get size
         if a0 is not None:
             self._window_size = (a0.size().width(), a0.size().height())
-            self._save_async_timer.start(self.debounce_time)
+            self._save_debouncer.trigger_fn(self.save)
             super(AppWindow, self).resizeEvent(a0)

@@ -14,7 +14,7 @@ from AppCore.DataSource.DataSourceLocallyManagedSets import \
 from AppCore.Models import LocalCardResource
 from AppCore.Observation import ObservationTower
 from AppUI.ExternalAppDependenciesProviding import (
-    ExternalAppDependenciesProviding, SearchQueryBarViewProviding)
+    ExternalAppDependenciesProviding, SearchQueryBarViewProviding, SearchQueryBarViewProviderDelegate)
 from AppUI.Models import DraftListStyleSheet
 from AppUI.Router.Router import Router
 from R4UI import RMenuListBuilder, RWidget, VerticalBoxLayout
@@ -62,8 +62,8 @@ class SWUAppDelegate(ExternalAppDependenciesProviding):
         return self._swu_app_dependencies_provider.asset_provider
 
     # MARK: - Card search
-    def provide_card_search_query_view(self) -> Optional[SearchQueryBarViewProviding]:
-        return SearchQueryBarViewController()
+    def provide_card_search_query_view(self, delegate: Optional[SearchQueryBarViewProviderDelegate]) -> Optional[SearchQueryBarViewProviding]:
+        return SearchQueryBarViewController(delegate)
 
     # MARK: - Image deployer
     @property

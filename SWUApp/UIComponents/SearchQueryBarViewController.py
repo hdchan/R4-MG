@@ -1,7 +1,7 @@
 from typing import Optional
 
 from AppCore.Models import SearchConfiguration
-from AppUI.ExternalAppDependenciesProviding import SearchQueryBarViewProviding
+from AppUI.ExternalAppDependenciesProviding import SearchQueryBarViewProviding, SearchQueryBarViewProviderDelegate
 from R4UI import HorizontalBoxLayout, Label, LineEditText, RComboBox
 
 from ..Models.CardType import CardType
@@ -9,13 +9,15 @@ from ..Models.SWUCardSearchConfiguration import SWUCardSearchConfiguration
 
 
 class SearchQueryBarViewController(SearchQueryBarViewProviding):
-    def __init__(self):
+    def __init__(self, delegate: Optional[SearchQueryBarViewProviderDelegate]):
         super().__init__()
 
         self._query_text: Optional[str] = None
-
+        self._delegate = delegate
         self._query_search_bar = LineEditText(triggered_fn=self._set_text,
                                               placeholder_text="Lookup by card name (Ctrl+L)")
+        self._query_search_bar.textChanged.connect(self._on_text_changed)
+
         self._card_type_selection = RComboBox(list(CardType))
         HorizontalBoxLayout([
             self._query_search_bar,
@@ -31,6 +33,9 @@ class SearchQueryBarViewController(SearchQueryBarViewProviding):
     def set_enabled(self, is_on: bool) -> None:
         self._query_search_bar.setEnabled(is_on)
         self._card_type_selection.setEnabled(is_on)
+
+        if is_on:
+            self._query_search_bar.setFocus()
 
     @property
     def search_configuration(self) -> SearchConfiguration:
@@ -100,3 +105,7 @@ class SearchQueryBarViewController(SearchQueryBarViewProviding):
 
     def set_search_bar_text(self, text: str):
         self._query_search_bar.setText(text)
+
+    def _on_text_changed(self, text: str):
+        if self._delegate is not None:
+            self._delegate.query_text_field_did_update(text)
