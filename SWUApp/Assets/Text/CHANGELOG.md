@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.27.0
+### Feature
+- implemented incremental search
+
+### Engineering
+- Unifying debouncer logic
+- Add sentry sdk for crash logging
+
 ## 0.26.1
 ### Hotfix
 - Fix: Move DB rebuild logic
