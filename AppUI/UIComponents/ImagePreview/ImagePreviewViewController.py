@@ -3,7 +3,6 @@ from typing import Optional
 from PySide6.QtCore import QPoint, Qt
 from PySide6.QtGui import QAction, QClipboard, QGuiApplication, QPixmap
 from PySide6.QtWidgets import QMenu, QVBoxLayout
-
 from AppCore.Config import Configuration
 from AppCore.DataSource.ImageResourceDeployer.DataSourceImageResourceDeployerProtocol import (
     DataSourceImageResourceDeployerProtocol,
@@ -16,7 +15,7 @@ from AppCore.ImageResourceProcessor.ImageResourceProcessorProtocol import (
     ImageResourceProcessorProtocol,
 )
 from AppCore.Models import LocalCardResource
-from AppCore.Observation import TransmissionProtocol, TransmissionReceiverProtocol
+from AppCore.Observation import TransmissionProtocol, TransmissionReceiverProtocol, ObservationTower
 from AppCore.Observation.Events import (
     CacheClearedEvent,
     ConfigurationUpdatedEvent,
@@ -38,7 +37,6 @@ class ImagePreviewViewController(RWidget, TransmissionReceiverProtocol):
         super().__init__()
         self._app_dependencies_provider = app_dependencies_provider
         self._can_post_process = can_post_process
-        self._observation_tower = app_dependencies_provider.observation_tower
         self._configuration_manager = app_dependencies_provider.configuration_manager
         self._asset_provider = app_dependencies_provider.asset_provider
         self._image_resource_processor_provider = app_dependencies_provider.image_resource_processor_provider
@@ -46,7 +44,7 @@ class ImagePreviewViewController(RWidget, TransmissionReceiverProtocol):
         self._router = app_dependencies_provider.router
         self._websocket_service = app_dependencies_provider.websocket_service
         self._external_app_dependencies_provider = app_dependencies_provider.external_app_dependencies_provider
-        self._local_resource: Optional[LocalCardResource] = None
+        self.__local_resource: Optional[LocalCardResource] = None
 
         layout = QVBoxLayout(self)
         self.setLayout(layout)
@@ -105,9 +103,30 @@ class ImagePreviewViewController(RWidget, TransmissionReceiverProtocol):
                                                                            DataSourceImageResourceDeployerStateUpdatedEvent,
                                                                            CacheClearedEvent])
 
+    def _handle_local_resource_fetch_event(self, transmission: TransmissionProtocol):
+        return
+
+    @property
+    def _observation_tower(self) -> ObservationTower:
+        return self._app_dependencies_provider.observation_tower
+
     @property
     def _data_source_image_resource_deployer(self) -> DataSourceImageResourceDeployerProtocol:
         return self._app_dependencies_provider.data_source_image_resource_deployer
+
+    @property
+    def _local_resource(self) -> Optional[LocalCardResource]:
+        return self.__local_resource
+
+    @_local_resource.setter
+    def _local_resource(self, new_value: Optional[LocalCardResource]):
+        if self.__local_resource is not None:
+            self._observation_tower.unsubscribe_handler(self._handle_local_resource_fetch_event, LocalCardResourceFetchEvent, self.__local_resource.asset_path)
+
+        if new_value:
+            self._observation_tower.subscribe_handler(self._handle_local_resource_fetch_event, LocalCardResourceFetchEvent, new_value.asset_path)
+            
+        self.__local_resource = new_value
 
     def set_image(self, local_resource: LocalCardResource):
         self._local_resource = local_resource

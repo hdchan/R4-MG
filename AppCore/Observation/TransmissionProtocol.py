@@ -5,7 +5,11 @@ class TransmissionProtocol:
     def __init__(self):
         self._predecessor: Optional['TransmissionProtocol'] = None
         self.date_time = datetime.datetime.now()
-        
+
+    @property
+    def transmission_identifier(self) -> Optional[str]:
+        return None
+
     @property
     def predecessor(self) -> Optional['TransmissionProtocol']:
         return self._predecessor
