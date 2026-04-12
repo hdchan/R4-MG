@@ -99,7 +99,7 @@ class ImagePreviewViewController(RWidget, TransmissionReceiverProtocol):
         self._sync_image_view_state()
 
         app_dependencies_provider.observation_tower.subscribe_multi(self, [ConfigurationUpdatedEvent,
-                                                                           LocalCardResourceFetchEvent,
+                                                                        #    LocalCardResourceFetchEvent,
                                                                            DataSourceImageResourceDeployerStateUpdatedEvent,
                                                                            CacheClearedEvent])
 
@@ -113,6 +113,9 @@ class ImagePreviewViewController(RWidget, TransmissionReceiverProtocol):
     @property
     def _data_source_image_resource_deployer(self) -> DataSourceImageResourceDeployerProtocol:
         return self._app_dependencies_provider.data_source_image_resource_deployer
+
+    def __del__(self):
+        self._local_resource = None
 
     @property
     def _local_resource(self) -> Optional[LocalCardResource]:

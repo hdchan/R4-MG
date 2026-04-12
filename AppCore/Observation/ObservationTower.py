@@ -27,6 +27,9 @@ class ObservationTower:
         if event.transmission_identifier is not None:
             key = f'{key}.{event.transmission_identifier}'
         if key in self._subscriber_handlers:
+            for h in self._subscriber_handlers[key][:]:
+                if h() is None:
+                    self._subscriber_handlers[key].remove(h)
             for h in self._subscriber_handlers[key]:
                 if h() is None:
                     continue
