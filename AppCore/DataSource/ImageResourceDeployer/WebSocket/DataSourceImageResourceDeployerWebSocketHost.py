@@ -20,6 +20,8 @@ from AppCore.Service.WebSocket.WebSocketServiceProtocol import (
     WebSocketServiceProtocol,
 )
 
+from AppCore.Service.WebSocket.WebSocketModelLocalizer import WebSocketModelLocalizer
+
 from ..DataSourceImageResourceDeployerProtocol import (
     DataSourceImageResourceDeployerProtocol,
 )
@@ -41,9 +43,11 @@ class DataSourceImageResourceDeployerWebSocketHost(DataSourceImageResourceDeploy
     def __init__(self,
                  observation_tower: ObservationTower,
                  websocket_service: WebSocketServiceProtocol,
+                 websocket_model_localizer: WebSocketModelLocalizer,
                  image_resource_processor_provider: ImageResourceProcessorProviding,
                  data_source_image_resource_deployer: DataSourceImageResourceDeployerProtocol):
         self._websocket_service = websocket_service
+        self._websocket_model_localizer = websocket_model_localizer
         self._data_source_image_resource_deployer = data_source_image_resource_deployer
         self._image_resource_processor_provider = image_resource_processor_provider
         self._async_worker = AsyncWorker()
@@ -78,8 +82,9 @@ class DataSourceImageResourceDeployerWebSocketHost(DataSourceImageResourceDeploy
         return self._data_source_image_resource_deployer.latest_deployment_resource(deployment_resource)
 
     def stage_resource(self, deployment_resource: DeploymentCardResource, selected_resource: LocalCardResource):
+        localized_resource = self._websocket_model_localizer.localize_local_card_resource(selected_resource)
         self._data_source_image_resource_deployer.stage_resource(
-            deployment_resource, selected_resource)
+            deployment_resource, localized_resource)
 
     def unstage_resource(self, deployment_resource: DeploymentCardResource):
         self._data_source_image_resource_deployer.unstage_resource(

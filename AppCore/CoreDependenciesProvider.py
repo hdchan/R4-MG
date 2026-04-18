@@ -34,7 +34,7 @@ from AppCore.Models import ModelTransformer
 from AppCore.Observation.Events import ApplicationEvent
 from AppCore.Observation.ObservationTower import ObservationTower
 from AppCore.Service import DataSerializer, PlatformServiceProvider, StringFormatter
-from AppCore.Service.WebSocket import WebSocketService, WebSocketServiceProtocol
+from AppCore.Service.WebSocket import WebSocketService, WebSocketServiceProtocol, WebSocketModelLocalizer
 
 from .CoreDependenciesInternalProviding import CoreDependenciesInternalProviding
 from .CoreDependenciesProviding import CoreDependenciesProviding
@@ -53,6 +53,7 @@ class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesIntern
         self._configuration_manager = configuration_manager
 
         self._websocket_service = WebSocketService(self._observation_tower)
+        self._websocket_model_localizer = WebSocketModelLocalizer(self._configuration_manager)
 
         self._platform_service_provider = PlatformServiceProvider(self._configuration_manager,
                                                                   self._observation_tower)
@@ -69,12 +70,14 @@ class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesIntern
                                                                                                      self._observation_tower,
                                                                                                      self._image_resource_processor_provider,
                                                                                                      self._websocket_service,
+                                                                                                     self._websocket_model_localizer,
                                                                                                      self._data_source_recent_published)
 
         self._data_source_draft_list_provider = DataSourceDraftListProvider(self._configuration_manager,
                                                                             self._observation_tower,
                                                                             self._data_serializer,
                                                                             self._websocket_service, 
+                                                                            self._websocket_model_localizer,
                                                                             self._data_source_image_resource_deployer_provider)
 
         self._data_source_draft_list_window_resource_deployer_provider = DataSourceDraftListWindowResourceDeployerProvider(self._configuration_manager,

@@ -56,7 +56,8 @@ class DataSourceLocallyManagedSets:
 
         if not os.path.isfile(self._path_to_locally_managed_sets_db):
             print("DB does not exist")
-            self._rebuild_locally_managed_sets_db()
+            # Don't attempt to rebuild, as if directory does not exist, then it will crash
+            # self._rebuild_locally_managed_sets_db()
     
     @property
     def _configuration(self) -> Configuration:

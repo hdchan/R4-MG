@@ -191,8 +191,8 @@ class DataSourceCardSearch(DataSourceSelectedLocalCardResourceProtocol):
         def completed_with_search_result(result: DataSourceCardSearchClientSearchResult):
             response, error = result
             if error is None and response is not None:
-                assert(self._current_page == INITIAL_PAGE)
-                assert(len(self._paginated_trading_card_providers) == 0)
+                assert self._current_page == INITIAL_PAGE, self._current_page
+                assert len(self._paginated_trading_card_providers) == 0, len(self._paginated_trading_card_providers)
                 
                 if response.page_count == 0:
                     if self.delegate is not None:
@@ -239,8 +239,8 @@ class DataSourceCardSearch(DataSourceSelectedLocalCardResourceProtocol):
         self._current_page = INITIAL_PAGE
         self._paginated_trading_card_providers = []
         self._current_search_configuration = None
-        assert(self._current_page == INITIAL_PAGE)
-        assert(len(self._paginated_trading_card_providers) == 0)
+        assert self._current_page == INITIAL_PAGE, self._current_page
+        assert len(self._paginated_trading_card_providers) == 0, len(self._paginated_trading_card_providers)
         
         def _runnable_fn() -> DataSourceCardSearchClientSearchResult:
             time.sleep(self._configuration.network_delay_duration) # for debugging

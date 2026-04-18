@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.27.1
+### Hotfix
+- Remove DB init if not exist
+- Localize local resources sent from client to host
+
 ## 0.27.0
 ### Feature
 - implemented incremental search

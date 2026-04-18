@@ -41,7 +41,7 @@ class SearchQueryBarViewController(SearchQueryBarViewProviding):
     def search_configuration(self) -> SearchConfiguration:
         config = SWUCardSearchConfiguration()
         if self._query_text is not None:
-            config.card_name = self._query_text.strip()
+            config.card_name = self._query_text
         try:
             index = self._card_type_selection.currentIndex()
             card_type = list(CardType)[index]
@@ -54,7 +54,7 @@ class SearchQueryBarViewController(SearchQueryBarViewProviding):
     def secondary_search_configuration(self) -> Optional[SearchConfiguration]:
         config = SWUCardSearchConfiguration()
         if self._query_text is not None:
-            config.card_name = self._query_text.strip()
+            config.card_name = self._query_text
         try:
             index = self._card_type_selection.currentIndex()
             card_type = list(CardType)[index]
@@ -68,7 +68,7 @@ class SearchQueryBarViewController(SearchQueryBarViewProviding):
     def tertiary_search_configuration(self) -> Optional[SearchConfiguration]:
         config = SWUCardSearchConfiguration()
         if self._query_text is not None:
-            config.card_name = self._query_text.strip()
+            config.card_name = self._query_text
         try:
             index = self._card_type_selection.currentIndex()
             card_type = list(CardType)[index]

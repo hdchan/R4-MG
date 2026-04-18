@@ -64,7 +64,7 @@ class SWUDBLocalCardRetrieverClient(DataSourceCardSearchClientProtocol):
             else:
                 # TODO: assemble query string with other params, card type, etc
                 filtered_list = self._data_source_local_managed_sets.search_by_card_name(
-                    swu_search_config.card_name.strip())
+                    swu_search_config.card_name)
                 result = DataSourceCardSearchClientSearchResponse(filtered_list)
                 return (result, None)
 

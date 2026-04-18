@@ -71,8 +71,5 @@ class WebSocketServiceProtocol(Protocol):
     def register_as_host(self, host_object: WebSocketHostObjectProtocol):
         raise Exception
 
-    # def register_as_client(self, client_object: WebSocketClientObjectProtocol):
-    #     raise Exception
-
     def send_websocket_message(self, message: WebSocketMessageProtocol):
         raise Exception

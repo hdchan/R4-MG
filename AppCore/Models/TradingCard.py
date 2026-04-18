@@ -1,4 +1,5 @@
 from typing import Any, Dict, Optional
+from urllib.parse import urlparse
 # Should only be subclassed
 class TradingCard():
     def __init__(self,
@@ -90,3 +91,7 @@ class TradingCard():
     @property
     def back_art_url(self) -> Optional[str]:
         raise NotImplementedError
+
+    @property
+    def image_source_domain(self) -> str:
+        return urlparse(self.front_art_url).netloc

@@ -12,7 +12,7 @@ class SWUCardSearchConfiguration(SearchConfiguration):
     def from_search_configuration(cls, search_configuration: SearchConfiguration):
         obj = cls.__new__(cls)
         super(SWUCardSearchConfiguration, obj).__init__()
-        obj.card_name = search_configuration.card_name
+        obj.card_name = search_configuration.card_name.strip()
         obj.metadata = search_configuration.metadata
         return obj
 

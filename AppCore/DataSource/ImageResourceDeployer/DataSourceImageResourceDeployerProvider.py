@@ -6,6 +6,8 @@ from AppCore.ImageResourceProcessor import ImageResourceProcessorProviding
 from AppCore.Observation import (ObservationTower, TransmissionProtocol,
                                  TransmissionReceiverProtocol)
 from AppCore.Service.WebSocket.Events import WebSocketStatusUpdatedEvent
+from AppCore.Service.WebSocket.WebSocketModelLocalizer import \
+    WebSocketModelLocalizer
 from AppCore.Service.WebSocket.WebSocketServiceProtocol import (
     WebSocketMessageReceiverProtocol, WebSocketServiceProtocol,
     WebSocketServiceStatus)
@@ -27,9 +29,11 @@ class DataSourceImageResourceDeployerProvider(DataSourceImageResourceDeployerPro
                  observation_tower: ObservationTower,
                  image_resource_processor_provider: ImageResourceProcessorProviding,
                  websocket_service: WebSocketServiceProtocol,
+                 websocket_model_localizer: WebSocketModelLocalizer,
                  data_source_recent_published: DataSourceRecentPublished):
         self._image_resource_processor_provider = image_resource_processor_provider
         self._websocket_service = websocket_service
+        self._websocket_model_localizer = websocket_model_localizer
         self._observation_tower = observation_tower
         self._data_source_image_resource_deployer = DataSourceImageResourceDeployer(configuration_manager,
                                                                                     observation_tower,
@@ -56,6 +60,7 @@ class DataSourceImageResourceDeployerProvider(DataSourceImageResourceDeployerPro
             elif self._websocket_service.state == WebSocketServiceStatus.IS_HOST:
                 self._current_websocket_ds = DataSourceImageResourceDeployerWebSocketHost(self._observation_tower,
                                                                                           self._websocket_service,
+                                                                                          self._websocket_model_localizer,
                                                                                           self._image_resource_processor_provider,
                                                                                           self._data_source_image_resource_deployer)
             else:

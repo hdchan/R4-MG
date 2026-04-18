@@ -8,6 +8,8 @@ from AppCore.Observation import (ObservationTower, TransmissionProtocol,
                                  TransmissionReceiverProtocol)
 from AppCore.Service.WebSocket.Messages import \
     WebSocketMessagePayloadObservationTowerTransmission
+from AppCore.Service.WebSocket.WebSocketModelLocalizer import \
+    WebSocketModelLocalizer
 from AppCore.Service.WebSocket.WebSocketServiceProtocol import (
     WebSocketClientObjectProtocol, WebSocketHostObjectProtocol,
     WebSocketMessageReceiverProtocol, WebSocketServiceProtocol)
@@ -26,10 +28,12 @@ class DataSourceDraftListWebSocketHost(QObject,
     def __init__(self,
                  observation_tower: ObservationTower,
                  websocket_service: WebSocketServiceProtocol,
+                 websocket_model_localizer: WebSocketModelLocalizer,
                  draft_list_data_source: DataSourceDraftListProtocol):
         super().__init__()
         self._draft_list_data_source = draft_list_data_source
         self._websocket_service = websocket_service
+        self._websocket_model_localizer = websocket_model_localizer
 
         self._websocket_service.register_as_host(self)
         self._websocket_service.register_for_messages(
@@ -52,7 +56,10 @@ class DataSourceDraftListWebSocketHost(QObject,
         self._draft_list_data_source.create_new_pack()
 
     def create_new_pack_from_list(self, name: str, list: List[LocalCardResource]):
-        self._draft_list_data_source.create_new_pack_from_list(name, list)
+        localized_resource_list = self._websocket_model_localizer.localize_local_card_resource_list(
+            list)
+        self._draft_list_data_source.create_new_pack_from_list(
+            name, localized_resource_list)
 
     def update_pack_name(self, pack_index: int, name: str):
         self._draft_list_data_source.update_pack_name(pack_index, name)
@@ -65,8 +72,10 @@ class DataSourceDraftListWebSocketHost(QObject,
 
     # MARK: - modify resource order
     def add_resource_to_pack(self, pack_index: int, local_resource: LocalCardResource):
+        localized_resource = self._websocket_model_localizer.localize_local_card_resource(
+            local_resource)
         self._draft_list_data_source.add_resource_to_pack(
-            pack_index, local_resource)
+            pack_index, localized_resource)
 
     def remove_resource(self, pack_index: int, resource_index: int):
         self._draft_list_data_source.remove_resource(
@@ -77,8 +86,10 @@ class DataSourceDraftListWebSocketHost(QObject,
             pack_index, ri1, ri2)
 
     def insert_resource(self, pack_index: int, resource_index: int, local_resource: LocalCardResource):
+        localized_resource = self._websocket_model_localizer.localize_local_card_resource(
+            local_resource)
         self._draft_list_data_source.insert_resource(
-            pack_index, resource_index, local_resource)
+            pack_index, resource_index, localized_resource)
 
     def mark_resource_as_sideboard(self, pack_index: int, resource_index: int, key: str, value: Any):
         self._draft_list_data_source.mark_resource_as_sideboard(

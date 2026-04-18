@@ -21,6 +21,8 @@ class MainAssembly:
             # Add data like request headers and IP for users,
             # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
             send_default_pii=True,
+            traces_sample_rate=1.0,
+            release=f"{Configuration.APP_NAME}@{Configuration.APP_VERSION}"
         )
         # Ensure this is set before config manager writes out to settings file
         self.app.setApplicationName(Configuration.APP_NAME)

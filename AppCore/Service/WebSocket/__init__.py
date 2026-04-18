@@ -1,2 +1,3 @@
 from .WebSocketServiceProtocol import WebSocketServiceProtocol
 from .WebSocketService import WebSocketService
+from .WebSocketModelLocalizer import WebSocketModelLocalizer

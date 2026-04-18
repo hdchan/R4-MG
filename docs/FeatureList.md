@@ -36,3 +36,18 @@ cleared deck and generated new one but kept the old deck
 but worked after closing the window and opening it again
 
 
+
+
+
+# Standing importer
+- download csv 
+- font and colors
+- font heading "top X standing - after round x" 
+- 1st iteration with just downloading csv
+    - loop scan for csv file
+    - custom directory set for csv file
+- 2nd iteration with interfacing with melee api
+
+# Decklist importer
+grid list
+but refine
