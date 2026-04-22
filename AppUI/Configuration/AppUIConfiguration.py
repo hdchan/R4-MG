@@ -1,9 +1,10 @@
 
 import copy
+from typing import Optional
 
 from AppCore.Config import (Configuration, ConfigurationManager,
                             MutableConfiguration)
-from AppUI.Models import DraftListStyleSheet, WindowDimensions
+from AppUI.Models import DraftListStyleSheet, WindowDimensions, PlayerStandingsListStyleSheet
 
 
 class AppUIConfiguration():
@@ -14,6 +15,10 @@ class AppUIConfiguration():
         
     class Keys:
         DRAFT_LIST_STYLES = 'draft_list_styles'
+        PLAYER_STANDINGS_LIST_STYLES = 'player_standings_list_styles'
+        PLAYER_STANDINGS_FOLDER_DIR_PATH = 'player_standings_folder_dir_path'
+        PLAYER_STANDINGS_COUNT = 'player_standings_count'
+        PLAYER_STANDINGS_HEADER_TEXT = 'player_standings_header_text'
         WINDOW_DIMENSIONS = 'window_dimensions'
     
     @property
@@ -26,10 +31,35 @@ class AppUIConfiguration():
     
     @property
     def draft_list_styles(self) -> DraftListStyleSheet:
-        draft_styles_json = self._configuration.configuration_for_key(self.Keys.DRAFT_LIST_STYLES)
-        if draft_styles_json is not None:
-            return DraftListStyleSheet.from_json(draft_styles_json)
+        styles_json = self._configuration.configuration_for_key(self.Keys.DRAFT_LIST_STYLES)
+        if styles_json is not None:
+            return DraftListStyleSheet.from_json(styles_json)
         return DraftListStyleSheet.default_style()
+
+    @property
+    def player_standings_list_styles(self) -> PlayerStandingsListStyleSheet:
+        styles_json = self._configuration.configuration_for_key(self.Keys.PLAYER_STANDINGS_LIST_STYLES)
+        if styles_json is not None:
+            return PlayerStandingsListStyleSheet.from_json(styles_json)
+        return PlayerStandingsListStyleSheet.default_style()
+
+    @property
+    def player_standings_folder_dir_path(self) -> Optional[str]:
+        return self._configuration.configuration_for_key(self.Keys.PLAYER_STANDINGS_FOLDER_DIR_PATH)
+
+    @property
+    def player_standings_count(self) -> int:
+        count = self._configuration.configuration_for_key(self.Keys.PLAYER_STANDINGS_COUNT)
+        if count is None or count < 0:
+            return 8
+        return count
+    
+    @property
+    def player_standings_header_text(self) -> str:
+        text = self._configuration.configuration_for_key(self.Keys.PLAYER_STANDINGS_HEADER_TEXT)
+        if text is None:
+            return "Player Standings"
+        return text
     
     @property
     def window_dimensions(self) -> WindowDimensions:
@@ -41,6 +71,18 @@ class AppUIConfiguration():
 class MutableAppUIConfiguration(AppUIConfiguration):
     def set_draft_list_styles(self, value: DraftListStyleSheet):
         self._configuration.set_configuration_for_key(self.Keys.DRAFT_LIST_STYLES, value.to_data())
+
+    def set_player_standings_list_styles(self, value: PlayerStandingsListStyleSheet):
+        self._configuration.set_configuration_for_key(self.Keys.PLAYER_STANDINGS_LIST_STYLES, value.to_data())
+
+    def set_player_standings_folder_dir_path(self, value: Optional[str]):
+        self._configuration.set_configuration_for_key(self.Keys.PLAYER_STANDINGS_FOLDER_DIR_PATH, value)
+
+    def set_player_standings_count(self, value: int):
+        self._configuration.set_configuration_for_key(self.Keys.PLAYER_STANDINGS_COUNT, value)
+        
+    def set_player_standings_header_text(self, value: str):
+        self._configuration.set_configuration_for_key(self.Keys.PLAYER_STANDINGS_HEADER_TEXT, value)
         
     def set_window_dimensions(self, value: WindowDimensions):
         self._configuration.set_configuration_for_key(self.Keys.WINDOW_DIMENSIONS, value.to_data())

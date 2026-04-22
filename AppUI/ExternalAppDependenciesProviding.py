@@ -15,7 +15,7 @@ from AppCore.Models import LocalCardResource, SearchConfiguration
 from AppUI.Models import DraftListStyleSheet
 from AppUI.Router.Router import Router
 from R4UI import RMenuListBuilder, RWidget
-
+from AppCore.DataSource.PlayerStandings.DataSourcePlayerStandingsProtocol import DataSourcePlayerStandingsClientProtocol
 
 class SearchQueryBarViewProviderDelegate:
     def query_text_field_did_update(self, text: str) -> None:
@@ -62,7 +62,7 @@ class ExternalAppDependenciesProviding:
         return None
 
     # MARK: - Card search
-    def provide_card_search_query_view(self) -> Optional[SearchQueryBarViewProviding]:
+    def provide_card_search_query_view(self, delegate: Optional[SearchQueryBarViewProviderDelegate]) -> Optional[SearchQueryBarViewProviding]:
         return None
 
     # MARK: - Image deployer
@@ -95,6 +95,11 @@ class ExternalAppDependenciesProviding:
         raise Exception
 
     def provide_draft_list_image_preview_widget(self) -> RWidget:
+        raise Exception
+
+    # MARK: - Player Standings
+    @property
+    def player_standings_data_source_client(self) -> DataSourcePlayerStandingsClientProtocol:
         raise Exception
 
     # Optional

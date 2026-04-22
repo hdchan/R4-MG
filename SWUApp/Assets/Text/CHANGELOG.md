@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.28.0
+### Feature
+- Adds player standings functionality
+
+### Engineering
+- Removing aggregated draft list functionality
+- remove container_background_image_path
+- Saving PlayerStandingsListStyleSheet
+- Style changes integration for player standings
+- Async write to configuration
+- Swallowing loading spinner exception
+- Unifying font style apply
+- Adding text settings and dynamic standing count
+
 ## 0.27.1
 ### Hotfix
 - Remove DB init if not exist

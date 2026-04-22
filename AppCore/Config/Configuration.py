@@ -48,6 +48,8 @@ class Configuration():
             DRAFT_LIST_ADD_CARD_MODE = 'draft_list_add_card_mode'
             DRAFT_LIST_ADD_CARD_DEPLOYMENT_DESTINATION = 'draft_list_add_card_deployment_destination'
 
+            
+
             IS_MOCK_DATA = 'is_mock_data'
             IS_DELAY_NETWORK_MODE = 'is_delay_network_mode'
         

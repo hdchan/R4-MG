@@ -18,7 +18,7 @@ from AppCore.ImageResourceProcessor import ImageResourceProcessorProviding
 from AppCore.Observation.ObservationTower import ObservationTower
 from AppCore.Service import DataSerializer, PlatformServiceProvider, StringFormatter
 from AppCore.Service.WebSocket import WebSocketServiceProtocol
-
+from AppCore.DataSource.PlayerStandings import DataSourcePlayerStandingsProviding
 
 class CoreDependenciesProviding:
     @property
@@ -69,6 +69,10 @@ class CoreDependenciesProviding:
     
     @property
     def data_source_draft_list_window_resource_deployer(self) -> DataSourceDraftListWindowResourceDeployerProtocol:
+        raise Exception
+
+    @property
+    def data_source_player_standings_provider(self) -> DataSourcePlayerStandingsProviding:
         raise Exception
 
     @property
