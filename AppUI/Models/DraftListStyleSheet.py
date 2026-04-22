@@ -12,7 +12,6 @@ class DraftListCellStyleSheet():
         CELL_BACKGROUND_COLOR = 'cell_background_color'
         
     def to_data(self) -> Dict[str, Any]:
-        """Convert the cell style sheet properties to a dictionary format"""
         return {
             self.Keys.CELL_FONT_COLOR: self.cell_font_color,
             self.Keys.CELL_BACKGROUND_COLOR: self.cell_background_color
@@ -20,7 +19,6 @@ class DraftListCellStyleSheet():
     
     @classmethod
     def from_json(cls, json: Dict[str, Any]):
-        """Create a cell style sheet instance from JSON data"""
         default_style = DraftListCellStyleSheet.default_style()
         return cls(
             cell_font_color=json.get(cls.Keys.CELL_FONT_COLOR, default_style.cell_font_color),
@@ -29,7 +27,6 @@ class DraftListCellStyleSheet():
         
     @classmethod
     def default_style(cls):
-        """Create a style sheet instance from JSON data"""
         return cls(
             cell_font_color='white',
             cell_background_color='grey'
