@@ -53,7 +53,6 @@ class DraftListStyleSheet():
                  cell_font_size: int, 
                  cell_aspect_image_size: int,
                  interval_cell_styles: list[DraftListCellStyleSheet],
-                 container_background_image_path: Optional[str], 
                  cell_font_path: Optional[str],
                  cell_header_padding_left: int,
                  cell_header_padding_top: int,
@@ -80,7 +79,6 @@ class DraftListStyleSheet():
         self.cell_font_size = cell_font_size
         self.cell_aspect_image_size = cell_aspect_image_size
         self.interval_cell_styles = interval_cell_styles
-        self.container_background_image_path = container_background_image_path
         self.cell_font_path = cell_font_path
         self.cell_header_padding_left = cell_header_padding_left
         self.cell_header_padding_top = cell_header_padding_top
@@ -98,7 +96,6 @@ class DraftListStyleSheet():
         CONTAINER_PADDING_RIGHT = 'container_padding_right'
         CONTAINER_PADDING_BOTTOM = 'container_padding_bottom'
         CONTAINER_BACKGROUND_COLOR = 'container_background_color'
-        CONTAINER_BACKGROUND_IMAGE_PATH = 'container_background_image_path'
         CELL_SPACING = 'cell_spacing'
         CELL_CONTENT_SPACING = 'cell_content_spacing'
         CELL_PADDING_LEFT = 'cell_padding_left'
@@ -128,7 +125,6 @@ class DraftListStyleSheet():
             self.Keys.CONTAINER_PADDING_RIGHT: self.container_padding_right,
             self.Keys.CONTAINER_PADDING_BOTTOM: self.container_padding_bottom,
             self.Keys.CONTAINER_BACKGROUND_COLOR: self.container_background_color,
-            self.Keys.CONTAINER_BACKGROUND_IMAGE_PATH: self.container_background_image_path,
             self.Keys.CELL_SPACING: self.cell_spacing,
             self.Keys.CELL_CONTENT_SPACING: self.cell_content_spacing,
             self.Keys.CELL_PADDING_LEFT: self.cell_padding_left,
@@ -179,7 +175,6 @@ class DraftListStyleSheet():
             cell_font_size=json.get(cls.Keys.CELL_FONT_SIZE, default.cell_font_size),
             cell_aspect_image_size=json.get(cls.Keys.CELL_ASPECT_IMAGE_SIZE, default.cell_aspect_image_size),
             interval_cell_styles=interval_cell_styles,
-            container_background_image_path=json.get(cls.Keys.CONTAINER_BACKGROUND_IMAGE_PATH, default.container_background_image_path),
             cell_font_path=json.get(cls.Keys.CELL_FONT_PATH, default.cell_font_path),
             cell_header_padding_left=json.get(cls.Keys.CELL_HEADER_PADDING_LEFT, default.cell_header_padding_left),
             cell_header_padding_top=json.get(cls.Keys.CELL_HEADER_PADDING_TOP, default.cell_header_padding_top),
@@ -211,7 +206,6 @@ class DraftListStyleSheet():
             cell_font_size=9,
             cell_aspect_image_size=20,
             interval_cell_styles=[],
-            container_background_image_path=None,
             cell_font_path=None,
             cell_header_padding_left=5,
             cell_header_padding_top=5,
@@ -238,9 +232,6 @@ class DraftListStyleSheet():
     
     def set_container_background_color(self, value: str) -> None:
         self.container_background_color = value
-        
-    def set_container_background_image_path(self, value: Optional[str]) -> None:
-        self.container_background_image_path = value
     
     def set_cell_spacing(self, value: int) -> None:
         self.cell_spacing = value
