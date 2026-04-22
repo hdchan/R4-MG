@@ -1,7 +1,7 @@
 from typing import List, Optional, Sequence
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QWidget
+from PySide6.QtWidgets import QWidget, QLayout
 from PySide6.QtWidgets import (QBoxLayout, QGridLayout, QHBoxLayout, QSpacerItem,
                              QVBoxLayout)
 
@@ -26,6 +26,9 @@ class BoxLayout(RWidget):
             
     def set_alignment_top(self) -> 'BoxLayout':
         return self.set_alignment_for_all_widgets(Qt.AlignmentFlag.AlignTop)
+
+    def set_alignment_center_h(self) -> 'BoxLayout':
+        return self.set_alignment_for_all_widgets(Qt.AlignmentFlag.AlignHCenter)
     
     def add_widgets(self, widgets: Sequence[QWidget], weights: List[Optional[int]] = []):
         for i, w in enumerate(widgets):
@@ -63,6 +66,9 @@ class BoxLayout(RWidget):
     def set_content_margins(self, left: int, top: int, right: int, bottom: int) -> 'BoxLayout':
         self._layout.setContentsMargins(left, top, right, bottom)
         return self
+
+    def clear_widgets(self):
+        self._clear_widgets()
     
     def _clear_widgets(self):
         for i in reversed(range(self._layout.count())):
@@ -130,12 +136,18 @@ class GridLayout(RWidget):
         self._layout = QGridLayout()
         self.setLayout(self._layout)
         self.add_widgets(widgets)
-        
+    
+    def set_column_stretch(self, col: int, stretch: int):
+        self._layout.setColumnStretch(col, stretch)
+
     def add_widgets(self, widgets: List[tuple[RWidget, tuple[int, int]]]):
         for w, p in widgets:
             self._widgets.append(w)
             self._layout.addWidget(w, p[0], p[1])
-            
+    
+    def clear_widgets(self):
+        self._clear_widgets()
+
     def _clear_widgets(self):
         for i in reversed(range(self._layout.count())):
             layout_item = self._layout.takeAt(i)
@@ -157,4 +169,19 @@ class GridLayout(RWidget):
     
     def set_content_margins(self, left: int, top: int, right: int, bottom: int) -> 'GridLayout':
         self._layout.setContentsMargins(left, top, right, bottom)
+        return self
+
+    def set_uniform_content_margins(self, margin: int) -> 'GridLayout':
+        return self.set_content_margins(margin, margin, margin, margin)
+
+    def set_vertical_spacing(self, spacing: int) -> 'GridLayout':
+        self._layout.setVerticalSpacing(spacing)
+        return self
+
+    def set_horizontal_spacing(self, spacing: int) -> 'GridLayout':
+        self._layout.setHorizontalSpacing(spacing)
+        return self
+
+    def set_no_constraints(self):
+        self._layout.setSizeConstraint(QLayout.SetNoConstraint)
         return self

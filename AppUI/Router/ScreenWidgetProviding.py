@@ -32,3 +32,6 @@ class ScreenWidgetProviding:
     
     def draft_list_image_preview_view(self) -> RWidget:
         raise NotImplementedError
+
+    def player_standings_window(self) -> RWidget:
+        raise NotImplementedError

@@ -12,7 +12,7 @@ from PySide6.QtCore import QStandardPaths
 class Configuration():
     
     APP_NAME = 'R4-MG'
-    APP_VERSION = '0.27.1'
+    APP_VERSION = '0.28.0'
     SETTINGS_VERSION = '1.0'
     
     class Toggles:
@@ -47,6 +47,8 @@ class Configuration():
             DRAFT_LIST_STYLES = 'draft_list_styles'
             DRAFT_LIST_ADD_CARD_MODE = 'draft_list_add_card_mode'
             DRAFT_LIST_ADD_CARD_DEPLOYMENT_DESTINATION = 'draft_list_add_card_deployment_destination'
+
+            
 
             IS_MOCK_DATA = 'is_mock_data'
             IS_DELAY_NETWORK_MODE = 'is_delay_network_mode'

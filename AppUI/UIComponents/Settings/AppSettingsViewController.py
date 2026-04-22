@@ -8,6 +8,7 @@ from R4UI import (HorizontalBoxLayout, PushButton, RWidget, RTabWidget,
 from .DraftListSettingsViewController import DraftListSettingsViewController
 from .ImageDeploymentSettingsViewController import ImageDeploymentSettingsViewController
 from .ToggleSettingsViewController import ToggleSettingsViewController
+from .PlayerStandingsListSettingsViewController import PlayerStandingsListSettingsViewController
 
 class AppSettingsViewController(RWidget):
 
@@ -25,7 +26,8 @@ class AppSettingsViewController(RWidget):
         self._children: List[Tuple[SettingsContainerChildProtocol, str]] = [
             (ImageDeploymentSettingsViewController(self._app_dependencies_provider), "Image Deployer"),
             (DraftListSettingsViewController(self._app_dependencies_provider), "Draft List"),
-            (ToggleSettingsViewController(self._app_dependencies_provider), "Toggles")
+            (ToggleSettingsViewController(self._app_dependencies_provider), "Toggles"),
+            (PlayerStandingsListSettingsViewController(self._app_dependencies_provider), "Player Standings List")
         ]
         
         self._tab_widget = RTabWidget(self._children)

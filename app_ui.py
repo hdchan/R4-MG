@@ -48,6 +48,7 @@ class MainAssembly:
         self._app_ui_dependencies_provider.router.open_draft_list_deployment_view()
         if self._configuration_manager.configuration.is_draft_list_image_preview_enabled:
             self._app_ui_dependencies_provider.router.open_draft_list_image_preview_view()
+        self._app_ui_dependencies_provider.router.open_player_standings_view()
 
         self.app.setWindowIcon(QIcon(self._swu_app_delegate.logo_path))
         self.app.exec()

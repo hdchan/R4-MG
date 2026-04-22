@@ -1,13 +1,14 @@
 
-from AppCore.DataSource.DraftList import DataSourceDraftListProviding
 from AppCore.DataSource.DataSourceCardSearch import (
     DataSourceCardSearch, DataSourceCardSearchDelegate)
+from AppCore.DataSource.DraftList import DataSourceDraftListProviding
 from AppCore.ImageResourceProcessor import ImageResourceProcessorProviding
 from AppCore.Observation.ObservationTower import ObservationTower
 from AppUI.Router.Router import Router
 
 from .Assets import AssetProvider
 from .Config.SWUAppConfiguration import SWUAppConfigurationManager
+
 
 class SWUAppDependenciesProviding:
     @property

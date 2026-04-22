@@ -98,13 +98,12 @@ class DraftListTablePackPreviewViewController(QWidget, TransmissionReceiverProto
         self.clear_list()
         if self._delegate is not None and self._delegate.dlp_pack_identifier is not None:
             pack_identifier = self._delegate.dlp_pack_identifier
-            aggregate_list: bool = not self._delegate.dlp_is_staging_view and self._stylesheet.is_list_aggregated
             
             draft_pack = self._data_source_draft_list.pack_for_draft_pack_identifier(pack_identifier)
             if draft_pack is None:
                 return
             list_to_enumerate = draft_pack.draft_list
-            externally_modified_list = self._external_app_dependencies_provider.draft_resource_list(list_to_enumerate, aggregate_list)
+            externally_modified_list = self._external_app_dependencies_provider.draft_resource_list(list_to_enumerate, False)
             if externally_modified_list is not None:
                 list_to_enumerate = externally_modified_list # use external implementation if present
             
@@ -150,20 +149,7 @@ class DraftListTablePackPreviewViewController(QWidget, TransmissionReceiverProto
             self._scroll_view.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
             
         palette = self.palette()
-        background_image = None
-        if background_image is not None:
-            pixmap = QPixmap(background_image)
-        
-            height = self.height()
-            width = self.width()
-            scaled_pixmap = pixmap.scaled(
-                    width, height, 
-                    Qt.AspectRatioMode.KeepAspectRatioByExpanding, Qt.TransformationMode.SmoothTransformation
-                )
-            palette.setBrush(QPalette.ColorRole.Window, QBrush(scaled_pixmap))
-        else:
-            palette.setColor(QPalette.ColorRole.Window, QColor(stylesheet.container_background_color)) # Set background color
-            
+        palette.setColor(QPalette.ColorRole.Window, QColor(stylesheet.container_background_color)) # Set background color
         self.setAutoFillBackground(True) # Enable background filling
         self.setPalette(palette)
     

@@ -11,3 +11,4 @@ from .LocalResourceDraftListWindow import DraftListWindowConfiguration, LocalRes
 from .DataSourceSelectedLocalCardResource import DataSourceSelectedLocalCardResourceProtocol, LocalResourceDataSourceProviding
 from .ModelTransformer import ModelTransformer
 from .WebSocketPayload import WebSocketPayload
+from .PlayerStanding import PlayerStanding

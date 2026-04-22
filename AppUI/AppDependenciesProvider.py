@@ -16,11 +16,12 @@ from AppUI.Configuration.AppUIConfiguration import AppUIConfigurationManager
 from AppUI.ExternalAppDependenciesProviding import ExternalAppDependenciesProviding
 from AppUI.Router.Router import Router
 from AppUI.UIComponents.ScreenWidgetProvider import ScreenWidgetProvider
+from AppCore.DataSource.PlayerStandings import DataSourcePlayerStandingsProviding, DataSourcePlayerStandingsProvider
 
 
 class AppDependenciesProvider(CoreDependenciesProvider, AppDependenciesProviding, AppDependenciesInternalProviding):
-        def __init__(self, 
-                     observation_tower: ObservationTower, 
+        def __init__(self,
+                     observation_tower: ObservationTower,
                      configuration_manager: ConfigurationManager,
                      model_transformer: ModelTransformer,
                      external_app_dependencies_provider: ExternalAppDependenciesProviding):
@@ -28,14 +29,19 @@ class AppDependenciesProvider(CoreDependenciesProvider, AppDependenciesProviding
             self._asset_provider = AssetProvider()
             self._external_app_dependencies_provider = external_app_dependencies_provider
             self._shortcut_action_coordinator = ShortcutActionCoordinator()
-            self._app_ui_configuration = AppUIConfigurationManager(self._configuration_manager)
-            
+            self._app_ui_configuration = AppUIConfigurationManager(
+                self._configuration_manager)
+
             self._local_managed_sets_data_source = DataSourceLocallyManagedSets(self._configuration_manager,
                                                                                 self._observation_tower,
                                                                                 self._data_serializer,
-                                                                                client=self._external_app_dependencies_provider.locally_managed_sets_client, 
+                                                                                client=self._external_app_dependencies_provider.locally_managed_sets_client,
                                                                                 model_transformer=model_transformer)
-            
+
+            self._data_source_player_standings_provider = DataSourcePlayerStandingsProvider(self._configuration_manager,
+                                                                                            self._observation_tower, 
+                                                                                            self._external_app_dependencies_provider.player_standings_data_source_client)
+
             self._router = Router(ScreenWidgetProvider(self, self))
 
         @property
@@ -45,7 +51,7 @@ class AppDependenciesProvider(CoreDependenciesProvider, AppDependenciesProviding
         @property
         def shortcut_action_coordinator(self) -> ShortcutActionCoordinator:
             return self._shortcut_action_coordinator
-        
+
         @property
         def asset_provider(self) -> AssetProvider:
             return self._asset_provider
@@ -53,10 +59,14 @@ class AppDependenciesProvider(CoreDependenciesProvider, AppDependenciesProviding
         @property
         def search_client_provider(self) -> DataSourceCardSearchClientProviding:
             return self.external_app_dependencies_provider.data_source_card_search_client_provider(self._local_managed_sets_data_source)
-        
+
         @property
         def local_managed_sets_data_source(self) -> DataSourceLocallyManagedSets:
             return self._local_managed_sets_data_source
+
+        @property
+        def data_source_player_standings_provider(self) -> DataSourcePlayerStandingsProviding:
+            return self._data_source_player_standings_provider
         
         @property
         def app_ui_configuration_manager(self) -> AppUIConfigurationManager:

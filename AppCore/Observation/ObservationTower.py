@@ -40,7 +40,8 @@ class ObservationTower:
                 try:
                     s().handle_observation_tower_event(event) # type: ignore
                 except Exception as e:
-                    print(str(e))
+                    # print(str(e))
+                    continue
         if self._is_debug:
             self._debug_log(event)
 

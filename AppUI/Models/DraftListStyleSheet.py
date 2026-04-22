@@ -12,7 +12,6 @@ class DraftListCellStyleSheet():
         CELL_BACKGROUND_COLOR = 'cell_background_color'
         
     def to_data(self) -> Dict[str, Any]:
-        """Convert the cell style sheet properties to a dictionary format"""
         return {
             self.Keys.CELL_FONT_COLOR: self.cell_font_color,
             self.Keys.CELL_BACKGROUND_COLOR: self.cell_background_color
@@ -20,7 +19,6 @@ class DraftListCellStyleSheet():
     
     @classmethod
     def from_json(cls, json: Dict[str, Any]):
-        """Create a cell style sheet instance from JSON data"""
         default_style = DraftListCellStyleSheet.default_style()
         return cls(
             cell_font_color=json.get(cls.Keys.CELL_FONT_COLOR, default_style.cell_font_color),
@@ -29,7 +27,6 @@ class DraftListCellStyleSheet():
         
     @classmethod
     def default_style(cls):
-        """Create a style sheet instance from JSON data"""
         return cls(
             cell_font_color='white',
             cell_background_color='grey'
@@ -53,8 +50,6 @@ class DraftListStyleSheet():
                  cell_font_size: int, 
                  cell_aspect_image_size: int,
                  interval_cell_styles: list[DraftListCellStyleSheet],
-                 is_list_aggregated: bool,
-                 container_background_image_path: Optional[str], 
                  cell_font_path: Optional[str],
                  cell_header_padding_left: int,
                  cell_header_padding_top: int,
@@ -81,8 +76,6 @@ class DraftListStyleSheet():
         self.cell_font_size = cell_font_size
         self.cell_aspect_image_size = cell_aspect_image_size
         self.interval_cell_styles = interval_cell_styles
-        self.is_list_aggregated = is_list_aggregated
-        self.container_background_image_path = container_background_image_path
         self.cell_font_path = cell_font_path
         self.cell_header_padding_left = cell_header_padding_left
         self.cell_header_padding_top = cell_header_padding_top
@@ -100,7 +93,6 @@ class DraftListStyleSheet():
         CONTAINER_PADDING_RIGHT = 'container_padding_right'
         CONTAINER_PADDING_BOTTOM = 'container_padding_bottom'
         CONTAINER_BACKGROUND_COLOR = 'container_background_color'
-        CONTAINER_BACKGROUND_IMAGE_PATH = 'container_background_image_path'
         CELL_SPACING = 'cell_spacing'
         CELL_CONTENT_SPACING = 'cell_content_spacing'
         CELL_PADDING_LEFT = 'cell_padding_left'
@@ -113,7 +105,6 @@ class DraftListStyleSheet():
         CELL_FONT_PATH = 'cell_font_path'
         CELL_ASPECT_IMAGE_SIZE = 'cell_aspect_image_size'
         INTERVAL_CELL_STYLES = 'interval_cell_styles'
-        IS_LIST_AGGREGATED = 'is_list_aggregated'
         CELL_HEADER_PADDING_LEFT = 'cell_header_padding_left'
         CELL_HEADER_PADDING_TOP = 'cell_header_padding_top'
         CELL_HEADER_PADDING_RIGHT = 'cell_header_padding_right'
@@ -131,7 +122,6 @@ class DraftListStyleSheet():
             self.Keys.CONTAINER_PADDING_RIGHT: self.container_padding_right,
             self.Keys.CONTAINER_PADDING_BOTTOM: self.container_padding_bottom,
             self.Keys.CONTAINER_BACKGROUND_COLOR: self.container_background_color,
-            self.Keys.CONTAINER_BACKGROUND_IMAGE_PATH: self.container_background_image_path,
             self.Keys.CELL_SPACING: self.cell_spacing,
             self.Keys.CELL_CONTENT_SPACING: self.cell_content_spacing,
             self.Keys.CELL_PADDING_LEFT: self.cell_padding_left,
@@ -143,7 +133,6 @@ class DraftListStyleSheet():
             self.Keys.CELL_FONT_SIZE: self.cell_font_size,
             self.Keys.CELL_ASPECT_IMAGE_SIZE: self.cell_aspect_image_size,
             self.Keys.INTERVAL_CELL_STYLES: list(map(lambda x: x.to_data(), self.interval_cell_styles)),
-            self.Keys.IS_LIST_AGGREGATED: self.is_list_aggregated,
             self.Keys.CELL_FONT_PATH: self.cell_font_path,
             self.Keys.CELL_HEADER_PADDING_LEFT: self.cell_header_padding_left,
             self.Keys.CELL_HEADER_PADDING_TOP: self.cell_header_padding_top,
@@ -183,8 +172,6 @@ class DraftListStyleSheet():
             cell_font_size=json.get(cls.Keys.CELL_FONT_SIZE, default.cell_font_size),
             cell_aspect_image_size=json.get(cls.Keys.CELL_ASPECT_IMAGE_SIZE, default.cell_aspect_image_size),
             interval_cell_styles=interval_cell_styles,
-            is_list_aggregated=json.get(cls.Keys.IS_LIST_AGGREGATED, default.is_list_aggregated),
-            container_background_image_path=json.get(cls.Keys.CONTAINER_BACKGROUND_IMAGE_PATH, default.container_background_image_path),
             cell_font_path=json.get(cls.Keys.CELL_FONT_PATH, default.cell_font_path),
             cell_header_padding_left=json.get(cls.Keys.CELL_HEADER_PADDING_LEFT, default.cell_header_padding_left),
             cell_header_padding_top=json.get(cls.Keys.CELL_HEADER_PADDING_TOP, default.cell_header_padding_top),
@@ -199,7 +186,6 @@ class DraftListStyleSheet():
         
     @classmethod
     def default_style(cls):
-        """Create a style sheet instance with default values"""
         return cls(
             container_padding_left=1,
             container_padding_top=1,
@@ -217,8 +203,6 @@ class DraftListStyleSheet():
             cell_font_size=9,
             cell_aspect_image_size=20,
             interval_cell_styles=[],
-            is_list_aggregated=False,
-            container_background_image_path=None,
             cell_font_path=None,
             cell_header_padding_left=5,
             cell_header_padding_top=5,
@@ -245,9 +229,6 @@ class DraftListStyleSheet():
     
     def set_container_background_color(self, value: str) -> None:
         self.container_background_color = value
-        
-    def set_container_background_image_path(self, value: Optional[str]) -> None:
-        self.container_background_image_path = value
     
     def set_cell_spacing(self, value: int) -> None:
         self.cell_spacing = value
@@ -281,10 +262,6 @@ class DraftListStyleSheet():
     
     def set_cell_aspect_image_size(self, value: int) -> None:
         self.cell_aspect_image_size = value
-    
-    def set_is_list_aggregated(self, value: bool) -> None:
-        """Set whether the list should be displayed in aggregated form"""
-        self.is_list_aggregated = value
     
     def get_modulo_interval_cell_style(self, index: int) -> Optional[DraftListCellStyleSheet]:
         the_index = index % (len(self.interval_cell_styles) + 1)
@@ -326,37 +303,28 @@ class DraftListStyleSheet():
         return len(self.interval_cell_styles) + 1
     
     def set_cell_header_padding_left(self, value: int) -> None:
-        """Set the left padding for header cells"""
         self.cell_header_padding_left = value
 
     def set_cell_header_padding_top(self, value: int) -> None:
-        """Set the top padding for header cells"""
         self.cell_header_padding_top = value
 
     def set_cell_header_padding_right(self, value: int) -> None:
-        """Set the right padding for header cells"""
         self.cell_header_padding_right = value
 
     def set_cell_header_padding_bottom(self, value: int) -> None:
-        """Set the bottom padding for header cells"""
         self.cell_header_padding_bottom = value
 
     def set_cell_header_background_color(self, value: str) -> None:
-        """Set the background color for header cells"""
         self.cell_header_background_color = value
 
     def set_cell_header_font_color(self, value: str) -> None:
-        """Set the font color for header cells"""
         self.cell_header_font_color = value
 
     def set_cell_header_font_size(self, value: int) -> None:
-        """Set the font size for header cells"""
         self.cell_header_font_size = value
 
     def set_cell_header_font_path(self, value: Optional[str]) -> None:
-        """Set the font path for header cells"""
         self.cell_header_font_path = value
         
     def set_cell_header_spacing(self, value: int) -> None:
-        """Set the font path for header cells"""
         self.cell_header_spacing = value

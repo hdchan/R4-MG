@@ -3,6 +3,7 @@ from PySide6.QtGui import QColor, QFont, QFontDatabase, QPalette
 from PySide6.QtWidgets import QHBoxLayout, QSizePolicy, QWidget
 from AppUI.Models import DraftListStyleSheet
 from R4UI import VerticalBoxLayout, Label
+from AppCore.Utilities import FontUtilities
 
 class DraftListItemHeader(QWidget):
     def __init__(self, 
@@ -31,26 +32,16 @@ class DraftListItemHeader(QWidget):
         cell_widget.setLayout(horizontal_layout)
         cell_widget.setAutoFillBackground(True)
         cell_widget.setPalette(palette)
-        
-        palette = QPalette()
-        palette.setColor(QPalette.ColorRole.WindowText, QColor(self._stylesheet.cell_header_font_color))
             
             
         label = Label()
         label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
-        label.setPalette(palette)
         label.setText(self._text)
         
-        custom_font_path = self._stylesheet.cell_header_font_path
-        if custom_font_path is not None:
-            font_id = QFontDatabase.addApplicationFont(custom_font_path)
-            font_families = QFontDatabase.applicationFontFamilies(font_id)
-            custom_font = QFont(font_families[0], self._stylesheet.cell_header_font_size)
-            label.setFont(custom_font)
-        else:
-            current_font = label.font()
-            current_font.setPointSize(self._stylesheet.cell_header_font_size)
-            label.setFont(current_font)
+        FontUtilities.apply_font_style(label,
+                                           self._stylesheet.cell_header_font_path,
+                                           self._stylesheet.cell_header_font_size,
+                                           self._stylesheet.cell_header_font_color)
         
         horizontal_layout.addWidget(label, 1)
         

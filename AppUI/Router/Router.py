@@ -69,6 +69,10 @@ class Router:
         view = self._component_provider.draft_list_image_preview_view()
         self._open_view("draft_list_image_preview", view)
     
+    def open_player_standings_view(self):
+        view = self._component_provider.player_standings_window()
+        self._open_view("player_standings_window", view)
+    
     def _open_view(self, object_name: str, view: QWidget):
         def remove_ref():
             self._views[object_name] = None

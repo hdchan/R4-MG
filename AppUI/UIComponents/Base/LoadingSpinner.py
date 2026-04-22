@@ -17,3 +17,18 @@ class LoadingSpinner(WaitingSpinner):
             speed=3.0999999999999996,
             color=QColor(0, 0, 0)
         )
+
+    def start(self) -> None:
+        try:
+            super().start()
+        except Exception as e:
+            # print(f"Handling loading spinner error {e}")
+            pass
+        
+
+    def stop(self) -> None:
+        try:
+            super().stop()
+        except Exception as e:
+            # print(f"Handling loading spinner error {e}")
+            pass

@@ -74,7 +74,6 @@ class DraftListSettingsViewController(SettingsContainerChildProtocol):
     def _setup_view(self):
         
         self._cell_configuration_list = VerticalGroupBox()
-        self._container_background_image_label = Label()
         self._cell_font_label = Label()
         self._cell_header_font_label = Label()
         self._add_card_mode_combo_box = RComboBox([
@@ -298,25 +297,11 @@ class DraftListSettingsViewController(SettingsContainerChildProtocol):
         self._cell_font_color.set_value(self._stylesheet.cell_font_color)
 
         # Labels
-        self._container_background_image_label.setText(self._stylesheet.container_background_image_path if self._stylesheet.container_background_image_path is not None else "No image selected")
         self._cell_font_label.setText(self._stylesheet.cell_font_path if self._stylesheet.cell_font_path is not None else "No font selected")
         self._cell_header_font_label.setText(self._stylesheet.cell_header_font_path if self._stylesheet.cell_header_font_path is not None else "No font selected")
         
         # Cell interval configuration
         self._load_cell_interval_configuration()
-    
-    def _edit_background_image(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, 
-                                                     "Select image", 
-                                                     None, 
-                                                     "Image Files (*.png *.jpg *.jpeg *.bmp *.gif);;All Files (*)")
-        if file_path:
-            self._stylesheet.set_container_background_image_path(file_path)
-            self._sync_ui()
-            
-    def _remove_background_image(self):
-        self._stylesheet.set_container_background_image_path(None)
-        self._sync_ui()
         
     def _edit_cell_font(self):
         file_path, _ = QFileDialog.getOpenFileName(self, 
@@ -361,7 +346,6 @@ class DraftListSettingsViewController(SettingsContainerChildProtocol):
         
         # Container styling
         new_draft_list_styles.set_container_background_color(self._stylesheet.container_background_color)
-        new_draft_list_styles.set_container_background_image_path(self._stylesheet.container_background_image_path)
         
         # Header cell padding
         new_draft_list_styles.set_cell_header_padding_left(self._stylesheet.cell_header_padding_left)
