@@ -13,6 +13,7 @@ from .DraftListDeployment.DraftListTablePackPreviewContainerStandAloneViewContro
 from .Screens.ManageSetListViewController import ManageSetListViewController
 from .Screens.ShortcutsViewController import ShortcutsViewController
 from .Settings.AppSettingsViewController import AppSettingsViewController
+from AppUI.UIComponents.PlayerStandings.PlayerStandingsWindow import PlayerStandingsWindow
 
 
 class ScreenWidgetProvider(ScreenWidgetProviding):
@@ -53,3 +54,6 @@ class ScreenWidgetProvider(ScreenWidgetProviding):
     
     def draft_list_image_preview_view(self) -> RWidget:
         return self._external_app_dependencies_provider.provide_draft_list_image_preview_widget()
+
+    def player_standings_window(self) -> RWidget:
+        return PlayerStandingsWindow(self._app_dependencies_internal_provider)
