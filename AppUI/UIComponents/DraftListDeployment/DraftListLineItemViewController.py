@@ -36,7 +36,6 @@ class DraftListLineItemViewController(RWidget):
         self._asset_provider = app_dependencies_provider.asset_provider
         self._data_source_draft_list_provider = app_dependencies_provider.data_source_draft_list_provider
         self._data_source_local_resource_provider = data_source_local_resource_provider
-        # self._data_source_image_resource_deployer = app_dependencies_provider.data_source_image_resource_deployer
         self._app_ui_configuration_manager = app_dependencies_provider.app_ui_configuration_manager
         self._router = app_dependencies_provider.router
         self._trading_card = trading_card

@@ -3,7 +3,7 @@ import copy
 
 from AppCore.Config import (Configuration, ConfigurationManager,
                             MutableConfiguration)
-from AppUI.Models import DraftListStyleSheet, WindowDimensions
+from AppUI.Models import DraftListStyleSheet, WindowDimensions, PlayerStandingsListStyleSheet
 
 
 class AppUIConfiguration():
@@ -14,6 +14,7 @@ class AppUIConfiguration():
         
     class Keys:
         DRAFT_LIST_STYLES = 'draft_list_styles'
+        PLAYER_STANDINGS_LIST_STYLES = 'player_standings_list_styles'
         WINDOW_DIMENSIONS = 'window_dimensions'
     
     @property
@@ -26,10 +27,17 @@ class AppUIConfiguration():
     
     @property
     def draft_list_styles(self) -> DraftListStyleSheet:
-        draft_styles_json = self._configuration.configuration_for_key(self.Keys.DRAFT_LIST_STYLES)
-        if draft_styles_json is not None:
-            return DraftListStyleSheet.from_json(draft_styles_json)
+        styles_json = self._configuration.configuration_for_key(self.Keys.DRAFT_LIST_STYLES)
+        if styles_json is not None:
+            return DraftListStyleSheet.from_json(styles_json)
         return DraftListStyleSheet.default_style()
+
+    @property
+    def player_standings_list_styles(self) -> PlayerStandingsListStyleSheet:
+        styles_json = self._configuration.configuration_for_key(self.Keys.PLAYER_STANDINGS_LIST_STYLES)
+        if styles_json is not None:
+            return PlayerStandingsListStyleSheet.from_json(styles_json)
+        return PlayerStandingsListStyleSheet.default_style()
     
     @property
     def window_dimensions(self) -> WindowDimensions:
@@ -41,6 +49,9 @@ class AppUIConfiguration():
 class MutableAppUIConfiguration(AppUIConfiguration):
     def set_draft_list_styles(self, value: DraftListStyleSheet):
         self._configuration.set_configuration_for_key(self.Keys.DRAFT_LIST_STYLES, value.to_data())
+
+    def set_player_standings_list_styles(self, value: PlayerStandingsListStyleSheet):
+        self._configuration.set_configuration_for_key(self.Keys.PLAYER_STANDINGS_LIST_STYLES, value.to_data())
         
     def set_window_dimensions(self, value: WindowDimensions):
         self._configuration.set_configuration_for_key(self.Keys.WINDOW_DIMENSIONS, value.to_data())

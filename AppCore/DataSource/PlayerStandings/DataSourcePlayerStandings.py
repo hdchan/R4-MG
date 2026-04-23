@@ -20,8 +20,6 @@ class DataSourcePlayerStandings(DataSourcePlayerStandingsProtocol):
         self._observation_tower = observation_tower
         self._standings: List[PlayerStanding] = []
 
-        # self.retrieve_standings()
-
     @property
     def standings(self) -> List[PlayerStanding]:
         return self._standings

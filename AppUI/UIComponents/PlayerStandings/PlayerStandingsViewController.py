@@ -3,7 +3,7 @@ from AppCore.DataSource.PlayerStandings.DataSourcePlayerStandingsProtocol import
 from AppCore.DataSource.PlayerStandings.Events import PlayerStandingsDidUpdate
 from AppUI.AppDependenciesInternalProviding import \
     AppDependenciesInternalProviding
-from R4UI import Label, RWidget, VerticalBoxLayout
+from R4UI import Label, RWidget, VerticalBoxLayout, RVerticallyExpandingSpacer
 from AppCore.Observation import TransmissionProtocol, TransmissionReceiverProtocol
 
 
@@ -26,7 +26,7 @@ class PlayerStandingsViewController(RWidget, TransmissionReceiverProtocol):
 
         VerticalBoxLayout([
             self._standings_list,
-        ]).set_layout_to_widget(self)
+        ]).set_layout_to_widget(self).add_spacer(RVerticallyExpandingSpacer())
 
         self._data_source_player_standing.retrieve_standings()
 
