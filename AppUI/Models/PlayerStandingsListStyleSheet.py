@@ -67,17 +67,7 @@ class PlayerStandingsListStyleSheet:
             self.Keys.CELL_BACKGROUND_COLOR: self.cell_background_color,
             self.Keys.CELL_FONT_COLOR: self.cell_font_color,
             self.Keys.CELL_FONT_SIZE: self.cell_font_size,
-            self.Keys.INTERVAL_CELL_STYLES: list(map(lambda x: x.to_data(), self.interval_cell_styles)),
-            self.Keys.CELL_FONT_PATH: self.cell_font_path,
-            self.Keys.CELL_HEADER_PADDING_LEFT: self.cell_header_padding_left,
-            self.Keys.CELL_HEADER_PADDING_TOP: self.cell_header_padding_top,
-            self.Keys.CELL_HEADER_PADDING_RIGHT: self.cell_header_padding_right,
-            self.Keys.CELL_HEADER_PADDING_BOTTOM: self.cell_header_padding_bottom,
-            self.Keys.CELL_HEADER_BACKGROUND_COLOR: self.cell_header_background_color,
-            self.Keys.CELL_HEADER_FONT_COLOR: self.cell_header_font_color,
-            self.Keys.CELL_HEADER_FONT_SIZE: self.cell_header_font_size,
-            self.Keys.CELL_HEADER_FONT_PATH: self.cell_header_font_path,
-            self.Keys.CELL_HEADER_SPACING: self.cell_header_spacing
+            self.Keys.CELL_FONT_PATH: self.cell_font_path
         }
         return data
         
