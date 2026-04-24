@@ -16,7 +16,6 @@ class PlayerStandingsListStyleSheet:
                  cell_background_color: str, 
                  cell_font_color: str, 
                  cell_font_size: int, 
-                 cell_aspect_image_size: int,
                  cell_font_path: Optional[str]):
         self.container_padding_left = container_padding_left
         self.container_padding_top = container_padding_top
@@ -68,7 +67,6 @@ class PlayerStandingsListStyleSheet:
             self.Keys.CELL_BACKGROUND_COLOR: self.cell_background_color,
             self.Keys.CELL_FONT_COLOR: self.cell_font_color,
             self.Keys.CELL_FONT_SIZE: self.cell_font_size,
-            self.Keys.CELL_ASPECT_IMAGE_SIZE: self.cell_aspect_image_size,
             self.Keys.INTERVAL_CELL_STYLES: list(map(lambda x: x.to_data(), self.interval_cell_styles)),
             self.Keys.CELL_FONT_PATH: self.cell_font_path,
             self.Keys.CELL_HEADER_PADDING_LEFT: self.cell_header_padding_left,
@@ -102,7 +100,6 @@ class PlayerStandingsListStyleSheet:
             cell_background_color=json.get(cls.Keys.CELL_BACKGROUND_COLOR, default.cell_background_color),
             cell_font_color=json.get(cls.Keys.CELL_FONT_COLOR, default.cell_font_color),
             cell_font_size=json.get(cls.Keys.CELL_FONT_SIZE, default.cell_font_size),
-            cell_aspect_image_size=json.get(cls.Keys.CELL_ASPECT_IMAGE_SIZE, default.cell_aspect_image_size),
             cell_font_path=json.get(cls.Keys.CELL_FONT_PATH, default.cell_font_path)
         )
         
@@ -123,7 +120,6 @@ class PlayerStandingsListStyleSheet:
             cell_background_color='grey',
             cell_font_color='white',
             cell_font_size=9,
-            cell_aspect_image_size=20,
             cell_font_path=None
         )
     

@@ -149,20 +149,7 @@ class DraftListTablePackPreviewViewController(QWidget, TransmissionReceiverProto
             self._scroll_view.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
             
         palette = self.palette()
-        background_image = None
-        if background_image is not None:
-            pixmap = QPixmap(background_image)
-        
-            height = self.height()
-            width = self.width()
-            scaled_pixmap = pixmap.scaled(
-                    width, height, 
-                    Qt.AspectRatioMode.KeepAspectRatioByExpanding, Qt.TransformationMode.SmoothTransformation
-                )
-            palette.setBrush(QPalette.ColorRole.Window, QBrush(scaled_pixmap))
-        else:
-            palette.setColor(QPalette.ColorRole.Window, QColor(stylesheet.container_background_color)) # Set background color
-            
+        palette.setColor(QPalette.ColorRole.Window, QColor(stylesheet.container_background_color)) # Set background color
         self.setAutoFillBackground(True) # Enable background filling
         self.setPalette(palette)
     

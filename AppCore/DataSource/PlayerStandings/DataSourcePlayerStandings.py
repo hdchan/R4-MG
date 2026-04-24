@@ -9,7 +9,7 @@ from AppCore.Observation import ObservationTower
 from .DataSourcePlayerStandingsProtocol import \
     DataSourcePlayerStandingsProtocol
 from .Events import PlayerStandingsDidUpdate
-
+from PySide6.QtCore import QTimer
 
 class DataSourcePlayerStandings(DataSourcePlayerStandingsProtocol):
 
@@ -19,6 +19,12 @@ class DataSourcePlayerStandings(DataSourcePlayerStandingsProtocol):
         self._configuration_manager = configuration_manager
         self._observation_tower = observation_tower
         self._standings: List[PlayerStanding] = []
+
+        self._retrieve_standings()
+
+        self.timer = QTimer()
+        self.timer.timeout.connect(self._retrieve_standings)
+        self.timer.start(5000)
 
     @property
     def standings(self) -> List[PlayerStanding]:
@@ -32,7 +38,7 @@ class DataSourcePlayerStandings(DataSourcePlayerStandingsProtocol):
     def _asset_dir_path(self) -> str:
         return self._configuration.assets_dir_path
 
-    def retrieve_standings(self):
+    def _retrieve_standings(self):
         file_path = Path(
             f'{self._asset_dir_path}standings-export-20260422_022249.csv')
         if file_path.is_file():
@@ -40,7 +46,7 @@ class DataSourcePlayerStandings(DataSourcePlayerStandingsProtocol):
                 reader = csv.DictReader(file)
                 temp_array: List[PlayerStanding] = []
                 for i, row in enumerate(reader):
-                    print(row)  # Each row is a list o
+                    # print(row)  # Each row is a list o
                     temp_array.append(PlayerStanding(
                         i + 1, row['TeamPlayers1FirstName']))
                 self._standings = temp_array

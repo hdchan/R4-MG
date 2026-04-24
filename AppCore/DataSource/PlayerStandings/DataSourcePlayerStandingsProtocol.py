@@ -8,9 +8,6 @@ class DataSourcePlayerStandingsProtocol:
     @property
     def standings(self) -> List[PlayerStanding]:
         raise Exception
-    
-    def retrieve_standings(self) -> None:
-        raise Exception
 
 class DataSourcePlayerStandingsProviding:
     @property

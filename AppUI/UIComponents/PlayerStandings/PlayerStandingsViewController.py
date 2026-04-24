@@ -1,7 +1,7 @@
 from typing import List
 
 from PySide6.QtGui import QColor, QFont, QFontDatabase, QPalette
-from PySide6.QtWidgets import QHBoxLayout, QSizePolicy, QWidget
+from PySide6.QtWidgets import QFrame
 
 from AppCore.DataSource.PlayerStandings.DataSourcePlayerStandingsProtocol import \
     DataSourcePlayerStandingsProtocol
@@ -9,12 +9,14 @@ from AppCore.DataSource.PlayerStandings.Events import PlayerStandingsDidUpdate
 from AppCore.Models import PlayerStanding
 from AppCore.Observation import (TransmissionProtocol,
                                  TransmissionReceiverProtocol)
+from AppCore.Observation.Events import ConfigurationUpdatedEvent
 from AppUI.AppDependenciesInternalProviding import \
     AppDependenciesInternalProviding
 from AppUI.Models import PlayerStandingsListStyleSheet
-from R4UI import (HorizontalBoxLayout, Label, RVerticallyExpandingSpacer,
-                  RWidget, ScrollArea, VerticalBoxLayout, RHorizontalExpandingSpacerWidget, RHorizontallyExpandingSpacer)
-from PySide6.QtCore import Qt
+from R4UI import (HorizontalBoxLayout, Label, RHorizontalExpandingSpacerWidget,
+                  RVerticallyExpandingSpacer, RWidget, ScrollArea,
+                  VerticalBoxLayout)
+
 
 class PlayerStandingsListLineItemViewController(RWidget):
     def __init__(self,
@@ -53,7 +55,6 @@ class PlayerStandingsListLineItemViewController(RWidget):
         self.setAutoFillBackground(True)
         self.setPalette(palette)
 
-
         # Rank Label
         palette = QPalette()
         palette.setColor(QPalette.ColorRole.WindowText,
@@ -84,7 +85,7 @@ class PlayerStandingsListLineItemViewController(RWidget):
         after_label.setPalette(palette)
 
         horizontal_layout.add_widgets([
-            rank_label, 
+            rank_label,
             label,
             after_label,
             RHorizontalExpandingSpacerWidget()
@@ -113,7 +114,7 @@ class PlayerStandingsViewController(RWidget, TransmissionReceiverProtocol):
         self._data_source_player_standings_provider = app_dependencies_provider.data_source_player_standings_provider
 
         app_dependencies_provider.observation_tower.subscribe_multi(
-            self, [PlayerStandingsDidUpdate])
+            self, [PlayerStandingsDidUpdate, ConfigurationUpdatedEvent])
 
         self._setup_view()
 
@@ -132,11 +133,14 @@ class PlayerStandingsViewController(RWidget, TransmissionReceiverProtocol):
             self._cells_container
         ]).set_uniform_content_margins(0).add_spacer(RVerticallyExpandingSpacer())
 
-        VerticalBoxLayout([
-            ScrollArea(self._cells_container_container),
-        ]).set_layout_to_widget(self)
+        self._scroll_view = ScrollArea(self._cells_container_container)
+        self._scroll_view.setFrameShape(QFrame.Shape.NoFrame)
 
-        self._data_source_player_standing.retrieve_standings()
+        VerticalBoxLayout([
+            self._scroll_view,
+        ]).set_layout_to_widget(self).set_uniform_content_margins(0)
+
+        self._sync_ui()
 
     def _sync_ui(self):
         cells: List[PlayerStandingsListLineItemViewController] = []
@@ -145,6 +149,19 @@ class PlayerStandingsViewController(RWidget, TransmissionReceiverProtocol):
                 self._app_dependencies_provider, i))
         self._cells_container.replace_all_widgets(cells)
 
+        self._cells_container.set_content_margins(self._stylesheet.container_padding_left,
+                                                  self._stylesheet.container_padding_top,
+                                                  self._stylesheet.container_padding_right,
+                                                  self._stylesheet.container_padding_bottom)
+
+        self._cells_container.set_spacing(self._stylesheet.cell_spacing)
+
+        palette = self.palette()
+        palette.setColor(QPalette.ColorRole.Window, QColor(
+            self._stylesheet.container_background_color))  # Set background color
+        self.setAutoFillBackground(True)  # Enable background filling
+        self.setPalette(palette)
+
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
-        if type(event) is PlayerStandingsDidUpdate:
+        if type(event) is PlayerStandingsDidUpdate or type(event) is ConfigurationUpdatedEvent:
             self._sync_ui()
