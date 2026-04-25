@@ -51,6 +51,8 @@ class PlayerStandingsListSettingsViewController(SettingsContainerChildProtocol):
         self._cell_padding_right = LineEditInt(triggered_fn=self._stylesheet.set_cell_padding_right)
         self._cell_padding_bottom = LineEditInt(triggered_fn=self._stylesheet.set_cell_padding_bottom)
 
+        self._scroll_view = ScrollArea()
+
         VerticalBoxLayout([
             ScrollArea(
                 VerticalBoxLayout([

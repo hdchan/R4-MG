@@ -167,6 +167,10 @@ class ScrollArea(QScrollArea):
         self.setWidgetResizable(True)
         self.setWidget(widget)
 
+    def set_vertical_scroll_bar_policy(self, policy: Qt.ScrollBarPolicy):
+        self.setVerticalScrollBarPolicy(policy)
+        return self
+
 class PushButton(QPushButton, SharedWidgetFunctions):
     def __init__(self, 
                  text: Optional[str], 

@@ -1,5 +1,6 @@
 from typing import List
 
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor, QFont, QFontDatabase, QPalette
 from PySide6.QtWidgets import QFrame
 
@@ -75,8 +76,6 @@ class PlayerStandingsListLineItemViewController(RWidget):
         label.setPalette(palette)
         # horizontal_layout.add_widget(label, 1)
 
-        
-
         horizontal_layout.add_widgets([
             rank_label,
             label,
@@ -125,7 +124,8 @@ class PlayerStandingsViewController(RWidget, TransmissionReceiverProtocol):
             self._cells_container
         ]).set_uniform_content_margins(0).add_spacer(RVerticallyExpandingSpacer())
 
-        self._scroll_view = ScrollArea(self._cells_container_container)
+        self._scroll_view = ScrollArea(self._cells_container_container).set_vertical_scroll_bar_policy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self._scroll_view.setFrameShape(QFrame.Shape.NoFrame)
 
         VerticalBoxLayout([
