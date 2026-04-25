@@ -11,6 +11,7 @@ from .DataSourcePlayerStandingsProtocol import \
 from .Events import PlayerStandingsDidUpdate
 from PySide6.QtCore import QTimer
 
+
 class DataSourcePlayerStandings(DataSourcePlayerStandingsProtocol):
 
     def __init__(self,
@@ -48,7 +49,11 @@ class DataSourcePlayerStandings(DataSourcePlayerStandingsProtocol):
                 for i, row in enumerate(reader):
                     # print(row)  # Each row is a list o
                     temp_array.append(PlayerStanding(
-                        i + 1, row['TeamPlayers1FirstName']))
+                        rank=i + 1,
+                        first_name=row.get('TeamPlayers1FirstName', ''), 
+                        last_name=row.get('TeamPlayers1LastName', ''),
+                        deck_name=row.get('Decklists1DecklistName', '')
+                        ))
                 self._standings = temp_array
 
                 self._observation_tower.notify(PlayerStandingsDidUpdate())

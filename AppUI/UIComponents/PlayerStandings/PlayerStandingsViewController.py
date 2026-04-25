@@ -69,25 +69,17 @@ class PlayerStandingsListLineItemViewController(RWidget):
         palette = QPalette()
         palette.setColor(QPalette.ColorRole.WindowText,
                          QColor(self._stylesheet.cell_font_color))
-        label = Label(f'{standing.name}')
+        label = Label(f'{standing.display_details}')
         # label.setSizePolicy(QSizePolicy.Policy.Ignored,
         #                     QSizePolicy.Policy.Preferred)
         label.setPalette(palette)
         # horizontal_layout.add_widget(label, 1)
 
-        # Label
-        palette = QPalette()
-        palette.setColor(QPalette.ColorRole.WindowText,
-                         QColor(self._stylesheet.cell_font_color))
-        after_label = Label(f'hi')
-        # after_label.setSizePolicy(QSizePolicy.Policy.Ignored,
-        #                     QSizePolicy.Policy.Minimum)
-        after_label.setPalette(palette)
+        
 
         horizontal_layout.add_widgets([
             rank_label,
             label,
-            after_label,
             RHorizontalExpandingSpacerWidget()
         ])
 
