@@ -52,7 +52,14 @@ class DataSourcePlayerStandings(DataSourcePlayerStandingsProtocol):
                         rank=i + 1,
                         first_name=row.get('TeamPlayers1FirstName', ''), 
                         last_name=row.get('TeamPlayers1LastName', ''),
-                        deck_name=row.get('Decklists1DecklistName', '')
+                        deck_name=row.get('Decklists1DecklistName', ''),
+                        game_wins=int(row.get('GameWins', '0')),
+                        game_loses=int(row.get('GameLoses', '0')),
+                        match_wins=int(row.get('MatchWins', '0')),
+                        match_loses=int(row.get('MatchLoses', '0')),
+                        ogw=float(row.get('OpponentGameWinPercentage', '0')),
+                        omw=float(row.get('OpponentMatchWinPercentage', '0')),
+                        pgw=float(row.get('TeamGameWinPercentage', '0'))
                         ))
                 self._standings = temp_array
 

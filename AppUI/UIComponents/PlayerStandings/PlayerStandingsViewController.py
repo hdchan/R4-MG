@@ -16,8 +16,9 @@ from AppUI.AppDependenciesInternalProviding import \
 from AppUI.Models import PlayerStandingsListStyleSheet
 from R4UI import (HorizontalBoxLayout, Label, RHorizontalExpandingSpacerWidget,
                   RVerticallyExpandingSpacer, RWidget, ScrollArea,
-                  VerticalBoxLayout)
+                  VerticalBoxLayout, GridLayout)
 
+from PySide6.QtWidgets import QTableWidget, QTableWidgetItem, QSizePolicy
 
 class PlayerStandingsListLineItemViewController(RWidget):
     def __init__(self,
@@ -43,6 +44,7 @@ class PlayerStandingsListLineItemViewController(RWidget):
 
         # Cell
         horizontal_layout = HorizontalBoxLayout([]).set_layout_to_widget(self)
+        horizontal_layout.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
         horizontal_layout.set_spacing(self._stylesheet.cell_content_spacing)
         horizontal_layout.set_content_margins(self._stylesheet.cell_padding_left,
                                               self._stylesheet.cell_padding_top,
@@ -91,7 +93,7 @@ class PlayerStandingsListLineItemViewController(RWidget):
             label.setFont(custom_font)
             rank_label.setFont(custom_font)
         else:
-            current_font = label.font()
+            current_font = Label().font()
             current_font.setPointSize(self._stylesheet.cell_font_size)
             label.setFont(current_font)
             rank_label.setFont(current_font)
@@ -118,9 +120,18 @@ class PlayerStandingsViewController(RWidget, TransmissionReceiverProtocol):
         return self._app_dependencies_provider.app_ui_configuration_manager.configuration.player_standings_list_styles
 
     def _setup_view(self):
-        self._cells_container = VerticalBoxLayout().set_uniform_content_margins(0)
+        # self._cells_container = VerticalBoxLayout().set_uniform_content_margins(0)
+        self._cells_container = GridLayout().set_uniform_content_margins(0)
+        self._cells_container.set_column_stretch(1, 1) # Column 1 is prioritized
+        # self._cells_container.set_no_constraints()
+
+        self._window_header_label = Label("Player Standings")
+        self._window_header_container = VerticalBoxLayout([
+            self._window_header_label
+        ]).set_alignment_center_h()
 
         self._cells_container_container = VerticalBoxLayout([
+            self._window_header_container,
             self._cells_container
         ]).set_uniform_content_margins(0).add_spacer(RVerticallyExpandingSpacer())
 
@@ -135,24 +146,117 @@ class PlayerStandingsViewController(RWidget, TransmissionReceiverProtocol):
         self._sync_ui()
 
     def _sync_ui(self):
-        cells: List[PlayerStandingsListLineItemViewController] = []
+        self._cells_container.clear_widgets()
         for i, s in enumerate(self._data_source_player_standing.standings):
-            cells.append(PlayerStandingsListLineItemViewController(
-                self._app_dependencies_provider, i))
-        self._cells_container.replace_all_widgets(cells)
+            standing: PlayerStanding = self._data_source_player_standing.standings[i]
+
+            
+            name_label = Label(standing.display_details)
+            # name_label.setScaledContents(True)
+            name_label.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+
+            # Or set a tiny minimum width so it doesn't block the window from shrinking
+            name_label.setMinimumWidth(1)
+
+            match_label = Label(f'{standing.match_wins}-{standing.match_loses}')
+            game_label = Label(f'{standing.game_wins}-{standing.game_loses}')
+
+            palette = QPalette()
+            palette.setColor(QPalette.ColorRole.WindowText,
+                            QColor(self._stylesheet.cell_font_color))
+                            
+            name_label.setPalette(palette)
+            match_label.setPalette(palette)
+            game_label.setPalette(palette)
+
+            custom_font_path = self._stylesheet.cell_font_path
+            if custom_font_path is not None:
+                font_id = QFontDatabase.addApplicationFont(custom_font_path)
+                font_families = QFontDatabase.applicationFontFamilies(font_id)
+                custom_font = QFont(
+                    font_families[0], self._stylesheet.cell_font_size)
+                name_label.setFont(custom_font)
+                match_label.setFont(custom_font)
+                game_label.setFont(custom_font)
+            else:
+                current_font = Label().font()
+                current_font.setPointSize(self._stylesheet.cell_font_size)
+                name_label.setFont(current_font)
+                match_label.setFont(current_font)
+                game_label.setFont(current_font)
+
+
+            rank_label = Label(f'{standing.rank}')
+
+            palette = QPalette()
+            palette.setColor(QPalette.ColorRole.WindowText,
+                            QColor(self._stylesheet.rank_cell_font_color))
+                            
+            rank_label.setPalette(palette)
+
+            custom_font_path = self._stylesheet.rank_cell_font_path
+            if custom_font_path is not None:
+                font_id = QFontDatabase.addApplicationFont(custom_font_path)
+                font_families = QFontDatabase.applicationFontFamilies(font_id)
+                custom_font = QFont(
+                    font_families[0], self._stylesheet.rank_cell_font_size)
+                rank_label.setFont(custom_font)
+            else:
+                current_font = Label().font()
+                current_font.setPointSize(self._stylesheet.rank_cell_font_size)
+                rank_label.setFont(current_font)
+
+            self._cells_container.add_widgets([
+                (rank_label, (i, 0)),
+                (name_label, (i, 1)),
+                # (match_label, (i, 2)),
+                # (game_label, (i, 3)),
+                ])
 
         self._cells_container.set_content_margins(self._stylesheet.container_padding_left,
                                                   self._stylesheet.container_padding_top,
                                                   self._stylesheet.container_padding_right,
                                                   self._stylesheet.container_padding_bottom)
 
-        self._cells_container.set_spacing(self._stylesheet.cell_spacing)
+        self._cells_container.set_vertical_spacing(self._stylesheet.cell_spacing)
+        self._cells_container.set_horizontal_spacing(self._stylesheet.cell_content_spacing)
 
         palette = self.palette()
         palette.setColor(QPalette.ColorRole.Window, QColor(
             self._stylesheet.container_background_color))  # Set background color
         self.setAutoFillBackground(True)  # Enable background filling
         self.setPalette(palette)
+
+        # Window header
+        self._window_header_container.set_content_margins(self._stylesheet.window_header_padding_left,
+                                                          self._stylesheet.window_header_padding_top,
+                                                          self._stylesheet.window_header_padding_right,
+                                                          self._stylesheet.window_header_padding_bottom)
+
+        palette = self._window_header_container.palette()
+        palette.setColor(QPalette.ColorRole.Window, QColor(
+            self._stylesheet.window_header_background_color))
+
+        self._window_header_container.setAutoFillBackground(True)
+        self._window_header_container.setPalette(palette)
+
+        # Label
+        palette = QPalette()
+        palette.setColor(QPalette.ColorRole.WindowText,
+                         QColor(self._stylesheet.window_header_font_color))
+        self._window_header_label.setPalette(palette)
+
+        custom_font_path = self._stylesheet.window_header_font_path
+        if custom_font_path is not None:
+            font_id = QFontDatabase.addApplicationFont(custom_font_path)
+            font_families = QFontDatabase.applicationFontFamilies(font_id)
+            custom_font = QFont(
+                font_families[0], self._stylesheet.window_header_font_size)
+            self._window_header_label.setFont(custom_font)
+        else:
+            current_font = Label().font()
+            current_font.setPointSize(self._stylesheet.window_header_font_size)
+            self._window_header_label.setFont(current_font)
 
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
         if type(event) is PlayerStandingsDidUpdate or type(event) is ConfigurationUpdatedEvent:
