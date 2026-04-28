@@ -1,5 +1,6 @@
 
 import copy
+from typing import Optional
 
 from AppCore.Config import (Configuration, ConfigurationManager,
                             MutableConfiguration)
@@ -15,6 +16,7 @@ class AppUIConfiguration():
     class Keys:
         DRAFT_LIST_STYLES = 'draft_list_styles'
         PLAYER_STANDINGS_LIST_STYLES = 'player_standings_list_styles'
+        PLAYER_STANDINGS_FOLDER_DIR_PATH = 'player_standings_folder_dir_path'
         WINDOW_DIMENSIONS = 'window_dimensions'
     
     @property
@@ -38,6 +40,10 @@ class AppUIConfiguration():
         if styles_json is not None:
             return PlayerStandingsListStyleSheet.from_json(styles_json)
         return PlayerStandingsListStyleSheet.default_style()
+
+    @property
+    def player_standings_folder_dir_path(self) -> Optional[str]:
+        self._configuration.configuration_for_key(self.Keys.PLAYER_STANDINGS_FOLDER_DIR_PATH)
     
     @property
     def window_dimensions(self) -> WindowDimensions:
@@ -52,6 +58,9 @@ class MutableAppUIConfiguration(AppUIConfiguration):
 
     def set_player_standings_list_styles(self, value: PlayerStandingsListStyleSheet):
         self._configuration.set_configuration_for_key(self.Keys.PLAYER_STANDINGS_LIST_STYLES, value.to_data())
+
+    def set_player_standings_folder_dir_path(self, value: Optional[str]):
+        self._configuration.set_configuration_for_key(self.Keys.PLAYER_STANDINGS_FOLDER_DIR_PATH, value)
         
     def set_window_dimensions(self, value: WindowDimensions):
         self._configuration.set_configuration_for_key(self.Keys.WINDOW_DIMENSIONS, value.to_data())

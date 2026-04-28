@@ -23,10 +23,13 @@ class PlayerStandingsListSettingsViewController(SettingsContainerChildProtocol):
         self._router = app_dependencies_provider.router
         self._mutable_app_ui_configuration = app_dependencies_provider.app_ui_configuration_manager.mutable_configuration()
         self._stylesheet = self._mutable_app_ui_configuration.player_standings_list_styles
+        self._player_standings_folder_dir_path = self._mutable_app_ui_configuration.player_standings_folder_dir_path
 
         self._setup_view()
 
     def _setup_view(self):
+        self._player_standings_folder_dir_path_label = Label(self._mutable_app_ui_configuration.player_standings_folder_dir_path if self._mutable_app_ui_configuration.player_standings_folder_dir_path is not None else "Path not set")
+
         # Window Header
         self._window_header_padding_left = LineEditInt(triggered_fn=self._stylesheet.set_window_header_padding_left)
         self._window_header_padding_top = LineEditInt(triggered_fn=self._stylesheet.set_window_header_padding_top)
@@ -68,6 +71,13 @@ class PlayerStandingsListSettingsViewController(SettingsContainerChildProtocol):
         VerticalBoxLayout([
             ScrollArea(
                 VerticalBoxLayout([
+
+                    VerticalGroupBox([
+                        Label("Player standings directory"),
+                        PushButton("Edit", self._edit_player_standings_folder_dir_path),
+                        self._player_standings_folder_dir_path_label
+                    ]),
+
                     VerticalGroupBox([
                         RHeaderLabel("Window Header"),
                         VerticalGroupBox([
@@ -215,6 +225,16 @@ class PlayerStandingsListSettingsViewController(SettingsContainerChildProtocol):
         self._rank_cell_font_color.set_value(self._stylesheet.rank_cell_font_color)
         self._rank_cell_font_label.setText(self._stylesheet.rank_cell_font_path if self._stylesheet.rank_cell_font_path is not None else "No font selected")
 
+    def _edit_player_standings_folder_dir_path(self):
+        # TODO: get from router
+        directory = QFileDialog.getExistingDirectory(self, 
+                                                     "Select Directory", 
+                                                     self._mutable_app_ui_configuration.player_standings_folder_dir_path)
+        if directory:
+            print(f"Selected directory: {directory}")
+            self._player_standings_folder_dir_path = directory
+            self._player_standings_folder_dir_path_label.set_text(directory)
+
     def _edit_window_header_font(self):
         file_path, _ = QFileDialog.getOpenFileName(self,
                                                    "Select font",
@@ -260,6 +280,11 @@ class PlayerStandingsListSettingsViewController(SettingsContainerChildProtocol):
             self._sync_ui()
 
     def will_apply_settings(self, mutable_app_ui_configuration: MutableAppUIConfiguration) -> MutableAppUIConfiguration:
+        # TODO: refactor, this should not be here
+        # mutable_app_ui_configuration.
+
+
+
         new_player_list_styles = mutable_app_ui_configuration.player_standings_list_styles
 
         # Window header padding
@@ -301,5 +326,7 @@ class PlayerStandingsListSettingsViewController(SettingsContainerChildProtocol):
         new_player_list_styles.set_rank_cell_font_path(self._stylesheet.rank_cell_font_path)
 
         mutable_app_ui_configuration.set_player_standings_list_styles(new_player_list_styles)
+
+        mutable_app_ui_configuration.set_player_standings_folder_dir_path(self._player_standings_folder_dir_path)
 
         return mutable_app_ui_configuration

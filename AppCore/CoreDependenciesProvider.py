@@ -21,7 +21,7 @@ from AppCore.DataSource.DraftListWindowResource import (
     DataSourceDraftListWindowResourceDeployerProvider,
 )
 
-from AppCore.DataSource.PlayerStandings import DataSourcePlayerStandingsProviding, DataSourcePlayerStandingsProvider
+
 from AppCore.DataSource.ImageResourceDeployer import (
     DataSourceImageResourceDeployerProtocol,
     DataSourceImageResourceDeployerProvider,
@@ -89,8 +89,7 @@ class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesIntern
                                                                                                                            self._data_serializer,
                                                                                                                            self._websocket_service)
 
-        self._data_source_player_standings_provider = DataSourcePlayerStandingsProvider(self._configuration_manager,
-                                                                                        self._observation_tower)
+        
 
         atexit.register(self._cleanup)
 
@@ -155,9 +154,7 @@ class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesIntern
     def data_source_draft_list_window_resource_deployer(self) -> DataSourceDraftListWindowResourceDeployerProtocol:
         return self._data_source_draft_list_window_resource_deployer_provider.draft_list_window_resource_data_source
 
-    @property
-    def data_source_player_standings_provider(self) -> DataSourcePlayerStandingsProviding:
-        return self._data_source_player_standings_provider
+    
 
     @property
     def websocket_service(self) -> WebSocketServiceProtocol:
