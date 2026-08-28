@@ -112,17 +112,22 @@ class DataSourceLocallyManagedSets:
     def _path_to_locally_managed_sets_db(self) -> str:
         return f'{self._configuration.assets_dir_path}locally_managed_sets.db'
 
+    @property
+    def _order_by_clause(self) -> str:
+        # This ensures that we are casting the card number as an integer and ordering by set, number, name
+        return 'card_set ASC, CAST(card_number AS INTEGER) ASC, card_name ASC'
+
     def search_by_card_set_and_number(self, card_set: str, card_number: str) -> List[TradingCard]:
         conn = sqlite3.connect(self._path_to_locally_managed_sets_db)
         rows = []
         try:
             with conn:
                 cursor = conn.cursor()
-                cursor.execute('''
+                cursor.execute(f'''
                     SELECT json FROM cards
                     WHERE card_set = ?
                     AND card_number = ?
-                    ORDER BY card_set, card_number, card_name
+                    ORDER BY {self._order_by_clause}
                     ''', (card_set, card_number,))
                 rows = cursor.fetchall()
                 conn.commit()
@@ -144,7 +149,7 @@ class DataSourceLocallyManagedSets:
                 cursor.execute(f'''
                     SELECT json FROM cards
                     WHERE {where_clause}
-                    ORDER BY card_set, card_number, card_name
+                    ORDER BY {self._order_by_clause}
                     ''', params)
                 rows = cursor.fetchall()
                 conn.commit()

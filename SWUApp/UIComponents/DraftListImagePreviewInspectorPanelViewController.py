@@ -63,6 +63,7 @@ class DraftListImagePreviewInspectorPanelViewController(RWidget):
         deck_list_styles.leader_base_spacing_between = self._deck_list_image_generator_styles.leader_base_spacing_between
         deck_list_styles.leader_base_spacing_left_relative_to_main_deck = self._deck_list_image_generator_styles.leader_base_spacing_left_relative_to_main_deck
         deck_list_styles.stacked_card_reveal_percentage = self._deck_list_image_generator_styles.stacked_card_reveal_percentage
+        deck_list_styles.is_leader_base_enabled = self._deck_list_image_generator_styles.is_leader_base_enabled
         deck_list_styles.is_sideboard_enabled = self._deck_list_image_generator_styles.is_sideboard_enabled
         deck_list_styles.is_sorted_alphabetically = self._deck_list_image_generator_styles.is_sorted_alphabetically
         deck_list_styles.layout_type = self._deck_list_image_generator_styles.layout_type
@@ -103,6 +104,10 @@ class DraftListImagePreviewInspectorPanelViewController(RWidget):
 
     def _leader_base_spacing_left_relative_to_main_deck_updated(self, val: int):
         self._deck_list_image_generator_styles.leader_base_spacing_left_relative_to_main_deck = val
+        self._start_save_timer()
+
+    def _leader_base_box_changed(self, val: bool):
+        self._deck_list_image_generator_styles.is_leader_base_enabled = val
         self._start_save_timer()
 
     def _sideboard_box_changed(self, val: bool):
@@ -159,6 +164,9 @@ class DraftListImagePreviewInspectorPanelViewController(RWidget):
 
             HorizontalLabeledInputRow("Leader and Base on top (OFF = left side)", RCheckBox(
                 self._is_leader_base_on_top_updated, self._deck_list_image_generator_styles.is_leader_base_on_top)),
+
+            HorizontalLabeledInputRow("Show leader and base", RCheckBox(
+                self._leader_base_box_changed, self._deck_list_image_generator_styles.is_leader_base_enabled)),
 
             HorizontalLabeledInputRow("Show sideboard", RCheckBox(
                 self._sideboard_box_changed, self._deck_list_image_generator_styles.is_sideboard_enabled)),

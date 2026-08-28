@@ -1,3 +1,19 @@
+## Deck List Importer/Image Generator - Nov 1st
+- [x] grid consistent sizing
+- [x] something wrong with sideboard generation
+- [x] Option to hide leader and base
+- [x] set ASCing order + card number ASC order of cards
+- [ ] need new use case where we can add cards with out data, but add for draft list
+
+## Meta chart tool - Nov 1st
+ - leader image and aspects
+
+## Draft table overlay -
+- Shows player leader choices during drafting
+
+## Configuration V2
+TBD 
+
 ## Draft list
 - [x] push selected card to list, using same search with hot key shortcut
 - [x] drop down to push to staging and production
@@ -12,42 +28,15 @@
 - [x] Stacking multiple cards
 - [x] melee gg/swudb export (but need to figure out leader/base)
 - [x] checkout https://github.com/facit/decklister
+- [x] auto-complete (not important)
+
 ### Visual image
 - [x] sorting by card cost/aspect and their card count (and or visual representation of sorted cards)
 - [x] information/text represtation for the casters (draft pool)
 - [x] import cards from melee.gg/swu-db.com
 - [x] sideboard functionality with toggle
 
-## Image deployment
-- [ ] auto populate data from melee.gg such as leader and player names
-# Misc
-- [ ] Sync via network
-- [ ] auto-complete (not important)
-- [ ] OBS can read text files
-
 ## Websockets
 - [x] remote push cards to production
     - separate laptop ok
     - manipulate existing images only
-
-- [x] typing with set included
-2 issues
-cleared deck and generated new one but kept the old deck
-but worked after closing the window and opening it again
-
-
-
-
-
-# Standing importer
-- download csv 
-- font and colors
-- font heading "top X standing - after round x" 
-- 1st iteration with just downloading csv
-    - loop scan for csv file
-    - custom directory set for csv file
-- 2nd iteration with interfacing with melee api
-
-# Decklist importer
-grid list
-but refine

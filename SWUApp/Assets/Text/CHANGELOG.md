@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.29.0
+### Feature
+- Applying uniform deck size to grid configuration
+- Scaling leader and base with rest of deck
+- Fixing sideboard issue
+- Enable disable leader base
+
+### Engineering
+- Lint updates
+- Updates sorting logic from SQL
+
 ## 0.28.0
 ### Feature
 - Adds player standings functionality

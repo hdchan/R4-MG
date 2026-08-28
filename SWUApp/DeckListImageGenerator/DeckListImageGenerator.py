@@ -123,22 +123,25 @@ class DeckListImageGenerator(BaseDeckListImageGenerator, DeckListImageGeneratorP
                        completion: Callable[[Optional[QPixmap], Optional[Image.Image]], None]):
         
         def measure():
-            context = self._compute_context_for_non_leader_base(parsed_deck_list, is_export)
+            try:
+                context = self._compute_context_for_deck(parsed_deck_list, is_export)
 
-            if context.styles.layout_type == DeckListImageGeneratorStyles.LayoutType.GRID:
-                result = self._generate_deck_grid(parsed_deck_list, context)
-            elif context.styles.layout_type == DeckListImageGeneratorStyles.LayoutType.COST_CURVE:
-                result = self._generate_cost_curve(parsed_deck_list, context)
-            else:
-                raise Exception("No such layout")
+                if context.styles.layout_type == DeckListImageGeneratorStyles.LayoutType.GRID:
+                    result = self._generate_deck_grid(parsed_deck_list, context)
+                elif context.styles.layout_type == DeckListImageGeneratorStyles.LayoutType.COST_CURVE:
+                    result = self._generate_cost_curve(parsed_deck_list, context)
+                else:
+                    raise Exception("No such layout")
 
-            byte_array = BytesIO()
-            result.save(byte_array, format="PNG")
-            byte_array.seek(0)
-            
-            qimage = QImage.fromData(byte_array.getvalue())
-            pixmap = QPixmap.fromImage(qimage)
-            return ((pixmap, qimage), completion)
+                byte_array = BytesIO()
+                result.save(byte_array, format="PNG")
+                byte_array.seek(0)
+                
+                qimage = QImage.fromData(byte_array.getvalue())
+                pixmap = QPixmap.fromImage(qimage)
+                return ((pixmap, qimage), completion)
+            except Exception as e:
+                raise ValueError(e) 
         
         def _completed():
             self._is_downloading_images = False
@@ -152,7 +155,14 @@ class DeckListImageGenerator(BaseDeckListImageGenerator, DeckListImageGeneratorP
                               result: Image.Image,
                               parsed_deck_list: ParsedDeckList,
                               context: ImagePropertiesContext) -> Image.Image:
-        leader_base_mapped: List[ImageFile] = list(map(lambda x: Image.open(context.image_path_for_resource(x)), parsed_deck_list.first_leader_and_first_base))
+        
+        def scaled_leader_base(x: ImageFile):
+            image =  Image.open(context.image_path_for_resource(x))
+            scaled_image = self._scale_image_to_context(image=image, context=context)
+            return scaled_image
+
+        leader_base_mapped: List[ImageFile] = list(map(scaled_leader_base, parsed_deck_list.first_leader_and_first_base))
+        
         if context.styles.is_leader_base_on_top:
             leader_base_image = self.stitch_image_columns(leader_base_mapped, 
                                                           column_spacing=context.styles.leader_base_spacing_between, 
@@ -190,7 +200,8 @@ class DeckListImageGenerator(BaseDeckListImageGenerator, DeckListImageGeneratorP
             self.stitch_image_columns(non_unit_card_stack_cols, column_spacing=context.styles.main_deck_column_spacing)
         ], row_spacing=context.styles.main_deck_row_spacing)
 
-        result = self._generate_leader_base(result, parsed_deck_list, context)
+        if context.styles.is_leader_base_enabled:
+            result = self._generate_leader_base(result, parsed_deck_list, context)
 
         if context.styles.is_sideboard_enabled:
             sideboard_col_mapped = list(map(lambda x: Image.open(context.image_path_for_resource(x)), parsed_deck_list.sideboard))
@@ -221,21 +232,29 @@ class DeckListImageGenerator(BaseDeckListImageGenerator, DeckListImageGeneratorP
     def _generate_deck_grid(self,
                              parsed_deck_list: ParsedDeckList, 
                              context: ImagePropertiesContext) -> Image.Image:
+
+        def scale_and_add_quantity(r: SWUTradingCardBackedLocalCardResource, quantity: int) -> Image.Image:
+            image = Image.open(context.image_path_for_resource(r))
+            scaled_image = self._scale_image_to_context(image=image, context=context)
+            image_with_quantity = self._add_quantity_count(scaled_image, quantity)
+            return image_with_quantity
+
+
         main_deck_images: List[Image.Image] = []
         for c in parsed_deck_list.main_deck_cost_curve_values:
             resources = set(parsed_deck_list.main_deck_with_cost(c, context.styles.is_sorted_alphabetically))
             for r in resources:
                 quantity = parsed_deck_list.card_count_main_deck(r)
-                image = self._add_quantity_count(Image.open(context.image_path_for_resource(r)), quantity)
-                main_deck_images.append(image)
+                image_with_quantity = scale_and_add_quantity(r, quantity)
+                main_deck_images.append(image_with_quantity)
         result = self.stitch_image_grid_right_to_down(main_deck_images, 
                                                       context.styles.grid_width,
                                                       column_spacing=context.styles.main_deck_column_spacing, 
                                                       row_spacing=context.styles.main_deck_row_spacing, 
                                                       location='deck')
 
-        
-        result = self._generate_leader_base(result, parsed_deck_list, context)
+        if context.styles.is_leader_base_enabled:
+            result = self._generate_leader_base(result, parsed_deck_list, context)
 
         if context.styles.is_sideboard_enabled:
             sideboard_images: List[Image.Image] = []
@@ -247,8 +266,8 @@ class DeckListImageGenerator(BaseDeckListImageGenerator, DeckListImageGeneratorP
                         continue
                     resources_set.add(r)
                     quantity = parsed_deck_list.card_count_sideboard(r)
-                    image = self._add_quantity_count(Image.open(context.image_path_for_resource(r)), quantity)
-                    sideboard_images.append(image)
+                    image_with_quantity = scale_and_add_quantity(r, quantity)
+                    sideboard_images.append(image_with_quantity)
             sideboard_grid = self.stitch_image_grid_right_to_down(sideboard_images, 
                                                                   context.styles.grid_width_sideboard, 
                                                                   column_spacing=context.styles.main_deck_column_spacing, 
@@ -262,20 +281,38 @@ class DeckListImageGenerator(BaseDeckListImageGenerator, DeckListImageGeneratorP
 
         return result
 
-    def _compute_context_for_non_leader_base(self, parsed_deck_list: ParsedDeckList, is_export: bool) -> ImagePropertiesContext:
-        non_leader_and_base_cards = parsed_deck_list.all_cards_excluding_leader_base()
-        unscaled_styles = self._configuration_manager.configuration.deck_list_image_generator_styles
-        return self._compute_uniform_image_properties(non_leader_and_base_cards, unscaled_styles, is_export)
+    def _compute_context_for_deck(self, parsed_deck_list: ParsedDeckList, is_export: bool) -> ImagePropertiesContext:
+        leader_and_base_cards = parsed_deck_list.first_leader_and_first_base
+        leader_base_image_paths: List[ImageFile] = list(map(lambda x: Image.open(x.image_path), leader_and_base_cards))
+        leader_base_max_height, leader_base_max_width = self.uniform_card_dimensions(leader_base_image_paths) # Assuming leader and base are 90deg rotated
 
-    def _compute_uniform_image_properties(self, 
-                                          local_resources: List[LocalCardResource], 
-                                          unscaled_styles: DeckListImageGeneratorStyles, 
-                                          is_export: bool) -> ImagePropertiesContext:
-        image_paths: List[ImageFile] = list(map(lambda x: Image.open(x.image_path), local_resources))
-        max_width, max_height = self.uniform_card_dimensions(image_paths)
-        image_preview_paths: List[ImageFile] = list(map(lambda x: Image.open(x.image_preview_path), local_resources))
-        max_preview_width, _ = self.uniform_card_dimensions(image_preview_paths)
+        rest_of_deck_cards = parsed_deck_list.all_cards_excluding_leader_base()
+        image_paths: List[ImageFile] = list(map(lambda x: Image.open(x.image_path), rest_of_deck_cards))
+        rest_of_deck_max_width, rest_of_deck_max_height = self.uniform_card_dimensions(image_paths)
+
+
+        leader_and_base_image_preview_paths: List[ImageFile] = list(map(lambda x: Image.open(x.image_preview_path), leader_and_base_cards))
+        _, leader_and_base_max_preview_height = self.uniform_card_dimensions(leader_and_base_image_preview_paths)
+
+        rest_of_deck_image_preview_paths: List[ImageFile] = list(map(lambda x: Image.open(x.image_preview_path), rest_of_deck_cards))
+        rest_of_deck_max_preview_width, _ = self.uniform_card_dimensions(rest_of_deck_image_preview_paths)
+
+        max_width = min(leader_base_max_height, rest_of_deck_max_width)
+        max_height = min(leader_base_max_width, rest_of_deck_max_height)
+        max_preview_width = min(leader_and_base_max_preview_height, rest_of_deck_max_preview_width)
+
+        unscaled_styles = self._configuration_manager.configuration.deck_list_image_generator_styles
         return ImagePropertiesContext(max_width, max_height, max_preview_width / max_width, unscaled_styles, is_export)
+
+    # def _compute_uniform_image_properties(self, 
+    #                                       local_resources: List[LocalCardResource], 
+    #                                       unscaled_styles: DeckListImageGeneratorStyles, 
+    #                                       is_export: bool) -> ImagePropertiesContext:
+    #     image_paths: List[ImageFile] = list(map(lambda x: Image.open(x.image_path), local_resources))
+    #     max_width, max_height = self.uniform_card_dimensions(image_paths)
+    #     image_preview_paths: List[ImageFile] = list(map(lambda x: Image.open(x.image_preview_path), local_resources))
+    #     max_preview_width, _ = self.uniform_card_dimensions(image_preview_paths)
+    #     return ImagePropertiesContext(max_width, max_height, max_preview_width / max_width, unscaled_styles, is_export)
 
     def create_canvas_image(self, 
                             width: int,
@@ -315,10 +352,14 @@ class DeckListImageGenerator(BaseDeckListImageGenerator, DeckListImageGeneratorP
         combined_image = self.create_canvas_image(context.max_width, height, location)
         
         curr_y = 0
-        for i, img in enumerate(images):
-            scaled_image = img.copy().convert('RGBA')
-            scaled_image.thumbnail((context.max_dimension, context.max_dimension), Image.Resampling.BICUBIC)
+        for i, image in enumerate(images):
+            scaled_image = self._scale_image_to_context(image=image, context=context)
             combined_image.paste(scaled_image, (0, curr_y), scaled_image)
             curr_y += int(context.max_height * context.styles.stacked_card_reveal_percentage)
         
         return combined_image
+
+    def _scale_image_to_context(self, image: Image.Image, context: ImagePropertiesContext) -> Image.Image:
+        scaled_image = image.copy().convert('RGBA')
+        scaled_image.thumbnail((context.max_dimension, context.max_dimension), Image.Resampling.BICUBIC)
+        return scaled_image

@@ -1,12 +1,12 @@
 import json
-from typing import Any, Dict, Optional, Tuple, TypeVar
+from typing import Any, TypeVar
 from urllib.request import urlopen
-import ssl
+
 from .DataFetcherRemoteRequestProtocol import DataFetcherRemoteRequestProtocol
 
 T = TypeVar("T")
 
-DataFetcherRemoteResult = Tuple[Optional[T], Optional[Exception]]
+DataFetcherRemoteResult = tuple[T | None, Exception | None]
 
 class DataFetcherRemote:
 
@@ -20,7 +20,7 @@ class DataFetcherRemote:
 
     def load_with_result(self, request: DataFetcherRemoteRequestProtocol[T]) -> DataFetcherRemoteResult[T]:
         
-        def completed_request(result: Tuple[Optional[Dict[str, Any]], Optional[Exception]]):
+        def completed_request(result: tuple[dict[str, Any] | None, Exception | None]):
             json_response, error = result
             if json_response is not None:
                 decoded_response = request.response(json_response)
@@ -28,7 +28,7 @@ class DataFetcherRemote:
             else:
                 return ((None, error))
 
-        def _runnable_fn() -> Tuple[Optional[Dict[str, Any]], Optional[Exception]]:
+        def _runnable_fn() -> tuple[dict[str, Any] | None, Exception | None]:
             actual_request = request.request()
             if actual_request is None:
                 return (None, Exception("Invalid request"))

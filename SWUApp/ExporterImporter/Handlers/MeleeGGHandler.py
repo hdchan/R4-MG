@@ -118,7 +118,9 @@ class MGGHandler(ExportFormattable, Importable, DataSourceCardSearchDelegate):
         def subtitle_filter(resource: SWUTradingCardBackedLocalCardResource):
             if swu_search_configuration.subtitle is None:
                 return True
-            return resource.guaranteed_trading_card.subtitle == swu_search_configuration.subtitle
+            resource_subtitle = resource.guaranteed_trading_card.subtitle
+            search_subtitle = swu_search_configuration.subtitle
+            return ''.join(filter(str.isalnum, resource_subtitle.lower())) == ''.join(filter(str.isalnum, search_subtitle.lower()))
 
         local_resources = list(filter(subtitle_filter, local_resources))
 

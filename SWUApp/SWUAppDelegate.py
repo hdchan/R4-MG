@@ -176,7 +176,7 @@ class SWUAppDelegate(ExternalAppDependenciesProviding):
         return result
 
     def export_draft_list(self):
-        self._swu_app_dependencies_provider
+        # self._swu_app_dependencies_provider
         self._draft_list_exporter.export_draft_list(
             self._swu_app_dependencies_provider)
 

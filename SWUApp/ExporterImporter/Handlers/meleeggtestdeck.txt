@@ -1,0 +1,32 @@
+MainDeck
+3 Lepi Lookout
+2 Kelleran Beq | The Sabered Hand
+2 Nothing Left to Fear
+3 Galen Erso | You'll Never Win
+3 Naboo Royal Starship | Fit For A Queen
+3 Neel | The Cutest Boy
+2 Obi-Wan Kenobi | Protective Padawan
+3 Huyang | Your Aptitude Falls Short
+3 Jar Jar Binks | Mesa Propose…
+3 Queen Amidala | Championing Her People
+3 Koska Reeves | Warrior of Mandalore
+3 Gungi | Finding Himself
+3 Latts Razzi | Deadly Whipmaster
+2 Yaddle | A Chance To Make Things Right
+2 Ryder Azadi | Restored Governor
+3 Kill Switch
+3 Han Solo | Hibernation Sick
+2 The Mandalorian | Devoted Rescuer
+2 Sabine's Masterpiece | Crazy Colorful
+
+Leader
+1 Ahsoka Tano | Trust in the Force
+
+Base
+1 Fortress of the Great Mothers
+
+Sideboard
+3 Owen Lars | Devoted Uncle
+3 The Eye of Aldhani
+2 Direct Hit
+2 Reforge

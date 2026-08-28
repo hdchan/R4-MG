@@ -12,6 +12,7 @@ class ScaledDeckListImageGeneratorStyles(DeckListImageGeneratorStyles):
             leader_base_spacing_between = int(other.leader_base_spacing_between * scale_factor), 
             leader_base_spacing_left_relative_to_main_deck = int(other.leader_base_spacing_left_relative_to_main_deck * scale_factor), 
             stacked_card_reveal_percentage = other.stacked_card_reveal_percentage, 
+            is_leader_base_enabled = other.is_leader_base_enabled,
             is_sideboard_enabled = other.is_sideboard_enabled, 
             is_sorted_alphabetically = other.is_sorted_alphabetically, 
             is_leader_base_on_top = other.is_leader_base_on_top, 

@@ -15,7 +15,8 @@ class DeckListImageGeneratorStyles:
                  leader_base_spacing_between: int, 
                  leader_base_spacing_left_relative_to_main_deck: int, 
                  stacked_card_reveal_percentage: float, 
-                 is_sideboard_enabled: bool, 
+                 is_leader_base_enabled: bool,
+                 is_sideboard_enabled: bool,
                  is_sorted_alphabetically: bool, 
                  is_leader_base_on_top: bool, 
                  is_visual_debug: bool, 
@@ -30,6 +31,7 @@ class DeckListImageGeneratorStyles:
         self.leader_base_spacing_between = leader_base_spacing_between
         self.leader_base_spacing_left_relative_to_main_deck = leader_base_spacing_left_relative_to_main_deck
         self.stacked_card_reveal_percentage = stacked_card_reveal_percentage
+        self.is_leader_base_enabled = is_leader_base_enabled
         self.is_sideboard_enabled = is_sideboard_enabled
         self.is_sorted_alphabetically = is_sorted_alphabetically
         self.is_leader_base_on_top = is_leader_base_on_top
@@ -47,6 +49,7 @@ class DeckListImageGeneratorStyles:
         LEADER_BASE_SPACING_BETWEEN = 'leader_base_spacing_between'
         LEADER_BASE_SPACING_LEFT_RELATIVE_TO_MAIN_DECK = 'leader_base_spacing_left_relative_to_main_deck'
         STACKED_CARD_REVEAL_PERCENTAGE = 'stacked_card_reveal_percentage'
+        IS_LEADER_BASE_ENABLED = 'is_leader_base_enabled'
         IS_SIDEBOARD_ENABLED = 'is_sideboard_enabled'
         IS_SORTED_ALPHABETICALLY = 'is_sorted_alphabetically'
         IS_LEADER_BASE_ON_TOP = 'is_leader_base_on_top'
@@ -65,6 +68,7 @@ class DeckListImageGeneratorStyles:
             self.Keys.LEADER_BASE_SPACING_BETWEEN: self.leader_base_spacing_between,
             self.Keys.LEADER_BASE_SPACING_LEFT_RELATIVE_TO_MAIN_DECK: self.leader_base_spacing_left_relative_to_main_deck,
             self.Keys.STACKED_CARD_REVEAL_PERCENTAGE: self.stacked_card_reveal_percentage,
+            self.Keys.IS_LEADER_BASE_ENABLED: self.is_leader_base_enabled,
             self.Keys.IS_SIDEBOARD_ENABLED: self.is_sideboard_enabled,
             self.Keys.IS_SORTED_ALPHABETICALLY: self.is_sorted_alphabetically,
             self.Keys.IS_LEADER_BASE_ON_TOP: self.is_leader_base_on_top,
@@ -95,6 +99,7 @@ class DeckListImageGeneratorStyles:
             leader_base_spacing_between=json.get(cls.Keys.LEADER_BASE_SPACING_BETWEEN, default.leader_base_spacing_between),
             leader_base_spacing_left_relative_to_main_deck=json.get(cls.Keys.LEADER_BASE_SPACING_LEFT_RELATIVE_TO_MAIN_DECK, default.leader_base_spacing_left_relative_to_main_deck),
             stacked_card_reveal_percentage=json.get(cls.Keys.STACKED_CARD_REVEAL_PERCENTAGE, default.stacked_card_reveal_percentage),
+            is_leader_base_enabled=json.get(cls.Keys.IS_LEADER_BASE_ENABLED, default.is_leader_base_enabled),
             is_sideboard_enabled=json.get(cls.Keys.IS_SIDEBOARD_ENABLED, default.is_sideboard_enabled),
             is_sorted_alphabetically=json.get(cls.Keys.IS_SORTED_ALPHABETICALLY, default.is_sorted_alphabetically),
             is_leader_base_on_top=json.get(cls.Keys.IS_LEADER_BASE_ON_TOP, default.is_leader_base_on_top),
@@ -115,6 +120,7 @@ class DeckListImageGeneratorStyles:
             leader_base_spacing_between=10,
             leader_base_spacing_left_relative_to_main_deck=80,
             stacked_card_reveal_percentage=0.15,
+            is_leader_base_enabled=True,
             is_sideboard_enabled=True,
             is_sorted_alphabetically=False,
             is_leader_base_on_top=False,

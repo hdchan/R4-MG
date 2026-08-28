@@ -23,5 +23,6 @@
     "mypy-type-checker.preferDaemon": true,
     "mypy-type-checker.args": [
         "--check-untyped-defs"
-    ]
+    ],
+    "python-envs.defaultEnvManager": "ms-python.python:venv"
 }

@@ -1,5 +1,6 @@
 import time
-from typing import Any, Callable, Dict, TypeVar
+from collections.abc import Callable
+from typing import Any, TypeVar
 
 from AppCore.Service.GeneralWorker import AsyncWorker
 
@@ -16,7 +17,7 @@ class DataFetcherLocal:
         self._configuration = configuration
         self._async_worker = AsyncWorker()
         
-    def load(self, fn_work: Callable[[Dict[str, Any]], T], callback: Callable[[T], None], **kwargs: Any):
+    def load(self, fn_work: Callable[[dict[str, Any]], T], callback: Callable[[T], None], **kwargs: Any):
         def _runnable_fn():
             time.sleep(self._configuration.network_delay_duration)
             return fn_work(kwargs)
