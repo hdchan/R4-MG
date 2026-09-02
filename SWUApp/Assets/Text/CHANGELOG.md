@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.29.1
+### Hotfix
+- Fix bug where subtitle is None
+- Ensuring sequential image generating tasks
+
 ## 0.29.0
 ### Feature
 - Applying uniform deck size to grid configuration

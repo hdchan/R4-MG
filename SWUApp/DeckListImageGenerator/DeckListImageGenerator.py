@@ -16,6 +16,8 @@ from .DeckListImageGeneratorProtocol import DeckListImageGeneratorProtocol
 from .BaseDeckListImageGenerator import BaseDeckListImageGenerator
 from .ScaledDeckListImageGeneratorStyles import \
     ScaledDeckListImageGeneratorStyles
+import asyncio
+import threading
 
 
 class ImagePropertiesContext:
@@ -72,21 +74,51 @@ class ImagePropertiesContext:
 class TaskManager(QObject):
     finished = Signal(object)
 
-    def __init__(self, parent=None, max_workers=None):
+    def __init__(self, parent=None):
         super().__init__(parent)
-        self._executor = concurrent.futures.ThreadPoolExecutor(max_workers=max_workers)
-
-    @property
-    def executor(self):
-        return self._executor
+        self.task = None
+        
+        # 1. Create a dedicated event loop for this manager
+        self._loop = asyncio.new_event_loop()
+        
+        # 2. Run the loop indefinitely in a background thread
+        self._thread = threading.Thread(
+            target=self._loop.run_forever, 
+            name="TaskManagerLoop", 
+            daemon=True
+        )
+        self._thread.start()
 
     def submit(self, fn, *args, **kwargs):
-        future = self.executor.submit(fn, *args, **kwargs)
-        future.add_done_callback(self._internal_done_callback)
+        # 3. Cancel the existing task if it's currently running
+        if self.task is not None and not self.task.done():
+            # Use call_soon_threadsafe to interact with the background loop safely
+            self._loop.call_soon_threadsafe(self.task.cancel)
+
+        # 4. Invoke the async function with args to get the coroutine object
+        coro = fn(*args, **kwargs)
+
+        # 5. Safely schedule the coroutine onto the running background loop
+        # This replaces asyncio.create_task()
+        self.task = asyncio.run_coroutine_threadsafe(coro, self._loop)
+
+        # 6. Attach the done callback
+        self.task.add_done_callback(self._internal_done_callback)
 
     def _internal_done_callback(self, future):
-        data = future.result()
-        self.finished.emit(data)
+        try:
+            if future.cancelled():
+                print("Task was successfully cancelled.")
+                return
+                
+            data = future.result()
+            
+            # 7. Qt Signals are thread-safe! 
+            # Emitting this here safely passes the data back to the UI thread.
+            self.finished.emit(data)
+            
+        except Exception as e:
+            print(f"Task encountered an error: {e}")
 
 class DeckListImageGenerator(BaseDeckListImageGenerator, DeckListImageGeneratorProtocol):
 
@@ -96,7 +128,7 @@ class DeckListImageGenerator(BaseDeckListImageGenerator, DeckListImageGeneratorP
         self._configuration_manager = swu_app_dependencies_provider.configuration_manager
         self._asset_provider = swu_app_dependencies_provider.asset_provider
         self._is_loading = False
-        self._manager = TaskManager(max_workers=1)
+        self._manager = TaskManager()
         self._manager.finished.connect(self.update_gui_fields)
         self._is_downloading_images = False
         self._image_resource_processor_provider = swu_app_dependencies_provider.image_resource_processor_provider
@@ -121,8 +153,7 @@ class DeckListImageGenerator(BaseDeckListImageGenerator, DeckListImageGeneratorP
                        parsed_deck_list: ParsedDeckList,
                        is_export: bool, 
                        completion: Callable[[Optional[QPixmap], Optional[Image.Image]], None]):
-        
-        def measure():
+        async def measure():
             try:
                 context = self._compute_context_for_deck(parsed_deck_list, is_export)
 
@@ -184,21 +215,24 @@ class DeckListImageGenerator(BaseDeckListImageGenerator, DeckListImageGeneratorP
         unit_card_stack_cols: List[Image.Image] = []
         non_unit_card_stack_cols: List[Image.Image] = []
 
-        for v in cost_curve_values:
-            def create(cards: List[SWUTradingCardBackedLocalCardResource]):
-                mapped = list(map(lambda x: Image.open(context.image_path_for_resource(x)), cards))
-                card_stack = self._create_overlapping_cards(mapped, context, location='deck')
-                return card_stack
-            all_units_resources = parsed_deck_list.all_main_deck_units_with_cost(v, context.styles.is_sorted_alphabetically)
-            unit_card_stack_cols.append(create(all_units_resources))
+        result = self.create_canvas_image(0, 0)
 
-            all_non_units_resources = parsed_deck_list.all_main_deck_upgrades_and_events_with_cost(v, context.styles.is_sorted_alphabetically)
-            non_unit_card_stack_cols.append(create(all_non_units_resources))
+        if context.styles.is_main_deck_enabled:
+            for v in cost_curve_values:
+                def create(cards: List[SWUTradingCardBackedLocalCardResource]):
+                    mapped = list(map(lambda x: Image.open(context.image_path_for_resource(x)), cards))
+                    card_stack = self._create_overlapping_cards(mapped, context, location='deck')
+                    return card_stack
+                all_units_resources = parsed_deck_list.all_main_deck_units_with_cost(v, context.styles.is_sorted_alphabetically)
+                unit_card_stack_cols.append(create(all_units_resources))
 
-        result = self.stitch_image_rows([
-            self.stitch_image_columns(unit_card_stack_cols, column_spacing=context.styles.main_deck_column_spacing),
-            self.stitch_image_columns(non_unit_card_stack_cols, column_spacing=context.styles.main_deck_column_spacing)
-        ], row_spacing=context.styles.main_deck_row_spacing)
+                all_non_units_resources = parsed_deck_list.all_main_deck_upgrades_and_events_with_cost(v, context.styles.is_sorted_alphabetically)
+                non_unit_card_stack_cols.append(create(all_non_units_resources))
+
+            result = self.stitch_image_rows([
+                self.stitch_image_columns(unit_card_stack_cols, column_spacing=context.styles.main_deck_column_spacing),
+                self.stitch_image_columns(non_unit_card_stack_cols, column_spacing=context.styles.main_deck_column_spacing)
+            ], row_spacing=context.styles.main_deck_row_spacing)
 
         if context.styles.is_leader_base_enabled:
             result = self._generate_leader_base(result, parsed_deck_list, context)
@@ -239,19 +273,21 @@ class DeckListImageGenerator(BaseDeckListImageGenerator, DeckListImageGeneratorP
             image_with_quantity = self._add_quantity_count(scaled_image, quantity)
             return image_with_quantity
 
+        result = self.create_canvas_image(0, 0)
 
-        main_deck_images: List[Image.Image] = []
-        for c in parsed_deck_list.main_deck_cost_curve_values:
-            resources = set(parsed_deck_list.main_deck_with_cost(c, context.styles.is_sorted_alphabetically))
-            for r in resources:
-                quantity = parsed_deck_list.card_count_main_deck(r)
-                image_with_quantity = scale_and_add_quantity(r, quantity)
-                main_deck_images.append(image_with_quantity)
-        result = self.stitch_image_grid_right_to_down(main_deck_images, 
-                                                      context.styles.grid_width,
-                                                      column_spacing=context.styles.main_deck_column_spacing, 
-                                                      row_spacing=context.styles.main_deck_row_spacing, 
-                                                      location='deck')
+        if context.styles.is_main_deck_enabled:
+            main_deck_images: List[Image.Image] = []
+            for c in parsed_deck_list.main_deck_cost_curve_values:
+                resources = set(parsed_deck_list.main_deck_with_cost(c, context.styles.is_sorted_alphabetically))
+                for r in resources:
+                    quantity = parsed_deck_list.card_count_main_deck(r)
+                    image_with_quantity = scale_and_add_quantity(r, quantity)
+                    main_deck_images.append(image_with_quantity)
+            result = self.stitch_image_grid_right_to_down(main_deck_images, 
+                                                        context.styles.grid_width,
+                                                        column_spacing=context.styles.main_deck_column_spacing, 
+                                                        row_spacing=context.styles.main_deck_row_spacing, 
+                                                        location='deck')
 
         if context.styles.is_leader_base_enabled:
             result = self._generate_leader_base(result, parsed_deck_list, context)
@@ -303,16 +339,6 @@ class DeckListImageGenerator(BaseDeckListImageGenerator, DeckListImageGeneratorP
 
         unscaled_styles = self._configuration_manager.configuration.deck_list_image_generator_styles
         return ImagePropertiesContext(max_width, max_height, max_preview_width / max_width, unscaled_styles, is_export)
-
-    # def _compute_uniform_image_properties(self, 
-    #                                       local_resources: List[LocalCardResource], 
-    #                                       unscaled_styles: DeckListImageGeneratorStyles, 
-    #                                       is_export: bool) -> ImagePropertiesContext:
-    #     image_paths: List[ImageFile] = list(map(lambda x: Image.open(x.image_path), local_resources))
-    #     max_width, max_height = self.uniform_card_dimensions(image_paths)
-    #     image_preview_paths: List[ImageFile] = list(map(lambda x: Image.open(x.image_preview_path), local_resources))
-    #     max_preview_width, _ = self.uniform_card_dimensions(image_preview_paths)
-    #     return ImagePropertiesContext(max_width, max_height, max_preview_width / max_width, unscaled_styles, is_export)
 
     def create_canvas_image(self, 
                             width: int,
