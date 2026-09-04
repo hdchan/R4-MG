@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.29.2
+### Hotfix
+- Add window name for player standings
+
 ## 0.29.1
 ### Hotfix
 - Fix bug where subtitle is None

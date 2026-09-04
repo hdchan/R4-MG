@@ -19,5 +19,5 @@ class PlayerStandingsWindow(AppWindow):
         self._observation_tower = app_dependencies_provider.observation_tower
         self._router = app_dependencies_provider.router
         self._menu_bar_builder = AppMenuBarBuilder(app_dependencies_provider)
-
+        self.setWindowTitle("Player standings")
         # self._menu_bar_builder.build_image_deployment_menu_bar(self)
