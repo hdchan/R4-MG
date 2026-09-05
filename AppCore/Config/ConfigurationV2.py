@@ -54,6 +54,8 @@ class ConfigurationV2:
         Path(self._file_path).parent.mkdir(parents=True, exist_ok=True)
 
     def _write_configuration_changes(self):
+        # Async configuration changes, but notify immediately
+        # throttle saving
         self._create_directory_if_needed()
         data = self._config
         with io.open(self._file_path, 'w', encoding='utf8') as outfile:
