@@ -183,8 +183,6 @@ class Configuration():
     def configuration_for_key(self, key: str) -> Optional[Any]:
         return self._get_with_default_settings(key)
     
-    
-        
 
     # MARK: - User settings
     @property
