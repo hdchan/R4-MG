@@ -1,17 +1,12 @@
-# Extensible
+import io
+from pathlib import Path
+from typing import Any, List, Dict
 
-# Config.save(key: str, Val: T)
+import yaml  # type: ignore
 
-# Config.save(config_type:)
-# Auto saves data
-# ConfigType{ key, val }
+from AppCore.Service.GeneralWorker import AsyncWorker
 
-# How to do pending changes for setting page that will only save when clicking save
-
-# Migration strategy
-
-from typing import Any, List
-
+from PySide6.QtCore import QStandardPaths
 class ConfigurationType:
         def __init__(self, value: Any):
             self._value = value
@@ -26,16 +21,17 @@ class ConfigurationType:
 
 class ConfigurationV2:
 
+    # https://pydantic.dev/docs/validation/latest/get-started/
+
     def __init__(self):
-        pass
+        self._config: Dict[str, Any] = []
+        self._async_worker = AsyncWorker()
 
     def save(self, key: str, value: Any):
         # queue up changes
         # timer
-        pass
-
-    # def save_values(self, key_value_list: List[Tuple[str, Any]]):
-
+        self._config[key] = value
+        self._async_worker.run(self._write_configuration_changes)
 
     def save_configuration_type(self, configuration_type: ConfigurationType):
         self.save(configuration_type.key, configuration_type.value)
@@ -44,4 +40,21 @@ class ConfigurationV2:
         for i in configuration_type_list:
             self.save_configuration_type(i)
 
-    # how do we handle temp changes that 
+    def _create_directory_if_needed(self):
+        my_file = Path(self._app_config_directory)
+        my_file.mkdir(parents=True, exist_ok=True)
+
+    def _write_configuration_changes(self):
+        self._create_directory_if_needed()
+        data = self._configuration.to_data()
+        with io.open(self._settings_file_path, 'w', encoding='utf8') as outfile:
+            yaml.dump(data, outfile, default_flow_style=False,
+                      allow_unicode=True)
+
+    @property
+    def _settings_file_path(self) -> str:
+        return self._app_config_directory + '/settings_v2.yaml'
+
+    @property
+    def _app_config_directory(self) -> str:
+        return QStandardPaths.writableLocation(QStandardPaths.StandardLocation.AppConfigLocation)

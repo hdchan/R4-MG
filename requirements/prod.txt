@@ -6,3 +6,4 @@ PyYAML==6.0.3
 jsonpickle==4.1.1
 zlib-ng==1.0.0
 sentry-sdk
+pydantic==2.13.4
