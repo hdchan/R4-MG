@@ -16,7 +16,7 @@ from AppCore.Observation import TransmissionProtocol, TransmissionReceiverProtoc
 from AppCore.Observation.Events import (
     LocalAssetResourceFetchEvent,
 )
-from AppCore.Service.Debouncer import Debouncer
+from AppCore.Utilities.Debouncer import Debouncer
 from AppUI.UIComponents.Base.LoadingSpinner import LoadingSpinner
 from R4UI import HorizontalBoxLayout, HorizontalSplitter, RWidget
 
