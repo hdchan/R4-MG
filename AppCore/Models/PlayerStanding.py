@@ -31,4 +31,6 @@ class PlayerStanding:
 
     @property
     def display_details(self) -> str:
+        if not self.deck_name.strip():
+            return f'{self.first_name} {self._format_name(self.last_name)}'
         return f'{self.first_name} {self._format_name(self.last_name)} - {self.deck_name}'

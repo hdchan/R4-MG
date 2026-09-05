@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.29.3
+### Hotfix
+- Updating player standing list label formatting
+
 ## 0.29.2
 ### Hotfix
 - Add window name for player standings
