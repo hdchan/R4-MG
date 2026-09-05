@@ -343,6 +343,95 @@ def DLIG_generate_cost_curve(parsed_deck_list: ParsedDeckList,
 
         return result
 
+def DLIG_generate_deck_grid(parsed_deck_list: ParsedDeckList, 
+                             context: ImagePropertiesContext,
+                             quantity_image_path_mapping: dict[int, str]) -> Image.Image:
+
+        def scale_and_add_quantity(r: SWUTradingCardBackedLocalCardResource, quantity: int) -> Image.Image:
+            image = Image.open(context.image_path_for_resource(r))
+            scaled_image = DLIG_scale_image_to_context(image=image, context=context)
+            if quantity < 1:
+                quantity_image = Image.open(quantity_image_path_mapping[5])
+            elif quantity > 3:
+                quantity_image = Image.open(quantity_image_path_mapping[4])
+            else:
+                quantity_image = Image.open(quantity_image_path_mapping[quantity])
+            image_with_quantity = DLIG_add_quantity_count(scaled_image, quantity_image)
+            return image_with_quantity
+
+        result = DLIG_create_canvas_image(0, 0)
+
+        if context.styles.is_main_deck_enabled:
+            main_deck_images: list[Image.Image] = []
+            for c in parsed_deck_list.main_deck_cost_curve_values:
+                resources = set(parsed_deck_list.main_deck_with_cost(c, context.styles.is_sorted_alphabetically))
+                for r in resources:
+                    quantity = parsed_deck_list.card_count_main_deck(r)
+                    image_with_quantity = scale_and_add_quantity(r, quantity)
+                    main_deck_images.append(image_with_quantity)
+            result = DLIG_stitch_image_grid_right_to_down(main_deck_images, 
+                                                        context.styles.grid_width,
+                                                        column_spacing=context.styles.main_deck_column_spacing, 
+                                                        row_spacing=context.styles.main_deck_row_spacing, 
+                                                        location='deck', 
+                                                        is_debug=context.is_debug)
+
+        if context.styles.is_leader_base_enabled:
+            result = DLIG_generate_leader_base(result, parsed_deck_list, context)
+
+        if context.styles.is_sideboard_enabled:
+            sideboard_images: list[Image.Image] = []
+            for c in parsed_deck_list.sideboard_cost_curve_values:
+                resources_set: set[SWUTradingCardBackedLocalCardResource] = set()
+                resources_with_cost = parsed_deck_list.sideboard_with_cost(c, context.styles.is_sorted_alphabetically)
+                for r in resources_with_cost:
+                    if r in resources_set:
+                        continue
+                    resources_set.add(r)
+                    quantity = parsed_deck_list.card_count_sideboard(r)
+                    image_with_quantity = scale_and_add_quantity(r, quantity)
+                    sideboard_images.append(image_with_quantity)
+            sideboard_grid = DLIG_stitch_image_grid_right_to_down(sideboard_images, 
+                                                                  context.styles.grid_width_sideboard, 
+                                                                  column_spacing=context.styles.main_deck_column_spacing, 
+                                                                  row_spacing=context.styles.main_deck_row_spacing,
+                                                                  location='sideboard', 
+                                                                  is_debug=context.is_debug)
+            spacer = DLIG_create_canvas_image(context.main_left, 0)
+            sideboard_grid = DLIG_stitch_image_columns([spacer, sideboard_grid])
+            result = DLIG_stitch_image_rows([result, sideboard_grid], 
+                                            h_alignment=DLIG_HAlignment.LEFT,
+                                            row_spacing=context.styles.sideboard_left_spacing_relative_to_main_deck)
+
+        return result
+
+def DLIG_generate_image(parsed_deck_list: ParsedDeckList,
+                        unscaled_styles: DeckListImageGeneratorStyles,
+                       is_export: bool,
+                       is_debug: bool,
+                       quantity_image_path_mapping: dict[int, str]):
+            try:
+                
+                context = DLIG_compute_context_for_deck(parsed_deck_list, is_export, unscaled_styles, is_debug)
+
+                if context.styles.layout_type == DeckListImageGeneratorStyles.LayoutType.GRID:
+                    result = DLIG_generate_deck_grid(parsed_deck_list, context, quantity_image_path_mapping)
+                elif context.styles.layout_type == DeckListImageGeneratorStyles.LayoutType.COST_CURVE:
+                    result = DLIG_generate_cost_curve(parsed_deck_list, context)
+                else:
+                    raise Exception("No such layout")
+
+                return result
+                # byte_array = BytesIO()
+                # result.save(byte_array, format="PNG")
+                # byte_array.seek(0)
+                
+                # qimage = QImage.fromData(byte_array.getvalue())
+                # pixmap = QPixmap.fromImage(qimage)
+                # return (pixmap, qimage)
+            except Exception as e:
+                raise ValueError(e) 
+
 # https://stackoverflow.com/a/64504108
 class TaskManager(QObject):
     finished = Signal(object)
@@ -394,46 +483,47 @@ class TaskManager(QObject):
             print(f"Task encountered an error: {e}")
 
 class ImageProcessor(QObject):
-    finished = Signal(bytes)
+    finished = Signal(object, Image.Image)
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        # Spin up a true multi-core process pool
         self._pool = ProcessPoolExecutor(max_workers=2)
         self._current_future = None
         self._current_job_id = 0
 
-    def submit(self, fn):
-        # 1. Increment Job ID. This acts as our "Cancellation Token"
+    def submit(self, fn, *args, callback=None, **kwargs):
+        """
+        Submits a task to the process pool.
+        :param fn: Top-level function to run in the worker process.
+        :param callback: Optional local callback function to execute upon successful unpickling.
+        """
         self._current_job_id += 1
         assigned_job_id = self._current_job_id
-        # coro = fn(*args, **kwargs)
-        # 2. Submit the heavy PIL task directly to the Process Pool
-        future = self._pool.submit(fn)
+        
+        # Only pass the target worker function and its arguments to the pool.
+        # This keeps the callback safe from pickle errors.
+        future = self._pool.submit(fn, *args, **kwargs)
         self._current_future = future
 
-        # 3. Use a lightweight native thread to wait for this specific process
-        # This keeps the main Qt UI thread completely unblocked!
+        # Pass the callback down to our lightweight native monitoring thread
         threading.Thread(
             target=self._wait_for_process, 
-            args=(future, assigned_job_id), 
+            args=(future, assigned_job_id, callback), 
             daemon=True
         ).start()
 
-    def _wait_for_process(self, future, assigned_job_id):
+    def _wait_for_process(self, future, assigned_job_id, callback):
         try:
-            # Block this background thread until the OS process finishes grinding pixels
+            # future.result() handles the unpickling from the child process
             result_bytes = future.result()
             
-            # 4. CANCELLATION CHECK:
-            # If self._current_job_id has changed, it means the user submitted a 
-            # new image while we were working. Discard this old result immediately!
+            # CANCELLATION CHECK
             if assigned_job_id != self._current_job_id:
                 print(f"Discarding stale job #{assigned_job_id}. Latest is #{self._current_job_id}")
                 return
 
-            # 5. Safe return to UI via Qt Signals
-            self.finished.emit(result_bytes)
+            # 2. Emit the Qt Signal to safely alert the UI thread
+            self.finished.emit(callback, result_bytes)
 
         except Exception as e:
             print(f"Image process failed: {e}")
@@ -451,9 +541,17 @@ class DeckListImageGenerator(DeckListImageGeneratorProtocol):
         self._is_downloading_images = False
         self._image_resource_processor_provider = swu_app_dependencies_provider.image_resource_processor_provider
 
-    def update_gui_fields(self, data):
+    def update_gui_fields(self, callback, data):
         self._is_loading = False
-        data[1](data[0][0], data[0][1])
+
+        byte_array = BytesIO()
+        data.save(byte_array, format="PNG")
+        byte_array.seek(0)
+        
+        qimage = QImage.fromData(byte_array.getvalue())
+        pixmap = QPixmap.fromImage(qimage)
+
+        callback(pixmap, qimage)
 
     @property
     def _core_configuration(self) -> Configuration:
@@ -470,93 +568,32 @@ class DeckListImageGenerator(DeckListImageGeneratorProtocol):
     def generate_image(self,
                        parsed_deck_list: ParsedDeckList,
                        is_export: bool, 
-                       completion: Callable[[Optional[QPixmap], Optional[Image.Image]], None]):
-        async def measure():
-            try:
-                unscaled_styles = self._configuration_manager.configuration.deck_list_image_generator_styles
-                context = DLIG_compute_context_for_deck(parsed_deck_list, is_export, unscaled_styles, self._is_debug)
-
-                if context.styles.layout_type == DeckListImageGeneratorStyles.LayoutType.GRID:
-                    result = self._generate_deck_grid(parsed_deck_list, context)
-                elif context.styles.layout_type == DeckListImageGeneratorStyles.LayoutType.COST_CURVE:
-                    result = DLIG_generate_cost_curve(parsed_deck_list, context)
-                else:
-                    raise Exception("No such layout")
-
-                byte_array = BytesIO()
-                result.save(byte_array, format="PNG")
-                byte_array.seek(0)
-                
-                qimage = QImage.fromData(byte_array.getvalue())
-                pixmap = QPixmap.fromImage(qimage)
-                return ((pixmap, qimage), completion)
-            except Exception as e:
-                raise ValueError(e) 
+                       completion: Callable[[QPixmap | None, Image.Image | None], None]):
         
+        def provide_quantity_image_path(quantity: int) -> str:
+                return self._asset_provider.image.card_quantity(quantity)
+
         def _completed():
             self._is_downloading_images = False
             self._is_loading = True
-            self._manager.submit(measure)
+
+            unscaled_styles = self._configuration_manager.configuration.deck_list_image_generator_styles
+
+            quantity_image_path_mapping = {
+                1: self._asset_provider.image.card_quantity(1),
+                2: self._asset_provider.image.card_quantity(2),
+                3: self._asset_provider.image.card_quantity(3),
+                4: self._asset_provider.image.card_quantity(4),
+                5: self._asset_provider.image.card_quantity(-1)
+            }
+            
+
+            self._manager.submit(DLIG_generate_image, callback=completion, parsed_deck_list=parsed_deck_list, unscaled_styles=unscaled_styles, is_export=is_export, is_debug=self._is_debug, quantity_image_path_mapping=quantity_image_path_mapping)
             
         self._image_resource_processor_provider.image_resource_processor.async_store_local_resources_multi(parsed_deck_list.all_cards, _completed)
         self._is_downloading_images = True
 
-    def _generate_deck_grid(self,
-                             parsed_deck_list: ParsedDeckList, 
-                             context: ImagePropertiesContext) -> Image.Image:
-
-        def scale_and_add_quantity(r: SWUTradingCardBackedLocalCardResource, quantity: int) -> Image.Image:
-            image = Image.open(context.image_path_for_resource(r))
-            scaled_image = DLIG_scale_image_to_context(image=image, context=context)
-            quantity_image = Image.open(self._asset_provider.image.card_quantity(quantity))
-            image_with_quantity = DLIG_add_quantity_count(scaled_image, quantity_image)
-            return image_with_quantity
-
-        result = DLIG_create_canvas_image(0, 0)
-
-        if context.styles.is_main_deck_enabled:
-            main_deck_images: List[Image.Image] = []
-            for c in parsed_deck_list.main_deck_cost_curve_values:
-                resources = set(parsed_deck_list.main_deck_with_cost(c, context.styles.is_sorted_alphabetically))
-                for r in resources:
-                    quantity = parsed_deck_list.card_count_main_deck(r)
-                    image_with_quantity = scale_and_add_quantity(r, quantity)
-                    main_deck_images.append(image_with_quantity)
-            result = DLIG_stitch_image_grid_right_to_down(main_deck_images, 
-                                                        context.styles.grid_width,
-                                                        column_spacing=context.styles.main_deck_column_spacing, 
-                                                        row_spacing=context.styles.main_deck_row_spacing, 
-                                                        location='deck', 
-                                                        is_debug=context.is_debug)
-
-        if context.styles.is_leader_base_enabled:
-            result = DLIG_generate_leader_base(result, parsed_deck_list, context)
-
-        if context.styles.is_sideboard_enabled:
-            sideboard_images: List[Image.Image] = []
-            for c in parsed_deck_list.sideboard_cost_curve_values:
-                resources_set: Set[SWUTradingCardBackedLocalCardResource] = set()
-                resources_with_cost = parsed_deck_list.sideboard_with_cost(c, context.styles.is_sorted_alphabetically)
-                for r in resources_with_cost:
-                    if r in resources_set:
-                        continue
-                    resources_set.add(r)
-                    quantity = parsed_deck_list.card_count_sideboard(r)
-                    image_with_quantity = scale_and_add_quantity(r, quantity)
-                    sideboard_images.append(image_with_quantity)
-            sideboard_grid = DLIG_stitch_image_grid_right_to_down(sideboard_images, 
-                                                                  context.styles.grid_width_sideboard, 
-                                                                  column_spacing=context.styles.main_deck_column_spacing, 
-                                                                  row_spacing=context.styles.main_deck_row_spacing,
-                                                                  location='sideboard', 
-                                                                  is_debug=context.is_debug)
-            spacer = DLIG_create_canvas_image(context.main_left, 0)
-            sideboard_grid = DLIG_stitch_image_columns([spacer, sideboard_grid])
-            result = DLIG_stitch_image_rows([result, sideboard_grid], 
-                                            h_alignment=DLIG_HAlignment.LEFT,
-                                            row_spacing=context.styles.sideboard_left_spacing_relative_to_main_deck)
-
-        return result
+    
 
     @property
     def _is_debug(self) -> bool:
