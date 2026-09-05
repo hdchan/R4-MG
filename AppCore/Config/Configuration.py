@@ -19,7 +19,6 @@ class Configuration():
         class Keys:
             DEVELOPER_MODE = 'developer_mode'
             DRAFT_LIST_IMAGE_PREVIEW = 'draft_list_image_preview'
-            USES_LEGACY_DECK_IMAGE_GENERATION = 'uses_legacy_deck_image_generation'
             USES_SQLITE_FOR_MANAGE_SET_SEARCH = 'uses_sqlite_for_manage_set_search'
 
     class Settings:
@@ -97,11 +96,10 @@ class Configuration():
     @classmethod
     def default(cls):
         obj = cls.__new__(cls)
-        underlying_json: Dict[str, Any] = {
+        underlying_json: dict[str, Any] = {
             Configuration.Keys.TOGGLES: {
                 Configuration.Toggles.Keys.DEVELOPER_MODE: False,
                 Configuration.Toggles.Keys.DRAFT_LIST_IMAGE_PREVIEW: False,
-                Configuration.Toggles.Keys.USES_LEGACY_DECK_IMAGE_GENERATION: False,
                 Configuration.Toggles.Keys.USES_SQLITE_FOR_MANAGE_SET_SEARCH: True,
             },
             Configuration.Keys.SETTINGS: {
@@ -257,10 +255,6 @@ class Configuration():
     @property
     def is_draft_list_image_preview_enabled(self) -> bool:
         return self._get_with_default_toggles(self.Toggles.Keys.DRAFT_LIST_IMAGE_PREVIEW)
-    
-    @property
-    def is_using_legacy_deck_image_generation(self) -> bool:
-        return self._get_with_default_toggles(self.Toggles.Keys.USES_LEGACY_DECK_IMAGE_GENERATION)
 
     @property
     def is_using_sqlite_search_for_managed_set_search(self) -> bool:
@@ -452,9 +446,6 @@ class MutableConfiguration(Configuration):
     # MARK: - Toggles
     def set_is_draft_list_image_preview_enabled(self, value: bool):
         self._toggles[self.Toggles.Keys.DRAFT_LIST_IMAGE_PREVIEW] = value
-
-    def set_is_using_legacy_deck_list_image_generation(self, value: bool):
-        self._toggles[self.Toggles.Keys.USES_LEGACY_DECK_IMAGE_GENERATION] = value
 
     def set_is_using_sqlite_search_for_managed_set_search(self, value: bool):
         self._toggles[self.Toggles.Keys.USES_SQLITE_FOR_MANAGE_SET_SEARCH] = value
