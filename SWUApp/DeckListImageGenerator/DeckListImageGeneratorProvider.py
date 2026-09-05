@@ -1,8 +1,12 @@
+from AppCore.Config import Configuration
+
 from ..SWUAppDependenciesProviding import SWUAppDependenciesProviding
 from .DeckListImageGenerator import DeckListImageGenerator
-from .DeckListImageGeneratorProtocol import (DeckListImageGeneratorProtocol,
-                                             DeckListImageGeneratorProviding)
-from AppCore.Config import Configuration
+from .DeckListImageGeneratorProtocol import (
+    DeckListImageGeneratorProtocol,
+    DeckListImageGeneratorProviding,
+)
+
 
 class DeckListImageGeneratorProvider(DeckListImageGeneratorProviding):
     def __init__(self, swu_app_dependencies_provider: SWUAppDependenciesProviding):

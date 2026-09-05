@@ -1,9 +1,10 @@
 
 import time
+from io import BytesIO
 from typing import Optional
 
 from PIL import Image
-from PySide6.QtGui import QPixmap
+from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QFileDialog
 
 from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
@@ -99,10 +100,8 @@ class DraftListImagePreviewViewController(RWidget,
     def _sync_spinner(self):
         if self._image_generator.is_loading:
             self._loading_spinner.start()
-            # self._inspector_panel.regenerate_button.setEnabled(False)
         else:
             self._loading_spinner.stop()
-            # self._inspector_panel.regenerate_button.setEnabled(True)
 
     def _start_generate_image_timer(self):
         if self._configuration_manager.configuration.deck_list_image_generator_styles.is_auto_generate_preview:
@@ -115,41 +114,52 @@ class DraftListImagePreviewViewController(RWidget,
 
         start = time.time()
 
-        def _finished(pixmap: Optional[QPixmap], image: Optional[Image.Image]):
+        def _finished(image: Image.Image | None):
             end = time.time()
             print(f'Image generation took {(end - start)}')
             try:
+                byte_array = BytesIO()
+                image.save(byte_array, format="PNG")
+                byte_array.seek(0)
+                
+                qimage = QImage.fromData(byte_array.getvalue())
+                pixmap = QPixmap.fromImage(qimage)
+
                 self._image_view.setPhoto(pixmap, None)
                 self._sync_spinner()
             except Exception as error:
                 print(error)
 
-        self._image_generator.generate_image(
-            self._parsed_deck, False, _finished)
+        self._image_generator.generate_image(self._parsed_deck, False, _finished)
         self._sync_spinner()
 
     def export_image(self) -> None:
-        def _finished(pixmap: Optional[QPixmap], image: Optional[Image.Image]):
+        def _finished(image: Image.Image | None):
             try:
                 if image is None:
                     return
+
+                byte_array = BytesIO()
+                image.save(byte_array, format="PNG")
+                byte_array.seek(0)
+                
+                qimage = QImage.fromData(byte_array.getvalue())
+
                 self._sync_spinner()
                 file_path, ok = QFileDialog.getSaveFileName(None,
                                                             "Save File",
                                                             "",
                                                             "PNG (*.png);;All Files (*)")
                 if ok:
-                    image.save(file_path)
+                    qimage.save(file_path)
             except Exception as error:
                 print(error)
-        self._image_generator.generate_image(
-            self._parsed_deck, True, _finished)
+        self._image_generator.generate_image(self._parsed_deck, True, _finished)
         self._sync_spinner()
 
     # MARK: - Observation
     def handle_observation_tower_event(self, event: TransmissionProtocol) -> None:
-        if type(event) is LocalAssetResourceFetchEvent:
-            if event.local_resource in self._data_source_draft_list.draft_pack_flat_list:
+        if type(event) is LocalAssetResourceFetchEvent and event.local_resource in self._data_source_draft_list.draft_pack_flat_list:
                 self._start_generate_image_timer()
         if type(event) is DraftListUpdatedEvent or type(event) is DraftPackUpdatedEvent:
             self._start_generate_image_timer()

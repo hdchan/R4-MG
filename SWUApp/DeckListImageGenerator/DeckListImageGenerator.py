@@ -1,26 +1,28 @@
 
+import asyncio
+import sys
+import threading
+from collections.abc import Callable
+from concurrent.futures import ProcessPoolExecutor
+from enum import Enum
 from io import BytesIO
-from typing import Callable, List, Optional, Set, Dict
-import concurrent.futures
+
 from PIL import Image
 from PIL.ImageFile import ImageFile
-from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtCore import QObject, Signal
+from PySide6.QtGui import QImage, QPixmap
+
 from AppCore.Config import Configuration
 from AppCore.Models import LocalCardResource
 
-from ..Models import (DeckListImageGeneratorStyles, ParsedDeckList,
-                      SWUTradingCardBackedLocalCardResource)
+from ..Models import (
+        DeckListImageGeneratorStyles,
+        ParsedDeckList,
+        SWUTradingCardBackedLocalCardResource,
+)
 from ..SWUAppDependenciesProviding import SWUAppDependenciesProviding
 from .DeckListImageGeneratorProtocol import DeckListImageGeneratorProtocol
-from .BaseDeckListImageGenerator import BaseDeckListImageGenerator
-from .ScaledDeckListImageGeneratorStyles import \
-    ScaledDeckListImageGeneratorStyles
-import asyncio
-import threading
-from concurrent.futures import ProcessPoolExecutor
-import sys
-from enum import Enum
+from .ScaledDeckListImageGeneratorStyles import ScaledDeckListImageGeneratorStyles
 
 # def DLIG_create_canvas_image(self,
 #                             width: int,
@@ -213,7 +215,7 @@ def DLIG_scale_image_to_context(image: Image.Image, context: ImagePropertiesCont
         scaled_image.thumbnail((context.max_dimension, context.max_dimension), Image.Resampling.BICUBIC)
         return scaled_image
 
-def DLIG_create_overlapping_cards(images: List[ImageFile],
+def DLIG_create_overlapping_cards(images: list[ImageFile],
                                   context: ImagePropertiesContext, 
                                   fill_empty: bool = True, 
                                   location: str = "deck") -> Image.Image:
@@ -409,7 +411,7 @@ def DLIG_generate_image(parsed_deck_list: ParsedDeckList,
                         unscaled_styles: DeckListImageGeneratorStyles,
                        is_export: bool,
                        is_debug: bool,
-                       quantity_image_path_mapping: dict[int, str]):
+                       quantity_image_path_mapping: dict[int, str]) -> Image.Image:
             try:
                 
                 context = DLIG_compute_context_for_deck(parsed_deck_list, is_export, unscaled_styles, is_debug)
@@ -422,65 +424,58 @@ def DLIG_generate_image(parsed_deck_list: ParsedDeckList,
                     raise Exception("No such layout")
 
                 return result
-                # byte_array = BytesIO()
-                # result.save(byte_array, format="PNG")
-                # byte_array.seek(0)
-                
-                # qimage = QImage.fromData(byte_array.getvalue())
-                # pixmap = QPixmap.fromImage(qimage)
-                # return (pixmap, qimage)
             except Exception as e:
                 raise ValueError(e) 
 
 # https://stackoverflow.com/a/64504108
-class TaskManager(QObject):
-    finished = Signal(object)
+# class TaskManager(QObject):
+#     finished = Signal(object)
 
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.task = None
+#     def __init__(self, parent=None):
+#         super().__init__(parent)
+#         self.task = None
         
-        # 1. Create a dedicated event loop for this manager
-        self._loop = asyncio.new_event_loop()
+#         # 1. Create a dedicated event loop for this manager
+#         self._loop = asyncio.new_event_loop()
         
-        # 2. Run the loop indefinitely in a background thread
-        self._thread = threading.Thread(
-            target=self._loop.run_forever, 
-            name="TaskManagerLoop", 
-            daemon=True
-        )
-        self._thread.start()
+#         # 2. Run the loop indefinitely in a background thread
+#         self._thread = threading.Thread(
+#             target=self._loop.run_forever, 
+#             name="TaskManagerLoop", 
+#             daemon=True
+#         )
+#         self._thread.start()
 
-    def submit(self, fn, *args, **kwargs):
-        # 3. Cancel the existing task if it's currently running
-        if self.task is not None and not self.task.done():
-            # Use call_soon_threadsafe to interact with the background loop safely
-            self._loop.call_soon_threadsafe(self.task.cancel)
+#     def submit(self, fn, *args, **kwargs):
+#         # 3. Cancel the existing task if it's currently running
+#         if self.task is not None and not self.task.done():
+#             # Use call_soon_threadsafe to interact with the background loop safely
+#             self._loop.call_soon_threadsafe(self.task.cancel)
 
-        # 4. Invoke the async function with args to get the coroutine object
-        coro = fn(*args, **kwargs)
+#         # 4. Invoke the async function with args to get the coroutine object
+#         coro = fn(*args, **kwargs)
 
-        # 5. Safely schedule the coroutine onto the running background loop
-        # This replaces asyncio.create_task()
-        self.task = asyncio.run_coroutine_threadsafe(coro, self._loop)
+#         # 5. Safely schedule the coroutine onto the running background loop
+#         # This replaces asyncio.create_task()
+#         self.task = asyncio.run_coroutine_threadsafe(coro, self._loop)
 
-        # 6. Attach the done callback
-        self.task.add_done_callback(self._internal_done_callback)
+#         # 6. Attach the done callback
+#         self.task.add_done_callback(self._internal_done_callback)
 
-    def _internal_done_callback(self, future):
-        try:
-            if future.cancelled():
-                print("Task was successfully cancelled.")
-                return
+#     def _internal_done_callback(self, future):
+#         try:
+#             if future.cancelled():
+#                 print("Task was successfully cancelled.")
+#                 return
                 
-            data = future.result()
+#             data = future.result()
             
-            # 7. Qt Signals are thread-safe! 
-            # Emitting this here safely passes the data back to the UI thread.
-            self.finished.emit(data)
+#             # 7. Qt Signals are thread-safe! 
+#             # Emitting this here safely passes the data back to the UI thread.
+#             self.finished.emit(data)
             
-        except Exception as e:
-            print(f"Task encountered an error: {e}")
+#         except Exception as e:
+#             print(f"Task encountered an error: {e}")
 
 class ImageProcessor(QObject):
     finished = Signal(object, Image.Image)
@@ -542,16 +537,15 @@ class DeckListImageGenerator(DeckListImageGeneratorProtocol):
         self._image_resource_processor_provider = swu_app_dependencies_provider.image_resource_processor_provider
 
     def update_gui_fields(self, callback, data):
-        self._is_loading = False
-
-        byte_array = BytesIO()
-        data.save(byte_array, format="PNG")
-        byte_array.seek(0)
+        # byte_array = BytesIO()
+        # data.save(byte_array, format="PNG")
+        # byte_array.seek(0)
         
-        qimage = QImage.fromData(byte_array.getvalue())
-        pixmap = QPixmap.fromImage(qimage)
+        # qimage = QImage.fromData(byte_array.getvalue())
+        # pixmap = QPixmap.fromImage(qimage)
 
-        callback(pixmap, qimage)
+        self._is_loading = False
+        callback(data)
 
     @property
     def _core_configuration(self) -> Configuration:
@@ -568,7 +562,7 @@ class DeckListImageGenerator(DeckListImageGeneratorProtocol):
     def generate_image(self,
                        parsed_deck_list: ParsedDeckList,
                        is_export: bool, 
-                       completion: Callable[[QPixmap | None, Image.Image | None], None]):
+                       completion: Callable[[Image.Image | None], None]):
         
         def provide_quantity_image_path(quantity: int) -> str:
                 return self._asset_provider.image.card_quantity(quantity)

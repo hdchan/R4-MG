@@ -1,8 +1,14 @@
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.Configuration import MutableAppUIConfiguration
+from R4UI import (
+    HorizontalLabeledInputRow,
+    RCheckBox,
+    RVerticallyExpandingSpacer,
+    VerticalBoxLayout,
+    VerticalGroupBox,
+)
+
 from .SettingsContainerChildProtocol import SettingsContainerChildProtocol
-from R4UI import (HorizontalLabeledInputRow, RCheckBox, VerticalBoxLayout,
-                  VerticalGroupBox, LineEditText, RVerticallyExpandingSpacer)
 
 
 class ToggleSettingsViewController(SettingsContainerChildProtocol):
@@ -10,7 +16,6 @@ class ToggleSettingsViewController(SettingsContainerChildProtocol):
         super().__init__()
 
         self._mutable_configuration = app_dependencies_provider.app_ui_configuration_manager.mutable_configuration()
-        # self._mutable_core_configuration = self._mutable_configuration.core_mutable_configuration
         
         VerticalBoxLayout([
             VerticalGroupBox([
