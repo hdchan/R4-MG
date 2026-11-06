@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.30.0
+### Feature
+- Add additional hot key shortcuts for deployment
+
 ## 0.29.3
 ### Hotfix
 - Updating player standing list label formatting

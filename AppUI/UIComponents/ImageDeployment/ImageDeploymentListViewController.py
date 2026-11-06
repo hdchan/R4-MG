@@ -125,12 +125,21 @@ class ImageDeploymentListViewController(QWidget, TransmissionReceiverProtocol):
                                                  self._local_resource_data_source_provider,
                                                  not is_deployment_list_horizontal)
             if index <= 9:
-                item.stage_button.setText(f'Stage (Ctrl+{index + 1})')
+                stage_text = self._app_dependencies_provider.shortcut_action_coordinator.staging_shortcut_text(index)
+                item.stage_button.setText(stage_text)
                 self._app_dependencies_provider.shortcut_action_coordinator.bind_stage(
                     item.tapped_staging_button, index, item)
-                item.unstage_button.setText(f'Unstage (Alt+{index + 1})')
+                unstage_text = self._app_dependencies_provider.shortcut_action_coordinator.unstaging_shortcut_text(index)
+                item.unstage_button.setText(unstage_text)
                 self._app_dependencies_provider.shortcut_action_coordinator.bind_unstage(
                     item.tapped_unstaging_button, index, item)
+            elif 9 < index <= 19:
+                stage_text = self._app_dependencies_provider.shortcut_action_coordinator.staging_shortcut_text(index)
+                item.stage_button.setText(stage_text)
+                self._app_dependencies_provider.shortcut_action_coordinator.bind_stage(
+                    item.tapped_staging_button, index, item)
+                unstage_text = self._app_dependencies_provider.shortcut_action_coordinator.unstaging_shortcut_text(index)
+                item.unstage_button.setText(unstage_text)
             else:
                 item.stage_button.setText('Stage')
                 item.unstage_button.setText('Unstage')
