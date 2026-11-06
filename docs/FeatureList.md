@@ -1,3 +1,13 @@
+## Meta chart tool - Nov 1st
+ - [ ] leader image and aspects usage
+    - Leader image pull (automate from search)
+ - [ ] API integration for both standings and leader/base usage using standings csv
+
+## Deployment
+[x] add additional hotkeys for deployment `Shift + 1 - 0`
+[ ] select match row, and grab associated assets -> name, leader, base deployment using matches spreadsheet
+[ ] custom rearrange assets
+
 ## Deck List Importer/Image Generator - Nov 1st
 - [x] grid consistent sizing
 - [x] something wrong with sideboard generation
@@ -5,11 +15,8 @@
 - [x] set ASCing order + card number ASC order of cards
 - [ ] need new use case where we can add cards with out data, but add for draft list
 
-## Meta chart tool - Nov 1st
- - leader image and aspects
-
 ## Draft table overlay -
-- Shows player leader choices during drafting
+- [ ] Shows player leader choices during drafting
 
 ## Configuration V2
 TBD 

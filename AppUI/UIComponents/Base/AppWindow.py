@@ -9,7 +9,7 @@ from AppCore.Observation.TransmissionReceiverProtocol import \
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.Observation.Events import KeyboardEvent
 from R4UI import RWidget
-from AppCore.Service.Debouncer import Debouncer
+from AppCore.Utilities.Debouncer import Debouncer
 
 class AppWindow(QMainWindow, TransmissionReceiverProtocol):
     

@@ -25,7 +25,7 @@ from AppCore.Observation.Events import (
     CardSearchEvent,
     LocalCardResourceSelectedFromDataSourceEvent,
 )
-from AppCore.Service.Debouncer import Debouncer
+from AppCore.Utilities.Debouncer import Debouncer
 from AppCore.Service.GeneralWorker import AsyncWorker
 
 T = TypeVar("T")

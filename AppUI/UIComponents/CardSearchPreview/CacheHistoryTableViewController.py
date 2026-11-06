@@ -6,7 +6,7 @@ from AppCore.DataSource.DataSourceCachedHistory import DataSourceCachedHistory
 from AppCore.Models import (DataSourceSelectedLocalCardResourceProtocol,
                             LocalCardResource,
                             LocalResourceDataSourceProviding)
-from AppCore.Observation import *
+from AppCore.Observation import TransmissionReceiverProtocol, TransmissionProtocol
 from AppCore.Observation.Events import (
     LocalCardResourceSelectedFromDataSourceEvent,
     CacheHistoryUpdatedEvent)
