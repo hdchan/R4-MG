@@ -3,7 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from AppCore.CoreDependenciesInternalProviding import \
+from AppUI.CoreDependenciesInternalProviding import \
     CoreDependenciesInternalProviding
 from AppCore.Models import SearchConfiguration
 

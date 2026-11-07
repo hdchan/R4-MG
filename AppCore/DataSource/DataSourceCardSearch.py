@@ -5,7 +5,7 @@ from functools import reduce
 from typing import List, Optional, Tuple, TypeVar
 
 from AppCore.Config import Configuration
-from AppCore.CoreDependenciesInternalProviding import CoreDependenciesInternalProviding
+from AppUI.CoreDependenciesInternalProviding import CoreDependenciesInternalProviding
 from AppCore.DataSource import (
     DataSourceCardSearchClientProtocol,
     DataSourceCardSearchClientProviding,

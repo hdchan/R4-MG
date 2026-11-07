@@ -1,4 +1,4 @@
-from AppCore.CoreDependenciesProviding import CoreDependenciesProviding
+from AppUI.CoreDependenciesProviding import CoreDependenciesProviding
 from AppCore.DataSource import (DataSourceCardSearchClientProviding,
                                 DataSourceLocallyManagedSets)
 

@@ -3,7 +3,7 @@ import os
 from typing import Any, List, Optional, Tuple
 
 from AppCore.Config import Configuration
-from AppCore.CoreDependenciesInternalProviding import CoreDependenciesInternalProviding
+from AppUI.CoreDependenciesInternalProviding import CoreDependenciesInternalProviding
 from AppCore.DataFetcher import DataFetcherLocal
 from AppCore.Models import LocalCardResource, SearchConfiguration
 from AppCore.Observation.Events import (

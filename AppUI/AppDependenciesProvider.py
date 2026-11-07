@@ -1,6 +1,6 @@
 
 from AppCore.Config import ConfigurationManager
-from AppCore.CoreDependenciesProvider import CoreDependenciesProvider
+from AppUI.CoreDependenciesProvider import CoreDependenciesProvider
 from AppCore.DataSource import (
         DataSourceCardSearchClientProviding,
         DataSourceLocallyManagedSets,

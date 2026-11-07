@@ -38,8 +38,8 @@ from AppCore.Observation.ObservationTower import ObservationTower
 from AppCore.Service import DataSerializer, PlatformServiceProvider, StringFormatter
 from AppCore.Service.WebSocket import WebSocketService, WebSocketServiceProtocol, WebSocketModelLocalizer
 
-from .CoreDependenciesInternalProviding import CoreDependenciesInternalProviding
-from .CoreDependenciesProviding import CoreDependenciesProviding
+from AppUI.CoreDependenciesInternalProviding import CoreDependenciesInternalProviding
+from AppUI.CoreDependenciesProviding import CoreDependenciesProviding
 
 
 class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesInternalProviding):
