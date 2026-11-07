@@ -4,7 +4,7 @@ from urllib.request import Request
 
 from AppCore.Models import TradingCard
 from AppCore.DataFetcher import DataFetcherRemoteRequestProtocol
-from AppCore.DataSource import DataSourceCardSearchClientSearchResponse
+from AppUI.DataSource import DataSourceCardSearchClientSearchResponse
 
 from ..Models.CardType import CardType
 from ..Models.SWUCardSearchConfiguration import SWUCardSearchConfiguration

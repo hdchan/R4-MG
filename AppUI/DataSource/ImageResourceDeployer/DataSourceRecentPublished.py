@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import List
 
 from AppCore.Config import ConfigurationManager
-from AppCore.DataSource.DataSourceCachedHistory import DataSourceCachedHistory
+from AppUI.DataSource.DataSourceCachedHistory import DataSourceCachedHistory
 from AppCore.ImageResourceProcessor.ImageResourceProcessorProvider import (
     ImageResourceProcessorProviding,
 )

@@ -5,8 +5,8 @@ from PySide6.QtCore import QPoint, Qt
 from PySide6.QtWidgets import QTabWidget
 
 from AppCore.Config import Configuration
-from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
-from AppCore.DataSource.ImageResourceDeployer.DataSourceImageResourceDeployerProtocol import (
+from AppUI.DataSource.DraftList import DataSourceDraftListProtocol
+from AppUI.DataSource.ImageResourceDeployer.DataSourceImageResourceDeployerProtocol import (
     DataSourceImageResourceDeployerProtocol,
 )
 from AppCore.ImageResourceProcessor.Events import LocalCardResourceFetchEvent
@@ -16,12 +16,12 @@ from AppCore.Observation.Events import (
     
     LocalCardResourceSelectedFromDataSourceEvent,
 )
-from AppCore.DataSource.DraftList.Events import DraftPackUpdatedEvent
+from AppUI.DataSource.DraftList.Events import DraftPackUpdatedEvent
 from AppCore.Observation.ObservationTower import (
     TransmissionProtocol,
     TransmissionReceiverProtocol,
 )
-from AppCore.DataSource.ImageResourceDeployer.Events import DataSourceImageResourceDeployerStateUpdatedEvent, ProductionCardResourcesLoadEvent
+from AppUI.DataSource.ImageResourceDeployer.Events import DataSourceImageResourceDeployerStateUpdatedEvent, ProductionCardResourcesLoadEvent
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from R4UI import (
     HorizontalBoxLayout,

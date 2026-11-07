@@ -3,10 +3,10 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor, QPalette
 from PySide6.QtWidgets import QFrame, QSizePolicy
 
-from AppCore.DataSource.PlayerStandings.DataSourcePlayerStandingsProtocol import (
+from AppUI.DataSource.PlayerStandings.DataSourcePlayerStandingsProtocol import (
     DataSourcePlayerStandingsProtocol,
 )
-from AppCore.DataSource.PlayerStandings.Events import PlayerStandingsDidUpdate
+from AppUI.DataSource.PlayerStandings.Events import PlayerStandingsDidUpdate
 from AppCore.Models import PlayerStanding
 from AppCore.Observation import TransmissionProtocol, TransmissionReceiverProtocol
 from AppCore.Observation.Events import ConfigurationUpdatedEvent

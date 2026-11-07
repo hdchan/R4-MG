@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import List, Optional
 import os
 
-from AppCore.DataSource.PlayerStandings.DataSourcePlayerStandingsProtocol import \
+from AppUI.DataSource.PlayerStandings.DataSourcePlayerStandingsProtocol import \
     DataSourcePlayerStandingsClientProtocol
 from AppCore.Models import PlayerStanding
 

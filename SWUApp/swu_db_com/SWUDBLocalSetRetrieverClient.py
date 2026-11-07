@@ -3,13 +3,13 @@ from io import TextIOWrapper
 from typing import List, Optional
 
 from AppCore.DataFetcher import DataFetcherLocal
-from AppCore.DataSource import DataSourceLocallyManagedSets
-from AppCore.DataSource.DataSourceCardSearchClientProtocol import (
+from AppUI.DataSource import DataSourceLocallyManagedSets
+from AppUI.DataSource.DataSourceCardSearchClientProtocol import (
     DataSourceCardSearchClientProtocol,
     DataSourceCardSearchClientSearchResponse,
     DataSourceCardSearchClientSearchResult,
 )
-from AppCore.DataSource.DataSourceLocallyManagedSets import (
+from AppUI.DataSource.DataSourceLocallyManagedSets import (
     DataSourceLocallyManagedSetsClientProtocol,
 )
 from AppCore.Models import PaginationConfiguration, SearchConfiguration, TradingCard

@@ -3,7 +3,7 @@ import json
 from collections import deque
 from typing import Any, Dict, List, Optional
 
-from AppCore.DataSource.DataSourceCardSearch import (
+from AppUI.DataSource.DataSourceCardSearch import (
     DataSourceCardSearch,
     DataSourceCardSearchDelegate,
 )
@@ -17,7 +17,7 @@ from ...Models import (
 )
 from ...SWUAppDependenciesProviding import SWUAppDependenciesProviding
 from ..ExportImportFormattable import ExportFormattable, Importable
-from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
+from AppUI.DataSource.DraftList import DataSourceDraftListProtocol
 
 class SWUDBHandler(ExportFormattable, Importable, DataSourceCardSearchDelegate):
     def __init__(self, 

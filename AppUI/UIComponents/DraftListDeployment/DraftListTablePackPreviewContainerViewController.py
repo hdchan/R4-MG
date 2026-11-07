@@ -1,11 +1,11 @@
 from typing import Optional
 
-from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
-from AppCore.DataSource.DraftList.Events import DraftPackUpdatedEvent
-from AppCore.DataSource.DraftListWindowResource import (
+from AppUI.DataSource.DraftList import DataSourceDraftListProtocol
+from AppUI.DataSource.DraftList.Events import DraftPackUpdatedEvent
+from AppUI.DataSource.DraftListWindowResource import (
     DataSourceDraftListWindowResourceDeployerProtocol,
 )
-from AppCore.DataSource.DraftListWindowResource.Events import (
+from AppUI.DataSource.DraftListWindowResource.Events import (
     DraftListWindowResourceUpdatedEvent,
 )
 from AppCore.Models import LocalResourceDraftListWindow

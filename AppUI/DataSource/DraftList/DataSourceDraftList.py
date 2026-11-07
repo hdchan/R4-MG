@@ -8,7 +8,7 @@ from AppCore.Service.DataSerializer import DataSerializer
 
 from .DataSourceDraftListProtocol import DataSourceDraftListProtocol
 from .Events import DraftListUpdatedEvent, DraftPackUpdatedEvent
-from AppCore.DataSource.ImageResourceDeployer.DataSourceImageResourceDeployerProtocol import DataSourceImageResourceDeployerProviding, DataSourceImageResourceDeployerProtocol
+from AppUI.DataSource.ImageResourceDeployer.DataSourceImageResourceDeployerProtocol import DataSourceImageResourceDeployerProviding, DataSourceImageResourceDeployerProtocol
 from AppCore.Config import Configuration
 
 class DataSourceDraftList(DataSourceDraftListProtocol):

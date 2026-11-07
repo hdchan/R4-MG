@@ -5,9 +5,9 @@ from PySide6.QtWidgets import (QHBoxLayout, QPushButton, QScrollArea,
                                QSizePolicy, QVBoxLayout, QWidget)
 
 from AppCore.Config import Configuration
-from AppCore.DataSource.ImageResourceDeployer.DataSourceImageResourceDeployerProtocol import \
+from AppUI.DataSource.ImageResourceDeployer.DataSourceImageResourceDeployerProtocol import \
     DataSourceImageResourceDeployerProtocol
-from AppCore.DataSource.ImageResourceDeployer.Events import (
+from AppUI.DataSource.ImageResourceDeployer.Events import (
     DataSourceImageResourceDeployerStateUpdatedEvent,
     ProductionCardResourcesLoadEvent)
 from AppCore.Models.DataSourceSelectedLocalCardResource import \

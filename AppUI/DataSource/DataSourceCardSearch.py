@@ -6,7 +6,7 @@ from typing import List, Optional, Tuple, TypeVar
 
 from AppCore.Config import Configuration
 from AppUI.CoreDependenciesInternalProviding import CoreDependenciesInternalProviding
-from AppCore.DataSource import (
+from AppUI.DataSource import (
     DataSourceCardSearchClientProtocol,
     DataSourceCardSearchClientProviding,
     DataSourceCardSearchClientSearchResult,

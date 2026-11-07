@@ -2,27 +2,27 @@ import atexit
 from typing import Optional
 
 from AppCore.Config import ConfigurationManager
-from AppCore.DataSource import (
+from AppUI.DataSource import (
     CustomDirectorySearchDataSource,
     CustomDirectorySearchDataSourceDelegate,
     DataSourceCachedHistory
 )
-from AppCore.DataSource.DataSourceCardSearch import (
+from AppUI.DataSource.DataSourceCardSearch import (
     DataSourceCardSearch,
     DataSourceCardSearchClientProviding,
     DataSourceCardSearchDelegate,
 )
-from AppCore.DataSource.DraftList import (
+from AppUI.DataSource.DraftList import (
     DataSourceDraftListProvider,
     DataSourceDraftListProviding,
 )
-from AppCore.DataSource.DraftListWindowResource import (
+from AppUI.DataSource.DraftListWindowResource import (
     DataSourceDraftListWindowResourceDeployerProtocol,
     DataSourceDraftListWindowResourceDeployerProvider,
 )
 
 
-from AppCore.DataSource.ImageResourceDeployer import (
+from AppUI.DataSource.ImageResourceDeployer import (
     DataSourceImageResourceDeployerProtocol,
     DataSourceImageResourceDeployerProvider,
     DataSourceRecentPublished,

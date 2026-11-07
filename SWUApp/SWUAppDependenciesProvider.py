@@ -1,8 +1,8 @@
 
 from typing import Callable, Optional
 
-from AppCore.DataSource.DraftList import DataSourceDraftListProviding
-from AppCore.DataSource.DataSourceCardSearch import (
+from AppUI.DataSource.DraftList import DataSourceDraftListProviding
+from AppUI.DataSource.DataSourceCardSearch import (
     DataSourceCardSearch, DataSourceCardSearchDelegate)
 from AppCore.ImageResourceProcessor import ImageResourceProcessorProviding
 from AppCore.Observation.ObservationTower import ObservationTower

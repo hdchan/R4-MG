@@ -6,13 +6,13 @@ from PySide6.QtWidgets import QTextEdit, QWidget
 
 from AppCore.Config import ConfigurationManager
 from AppCore.DataFetcher import *
-from AppCore.DataSource import (DataSourceCardSearchClientProviding,
+from AppUI.DataSource import (DataSourceCardSearchClientProviding,
                                 DataSourceLocallyManagedSets)
-from AppCore.DataSource.PlayerStandings.DataSourcePlayerStandingsProtocol import \
+from AppUI.DataSource.PlayerStandings.DataSourcePlayerStandingsProtocol import \
     DataSourcePlayerStandingsClientProtocol
-from AppCore.DataSource.DataSourceLocallyManagedSets import \
+from AppUI.DataSource.DataSourceLocallyManagedSets import \
     DataSourceLocallyManagedSetsClientProtocol
-from AppCore.DataSource.ImageResourceDeployer import \
+from AppUI.DataSource.ImageResourceDeployer import \
     DataSourceImageResourceDeployer
 from AppCore.Models import LocalCardResource
 from AppCore.Observation import ObservationTower

@@ -4,7 +4,7 @@ from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QSizePolicy
 
 from AppCore.Config import Configuration
-from AppCore.DataSource.DataSourceCustomDirectorySearch import (
+from AppUI.DataSource.DataSourceCustomDirectorySearch import (
     CustomDirectorySearchDataSource,
     CustomDirectorySearchDataSourceDelegate,
 )

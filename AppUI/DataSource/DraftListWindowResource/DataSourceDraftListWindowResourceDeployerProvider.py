@@ -1,10 +1,10 @@
 from typing import Optional
 
 from AppCore.Config import ConfigurationManager
-from AppCore.DataSource.DraftList.DataSourceDraftListProtocol import (
+from AppUI.DataSource.DraftList.DataSourceDraftListProtocol import (
     DataSourceDraftListProviding,
 )
-from AppCore.DataSource.DraftList.Events import DraftPackUpdatedEvent
+from AppUI.DataSource.DraftList.Events import DraftPackUpdatedEvent
 from AppCore.Observation import (
     ObservationTower,
     TransmissionProtocol,

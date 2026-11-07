@@ -4,7 +4,7 @@ from AppCore.Observation import ObservationTower
 from .DataSourcePlayerStandings import DataSourcePlayerStandings
 from .DataSourcePlayerStandingsProtocol import (
     DataSourcePlayerStandingsProtocol, DataSourcePlayerStandingsProviding)
-from AppCore.DataSource.PlayerStandings.DataSourcePlayerStandingsProtocol import DataSourcePlayerStandingsClientProtocol
+from AppUI.DataSource.PlayerStandings.DataSourcePlayerStandingsProtocol import DataSourcePlayerStandingsClientProtocol
 
 class DataSourcePlayerStandingsProvider(DataSourcePlayerStandingsProviding):
     def __init__(self,

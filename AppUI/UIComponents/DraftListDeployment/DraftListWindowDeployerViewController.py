@@ -2,10 +2,10 @@ from typing import List
 
 from PySide6.QtWidgets import QSizePolicy
 
-from AppCore.DataSource.DraftListWindowResource import (
+from AppUI.DataSource.DraftListWindowResource import (
     DataSourceDraftListWindowResourceDeployerProtocol,
 )
-from AppCore.DataSource.DraftListWindowResource.Events import (
+from AppUI.DataSource.DraftListWindowResource.Events import (
     DraftListWindowResourceLoadEvent,
 )
 from AppCore.Observation import TransmissionProtocol, TransmissionReceiverProtocol

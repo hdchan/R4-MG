@@ -4,11 +4,11 @@ from pathlib import Path
 from typing import List, Optional
 
 from AppCore.Config import Configuration, ConfigurationManager
-from AppCore.DataSource.DraftList import (
+from AppUI.DataSource.DraftList import (
     DataSourceDraftListProtocol,
     DataSourceDraftListProviding,
 )
-# from AppCore.DataSource.DraftList.Events import DraftListUpdatedEvent
+# from AppUI.DataSource.DraftList.Events import DraftListUpdatedEvent
 from AppCore.Models import DraftListWindowConfiguration, LocalResourceDraftListWindow
 from AppCore.Observation import (
     ObservationTower,

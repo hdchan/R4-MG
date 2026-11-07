@@ -2,7 +2,7 @@ from typing import Optional
 
 from PySide6.QtWidgets import QListWidget, QListWidgetItem
 
-from AppCore.DataSource.DataSourceCachedHistory import DataSourceCachedHistory
+from AppUI.DataSource.DataSourceCachedHistory import DataSourceCachedHistory
 from AppCore.Models import (DataSourceSelectedLocalCardResourceProtocol,
                             LocalCardResource,
                             LocalResourceDataSourceProviding)

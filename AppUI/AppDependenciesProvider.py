@@ -1,7 +1,7 @@
 
 from AppCore.Config import ConfigurationManager
 from AppUI.CoreDependenciesProvider import CoreDependenciesProvider
-from AppCore.DataSource import (
+from AppUI.DataSource import (
         DataSourceCardSearchClientProviding,
         DataSourceLocallyManagedSets,
 )
@@ -16,7 +16,7 @@ from AppUI.Configuration.AppUIConfiguration import AppUIConfigurationManager
 from AppUI.ExternalAppDependenciesProviding import ExternalAppDependenciesProviding
 from AppUI.Router.Router import Router
 from AppUI.UIComponents.ScreenWidgetProvider import ScreenWidgetProvider
-from AppCore.DataSource.PlayerStandings import DataSourcePlayerStandingsProviding, DataSourcePlayerStandingsProvider
+from AppUI.DataSource.PlayerStandings import DataSourcePlayerStandingsProviding, DataSourcePlayerStandingsProvider
 
 
 class AppDependenciesProvider(CoreDependenciesProvider, AppDependenciesProviding, AppDependenciesInternalProviding):

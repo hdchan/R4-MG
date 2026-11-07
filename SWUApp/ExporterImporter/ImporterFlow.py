@@ -3,7 +3,7 @@ from typing import List
 
 from PySide6.QtWidgets import QDialog, QTextEdit
 
-from AppCore.DataSource.DataSourceCardSearchClientProtocol import (
+from AppUI.DataSource.DataSourceCardSearchClientProtocol import (
     DataSourceCardSearchClientProtocol, DataSourceCardSearchClientProviding,
     DataSourceCardSearchClientSearchResult)
 from AppCore.Models import PaginationConfiguration, SearchConfiguration

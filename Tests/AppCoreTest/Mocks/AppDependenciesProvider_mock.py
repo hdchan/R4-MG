@@ -1,5 +1,5 @@
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
-from AppCore.DataSource.DraftList import (DataSourceDraftListProviding)
+from AppUI.DataSource.DraftList import (DataSourceDraftListProviding)
 
 class AppDependenciesInternalProvider_mock(AppDependenciesInternalProviding):
     

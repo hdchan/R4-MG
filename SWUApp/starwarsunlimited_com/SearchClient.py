@@ -1,4 +1,4 @@
-from AppCore.DataSource.DataSourceCardSearchClientProtocol import (DataSourceCardSearchClientProtocol,
+from AppUI.DataSource.DataSourceCardSearchClientProtocol import (DataSourceCardSearchClientProtocol,
                                             DataSourceCardSearchClientSearchResult,
                                             )
 from AppCore.DataFetcher import DataFetcherRemote

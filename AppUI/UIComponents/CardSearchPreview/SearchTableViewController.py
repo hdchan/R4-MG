@@ -5,7 +5,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QSizePolicy
 
 from AppCore.Config import Configuration
-from AppCore.DataSource.DataSourceCardSearch import (
+from AppUI.DataSource.DataSourceCardSearch import (
     DataSourceCardSearch,
     DataSourceCardSearchDelegate,
 )

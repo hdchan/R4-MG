@@ -11,7 +11,7 @@ from AppCore.Observation.Events import \
     LocalCardResourceSelectedFromDataSourceEvent, CacheHistoryUpdatedEvent
 from AppCore.Service import DataSerializer
 
-from ..Models.DataSourceSelectedLocalCardResource import \
+from AppCore.Models.DataSourceSelectedLocalCardResource import \
     DataSourceSelectedLocalCardResourceProtocol
 
 class DataSourceCachedHistory(DataSourceSelectedLocalCardResourceProtocol):

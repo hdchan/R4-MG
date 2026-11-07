@@ -7,7 +7,7 @@ from PySide6.QtMultimedia import QSoundEffect
 from PySide6.QtWidgets import (QHBoxLayout, QMenu, QPushButton, QVBoxLayout,
                                QWidget)
 
-from AppCore.DataSource.ImageResourceDeployer import \
+from AppUI.DataSource.ImageResourceDeployer import \
     DataSourceImageResourceDeployer
 from AppCore.Observation import (ObservationTower, TransmissionProtocol,
                                  TransmissionReceiverProtocol)

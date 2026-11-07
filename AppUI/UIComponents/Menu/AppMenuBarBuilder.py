@@ -3,8 +3,8 @@ from typing import List, Optional
 from PySide6.QtWidgets import QMainWindow
 
 from AppCore.Config.ConfigurationManager import Configuration
-from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
-from AppCore.DataSource.ImageResourceDeployer.DataSourceImageResourceDeployerProtocol import (
+from AppUI.DataSource.DraftList import DataSourceDraftListProtocol
+from AppUI.DataSource.ImageResourceDeployer.DataSourceImageResourceDeployerProtocol import (
     DataSourceImageResourceDeployerProtocol,
 )
 from AppCore.Service.PlatformServiceProvider import PlatformServiceProtocol

@@ -1,21 +1,21 @@
 
 from typing import List, Optional
 
-from AppCore.DataSource import (
+from AppUI.DataSource import (
     DataSourceCardSearchClientProviding,
     DataSourceLocallyManagedSets,
 )
-from AppCore.DataSource.DataSourceLocallyManagedSets import (
+from AppUI.DataSource.DataSourceLocallyManagedSets import (
     DataSourceLocallyManagedSetsClientProtocol,
 )
-from AppCore.DataSource.ImageResourceDeployer import (
+from AppUI.DataSource.ImageResourceDeployer import (
     DataSourceImageResourceDeployerProtocol,
 )
 from AppCore.Models import LocalCardResource, SearchConfiguration
 from AppUI.Models import DraftListStyleSheet
 from AppUI.Router.Router import Router
 from R4UI import RMenuListBuilder, RWidget
-from AppCore.DataSource.PlayerStandings.DataSourcePlayerStandingsProtocol import DataSourcePlayerStandingsClientProtocol
+from AppUI.DataSource.PlayerStandings.DataSourcePlayerStandingsProtocol import DataSourcePlayerStandingsClientProtocol
 
 class SearchQueryBarViewProviderDelegate:
     def query_text_field_did_update(self, text: str) -> None:

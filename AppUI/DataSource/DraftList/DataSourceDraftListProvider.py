@@ -1,7 +1,7 @@
 from typing import Optional
 
 from AppCore.Config import ConfigurationManager
-from AppCore.DataSource.ImageResourceDeployer.DataSourceImageResourceDeployerProtocol import \
+from AppUI.DataSource.ImageResourceDeployer.DataSourceImageResourceDeployerProtocol import \
     DataSourceImageResourceDeployerProviding
 from AppCore.Observation import (ObservationTower, TransmissionProtocol,
                                  TransmissionReceiverProtocol)

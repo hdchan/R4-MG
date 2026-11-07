@@ -1,5 +1,5 @@
 from AppUI.CoreDependenciesProviding import CoreDependenciesProviding
-from AppCore.DataSource import (DataSourceCardSearchClientProviding,
+from AppUI.DataSource import (DataSourceCardSearchClientProviding,
                                 DataSourceLocallyManagedSets)
 
 from .Assets import AssetProvider

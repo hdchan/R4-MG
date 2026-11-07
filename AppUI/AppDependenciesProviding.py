@@ -1,5 +1,5 @@
 from AppUI.CoreDependenciesProviding import CoreDependenciesProviding
-from AppCore.DataSource import (DataSourceCardSearchClientProviding)
+from AppUI.DataSource import (DataSourceCardSearchClientProviding)
 
 from .Configuration.AppUIConfiguration import AppUIConfigurationManager
 from .Router.Router import Router

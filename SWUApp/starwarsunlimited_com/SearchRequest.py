@@ -2,7 +2,7 @@ import json
 from typing import Any, Dict, List, Optional
 from urllib.request import Request
 
-from AppCore.DataSource import DataSourceCardSearchClientSearchResponse
+from AppUI.DataSource import DataSourceCardSearchClientSearchResponse
 from AppCore.Models import PaginationConfiguration, TradingCard
 from ..Models.CardType import CardType
 from AppCore.DataFetcher import DataFetcherRemoteRequestProtocol

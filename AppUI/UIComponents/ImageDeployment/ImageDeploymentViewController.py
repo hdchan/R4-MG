@@ -7,7 +7,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from AppCore.DataSource.ImageResourceDeployer.DataSourceImageResourceDeployerProtocol import (
+from AppUI.DataSource.ImageResourceDeployer.DataSourceImageResourceDeployerProtocol import (
     DataSourceImageResourceDeployerProtocol,
 )
 from AppCore.Models import DeploymentCardResource, LocalCardResource
@@ -20,7 +20,7 @@ from AppCore.Observation.Events import (
     ConfigurationUpdatedEvent,
     LocalCardResourceSelectedFromDataSourceEvent
 )
-from AppCore.DataSource.ImageResourceDeployer.Events import DataSourceImageResourceDeployerStateUpdatedEvent
+from AppUI.DataSource.ImageResourceDeployer.Events import DataSourceImageResourceDeployerStateUpdatedEvent
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.UIComponents.ImagePreview import (
     ImagePreviewViewController, ImagePreviewViewControllerWebSocketClient

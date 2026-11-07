@@ -5,10 +5,10 @@ from PySide6.QtGui import QAction, QClipboard, QGuiApplication, QPixmap
 from PySide6.QtWidgets import QMenu, QVBoxLayout
 
 from AppCore.Config import Configuration
-from AppCore.DataSource.ImageResourceDeployer.DataSourceImageResourceDeployerProtocol import (
+from AppUI.DataSource.ImageResourceDeployer.DataSourceImageResourceDeployerProtocol import (
     DataSourceImageResourceDeployerProtocol,
 )
-from AppCore.DataSource.ImageResourceDeployer.Events import (
+from AppUI.DataSource.ImageResourceDeployer.Events import (
     DataSourceImageResourceDeployerStateUpdatedEvent,
 )
 from AppCore.ImageResourceProcessor.Events import LocalCardResourceFetchEvent

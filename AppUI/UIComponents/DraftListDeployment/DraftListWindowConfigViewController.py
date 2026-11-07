@@ -3,16 +3,16 @@ from typing import Optional
 from AppCore.Models import DraftPack, LocalResourceDraftListWindow
 from AppCore.Observation import (TransmissionProtocol,
                                  TransmissionReceiverProtocol)
-from AppCore.DataSource.DraftListWindowResource.Events import (DraftListWindowResourceUpdatedEvent,
+from AppUI.DataSource.DraftListWindowResource.Events import (DraftListWindowResourceUpdatedEvent,
                                         )
-from AppCore.DataSource.DraftListWindowResource import DataSourceDraftListWindowResourceDeployerProtocol
-from AppCore.DataSource.DraftList.Events import DraftPackUpdatedEvent
+from AppUI.DataSource.DraftListWindowResource import DataSourceDraftListWindowResourceDeployerProtocol
+from AppUI.DataSource.DraftList.Events import DraftPackUpdatedEvent
 from AppUI.AppDependenciesInternalProviding import \
     AppDependenciesInternalProviding
 from R4UI import (HorizontalBoxLayout, HorizontalLabeledInputRow, Label,
                   LineEditInt, RObjectComboBox, PushButton, RWidget,
                   VerticalBoxLayout)
-from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
+from AppUI.DataSource.DraftList import DataSourceDraftListProtocol
 from .DraftListTablePackPreviewContainerViewController import \
     DraftListTablePackPreviewContainerViewController
 

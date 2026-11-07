@@ -11,7 +11,7 @@ from AppCore.Observation.Events import (
     LocalCardResourceSelectedFromDataSourceEvent,
 )
 
-from ..Models.DataSourceSelectedLocalCardResource import (
+from AppCore.Models.DataSourceSelectedLocalCardResource import (
     DataSourceSelectedLocalCardResourceProtocol,
 )
 

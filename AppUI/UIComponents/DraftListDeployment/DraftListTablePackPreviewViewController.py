@@ -6,13 +6,13 @@ from PySide6.QtWidgets import (QFrame, QScrollArea,
                              QVBoxLayout, QWidget)
 
 from AppCore.Models import LocalResourceDataSourceProviding
-from AppCore.DataSource.DraftList.Events import DraftListUpdatedEvent
+from AppUI.DataSource.DraftList.Events import DraftListUpdatedEvent
 from AppCore.Observation.Events import (ConfigurationUpdatedEvent)
 from AppCore.Observation.ObservationTower import TransmissionReceiverProtocol, TransmissionProtocol
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.Models.DraftListStyleSheet import DraftListStyleSheet
 from R4UI import VerticalBoxLayout, RVerticallyExpandingSpacer
-from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
+from AppUI.DataSource.DraftList import DataSourceDraftListProtocol
 from .DraftListLineItemHeaderViewController import \
     DraftListLineItemHeaderViewController
 from .DraftListLineItemViewController import (

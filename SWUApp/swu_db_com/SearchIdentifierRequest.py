@@ -2,7 +2,7 @@ from typing import Any, Dict, Optional
 from urllib.request import Request
 
 from AppCore.DataFetcher import DataFetcherRemoteRequestProtocol
-from AppCore.DataSource import DataSourceCardSearchClientSearchResponse
+from AppUI.DataSource import DataSourceCardSearchClientSearchResponse
 
 from ..Models.SWUCardSearchConfiguration import SWUCardSearchConfiguration
 from .SWUDBTradingCard import SWUDBTradingCard

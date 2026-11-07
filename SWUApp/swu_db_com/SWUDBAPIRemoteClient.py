@@ -1,7 +1,7 @@
 from typing import Optional
 
 from AppCore.DataFetcher import DataFetcherRemote
-from AppCore.DataSource.DataSourceCardSearchClientProtocol import (
+from AppUI.DataSource.DataSourceCardSearchClientProtocol import (
     DataSourceCardSearchClientProtocol,
     DataSourceCardSearchClientSearchResult,
 )

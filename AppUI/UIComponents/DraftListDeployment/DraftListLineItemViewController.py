@@ -10,10 +10,10 @@ from AppCore.Models import LocalResourceDataSourceProviding
 from AppCore.Models import LocalCardResource, TradingCard, DraftPack, DeploymentCardResource
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppCore.Config.Configuration import Configuration
-from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
+from AppUI.DataSource.DraftList import DataSourceDraftListProtocol
 from AppUI.Models.DraftListStyleSheet import DraftListStyleSheet
 from R4UI import RWidget, Label
-from AppCore.DataSource.ImageResourceDeployer.DataSourceImageResourceDeployerProtocol import DataSourceImageResourceDeployerProtocol
+from AppUI.DataSource.ImageResourceDeployer.DataSourceImageResourceDeployerProtocol import DataSourceImageResourceDeployerProtocol
 class DraftListLineItemViewControllerDelegate:
     @property
     def dlli_can_edit(self) -> bool:

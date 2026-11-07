@@ -7,8 +7,8 @@ from PIL import Image
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QFileDialog
 
-from AppCore.DataSource.DraftList import DataSourceDraftListProtocol
-from AppCore.DataSource.DraftList.Events import (
+from AppUI.DataSource.DraftList import DataSourceDraftListProtocol
+from AppUI.DataSource.DraftList.Events import (
     DraftListUpdatedEvent,
     DraftPackUpdatedEvent,
 )

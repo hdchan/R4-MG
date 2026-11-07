@@ -1,5 +1,5 @@
 from AppCore.DataFetcher import DataFetcherLocal, DataFetcherRemote
-from AppCore.DataSource import (DataSourceCardSearchClientProtocol,
+from AppUI.DataSource import (DataSourceCardSearchClientProtocol,
                                 DataSourceCardSearchClientProviding,
                                 DataSourceLocallyManagedSets)
 

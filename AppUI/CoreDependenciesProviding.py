@@ -1,24 +1,24 @@
 from typing import Optional
 
 from AppCore.Config import ConfigurationManager
-from AppCore.DataSource.DraftListWindowResource import DataSourceDraftListWindowResourceDeployerProtocol
-from AppCore.DataSource.ImageResourceDeployer import DataSourceImageResourceDeployerProtocol
-from AppCore.DataSource.DataSourceCachedHistory import DataSourceCachedHistory
-from AppCore.DataSource.DataSourceCardSearch import (
+from AppUI.DataSource.DraftListWindowResource import DataSourceDraftListWindowResourceDeployerProtocol
+from AppUI.DataSource.ImageResourceDeployer import DataSourceImageResourceDeployerProtocol
+from AppUI.DataSource.DataSourceCachedHistory import DataSourceCachedHistory
+from AppUI.DataSource.DataSourceCardSearch import (
     DataSourceCardSearch,
     DataSourceCardSearchClientProviding,
     DataSourceCardSearchDelegate,
 )
-from AppCore.DataSource.DataSourceCustomDirectorySearch import (
+from AppUI.DataSource.DataSourceCustomDirectorySearch import (
     CustomDirectorySearchDataSource,
     CustomDirectorySearchDataSourceDelegate,
 )
-from AppCore.DataSource.DraftList import DataSourceDraftListProviding
+from AppUI.DataSource.DraftList import DataSourceDraftListProviding
 from AppCore.ImageResourceProcessor import ImageResourceProcessorProviding
 from AppCore.Observation.ObservationTower import ObservationTower
 from AppCore.Service import DataSerializer, PlatformServiceProvider, StringFormatter
 from AppCore.Service.WebSocket import WebSocketServiceProtocol
-from AppCore.DataSource.PlayerStandings import DataSourcePlayerStandingsProviding
+from AppUI.DataSource.PlayerStandings import DataSourcePlayerStandingsProviding
 
 class CoreDependenciesProviding:
     @property
