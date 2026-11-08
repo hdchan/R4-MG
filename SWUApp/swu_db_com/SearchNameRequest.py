@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 from urllib.request import Request
 
 from AppCore.Models import TradingCard
-from AppCore.DataFetcher import DataFetcherRemoteRequestProtocol
+from Libraries.DataFetcher import DataFetcherRemoteRequestProtocol
 from AppCore.DataSource import DataSourceCardSearchClientSearchResponse
 
 from ..Models.CardType import CardType

@@ -5,7 +5,7 @@ from urllib.request import Request
 from AppCore.DataSource import DataSourceCardSearchClientSearchResponse
 from AppCore.Models import PaginationConfiguration, TradingCard
 from ..Models.CardType import CardType
-from AppCore.DataFetcher import DataFetcherRemoteRequestProtocol
+from Libraries.DataFetcher import DataFetcherRemoteRequestProtocol
 from ..Assets import AssetProvider
 
 from ..Models.SWUCardSearchConfiguration import SWUCardSearchConfiguration

@@ -2,7 +2,7 @@ import json
 from io import TextIOWrapper
 from typing import List, Optional
 
-from AppCore.DataFetcher import DataFetcherLocal
+from Libraries.DataFetcher import DataFetcherLocal
 from AppCore.DataSource import DataSourceLocallyManagedSets
 from AppCore.DataSource.DataSourceCardSearchClientProtocol import (
     DataSourceCardSearchClientProtocol,

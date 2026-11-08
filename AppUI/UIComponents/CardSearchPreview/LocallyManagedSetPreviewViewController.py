@@ -1,6 +1,6 @@
 from typing import Any, List, Optional
 
-from AppCore.DataFetcher import DataFetcherLocal
+from Libraries.DataFetcher import DataFetcherLocal
 from AppCore.DataSource import (
     DataSourceCardSearch,
     DataSourceCardSearchClientProtocol,

@@ -5,7 +5,7 @@ from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QTextEdit, QWidget
 
 from AppCore.Config import ConfigurationManager
-from AppCore.DataFetcher import *
+from Libraries.DataFetcher import *
 from AppCore.DataSource import (DataSourceCardSearchClientProviding,
                                 DataSourceLocallyManagedSets)
 from AppCore.DataSource.PlayerStandings.DataSourcePlayerStandingsProtocol import \

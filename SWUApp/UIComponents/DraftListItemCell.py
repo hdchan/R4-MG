@@ -10,7 +10,7 @@ from ..Assets.AssetProvider import AssetProvider as InternalAssetProvider
 from ..Models.SWUTradingCardModelMapper import SWUTradingCardBackedLocalCardResource
 from ..Models.CardType import CardType
 from R4UI import Label
-from AppCore.Utilities import FontUtilities
+from Libraries.Utilities import FontUtilities
 
 
 class DraftListItemCell(QWidget):

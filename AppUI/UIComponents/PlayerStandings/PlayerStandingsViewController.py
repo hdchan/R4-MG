@@ -10,10 +10,10 @@ from AppCore.DataSource.PlayerStandings.Events import PlayerStandingsDidUpdate
 from AppCore.Models import PlayerStanding
 from AppCore.Observation import TransmissionProtocol, TransmissionReceiverProtocol
 from AppCore.Observation.Events import ConfigurationUpdatedEvent
-from AppCore.Utilities import FontUtilities
 from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.Configuration.AppUIConfiguration import AppUIConfigurationManager
 from AppUI.Models import PlayerStandingsListStyleSheet
+from Libraries.Utilities import FontUtilities
 from R4UI import (
     GridLayout,
     Label,
@@ -43,7 +43,7 @@ class PlayerStandingsViewController(RWidget, TransmissionReceiverProtocol):
     @property
     def _stylesheet(self) -> PlayerStandingsListStyleSheet:
         return self._app_ui_configuration_manager.configuration.player_standings_list_styles
-    
+
     @property
     def _app_ui_configuration_manager(self) -> AppUIConfigurationManager:
         return self._app_dependencies_provider.app_ui_configuration_manager
@@ -76,7 +76,8 @@ class PlayerStandingsViewController(RWidget, TransmissionReceiverProtocol):
     def _sync_ui(self):
         self._cells_container.clear_widgets()
 
-        self._window_header_label.set_text(self._app_ui_configuration_manager.configuration.player_standings_header_text)
+        self._window_header_label.set_text(
+            self._app_ui_configuration_manager.configuration.player_standings_header_text)
 
         for i, s in enumerate(self._data_source_player_standing.standings):
             standing: PlayerStanding = self._data_source_player_standing.standings[i]

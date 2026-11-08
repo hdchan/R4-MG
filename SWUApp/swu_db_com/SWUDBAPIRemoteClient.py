@@ -1,6 +1,6 @@
 from typing import Optional
 
-from AppCore.DataFetcher import DataFetcherRemote
+from Libraries.DataFetcher import DataFetcherRemote
 from AppCore.DataSource.DataSourceCardSearchClientProtocol import (
     DataSourceCardSearchClientProtocol,
     DataSourceCardSearchClientSearchResult,

@@ -1,7 +1,7 @@
 
 from typing import Optional
 
-from AppCore.Utilities.Debouncer import Debouncer
+from Libraries.Utilities.Debouncer import Debouncer
 from R4UI import (
     HorizontalLabeledInputRow,
     LineEditFloat,

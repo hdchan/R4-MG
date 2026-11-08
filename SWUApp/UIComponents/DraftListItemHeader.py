@@ -3,7 +3,7 @@ from PySide6.QtGui import QColor, QFont, QFontDatabase, QPalette
 from PySide6.QtWidgets import QHBoxLayout, QSizePolicy, QWidget
 from AppUI.Models import DraftListStyleSheet
 from R4UI import VerticalBoxLayout, Label
-from AppCore.Utilities import FontUtilities
+from Libraries.Utilities import FontUtilities
 
 class DraftListItemHeader(QWidget):
     def __init__(self, 

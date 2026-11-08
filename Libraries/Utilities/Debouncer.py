@@ -1,5 +1,6 @@
 from PySide6.QtCore import QTimer
 
+
 class Debouncer:
     def __init__(self):
         self._timer = QTimer()

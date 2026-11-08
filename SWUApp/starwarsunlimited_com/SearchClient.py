@@ -1,7 +1,7 @@
 from AppCore.DataSource.DataSourceCardSearchClientProtocol import (DataSourceCardSearchClientProtocol,
                                             DataSourceCardSearchClientSearchResult,
                                             )
-from AppCore.DataFetcher import DataFetcherRemote
+from Libraries.DataFetcher import DataFetcherRemote
 from AppCore.Models import PaginationConfiguration, SearchConfiguration
 from ..Assets import AssetProvider
 from ..Models.SWUCardSearchConfiguration import SWUCardSearchConfiguration
