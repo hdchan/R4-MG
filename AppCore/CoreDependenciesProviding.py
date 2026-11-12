@@ -1,8 +1,5 @@
-from typing import Optional
 
 from AppCore.Config import ConfigurationManager
-from AppCore.DataSource.DraftListWindowResource import DataSourceDraftListWindowResourceDeployerProtocol
-from AppCore.DataSource.ImageResourceDeployer import DataSourceImageResourceDeployerProtocol
 from AppCore.DataSource.DataSourceCachedHistory import DataSourceCachedHistory
 from AppCore.DataSource.DataSourceCardSearch import (
     DataSourceCardSearch,
@@ -14,59 +11,67 @@ from AppCore.DataSource.DataSourceCustomDirectorySearch import (
     CustomDirectorySearchDataSourceDelegate,
 )
 from AppCore.DataSource.DraftList import DataSourceDraftListProviding
+from AppCore.DataSource.DraftListWindowResource import (
+    DataSourceDraftListWindowResourceDeployerProtocol,
+)
+from AppCore.DataSource.ImageResourceDeployer import (
+    DataSourceImageResourceDeployerProtocol,
+)
+from AppCore.DataSource.PlayerStandings import DataSourcePlayerStandingsProviding
 from AppCore.ImageResourceProcessor import ImageResourceProcessorProviding
 from AppCore.Observation.ObservationTower import ObservationTower
-from AppCore.Service import DataSerializer, PlatformServiceProvider, StringFormatter
+from AppCore.Service import DataSerializer, PlatformServiceProvider
 from AppCore.Service.WebSocket import WebSocketServiceProtocol
-from AppCore.DataSource.PlayerStandings import DataSourcePlayerStandingsProviding
+from Libraries.Utilities.StringFormatter import StringFormatter
+
 
 class CoreDependenciesProviding:
     @property
     def data_source_image_resource_deployer(self) -> DataSourceImageResourceDeployerProtocol:
-         raise Exception
+        raise Exception
 
     @property
     def observation_tower(self) -> ObservationTower:
         raise Exception
-    
+
     @property
     def configuration_manager(self) -> ConfigurationManager:
         raise Exception
-    
+
     @property
     def image_resource_processor_provider(self) -> ImageResourceProcessorProviding:
         raise Exception
-    
+
     @property
     def platform_service_provider(self) -> PlatformServiceProvider:
         raise Exception
-    
+
     @property
     def string_formatter(self) -> StringFormatter:
         raise Exception
-    
+
     @property
     def data_serializer(self) -> DataSerializer:
         raise Exception
-    
-    def new_instance_card_search_data_source(self, 
-                                             delegate: DataSourceCardSearchDelegate, 
+
+    def new_instance_card_search_data_source(self,
+                                             delegate: DataSourceCardSearchDelegate,
                                              search_client_provider: DataSourceCardSearchClientProviding,
-                                             ds_configuration: Optional[DataSourceCardSearch.DataSourceCardSearchConfiguration] = None) -> DataSourceCardSearch:
+                                             ds_configuration: DataSourceCardSearch.DataSourceCardSearchConfiguration | None = None) -> DataSourceCardSearch:
         raise Exception
-    
-    def new_instance_custom_directory_search_data_source(self, 
+
+    def new_instance_custom_directory_search_data_source(self,
                                                          delegate: CustomDirectorySearchDataSourceDelegate) -> CustomDirectorySearchDataSource:
         raise Exception
-    
+
     @property
     def data_source_draft_list_provider(self) -> DataSourceDraftListProviding:
         raise Exception
-    
+
     @property
     def data_source_recent_published(self) -> DataSourceCachedHistory:
         raise Exception
-    
+
     @property
     def data_source_draft_list_window_resource_deployer(self) -> DataSourceDraftListWindowResourceDeployerProtocol:
         raise Exception

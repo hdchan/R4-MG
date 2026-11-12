@@ -11,7 +11,7 @@ from AppCore.ImageFetcher.ImageFetcherProvider import (
 )
 from AppCore.Models import LocalCardResource
 from AppCore.Observation import ObservationTower
-from AppCore.Service.GeneralWorker import GeneralWorker, WorkerSignals
+from Libraries.Utilities.GeneralWorker import GeneralWorker, WorkerSignals
 
 from .Events.LocalCardResourceFetchEvent import LocalCardResourceFetchEvent
 from .ImageResourceProcessorProtocol import (

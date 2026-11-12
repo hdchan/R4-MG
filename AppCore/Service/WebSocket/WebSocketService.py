@@ -1,12 +1,12 @@
 import socket
 import sys
 import zlib
-from typing import List, Optional, Type
 
 import jsonpickle  # type: ignore
 from PySide6.QtCore import QByteArray
 
 from AppCore.Observation import ObservationTower
+from Libraries.Utilities.GeneralWorker import AsyncWorker
 
 from .Events import WebSocketStatusUpdatedEvent
 from .WebSocketClient import WebSocketClient, WebSocketClientDelegate
@@ -20,7 +20,7 @@ from .WebSocketServiceProtocol import (
     WebSocketServiceProtocol,
     WebSocketServiceStatus,
 )
-from AppCore.Service.GeneralWorker import AsyncWorker
+
 
 class WebSocketService(WebSocketServiceProtocol, WebSocketClientDelegate, WebSocketHostDelegate):
     def __init__(self, observation_tower: ObservationTower):
@@ -32,8 +32,8 @@ class WebSocketService(WebSocketServiceProtocol, WebSocketClientDelegate, WebSoc
         self._host.delegate = self
         self._messenger = WebSocketMessenger()
         self.__state: WebSocketServiceStatus = WebSocketServiceStatus.NONE
-        self._host_objects: List[WebSocketHostObjectProtocol] = []
-        self._client_objects: List[WebSocketClientObjectProtocol] = []
+        self._host_objects: list[WebSocketHostObjectProtocol] = []
+        self._client_objects: list[WebSocketClientObjectProtocol] = []
         self._async_worker = AsyncWorker()
 
     @property
@@ -43,8 +43,7 @@ class WebSocketService(WebSocketServiceProtocol, WebSocketClientDelegate, WebSoc
     def register_as_host(self, host_object: WebSocketHostObjectProtocol):
         self._host_objects.append(host_object)
 
-
-    def register_for_messages(self, subscriber: WebSocketMessageReceiverProtocol, event_type: Type[WebSocketMessageProtocol]):
+    def register_for_messages(self, subscriber: WebSocketMessageReceiverProtocol, event_type: type[WebSocketMessageProtocol]):
         self._messenger.register_for_messages(subscriber, event_type)
 
     @property
@@ -60,7 +59,7 @@ class WebSocketService(WebSocketServiceProtocol, WebSocketClientDelegate, WebSoc
     def connect_as_host(self) -> None:
         self._host.start_server()
 
-    def connect_as_client(self, ip: str, port: Optional[int]) -> None:
+    def connect_as_client(self, ip: str, port: int | None) -> None:
         self._client.connect_to_server(ip, port)
 
     def disconnect(self) -> None:
@@ -96,7 +95,7 @@ class WebSocketService(WebSocketServiceProtocol, WebSocketClientDelegate, WebSoc
                 return compressed_data
             except Exception as e:
                 print(e)
-        
+
         def _finished(compressed_data):
             if self._state == WebSocketServiceStatus.IS_HOST:
                 self._host.send_binary_message(compressed_data)
@@ -106,7 +105,7 @@ class WebSocketService(WebSocketServiceProtocol, WebSocketClientDelegate, WebSoc
         self._async_worker.run(_runnable_fn, _finished)
 
     @property
-    def ip_address(self) -> Optional[str]:
+    def ip_address(self) -> str | None:
         if self._state == WebSocketServiceStatus.IS_HOST:
             try:
                 hostname = socket.gethostname()

@@ -11,28 +11,27 @@ from AppCore.Observation import (
     TransmissionReceiverProtocol,
 )
 from AppCore.Service.WebSocket.Messages import (
-    WebSocketMessagePayloadObservationTowerTransmission
+    WebSocketMessagePayloadObservationTowerTransmission,
 )
+from AppCore.Service.WebSocket.WebSocketModelLocalizer import WebSocketModelLocalizer
 from AppCore.Service.WebSocket.WebSocketServiceProtocol import (
     WebSocketClientObjectProtocol,
     WebSocketHostObjectProtocol,
     WebSocketMessageReceiverProtocol,
     WebSocketServiceProtocol,
 )
-
-from AppCore.Service.WebSocket.WebSocketModelLocalizer import WebSocketModelLocalizer
+from Libraries.Utilities.GeneralWorker import AsyncWorker
 
 from ..DataSourceImageResourceDeployerProtocol import (
     DataSourceImageResourceDeployerProtocol,
 )
 from ..Events import (
     DataSourceImageResourceDeployerStateUpdatedEvent,
-    ProductionCardResourcesLoadEvent
+    ProductionCardResourcesLoadEvent,
 )
 from .DataSourceImageResourceDeployerWebSocketMessage import (
     DataSourceImageResourceDeployerWebSocketMessage,
 )
-from AppCore.Service.GeneralWorker import AsyncWorker
 
 
 class DataSourceImageResourceDeployerWebSocketHost(DataSourceImageResourceDeployerProtocol,
@@ -82,7 +81,8 @@ class DataSourceImageResourceDeployerWebSocketHost(DataSourceImageResourceDeploy
         return self._data_source_image_resource_deployer.latest_deployment_resource(deployment_resource)
 
     def stage_resource(self, deployment_resource: DeploymentCardResource, selected_resource: LocalCardResource):
-        localized_resource = self._websocket_model_localizer.localize_local_card_resource(selected_resource)
+        localized_resource = self._websocket_model_localizer.localize_local_card_resource(
+            selected_resource)
         self._data_source_image_resource_deployer.stage_resource(
             deployment_resource, localized_resource)
 
@@ -94,7 +94,8 @@ class DataSourceImageResourceDeployerWebSocketHost(DataSourceImageResourceDeploy
         self._data_source_image_resource_deployer.publish_staged_resources()
 
     def generate_new_file(self, file_name: str, placeholder_image_path: Optional[str]):
-        self._data_source_image_resource_deployer.generate_new_file(file_name, placeholder_image_path)
+        self._data_source_image_resource_deployer.generate_new_file(
+            file_name, placeholder_image_path)
 
     @property
     def is_publishing(self) -> bool:
@@ -111,7 +112,7 @@ class DataSourceImageResourceDeployerWebSocketHost(DataSourceImageResourceDeploy
         def _finished():
             new_connection_events = [
                 ProductionCardResourcesLoadEvent(
-                ProductionCardResourcesLoadEvent.EventType.FINISHED),
+                    ProductionCardResourcesLoadEvent.EventType.FINISHED),
                 DataSourceImageResourceDeployerStateUpdatedEvent()
             ]
             for e in new_connection_events:

@@ -5,12 +5,13 @@ from pathlib import Path
 import yaml  # type: ignore
 
 from AppCore.Config.Configuration import Configuration, MutableConfiguration
-from AppCore.Observation.Events import (ApplicationEvent,
-                                        ConfigurationUpdatedEvent)
-from AppCore.Observation.ObservationTower import (ObservationTower,
-                                                  TransmissionProtocol,
-                                                  TransmissionReceiverProtocol)
-from AppCore.Service.GeneralWorker import AsyncWorker
+from AppCore.Observation.Events import ApplicationEvent, ConfigurationUpdatedEvent
+from AppCore.Observation.ObservationTower import (
+    ObservationTower,
+    TransmissionProtocol,
+    TransmissionReceiverProtocol,
+)
+from Libraries.Utilities.GeneralWorker import AsyncWorker
 
 
 class ConfigurationManager(TransmissionReceiverProtocol):

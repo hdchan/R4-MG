@@ -5,7 +5,7 @@ from AppCore.Config import ConfigurationManager
 from AppCore.DataSource import (
     CustomDirectorySearchDataSource,
     CustomDirectorySearchDataSourceDelegate,
-    DataSourceCachedHistory
+    DataSourceCachedHistory,
 )
 from AppCore.DataSource.DataSourceCardSearch import (
     DataSourceCardSearch,
@@ -20,8 +20,6 @@ from AppCore.DataSource.DraftListWindowResource import (
     DataSourceDraftListWindowResourceDeployerProtocol,
     DataSourceDraftListWindowResourceDeployerProvider,
 )
-
-
 from AppCore.DataSource.ImageResourceDeployer import (
     DataSourceImageResourceDeployerProtocol,
     DataSourceImageResourceDeployerProvider,
@@ -35,8 +33,13 @@ from AppCore.ImageResourceProcessor import (
 from AppCore.Models import ModelTransformer
 from AppCore.Observation.Events import ApplicationEvent
 from AppCore.Observation.ObservationTower import ObservationTower
-from AppCore.Service import DataSerializer, PlatformServiceProvider, StringFormatter
-from AppCore.Service.WebSocket import WebSocketService, WebSocketServiceProtocol, WebSocketModelLocalizer
+from AppCore.Service import DataSerializer, PlatformServiceProvider
+from AppCore.Service.WebSocket import (
+    WebSocketModelLocalizer,
+    WebSocketService,
+    WebSocketServiceProtocol,
+)
+from Libraries.Utilities.StringFormatter import StringFormatter
 
 from .CoreDependenciesInternalProviding import CoreDependenciesInternalProviding
 from .CoreDependenciesProviding import CoreDependenciesProviding
@@ -89,8 +92,6 @@ class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesIntern
                                                                                                                            self._data_serializer,
                                                                                                                            self._websocket_service)
 
-        
-
         atexit.register(self._cleanup)
 
     @property
@@ -128,7 +129,7 @@ class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesIntern
     def new_instance_card_search_data_source(self,
                                              delegate: DataSourceCardSearchDelegate,
                                              search_client_provider: DataSourceCardSearchClientProviding,
-                                             ds_configuration: Optional[DataSourceCardSearch.DataSourceCardSearchConfiguration] = None) -> DataSourceCardSearch:
+                                             ds_configuration: DataSourceCardSearch.DataSourceCardSearchConfiguration | None = None) -> DataSourceCardSearch:
         ds = DataSourceCardSearch(self,
                                   search_client_provider,
                                   ds_configuration)
@@ -153,8 +154,6 @@ class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesIntern
     @property
     def data_source_draft_list_window_resource_deployer(self) -> DataSourceDraftListWindowResourceDeployerProtocol:
         return self._data_source_draft_list_window_resource_deployer_provider.draft_list_window_resource_data_source
-
-    
 
     @property
     def websocket_service(self) -> WebSocketServiceProtocol:

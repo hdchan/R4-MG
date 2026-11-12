@@ -12,7 +12,7 @@ from AppCore.Models import LocalAssetResource, ModelTransformer, TradingCard
 from AppCore.Observation import ObservationTower
 from AppCore.Observation.Events import LocalAssetResourceFetchEvent
 from AppCore.Service import DataSerializer
-from AppCore.Service.GeneralWorker import AsyncWorker
+from Libraries.Utilities.GeneralWorker import AsyncWorker
 
 T = TypeVar("T")
 
