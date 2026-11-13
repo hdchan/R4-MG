@@ -1,26 +1,29 @@
 import copy
-from typing import Dict, List, Optional
 
-from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QTextEdit, QWidget
 
 from AppCore.Config import ConfigurationManager
-from Libraries.DataFetcher import *
-from AppCore.DataSource import (DataSourceCardSearchClientProviding,
-                                DataSourceLocallyManagedSets)
-from AppCore.DataSource.PlayerStandings.DataSourcePlayerStandingsProtocol import \
-    DataSourcePlayerStandingsClientProtocol
-from AppCore.DataSource.DataSourceLocallyManagedSets import \
-    DataSourceLocallyManagedSetsClientProtocol
-from AppCore.DataSource.ImageResourceDeployer import \
-    DataSourceImageResourceDeployer
+from AppCore.DataSource import (
+    DataSourceCardSearchClientProviding,
+    DataSourceLocallyManagedSets,
+)
+from AppCore.DataSource.DataSourceLocallyManagedSets import (
+    DataSourceLocallyManagedSetsClientProtocol,
+)
+from AppCore.DataSource.ImageResourceDeployer import DataSourceImageResourceDeployer
+from AppCore.DataSource.PlayerStandings.DataSourcePlayerStandingsProtocol import (
+    DataSourcePlayerStandingsClientProtocol,
+)
 from AppCore.Models import LocalCardResource
 from AppCore.Observation import ObservationTower
 from AppUI.ExternalAppDependenciesProviding import (
-    ExternalAppDependenciesProviding, SearchQueryBarViewProviderDelegate,
-    SearchQueryBarViewProviding)
+    ExternalAppDependenciesProviding,
+    SearchQueryBarViewProviderDelegate,
+    SearchQueryBarViewProviding,
+)
 from AppUI.Models import DraftListStyleSheet
 from AppUI.Router.Router import Router
+from Libraries.DataFetcher import *
 from R4UI import RMenuListBuilder, RWidget, VerticalBoxLayout
 
 from .Assets import AssetProvider as InternalAssetProvider
@@ -35,12 +38,12 @@ from .swu_db_com import SWUDBLocalSetRetrieverClient
 from .SWUAppDependenciesProviding import SWUAppDependenciesProviding
 from .UIComponents.AboutViewController import AboutViewController
 from .UIComponents.AddImageCTAViewController import AddImageCTAViewController
-from .UIComponents.DraftListImagePreviewViewController import \
-    DraftListImagePreviewViewController
+from .UIComponents.DraftListImagePreviewViewController import (
+    DraftListImagePreviewViewController,
+)
 from .UIComponents.DraftListItemCell import DraftListItemCell
 from .UIComponents.DraftListItemHeader import DraftListItemHeader
-from .UIComponents.SearchQueryBarViewController import \
-    SearchQueryBarViewController
+from .UIComponents.SearchQueryBarViewController import SearchQueryBarViewController
 
 
 class SWUAppDelegate(ExternalAppDependenciesProviding):
@@ -52,9 +55,9 @@ class SWUAppDelegate(ExternalAppDependenciesProviding):
         self._configuration_manager = configuration_manager
         self._locally_managed_sets_client = SWUDBLocalSetRetrieverClient()
         self._draft_list_exporter = DraftListExporter()
-        self._data_source_card_search_client_provider: Optional[
-            DataSourceCardSearchClientProviding] = None
-        self._player_standings_data_source_client = DataSourcePlayerStandingsClient(swu_app_dependencies_provider)
+        self._data_source_card_search_client_provider: DataSourceCardSearchClientProviding | None = None
+        self._player_standings_data_source_client = DataSourcePlayerStandingsClient(
+            swu_app_dependencies_provider)
 
     @property
     def _swu_app_configuration_manager(self) -> SWUAppConfigurationManager:
@@ -69,7 +72,7 @@ class SWUAppDelegate(ExternalAppDependenciesProviding):
         return self._swu_app_dependencies_provider.asset_provider
 
     # MARK: - Card search
-    def provide_card_search_query_view(self, delegate: Optional[SearchQueryBarViewProviderDelegate]) -> Optional[SearchQueryBarViewProviding]:
+    def provide_card_search_query_view(self, delegate: SearchQueryBarViewProviderDelegate | None) -> SearchQueryBarViewProviding | None:
         return SearchQueryBarViewController(delegate)
 
     # MARK: - Image deployer
@@ -85,13 +88,13 @@ class SWUAppDelegate(ExternalAppDependenciesProviding):
     def image_preview_logo_path(self) -> str:
         return self._internal_asset_provider.image.swu_logo_black_path
 
-    def hook_developer_menu(self, menu: RMenuListBuilder) -> Optional[RMenuListBuilder]:
+    def hook_developer_menu(self, menu: RMenuListBuilder) -> RMenuListBuilder | None:
         return menu
 
     def provide_about_view_controller(self) -> RWidget:
         return AboutViewController(self._configuration_manager, self._internal_asset_provider)
 
-    def provide_additional_quick_guide(self) -> Optional[RWidget]:
+    def provide_additional_quick_guide(self) -> RWidget | None:
         with open(self._internal_asset_provider.text.shortcuts_path, 'r', encoding='utf-8') as file:
             data = file.read()
         markdown = QTextEdit()
@@ -105,7 +108,7 @@ class SWUAppDelegate(ExternalAppDependenciesProviding):
 
     def provide_image_deployer_banner_cta(self,
                                           data_source_image_resource_deployer: DataSourceImageResourceDeployer,
-                                          router: Router) -> Optional[RWidget]:
+                                          router: Router) -> RWidget | None:
         return AddImageCTAViewController(self._observation_tower, data_source_image_resource_deployer, self._internal_asset_provider, router)
 
     def data_source_card_search_client_provider(self,
@@ -124,7 +127,7 @@ class SWUAppDelegate(ExternalAppDependenciesProviding):
 
     def draft_list_item_header(self,
                                stylesheet: DraftListStyleSheet,
-                               text: str) -> Optional[QWidget]:
+                               text: str) -> QWidget | None:
         return DraftListItemHeader(stylesheet, text)
 
     def draft_list_item_cell(self,
@@ -132,7 +135,7 @@ class SWUAppDelegate(ExternalAppDependenciesProviding):
                              pack_index: int,
                              card_index: int,
                              stylesheet: DraftListStyleSheet,
-                             is_presentation: bool) -> Optional[QWidget]:
+                             is_presentation: bool) -> QWidget | None:
         resource = SWUTradingCardModelMapper.from_card_resource(
             local_card_resource)
         if resource is None:
@@ -144,10 +147,10 @@ class SWUAppDelegate(ExternalAppDependenciesProviding):
                                  is_presentation)
 
     # TODO: aggregate by type?
-    def draft_resource_list(self, unaggregated_list: List[LocalCardResource], aggregate_list: bool) -> Optional[List[LocalCardResource]]:
+    def draft_resource_list(self, unaggregated_list: list[LocalCardResource], aggregate_list: bool) -> list[LocalCardResource] | None:
         if not aggregate_list:
             return unaggregated_list
-        counters: Dict[SWUTradingCard, int] = {}
+        counters: dict[SWUTradingCard, int] = {}
         for resource in unaggregated_list:
             trading_card = resource.trading_card
             if trading_card is None:
@@ -159,7 +162,7 @@ class SWUAppDelegate(ExternalAppDependenciesProviding):
             counters[swu_trading_card] += 1
         counter_copy = copy.deepcopy(counters)
 
-        result: List[LocalCardResource] = []
+        result: list[LocalCardResource] = []
 
         for resource in unaggregated_list:
             trading_card = resource.trading_card

@@ -1,5 +1,4 @@
 
-from typing import List, Optional
 
 from AppCore.DataSource import (
     DataSourceCardSearchClientProviding,
@@ -11,11 +10,14 @@ from AppCore.DataSource.DataSourceLocallyManagedSets import (
 from AppCore.DataSource.ImageResourceDeployer import (
     DataSourceImageResourceDeployerProtocol,
 )
+from AppCore.DataSource.PlayerStandings.DataSourcePlayerStandingsProtocol import (
+    DataSourcePlayerStandingsClientProtocol,
+)
 from AppCore.Models import LocalCardResource, SearchConfiguration
 from AppUI.Models import DraftListStyleSheet
 from AppUI.Router.Router import Router
 from R4UI import RMenuListBuilder, RWidget
-from AppCore.DataSource.PlayerStandings.DataSourcePlayerStandingsProtocol import DataSourcePlayerStandingsClientProtocol
+
 
 class SearchQueryBarViewProviderDelegate:
     def query_text_field_did_update(self, text: str) -> None:
@@ -24,7 +26,7 @@ class SearchQueryBarViewProviderDelegate:
 
 class SearchQueryBarViewProviding(RWidget):
     @property
-    def delegate(self) -> Optional[SearchQueryBarViewProviderDelegate]:
+    def delegate(self) -> SearchQueryBarViewProviderDelegate | None:
         return None
 
     @property
@@ -32,11 +34,11 @@ class SearchQueryBarViewProviding(RWidget):
         raise Exception
 
     @property
-    def secondary_search_configuration(self) -> Optional[SearchConfiguration]:
+    def secondary_search_configuration(self) -> SearchConfiguration | None:
         return None
 
     @property
-    def tertiary_search_configuration(self) -> Optional[SearchConfiguration]:
+    def tertiary_search_configuration(self) -> SearchConfiguration | None:
         return None
 
     def did_receive_configuration(self, search_configuration: SearchConfiguration) -> None:
@@ -58,11 +60,11 @@ class ExternalAppDependenciesProviding:
     def logo_path(self) -> str:
         return ""
 
-    def hook_developer_menu(self, menu: RMenuListBuilder) -> Optional[RMenuListBuilder]:
+    def hook_developer_menu(self, menu: RMenuListBuilder) -> RMenuListBuilder | None:
         return None
 
     # MARK: - Card search
-    def provide_card_search_query_view(self, delegate: Optional[SearchQueryBarViewProviderDelegate]) -> Optional[SearchQueryBarViewProviding]:
+    def provide_card_search_query_view(self, delegate: SearchQueryBarViewProviderDelegate | None) -> SearchQueryBarViewProviding | None:
         return None
 
     # MARK: - Image deployer
@@ -77,13 +79,13 @@ class ExternalAppDependenciesProviding:
     def provide_about_view_controller(self) -> RWidget:
         raise Exception
 
-    def provide_additional_quick_guide(self) -> Optional[RWidget]:
+    def provide_additional_quick_guide(self) -> RWidget | None:
         return None
 
     # MARK: - Draft List
     def provide_image_deployer_banner_cta(self,
                                           data_source_image_resource_deployer: DataSourceImageResourceDeployerProtocol,
-                                          router: Router) -> Optional[RWidget]:
+                                          router: Router) -> RWidget | None:
         return None
 
     @property
@@ -108,12 +110,12 @@ class ExternalAppDependenciesProviding:
                              pack_index: int,
                              card_index: int,
                              stylesheet: DraftListStyleSheet,
-                             is_presentation: bool) -> Optional[RWidget]:
+                             is_presentation: bool) -> RWidget | None:
         return None
 
     def draft_list_item_header(self,
                                stylesheet: DraftListStyleSheet,
-                               text: str) -> Optional[RWidget]:
+                               text: str) -> RWidget | None:
         return None
 
     def export_draft_list(self) -> None:
@@ -123,6 +125,6 @@ class ExternalAppDependenciesProviding:
         return None
 
     def draft_resource_list(self,
-                            unaggregated_list: List[LocalCardResource],
-                            aggregate_list: bool) -> Optional[List[LocalCardResource]]:
+                            unaggregated_list: list[LocalCardResource],
+                            aggregate_list: bool) -> list[LocalCardResource] | None:
         return None
