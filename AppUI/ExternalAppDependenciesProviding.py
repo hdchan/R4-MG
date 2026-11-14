@@ -1,17 +1,10 @@
 
 
-from AppCore.DataSource import (
-    DataSourceCardSearchClientProviding,
-    DataSourceLocallyManagedSets,
-)
 from AppCore.DataSource.DataSourceLocallyManagedSets import (
     DataSourceLocallyManagedSetsClientProtocol,
 )
 from AppCore.DataSource.ImageResourceDeployer import (
     DataSourceImageResourceDeployerProtocol,
-)
-from AppCore.DataSource.PlayerStandings.DataSourcePlayerStandingsProtocol import (
-    DataSourcePlayerStandingsClientProtocol,
 )
 from AppCore.Models import LocalCardResource, SearchConfiguration
 from AppUI.Models import DraftListStyleSheet
@@ -92,19 +85,11 @@ class ExternalAppDependenciesProviding:
     def locally_managed_sets_client(self) -> DataSourceLocallyManagedSetsClientProtocol:
         raise Exception
 
-    def data_source_card_search_client_provider(self,
-                                                local_managed_sets_data_source: DataSourceLocallyManagedSets) -> DataSourceCardSearchClientProviding:
-        raise Exception
-
     def provide_draft_list_image_preview_widget(self) -> RWidget:
         raise Exception
 
-    # MARK: - Player Standings
-    @property
-    def player_standings_data_source_client(self) -> DataSourcePlayerStandingsClientProtocol:
-        raise Exception
-
     # Optional
+
     def draft_list_item_cell(self,
                              local_card_resource: LocalCardResource,
                              pack_index: int,

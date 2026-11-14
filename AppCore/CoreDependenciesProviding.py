@@ -1,5 +1,6 @@
 
 from AppCore.Config import ConfigurationManager
+from AppCore.DataSource import DataSourceLocallyManagedSets
 from AppCore.DataSource.DataSourceCachedHistory import DataSourceCachedHistory
 from AppCore.DataSource.DataSourceCardSearch import (
     DataSourceCardSearch,
@@ -82,4 +83,8 @@ class CoreDependenciesProviding:
 
     @property
     def websocket_service(self) -> WebSocketServiceProtocol:
+        raise Exception
+
+    @property
+    def local_managed_sets_data_source(self) -> DataSourceLocallyManagedSets:
         raise Exception

@@ -43,15 +43,27 @@ from Libraries.Utilities.StringFormatter import StringFormatter
 
 from .CoreDependenciesInternalProviding import CoreDependenciesInternalProviding
 from .CoreDependenciesProviding import CoreDependenciesProviding
+from .ExternalCoreDependenciesProviding import ExternalCoreDependenciesProviding
+from AppCore.DataSource import (
+    DataSourceCardSearchClientProviding,
+    DataSourceLocallyManagedSets,
+)
+
+from AppCore.DataSource.PlayerStandings import (
+    DataSourcePlayerStandingsProvider,
+    DataSourcePlayerStandingsProviding,
+)
 
 
 class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesInternalProviding):
     def __init__(self,
                  observation_tower: ObservationTower,
                  configuration_manager: ConfigurationManager,
-                 model_transformer: ModelTransformer):
+                 model_transformer: ModelTransformer,
+                 external_core_dependencies_provider: ExternalCoreDependenciesProviding):
         self._observation_tower = observation_tower
         self._model_transformer = model_transformer
+        self._external_core_dependencies_provider = external_core_dependencies_provider
         self._string_formatter = StringFormatter()
         self._data_serializer = DataSerializer()
 
@@ -91,6 +103,16 @@ class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesIntern
                                                                                                                            self._data_source_draft_list_provider,
                                                                                                                            self._data_serializer,
                                                                                                                            self._websocket_service)
+
+        self._local_managed_sets_data_source = DataSourceLocallyManagedSets(self._configuration_manager,
+                                                                            self._observation_tower,
+                                                                            self._data_serializer,
+                                                                            client=self._external_core_dependencies_provider.locally_managed_sets_client,
+                                                                            model_transformer=model_transformer)
+
+        self._data_source_player_standings_provider = DataSourcePlayerStandingsProvider(self._configuration_manager,
+                                                                                        self._observation_tower,
+                                                                                        self._external_core_dependencies_provider.player_standings_data_source_client)
 
         atexit.register(self._cleanup)
 
@@ -154,6 +176,18 @@ class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesIntern
     @property
     def data_source_draft_list_window_resource_deployer(self) -> DataSourceDraftListWindowResourceDeployerProtocol:
         return self._data_source_draft_list_window_resource_deployer_provider.draft_list_window_resource_data_source
+
+    @property
+    def local_managed_sets_data_source(self) -> DataSourceLocallyManagedSets:
+        return self._local_managed_sets_data_source
+
+    @property
+    def data_source_player_standings_provider(self) -> DataSourcePlayerStandingsProviding:
+        return self._data_source_player_standings_provider
+
+    @property
+    def search_client_provider(self) -> DataSourceCardSearchClientProviding:
+        return self._external_core_dependencies_provider.data_source_card_search_client_provider(self._local_managed_sets_data_source)
 
     @property
     def websocket_service(self) -> WebSocketServiceProtocol:

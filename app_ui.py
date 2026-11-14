@@ -42,6 +42,7 @@ class MainAssembly:
         self._app_ui_dependencies_provider = AppDependenciesProvider(self._observation_tower,
                                                                      self._configuration_manager,
                                                                      self._swu_model_transformer,
+                                                                     self._swu_app_delegate,
                                                                      self._swu_app_delegate)
         CrashReporter(self._app_ui_dependencies_provider)
         self._app_ui_dependencies_provider.router.open_image_deployment_view()

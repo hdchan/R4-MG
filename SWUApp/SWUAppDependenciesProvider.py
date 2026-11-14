@@ -1,26 +1,28 @@
 
-from typing import Callable, Optional
+from collections.abc import Callable
 
-from AppCore.DataSource.DraftList import DataSourceDraftListProviding
 from AppCore.DataSource.DataSourceCardSearch import (
-    DataSourceCardSearch, DataSourceCardSearchDelegate)
+    DataSourceCardSearch,
+    DataSourceCardSearchDelegate,
+)
+from AppCore.DataSource.DraftList import DataSourceDraftListProviding
 from AppCore.ImageResourceProcessor import ImageResourceProcessorProviding
 from AppCore.Observation.ObservationTower import ObservationTower
-from AppUI.AppDependenciesInternalProviding import \
-    AppDependenciesInternalProviding
+from AppUI.AppDependenciesInternalProviding import AppDependenciesInternalProviding
 from AppUI.Router.Router import Router
 
 from .Assets import AssetProvider
 from .Config.SWUAppConfiguration import SWUAppConfigurationManager
 from .SWUAppDependenciesProviding import SWUAppDependenciesProviding
 
+
 class SWUAppDependenciesProvider(SWUAppDependenciesProviding):
 
-    def __init__(self, 
+    def __init__(self,
                  lazy_app_ui_dependencies_provider: Callable[[], AppDependenciesInternalProviding]):
         self._lazy_app_ui_dependencies_provider = lazy_app_ui_dependencies_provider
         self._asset_provider = AssetProvider()
-        self._configuration_manager: Optional[SWUAppConfigurationManager] = None
+        self._configuration_manager: SWUAppConfigurationManager | None = None
 
     @property
     def _app_ui_dependencies_provider(self) -> AppDependenciesInternalProviding:
@@ -33,17 +35,18 @@ class SWUAppDependenciesProvider(SWUAppDependenciesProviding):
     @property
     def observation_tower(self) -> ObservationTower:
         return self._app_ui_dependencies_provider.observation_tower
-    
+
     @property
     def asset_provider(self) -> AssetProvider:
         return self._asset_provider
-    
+
     @property
     def configuration_manager(self) -> SWUAppConfigurationManager:
         if self._configuration_manager is None:
-            self._configuration_manager = SWUAppConfigurationManager(self._app_ui_dependencies_provider.configuration_manager)
+            self._configuration_manager = SWUAppConfigurationManager(
+                self._app_ui_dependencies_provider.configuration_manager)
         return self._configuration_manager
-    
+
     @property
     def image_resource_processor_provider(self) -> ImageResourceProcessorProviding:
         return self._app_ui_dependencies_provider.image_resource_processor_provider
@@ -51,8 +54,8 @@ class SWUAppDependenciesProvider(SWUAppDependenciesProviding):
     @property
     def data_source_draft_list_provider(self) -> DataSourceDraftListProviding:
         return self._app_ui_dependencies_provider.data_source_draft_list_provider
-    
+
     def new_data_source_card_search(self,
                                     delegate: DataSourceCardSearchDelegate) -> DataSourceCardSearch:
-        return self._app_ui_dependencies_provider.new_instance_card_search_data_source(delegate, 
+        return self._app_ui_dependencies_provider.new_instance_card_search_data_source(delegate,
                                                                                        self._app_ui_dependencies_provider.search_client_provider)

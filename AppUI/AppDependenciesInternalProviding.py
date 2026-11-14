@@ -1,4 +1,5 @@
 from AppCore.CoreDependenciesProviding import CoreDependenciesProviding
+from AppCore.CoreDependenciesInternalProviding import CoreDependenciesInternalProviding
 from AppCore.DataSource import (DataSourceCardSearchClientProviding,
                                 DataSourceLocallyManagedSets)
 
@@ -27,9 +28,9 @@ class AppDependenciesInternalProviding(CoreDependenciesProviding):
     def search_client_provider(self) -> DataSourceCardSearchClientProviding:
         raise Exception
 
-    @property
-    def local_managed_sets_data_source(self) -> DataSourceLocallyManagedSets:
-        raise Exception
+    # @property
+    # def local_managed_sets_data_source(self) -> DataSourceLocallyManagedSets:
+    #     raise Exception
 
     @property
     def app_ui_configuration_manager(self) -> AppUIConfigurationManager:
