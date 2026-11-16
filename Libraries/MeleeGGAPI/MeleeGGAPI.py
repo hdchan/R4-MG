@@ -8,6 +8,13 @@ from urllib.request import Request, urlopen
 
 class MeleeGGAPI:
 
+    class Parameters:
+        def __init__(self, page: int, page_size: int):
+            self._page = page
+            self._page_size = page_size
+
+
+
     def __init__(self, client_id: str | None = None, client_secret: str | None = None):
         self._client_id = client_id
         self._client_secret = client_secret
@@ -22,7 +29,7 @@ class MeleeGGAPI:
             f"{self._client_id}:{self._client_secret}".encode("utf-8")).decode("ascii")
         return token
 
-    def _make_request(self, endpoint: str):
+    def _make_request(self, endpoint: str, params: "MeleeGGAPI.Parameters | None" = None):
         request = Request(
             f"https://melee.gg/api/{endpoint}",
             headers={"Authorization": f"Basic {self._auth_token}"},
@@ -55,3 +62,9 @@ class MeleeGGAPI:
         Lists standings for a specific round of a tournament.
         """
         return self._make_request(f"standing/list/round/{round_id}")
+
+    def get_decklist_list(self, tournament_id: int, params: "MeleeGGAPI.Parameters | None" = None):
+        """
+        decklist for tournament.
+        """
+        return self._make_request(f"decklist/list/{tournament_id}")
