@@ -3,6 +3,7 @@ from typing import Any
 from Libraries.Utilities.GeneralWorker import AsyncWorker
 
 from .DataSourceDeckMetaClientProtocol import DataSourceDeckMetaClientProtocol
+from .DataSourceDeckMetaProtocol import DataSourceDeckMetaProtocol
 
 
 class DataSourceDeckMetaDelegate:
@@ -13,7 +14,7 @@ class DataSourceDeckMetaDelegate:
         pass
 
 
-class DataSourceDeckMeta:
+class DataSourceDeckMeta(DataSourceDeckMetaProtocol):
     def __init__(self, deck_meta_client: DataSourceDeckMetaClientProtocol):
         self._deck_meta_client = deck_meta_client
         self._async_worker = AsyncWorker()

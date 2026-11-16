@@ -14,6 +14,7 @@ from AppCore.DataSource.ImageResourceDeployer import DataSourceImageResourceDepl
 from AppCore.DataSource.PlayerStandings.DataSourcePlayerStandingsProtocol import (
     DataSourcePlayerStandingsClientProtocol,
 )
+from AppCore.ExternalCoreDependenciesProviding import ExternalCoreDependenciesProviding
 from AppCore.Models import LocalCardResource
 from AppCore.Observation import ObservationTower
 from AppUI.ExternalAppDependenciesProviding import (
@@ -44,9 +45,9 @@ from .UIComponents.DraftListImagePreviewViewController import (
 from .UIComponents.DraftListItemCell import DraftListItemCell
 from .UIComponents.DraftListItemHeader import DraftListItemHeader
 from .UIComponents.SearchQueryBarViewController import SearchQueryBarViewController
+from .MeleeGG.MeleeGGClient import MeleeGGClient
 
-
-class SWUAppDelegate(ExternalAppDependenciesProviding):
+class SWUAppDelegate(ExternalAppDependenciesProviding, ExternalCoreDependenciesProviding):
 
     def __init__(self,
                  swu_app_dependencies_provider: SWUAppDependenciesProviding,
@@ -58,6 +59,7 @@ class SWUAppDelegate(ExternalAppDependenciesProviding):
         self._data_source_card_search_client_provider: DataSourceCardSearchClientProviding | None = None
         self._player_standings_data_source_client = DataSourcePlayerStandingsClient(
             swu_app_dependencies_provider)
+        self._data_source_deck_meta_client = MeleeGGClient()
 
     @property
     def _swu_app_configuration_manager(self) -> SWUAppConfigurationManager:
@@ -194,3 +196,7 @@ class SWUAppDelegate(ExternalAppDependenciesProviding):
     @property
     def player_standings_data_source_client(self) -> DataSourcePlayerStandingsClientProtocol:
         return self._player_standings_data_source_client
+
+    @property
+    def data_source_deck_meta_client(self) -> DataSourceDeckMetaClientProtocol:
+        return self._data_source_deck_meta_client

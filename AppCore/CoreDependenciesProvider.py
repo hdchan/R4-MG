@@ -1,16 +1,20 @@
 import atexit
-from typing import Optional
 
 from AppCore.Config import ConfigurationManager
 from AppCore.DataSource import (
     CustomDirectorySearchDataSource,
     CustomDirectorySearchDataSourceDelegate,
     DataSourceCachedHistory,
+    DataSourceLocallyManagedSets,
 )
 from AppCore.DataSource.DataSourceCardSearch import (
     DataSourceCardSearch,
     DataSourceCardSearchClientProviding,
     DataSourceCardSearchDelegate,
+)
+from AppCore.DataSource.DeckMeta import (
+    DataSourceDeckMetaProvider,
+    DataSourceDeckMetaProviding,
 )
 from AppCore.DataSource.DraftList import (
     DataSourceDraftListProvider,
@@ -24,6 +28,10 @@ from AppCore.DataSource.ImageResourceDeployer import (
     DataSourceImageResourceDeployerProtocol,
     DataSourceImageResourceDeployerProvider,
     DataSourceRecentPublished,
+)
+from AppCore.DataSource.PlayerStandings import (
+    DataSourcePlayerStandingsProvider,
+    DataSourcePlayerStandingsProviding,
 )
 from AppCore.ImageFetcher import ImageFetcherProvider
 from AppCore.ImageResourceProcessor import (
@@ -44,15 +52,6 @@ from Libraries.Utilities.StringFormatter import StringFormatter
 from .CoreDependenciesInternalProviding import CoreDependenciesInternalProviding
 from .CoreDependenciesProviding import CoreDependenciesProviding
 from .ExternalCoreDependenciesProviding import ExternalCoreDependenciesProviding
-from AppCore.DataSource import (
-    DataSourceCardSearchClientProviding,
-    DataSourceLocallyManagedSets,
-)
-
-from AppCore.DataSource.PlayerStandings import (
-    DataSourcePlayerStandingsProvider,
-    DataSourcePlayerStandingsProviding,
-)
 
 
 class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesInternalProviding):
@@ -114,6 +113,10 @@ class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesIntern
                                                                                         self._observation_tower,
                                                                                         self._external_core_dependencies_provider.player_standings_data_source_client)
 
+        self._data_source_deck_meta_provider = DataSourceDeckMetaProvider(self._configuration_manager,
+                                                                          self._observation_tower,
+                                                                          self._external_core_dependencies_provider.data_source_deck_meta_client)
+
         atexit.register(self._cleanup)
 
     @property
@@ -165,7 +168,6 @@ class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesIntern
         return ds
 
     @property
-    # TODO: remove providing protocol from being exposed
     def data_source_draft_list_provider(self) -> DataSourceDraftListProviding:
         return self._data_source_draft_list_provider
 
@@ -184,6 +186,10 @@ class CoreDependenciesProvider(CoreDependenciesProviding, CoreDependenciesIntern
     @property
     def data_source_player_standings_provider(self) -> DataSourcePlayerStandingsProviding:
         return self._data_source_player_standings_provider
+
+    @property
+    def data_source_deck_meta_provider(self) -> DataSourceDeckMetaProviding:
+        return self._data_source_deck_meta_provider
 
     @property
     def search_client_provider(self) -> DataSourceCardSearchClientProviding:

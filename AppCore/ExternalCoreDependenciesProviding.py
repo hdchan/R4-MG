@@ -5,6 +5,7 @@ from AppCore.DataSource import (
 from AppCore.DataSource.DataSourceLocallyManagedSets import (
     DataSourceLocallyManagedSetsClientProtocol,
 )
+from AppCore.DataSource.DeckMeta import DataSourceDeckMetaClientProtocol
 from AppCore.DataSource.PlayerStandings.DataSourcePlayerStandingsProtocol import (
     DataSourcePlayerStandingsClientProtocol,
 )
@@ -23,4 +24,8 @@ class ExternalCoreDependenciesProviding:
 
     def data_source_card_search_client_provider(self,
                                                 local_managed_sets_data_source: DataSourceLocallyManagedSets) -> DataSourceCardSearchClientProviding:
+        raise Exception
+
+    @property
+    def data_source_deck_meta_client(self) -> DataSourceDeckMetaClientProtocol:
         raise Exception

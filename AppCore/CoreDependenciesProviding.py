@@ -24,7 +24,7 @@ from AppCore.Observation.ObservationTower import ObservationTower
 from AppCore.Service import DataSerializer, PlatformServiceProvider
 from AppCore.Service.WebSocket import WebSocketServiceProtocol
 from Libraries.Utilities.StringFormatter import StringFormatter
-
+from AppCore.DataSource.DeckMeta.DataSourceDeckMetaProtocol import DataSourceDeckMetaProviding
 
 class CoreDependenciesProviding:
     @property
@@ -79,6 +79,10 @@ class CoreDependenciesProviding:
 
     @property
     def data_source_player_standings_provider(self) -> DataSourcePlayerStandingsProviding:
+        raise Exception
+
+    @property
+    def data_source_deck_meta_provider(self) -> DataSourceDeckMetaProviding:
         raise Exception
 
     @property
